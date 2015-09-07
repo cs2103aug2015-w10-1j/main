@@ -28,31 +28,30 @@ A sample command `OP1 due 12/10/15` which will produce the following screen afte
 *To minimise the number of words users have to type, we have omitted the use of the command `add`, which will be automatically assumed for all inputs unless otherwise specified. Items are automatically sorted by their due date. Also note that dates are translated to relative dates for imminent events.*
 
 
-3. **Modifying a Task**<br>
-An added task can also be easily modified using the `edit` command, specifying its line number and updated description.
+3. **Modifying a Todo**<br>
+An existing todo item can also be easily modified using the `edit` command, specifying its line number and updated description.
 ![edit page](https://github.com/cs2103aug2015-w10-1j/main/blob/master/images/manual/3.jpg?raw=true)
 <br><br>
 *A user can also change the due date by specifying it as an optional parameter after the description.*
 
 
-4. **Delete, Undo, and Stacking of Commands**<br>
-Added task can also be deleted easily using the `delete` command, specifying its line number. Changes can be reverted by using the `undo` command. Multiple commands can also be stacked within an input, using `&&` as a connector between commands.
+4. **Delete, Undo, and Command Stacking**<br>
+Added todos can also be deleted easily using the `delete` command, specifying its line number. The changes made by the last command can be undone using `undo`. Multiple commands can also be stacked within an input, using `&&` as a separator between commands.
 ![delete page](https://github.com/cs2103aug2015-w10-1j/main/blob/master/images/manual/4.jpg?raw=true)
 
 
-5. **Appointments and Dreams**<br>
-As opposed to **tasks**, which only have a due date, **appointments** have a start and end time. **Dreams** do not have any associated date - they only need to be done *eventually*.
+5. **Events and Dreams**<br>
+As opposed to **tasks**, which only have a due date, **events** have a start and end time. On the other hand, **dreams** do not have any associated date - they only need to be done *eventually*.
 ![date range page](https://github.com/cs2103aug2015-w10-1j/main/blob/master/images/manual/5.jpg?raw=true)
 <br><br>
-*For **appointments**, date and time can be specified as a range and can span across multiple days. Final date can be left out if end time is on the same day.
-For **dreams**, date and time are left out.*
-
+*For **appointments**, date and time can be specified as a range and can span across multiple days. Final date can be left out if end time is on the same day.*
+*For **dreams**, date and time are left out.*
 
 
 6. **Mark Done**<br>
 ![done page](https://github.com/cs2103aug2015-w10-1j/main/blob/master/images/manual/6.jpg?raw=true)
 <br><br>
-*When items are marked as done, they will be archived and removed from the current view in order to keep the list clutter free.*
+*When todo items are marked as done, they will be archived and removed from the current view in order to keep the list clutter-free.*
 
 
 7. **More Commands**:<br>
@@ -92,13 +91,12 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 # Cheatsheet
 Command     | Usage |Description
 ------------|-------|-------------
-            | `<description>` | Adds a floating task with `description` and no end time.
-            | `<description>` from `<start>` to `<end>` | Adds an event with `description` and the corresponding `<start>` and `<end>` times.
-            | `<description>` due `<date>` | Adds an event with `description` and the corresponding `due date`.
-`edit`      | `<line number>` `<description>` | Edits an added task with the corresponding line number specified and the updated description.
-`delete`    | `<line number>` | Deletes the task with the corresponding `line number` specified.
-`undo`      |    | Revert one step back to the changes you have made.
-`done`      | `<line number>` | Marks the entry task with the corresponding `line number` as done.
-`exit`      | | Exit Procrastinate.
-`procrastinate` | | Exit Procrastinate.
-*You can stack multiple commands using `<COMMAND1>` `&&` `<COMMAND2>`*
+            | `<description>` due `<date>` | Adds a task with `<description>` and the corresponding due `<date>`.
+            | `<description>` from `<start>` to `<end>` | Adds an event with `<description>` and the corresponding `<start>` and `<end>` times.
+            | `<description>` | Adds a dream with `<description>` and no end time.
+`edit`      | `<line number>` `<new description>` | Updates an existing todo with the corresponding `<line number>` with the `<new description>`.
+`delete`    | `<line number>` | Deletes the todo with the corresponding `<line number>` specified.
+`undo`      | | Undoes the changes you have made in the last command.
+`done`      | `<line number>` | Marks the todo with the corresponding `<line number>` as done.
+`exit`/`procrastinate`      | | Exit Procrastinate.
+*You can stack multiple commands using `<COMMAND1>` `&&` `<COMMAND2>`.*
