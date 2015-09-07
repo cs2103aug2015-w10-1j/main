@@ -73,7 +73,7 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 11. Able to set reminder frequency
 12. Able to search items by description
 
-# Possible Extensions (nice to have) <a name="possible-exntensions"></a>
+# Possible Extensions (nice to have) <a name="possible-extensions"></a>
 1. Able to search items by tags
 2. Able to search items by title
 3. Able to search with non-exact words (fuzzy search)
