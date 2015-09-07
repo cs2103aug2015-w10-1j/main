@@ -59,7 +59,9 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 
 
 
-# Other Features (likely to be implemented) <a name="other-features"></a>
+# Other Features
+> Likely to be implemented
+
 1. GUI for Procrastinate. Have a simple GUI for the app so that it looks more friendly and appealing to its users.
 2. Define personalised shortcuts. User can define their own personalised shortcuts so that frequently used commands can be made shorter by them. If any commands do not appeal to their taste, they will have a choice of changing it.
 3. Have predefined shorthand commands to further reduce the amount of typing for the user.
@@ -73,7 +75,9 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 11. Able to set reminder frequency
 12. Able to search items by description
 
-# Possible Extensions (nice to have) <a name="possible-extensions"></a>
+# Possible Extensions
+> Nice to have
+
 1. Able to search items by tags
 2. Able to search items by title
 3. Able to search with non-exact words (fuzzy search)
@@ -98,5 +102,5 @@ Command     | Usage |Description
 `delete`    | `<line number>` | Deletes the todo with the corresponding `<line number>` specified.
 `undo`      | | Undoes the changes you have made in the last command.
 `done`      | `<line number>` | Marks the todo with the corresponding `<line number>` as done.
-`exit`/`procrastinate`      | | Exit Procrastinate.
+`exit`<br>`procrastinate`      | | Exit Procrastinate.
 *You can stack multiple commands using `<COMMAND1>` `&&` `<COMMAND2>`.*
