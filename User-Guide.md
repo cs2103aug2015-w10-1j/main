@@ -12,7 +12,7 @@
 - [Cheatsheet](#cheatsheet)
 
 
-# Quick Start
+# Quick Start <a name="quick-start"></a>
 
 1. **Welcome Screen**<br>
 When you first start up the program, you will be greeted with the following screen:
@@ -59,7 +59,7 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 
 
 
-# Other Features (likely to be implemented)
+# Other Features (likely to be implemented) <a name="other-features"></a>
 1. GUI for Procrastinate. Have a simple GUI for the app so that it looks more friendly and appealing to its users.
 2. Define personalised shortcuts. User can define their own personalised shortcuts so that frequently used commands can be made shorter by them. If any commands do not appeal to their taste, they will have a choice of changing it.
 3. Have predefined shorthand commands to further reduce the amount of typing for the user.
@@ -73,7 +73,7 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 11. Able to set reminder frequency
 12. Able to search items by description
 
-# Possible Extensions (nice to have)
+# Possible Extensions (nice to have) <a name="possible-exntensions"></a>
 1. Able to search items by tags
 2. Able to search items by title
 3. Able to search with non-exact words (fuzzy search)
@@ -88,7 +88,7 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 12. Allow block booking
 13. Automatically release all other reserved slots
 
-# Cheatsheet
+# Cheatsheet <a name="cheatsheet"></a>
 Command     | Usage |Description
 ------------|-------|-------------
             | `<description>` due `<date>` | Adds a task with `<description>` and the corresponding due `<date>`.
