@@ -44,8 +44,8 @@ Added todos can also be deleted easily using the `delete` command, specifying it
 As opposed to **tasks**, which only have a due date, **events** have a start and end time. On the other hand, **dreams** do not have any associated date - they only need to be done *eventually*.
 ![date range page](https://github.com/cs2103aug2015-w10-1j/main/blob/master/images/manual/5.jpg?raw=true)
 <br><br>
-*For **appointments**, date and time can be specified as a range and can span across multiple days. Final date can be left out if end time is on the same day.*
-*For **dreams**, date and time are left out.*
+*For* **__events__**, *date and time can be specified as a range and can span across multiple days. Final date can be left out if end time is on the same day.*
+*For* **__dreams__**, *date and time are left out.*
 
 
 6. **Mark Done**<br>
