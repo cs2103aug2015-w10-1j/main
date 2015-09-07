@@ -92,13 +92,13 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 # Cheatsheet
 Command     | Usage |Description
 ------------|-------|-------------
-`<DEFAULT>` | `<description>` | Default command functions as an `add` command, adds a floating task with `description` and no end time.
-`<DEFAULT>` | `<description>` `from` `<start>` `to` `<end>` | Default command functions as an `add` command, adds an event with `description` and the corresponding `start time` and `end time`.
-`<DEFAULT>` | `<description>` `by` `<date>` | Default command functions as an `add` command, adds an event with `description` and the corresponding `due date`. 
-`edit`      | `<line number>` `<description>` | edits an added task with the corresponding line number specified and the updated description.
-`delete`    | `<line number>` | deletes the task with the corresponding `line number` specified.
-`undo`      |    | revert one step back to the changes you have made.
-`done`      | `<line number>` | marks the entry task with the corresponding `line number` as done.
+            | `<description>` | Adds a floating task with `description` and no end time.
+            | `<description>` from `<start>` to `<end>` | Adds an event with `description` and the corresponding `<start>` and `<end>` times.
+            | `<description>` due `<date>` | Adds an event with `description` and the corresponding `due date`.
+`edit`      | `<line number>` `<description>` | Edits an added task with the corresponding line number specified and the updated description.
+`delete`    | `<line number>` | Deletes the task with the corresponding `line number` specified.
+`undo`      |    | Revert one step back to the changes you have made.
+`done`      | `<line number>` | Marks the entry task with the corresponding `line number` as done.
 `exit`      | | Exit Procrastinate.
 `procrastinate` | | Exit Procrastinate.
 *You can stack multiple commands using `<COMMAND1>` `&&` `<COMMAND2>`*
