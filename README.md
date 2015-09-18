@@ -32,7 +32,7 @@ You interact with the programme by typing simple commands. This sample command `
 You can modify an existing task by using the `edit` command, specifying its line number and updated description. For example, `edit 2 OP2` changes the description of task 2 to "OP2".
 ![edit page](images/manual/3.jpg)
 <br><br>
-*A user can also change the due date by specifying it as an optional parameter after the description.*
+*A user can also change the due date by specifying it as an optional parameter after the description. For example, `edit 2 due 15/10/15` changes the due date of task 2 to 15/10/15*
 
 
 4. **Delete, Undo, and Command Stacking**<br>
@@ -97,9 +97,12 @@ To view more commands and functionalities of **Procrastinate**, please refer to 
 Command     | Usage |Description
 ------------|-------|-------------
             | `<description>` due `<date>` | Adds a deadline with `<description>` and the corresponding due `<date>`.
-            | `<description>` from `<start>` to `<end>` | Adds an event with `<description>` and the corresponding `<start>` and `<end>` times.
-            | `<description>` | Adds a dream with `<description>` and no end time.
+            | `<description>` from `<start>` to `<end>` | Adds an event with `<description>` and the corresponding `<start>` and `<end>` dates.
+            | `<description>` | Adds a dream with `<description>` and no associated date.
 `edit`      | `<line number>` `<new description>` | Updates an existing task with the corresponding `<line number>` with the `<new description>`.
+`edit`      | `<line number>` due `<new date>` | Updates an existing task with the corresponding `<line number>` to a deadline due on `<new date>`.
+`edit`      | `<line number>` from `<new start date>` to `<new end date>` | Updates an existing task with the corresponding `<line number>` to an event with the `<new start date>` and `<new end date>`.
+`edit`      | `<line number>` eventually | Updates an existing task with the corresponding `<line number>` to a dream with no associated date.
 `delete`    | `<line number>` | Deletes the task with the corresponding `<line number>` specified.
 `undo`      | | Undoes the changes you have made in the last command.
 `done`      | `<line number>` | Marks the task with the corresponding `<line number>` as done.
