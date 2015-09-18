@@ -16,33 +16,33 @@
 
 1. **Welcome Screen**<br>
 When you first start up the program, you will be greeted with the following screen:
-![start page](images/manual/1.jpg)
+![start page](images/manual/welcome.jpg)
 <br><br>
 A sample list of commands will be shown. If the user needs more help, they can type `/help` for a more detailed description guide.
 
 
 2. **Adding a Task**<br>
 You interact with the programme by typing simple commands. This sample command `OP1 due 12/10/15` will add a new **deadline** and produce the following screen after being read into the program:
-![add page](images/manual/2.jpg)
+![add page](images/manual/add.jpg)
 <br><br>
 *To minimise the number of words users have to type, we have omitted the use of the command `add`, which will be automatically assumed for all inputs unless otherwise specified. Items are automatically sorted by their due date. Also note that dates are translated to relative dates for imminent events.*
 
 
 3. **Modifying a Task**<br>
 You can modify an existing task by using the `edit` command, specifying its line number and updated description. For example, `edit 2 OP2` changes the description of task 2 to "OP2".
-![edit page](images/manual/3.jpg)
+![edit page](images/manual/edit.jpg)
 <br><br>
 *A user can also change the due date by specifying it as an optional parameter after the description. For example, `edit 2 due 15/10/15` changes the due date of task 2 to 15/10/15*
 
 
 4. **Delete, Undo, and Command Stacking**<br>
 You can delete tasks using the `delete` command, specifying the line number of the task. The changes made by the last command can be undone using `undo`. Multiple commands can also be stacked within an input, using `&&` as a separator between commands.
-![delete page](images/manual/4.jpg)
+![delete page](images/manual/delete.jpg)
 
 
 5. **Deadlines, Events and Dreams**<br>
 As opposed to **deadlines**, which only have a due date, **events** have a start and end time. On the other hand, **dreams** do not have any associated date - they only need to be done *eventually*. **Deadlines**, **events** and **dreams** are collectively called **tasks**.
-![date range page](images/manual/5.jpg)
+![date range page](images/manual/event.jpg)
 <br><br>
 *For* **_events_**, *date and time can be specified as a range and can span across multiple days. Final date can be left out if end time is on the same day.*
 <br>
@@ -50,7 +50,7 @@ As opposed to **deadlines**, which only have a due date, **events** have a start
 
 
 6. **Mark Done**<br>
-![done page](images/manual/6.jpg)
+![done page](images/manual/done.jpg)
 <br><br>
 *When tasks are marked as done, they will be archived and removed from the current view in order to keep the list clutter-free.*
 
