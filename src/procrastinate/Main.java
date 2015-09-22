@@ -12,7 +12,9 @@ public class Main extends Application {
 
     private static final String WINDOW_TITLE = "Procrastinate";
     private static final double WINDOW_WIDTH = 500;
+    private static final double WINDOW_MIN_WIDTH = 500;
     private static final double WINDOW_HEIGHT = 600;
+    private static final double WINDOW_MIN_HEIGHT = 600;
 
     public static void main(String[] args) {
         launch(args);
@@ -23,12 +25,18 @@ public class Main extends Application {
         Parent root;
         try {
             root = FXMLLoader.load(getClass().getResource("RootLayout.fxml"));
-            primaryStage.setTitle(WINDOW_TITLE);
-            primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
-            primaryStage.show();
+            initPrimaryStage(primaryStage, root);
         } catch (IOException e) {
             e.printStackTrace();
         }
 	}
+
+    private void initPrimaryStage(Stage primaryStage, Parent root) {
+        primaryStage.setTitle(WINDOW_TITLE);
+        primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
+        primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
+        primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
+        primaryStage.show();
+    }
 
 }
