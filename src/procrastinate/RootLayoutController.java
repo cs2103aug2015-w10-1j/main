@@ -6,17 +6,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class RootLayoutController implements Initializable {
 
-    @FXML
-    private Label statusLabel;
-
-    @FXML
-    private TextField userInput;
+    @FXML private Label statusLabel;
+    @FXML private TextField userInput;
+    @FXML private BorderPane borderPane;
 
     private static final String STATUS_READY = "Status: Ready!";
     @Override
