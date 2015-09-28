@@ -23,8 +23,8 @@ public class Logic implements Initializable {
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
     private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
-    
-    private static FileHandler file;
+
+    private static FileHandler fileHandler;
 
     // ================================================================================
     // Class Variables
@@ -42,10 +42,13 @@ public class Logic implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Utilities.printDebug(DEBUG_VIEW_LOADED);
+
+        initFileHandler();
+
         attachHandlersAndListeners();
         initBinding();
+
         setStatus(STATUS_READY);
-        file = new FileHandler();
     }
 
     private String executeCommand(String userCommand) {
@@ -55,9 +58,9 @@ public class Logic implements Initializable {
         switch (command.getType()) {
 
             case ADD_DREAM:
-            	String desc = command.getDescription();
-            	file.writeToFile(desc);
-                return FEEDBACK_ADD_DREAM + desc;
+            	String description = command.getDescription();
+            	fileHandler.writeToFile(description);
+                return FEEDBACK_ADD_DREAM + description;
 
             case EXIT:
                 System.exit(0);
@@ -68,9 +71,12 @@ public class Logic implements Initializable {
         }
     }
 
-    private void initBinding() {
-        userInput.bindBidirectional(userInputField.textProperty());
-        statusLabelText.bindBidirectional(statusLabel.textProperty());
+    // ================================================================================
+    // Init methods
+    // ================================================================================
+
+    private void initFileHandler() {
+        fileHandler = new FileHandler();
     }
 
     private void attachHandlersAndListeners() {
@@ -82,6 +88,11 @@ public class Logic implements Initializable {
                 setStatus(STATUS_PREVIEW_COMMAND + newValue);
             }
         });
+    }
+
+    private void initBinding() {
+        userInput.bindBidirectional(userInputField.textProperty());
+        statusLabelText.bindBidirectional(statusLabel.textProperty());
     }
 
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
