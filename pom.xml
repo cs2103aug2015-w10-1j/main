@@ -24,4 +24,11 @@
       </plugin>
     </plugins>
   </build>
+  <dependencies>
+  	<dependency>
+  		<groupId>com.joestelmach</groupId>
+  		<artifactId>natty</artifactId>
+  		<version>0.12</version>
+  	</dependency>
+  </dependencies>
 </project>
