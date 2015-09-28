@@ -24,13 +24,13 @@ public class Logic implements Initializable {
     private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
     private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
 
-    private static FileHandler fileHandler;
-
     // ================================================================================
     // Class Variables
     // ================================================================================
     private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
+
+    private TaskEngine taskEngine;
 
     // ================================================================================
     // FXML Field Variables
@@ -43,10 +43,10 @@ public class Logic implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Utilities.printDebug(DEBUG_VIEW_LOADED);
 
-        initFileHandler();
-
         attachHandlersAndListeners();
         initBinding();
+
+        initTaskEngine();
 
         setStatus(STATUS_READY);
     }
@@ -59,7 +59,8 @@ public class Logic implements Initializable {
 
             case ADD_DREAM:
             	String description = command.getDescription();
-            	fileHandler.writeToFile(description);
+            	Task newDream = new Task(description);
+            	taskEngine.add(newDream);
                 return FEEDBACK_ADD_DREAM + description;
 
             case EXIT:
@@ -69,14 +70,15 @@ public class Logic implements Initializable {
                 throw new Error("Error with parser: unknown command type returned");
 
         }
+
     }
 
     // ================================================================================
     // Init methods
     // ================================================================================
 
-    private void initFileHandler() {
-        fileHandler = new FileHandler();
+    private void initTaskEngine() {
+        taskEngine = new TaskEngine();
     }
 
     private void attachHandlersAndListeners() {
