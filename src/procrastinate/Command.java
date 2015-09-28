@@ -5,7 +5,7 @@ import java.util.Date;
 public class Command {
 
     public static enum Type {
-        ADD_DREAM, EXIT;
+        ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE, EXIT;
     }
 
     private Type type;
