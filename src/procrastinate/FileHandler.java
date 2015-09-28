@@ -7,31 +7,37 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 
 public class FileHandler {
-    private String dir = "./storage.txt";
+
+    private static final String FILENAME = "storage.txt";
+
+    private String directoryPath = "";
     private File file;
     private BufferedWriter bw = null;
-    
+
     public FileHandler() {
     	this("");
     }
-    
-    public FileHandler(String dir) {
-        if (dir.length() > 0) {
-        	System.out.println("dir is " + dir);
-            this.dir = dir;
+
+    public FileHandler(String directoryPath) {
+        if (directoryPath.length() > 0) {
+            if (!directoryPath.endsWith("/")) {
+                directoryPath += "/";
+            }
+        	Utilities.printDebug("Directory is " + directoryPath);
+            this.directoryPath = directoryPath;
         }
-        file = new File(this.dir);
+        file = new File(this.directoryPath + FILENAME);
     }
-    
+
     /**
      * Write a line of string to file
-     * 
+     *
      * @param str
-     * @return true is writing is successful, false otherwise
-     * 
+     * @return true if writing is successful, false otherwise
+     *
      * @author Gerald
      */
-    public Boolean writeToFile(String str) {
+    public boolean writeToFile(String str) {
     	try {
     		file.createNewFile();
 			bw = new BufferedWriter(new FileWriter(file));
@@ -46,4 +52,5 @@ public class FileHandler {
 		}
     	return false;
     }
+
 }
