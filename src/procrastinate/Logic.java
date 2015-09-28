@@ -23,6 +23,8 @@ public class Logic implements Initializable {
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
     private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
+    
+    private static FileHandler file;
 
     // ================================================================================
     // Class Variables
@@ -43,6 +45,7 @@ public class Logic implements Initializable {
         attachHandlersAndListeners();
         initBinding();
         setStatus(STATUS_READY);
+        file = new FileHandler();
     }
 
     private String executeCommand(String userCommand) {
@@ -52,7 +55,9 @@ public class Logic implements Initializable {
         switch (command.getType()) {
 
             case ADD_DREAM:
-                return FEEDBACK_ADD_DREAM + command.getDescription();
+            	String desc = command.getDescription();
+            	file.writeToFile(desc);
+                return FEEDBACK_ADD_DREAM + desc;
 
             case EXIT:
                 System.exit(0);
