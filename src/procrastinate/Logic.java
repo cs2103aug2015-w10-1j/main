@@ -56,7 +56,7 @@ public class Logic implements Initializable {
         switch (command.getType()) {
 
             case ADD_DREAM:
-                return FEEDBACK_ADD_DREAM + command.getParameters()[0];
+                return FEEDBACK_ADD_DREAM + command.getDescription();
 
             case EXIT:
                 System.exit(0);

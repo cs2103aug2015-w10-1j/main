@@ -1,5 +1,7 @@
 package procrastinate;
 
+import java.util.Date;
+
 public class Command {
 
     public static enum Type {
@@ -7,19 +9,54 @@ public class Command {
     }
 
     private Type type;
-    private String[] params;
 
-    public Command(Type type, String[] params) {
+    private String description;
+    private Date date;
+    private Date endDate;
+    private int lineNumber;
+
+    public Command(Type type) {
         this.type = type;
-        this.params = params;
+    }
+
+    public Command addDescription(String description) {
+        this.description = description.trim();
+        return this;
+    }
+
+    public Command addDate(Date date) {
+        this.date = date;
+        return this;
+    }
+
+    public Command endDate(Date date) {
+        this.endDate = date;
+        return this;
+    }
+
+    public Command addLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
+        return this;
     }
 
     public Type getType() {
         return type;
     }
 
-    public String[] getParameters() {
-        return params;
+    public String getDescription() {
+        return description;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public int getLineNumber() {
+        return lineNumber;
     }
 
 }
