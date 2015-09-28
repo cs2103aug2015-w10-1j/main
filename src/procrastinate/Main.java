@@ -31,7 +31,7 @@ public class Main extends Application {
         Parent root;
         try {
             root = FXMLLoader.load(getClass().getResource("RootLayout.fxml"));
-            // overwriteDecorations(primaryStage, root); //Removes all borders
+//             overwriteDecorations(primaryStage, root); //Removes all borders
             // and buttons, overwrites mouse events to enable dragging of window
             initPrimaryStage(primaryStage, root);
         } catch (IOException e) {

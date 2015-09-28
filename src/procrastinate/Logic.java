@@ -11,7 +11,7 @@ import javafx.scene.layout.BorderPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class RootLayoutController implements Initializable {
+public class Logic implements Initializable {
 
     @FXML private Label statusLabel;
     @FXML private TextField userInput;
