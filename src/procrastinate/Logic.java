@@ -1,5 +1,8 @@
 package procrastinate;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -13,40 +16,33 @@ import java.util.ResourceBundle;
 
 public class Logic implements Initializable {
 
+    // ================================================================================
+    // Message Strings
+    // ================================================================================
     private static final String DEBUG_VIEW_LOADED = "View is now loaded!";
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
     private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
 
+    // ================================================================================
+    // Class Variables
+    // ================================================================================
+    private StringProperty userInput = new SimpleStringProperty();
+    private StringProperty statusLabelText = new SimpleStringProperty();
+
+    // ================================================================================
+    // FXML Field Variables
+    // ================================================================================
     @FXML private Label statusLabel;
-    @FXML private TextField userInput;
+    @FXML private TextField userInputField;
     @FXML private BorderPane borderPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Utilities.printDebug(DEBUG_VIEW_LOADED);
+        attachHandlersAndListeners();
+        initBinding();
         setStatus(STATUS_READY);
-    }
-
-    @FXML
-    private void onKeyPressHandler(KeyEvent keyEvent) {
-        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-            if (!getInput().isEmpty()) {
-                String userCommand = getInput();
-                clearInput();
-
-                String feedback = executeCommand(userCommand);
-                setStatus(feedback);
-            } else {
-                setStatus(STATUS_READY);
-            }
-
-        } else if (getInput().isEmpty()) {
-            setStatus(STATUS_READY);
-
-        } else {
-            setStatus(STATUS_PREVIEW_COMMAND + getInput());
-        }
     }
 
     private String executeCommand(String userCommand) {
@@ -71,12 +67,45 @@ public class Logic implements Initializable {
     // UI utility methods
     // ================================================================================
 
+
+    private void initBinding() {
+        userInput.bindBidirectional(userInputField.textProperty());
+        statusLabelText.bindBidirectional(statusLabel.textProperty());
+    }
+
+    private void attachHandlersAndListeners() {
+        userInputField.setOnKeyReleased(createKeyReleaseHandler());
+        userInputField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.trim().isEmpty()) {
+                setStatus(STATUS_READY);
+            } else {
+                setStatus(STATUS_PREVIEW_COMMAND + newValue);
+            }
+        });
+    }
+
+    private EventHandler<KeyEvent> createKeyReleaseHandler() {
+        return (KeyEvent keyEvent) -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                if (!getInput().isEmpty()) {
+                    String userCommand = getInput();
+                    clearInput();
+
+                    String feedback = executeCommand(userCommand);
+                    setStatus(feedback);
+                } else {
+                    setStatus(STATUS_READY);
+                }
+            }
+        };
+    }
+
     private void clearInput() {
-        userInput.clear();
+        userInputField.clear();
     }
 
     private String getInput() {
-        return userInput.getText();
+        return userInputField.getText();
     }
 
     private void setStatus(String status) {
