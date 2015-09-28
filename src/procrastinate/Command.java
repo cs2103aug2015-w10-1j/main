@@ -4,20 +4,26 @@ import java.util.Date;
 
 public class Command {
 
-    public static enum Type {
+    public static enum CommandType {
         ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE, EXIT;
     }
 
-    private Type type;
+    // Required field for all command types
+    private CommandType type;
 
+    // Optional fields; availability depends on command type
     private String description;
     private Date date;
     private Date endDate;
     private int lineNumber;
 
-    public Command(Type type) {
+    public Command(CommandType type) {
         this.type = type;
     }
+
+    // ================================================================================
+    // Setter methods (using chaining)
+    // ================================================================================
 
     public Command addDescription(String description) {
         this.description = description.trim();
@@ -29,8 +35,13 @@ public class Command {
         return this;
     }
 
-    public Command endDate(Date date) {
-        this.endDate = date;
+    public Command addStartDate(Date startDate) {
+        this.date = startDate;
+        return this;
+    }
+
+    public Command addEndDate(Date endDate) {
+        this.endDate = endDate;
         return this;
     }
 
@@ -39,7 +50,11 @@ public class Command {
         return this;
     }
 
-    public Type getType() {
+    // ================================================================================
+    // Getter methods
+    // ================================================================================
+
+    public CommandType getType() {
         return type;
     }
 
@@ -48,6 +63,10 @@ public class Command {
     }
 
     public Date getDate() {
+        return date;
+    }
+
+    public Date getStartDate() {
         return date;
     }
 

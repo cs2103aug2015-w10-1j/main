@@ -1,5 +1,7 @@
 package procrastinate;
 
+import procrastinate.Command.CommandType;
+
 public class Parser {
 
     private static final String DEBUG_PARSING_COMMAND = "Parsing command: ";
@@ -16,10 +18,10 @@ public class Parser {
 
             case COMMAND_EXIT:
             case COMMAND_PROCRASTINATE:
-                return new Command(Command.Type.EXIT);
+                return new Command(CommandType.EXIT);
 
             default:
-                return new Command(Command.Type.ADD_DREAM).addDescription(userCommand);
+                return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
 
         }
 
