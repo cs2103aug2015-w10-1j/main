@@ -11,12 +11,16 @@ public class TaskEngine {
 
     private List<Task> deadlines, events, dreams;
 
+    private TaskState previousState;
+
     public TaskEngine() {
         initLists();
         initFileHandler();
     }
 
     public void add(Task task) {
+        previousState = getCurrentState();
+
         TaskType type = task.getType();
         String description = task.getDescription();
 
@@ -40,7 +44,24 @@ public class TaskEngine {
         }
 
         fileHandler.writeToFile(description);
+        fileHandler.saveTaskState(getCurrentState());
 
+    }
+
+    public void undo() {
+        TaskState backupNewerState = getCurrentState();
+        loadState(previousState);
+        previousState = backupNewerState;
+    }
+
+    private TaskState getCurrentState() {
+        return new TaskState(deadlines, events, dreams);
+    }
+
+    private void loadState(TaskState state) {
+        this.deadlines = state.deadlines;
+        this.events = state.events;
+        this.dreams = state.dreams;
     }
 
     // ================================================================================

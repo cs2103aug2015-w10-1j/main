@@ -44,13 +44,19 @@ public class FileHandler {
 			bw.write(str + "\n");
 			bw.flush();
 			bw.close();
+            Utilities.printDebug("Wrote to file: " + str);
 			return true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			System.out.println(e);
 		}
+        Utilities.printDebug("Could not write to file: " + str);
     	return false;
+    }
+
+    public boolean saveTaskState(TaskState taskState) {
+        return false;
     }
 
 }
