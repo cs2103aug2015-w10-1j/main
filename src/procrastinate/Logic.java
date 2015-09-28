@@ -15,7 +15,8 @@ public class Logic implements Initializable {
 
     private static final String DEBUG_VIEW_LOADED = "View is now loaded!";
     private static final String STATUS_READY = "Ready!";
-    private static final String STATUS_PARSING_COMMAND = "Parsing command: ";
+    private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
+    private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
 
     @FXML private Label statusLabel;
     @FXML private TextField userInput;
@@ -30,12 +31,39 @@ public class Logic implements Initializable {
     @FXML
     private void onKeyPressHandler(KeyEvent keyEvent) {
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-            setStatus(STATUS_PARSING_COMMAND + getInput());
-            clearInput();
+            if (!getInput().isEmpty()) {
+                String userCommand = getInput();
+                clearInput();
+
+                String feedback = executeCommand(userCommand);
+                setStatus(feedback);
+            } else {
+                setStatus(STATUS_READY);
+            }
+
         } else if (getInput().isEmpty()) {
             setStatus(STATUS_READY);
+
         } else {
-            setStatus(getInput());
+            setStatus(STATUS_PREVIEW_COMMAND + getInput());
+        }
+    }
+
+    private String executeCommand(String userCommand) {
+
+        Command command = Parser.parse(userCommand);
+
+        switch (command.getType()) {
+
+            case ADD_DREAM:
+                return FEEDBACK_ADD_DREAM + command.getParameters()[0];
+
+            case EXIT:
+                System.exit(0);
+
+            default:
+                throw new Error("Error with parser: unknown command type returned");
+
         }
     }
 
