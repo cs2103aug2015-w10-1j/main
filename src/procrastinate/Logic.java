@@ -63,11 +63,6 @@ public class Logic implements Initializable {
         }
     }
 
-    // ================================================================================
-    // UI utility methods
-    // ================================================================================
-
-
     private void initBinding() {
         userInput.bindBidirectional(userInputField.textProperty());
         statusLabelText.bindBidirectional(statusLabel.textProperty());
@@ -100,16 +95,20 @@ public class Logic implements Initializable {
         };
     }
 
+    // ================================================================================
+    // UI utility methods
+    // ================================================================================
+
     private void clearInput() {
         userInputField.clear();
     }
 
     private String getInput() {
-        return userInputField.getText();
+        return userInput.get();
     }
 
     private void setStatus(String status) {
-        statusLabel.setText(status);
+        statusLabelText.set(status);
     }
 
 }
