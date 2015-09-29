@@ -1,6 +1,8 @@
 package procrastinate;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -38,6 +40,8 @@ public class UI {
     // Class variables
     // ================================================================================
 
+    private static Logger logger;
+
     private Logic logic;
 
     private IntegerProperty taskCount = new SimpleIntegerProperty(1);
@@ -59,6 +63,9 @@ public class UI {
     @FXML private TextField userInputField;
 
     public void initialize() {
+        logger = Logger.getLogger(this.getClass().getSimpleName());
+        logger.setLevel(Level.ALL);
+
         initLogic();
 
         initUI();
@@ -67,7 +74,7 @@ public class UI {
 
         setStatus(STATUS_READY);
 
-        Utilities.printDebug(DEBUG_UI_INIT);
+        logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
     public void updateTaskList(List<Task> tasks) {

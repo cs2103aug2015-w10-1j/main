@@ -2,10 +2,14 @@ package procrastinate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import procrastinate.Task.TaskType;
 
 public class TaskEngine {
+
+    private static final Logger logger = Logger.getLogger(TaskEngine.class.getName());
 
     // ================================================================================
     // Message strings
@@ -22,7 +26,7 @@ public class TaskEngine {
     public TaskEngine() {
         initLists();
         initFileHandler();
-        Utilities.printDebug(DEBUG_TASK_ENGINE_INIT);
+        logger.log(Level.INFO, DEBUG_TASK_ENGINE_INIT);
     }
 
     // ================================================================================
@@ -40,15 +44,15 @@ public class TaskEngine {
         switch (type) {
 
             case DEADLINE:
-                Utilities.printDebug("Added deadline: " + description);
+                logger.log(Level.INFO, "Added deadline: " + description);
                 break;
 
             case EVENT:
-                Utilities.printDebug("Added event: " + description);
+                logger.log(Level.INFO, "Added event: " + description);
                 break;
 
             case DREAM:
-                Utilities.printDebug("Added dream: " + description);
+                logger.log(Level.INFO, "Added dream: " + description);
                 break;
 
         }

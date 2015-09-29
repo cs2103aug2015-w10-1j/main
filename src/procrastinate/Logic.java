@@ -1,6 +1,11 @@
 package procrastinate;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Logic {
+
+    private static final Logger logger = Logger.getLogger(Logic.class.getName());
 
     // ================================================================================
     // Message strings
@@ -27,7 +32,7 @@ public class Logic {
 
     private Logic() {
         initTaskEngine();
-        Utilities.printDebug(DEBUG_LOGIC_INIT);
+        logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
     public static Logic getInstance() {

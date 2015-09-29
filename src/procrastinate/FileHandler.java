@@ -2,11 +2,15 @@ package procrastinate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 
 public class FileHandler {
+
+    private static final Logger logger = Logger.getLogger(FileHandler.class.getName());
 
     private static final String FILENAME = "storage.txt";
 
@@ -26,7 +30,7 @@ public class FileHandler {
             this.directoryPath = directoryPath;
         }
         file = new File(this.directoryPath + FILENAME);
-        Utilities.printDebug("FileHandler initialised. Using file " + file.getAbsolutePath());
+        logger.log(Level.INFO, "FileHandler initialised. Using file " + file.getAbsolutePath());
     }
 
     /**
@@ -44,14 +48,14 @@ public class FileHandler {
 			bw.write(str + "\n");
 			bw.flush();
 			bw.close();
-            Utilities.printDebug("Wrote to file: " + str);
+	        logger.log(Level.INFO, "Wrote to file: " + str);
 			return true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			System.out.println(e);
 		}
-        Utilities.printDebug("Could not write to file: " + str);
+        logger.log(Level.WARNING, "Could not write to file: " + str);
     	return false;
     }
 
