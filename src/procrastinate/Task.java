@@ -1,5 +1,45 @@
 package procrastinate;
 
+public abstract class Task {
+	public static enum TaskType {
+		DEADLINE, EVENT, DREAM;
+	}
+	
+	private TaskType type;
+	private String description;
+	
+	public Task(TaskType type, String description) {
+		this.type = type;
+		this.description = description;
+	}
+	
+	// ================================================================================
+    // Getter methods
+    // ================================================================================
+	
+	public TaskType getType() {
+		return this.type;
+	}
+	
+	public String getDescription() {
+		return this.description;
+	}
+
+	// ================================================================================
+    // Setter methods
+    // ================================================================================
+	
+	public void setType(TaskType type) {
+		this.type = type;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+}
+
+/*
+ For reference
 import java.util.Date;
 
 public class Task {
@@ -103,5 +143,5 @@ public class Task {
     public Date getEndDate() {
         return endDate;
     }
-
 }
+//*/

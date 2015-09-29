@@ -59,7 +59,7 @@ public class Logic {
 
             case ADD_DREAM:
                 String description = command.getDescription();
-                Task newDream = new Task(description);
+                Task newDream = new Dream(description);
                 taskEngine.add(newDream);
                 ui.updateTaskList(taskEngine.getOutstandingTasks());
                 return FEEDBACK_ADD_DREAM + description;
