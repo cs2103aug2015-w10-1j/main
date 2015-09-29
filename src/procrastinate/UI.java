@@ -23,6 +23,8 @@ import javafx.util.converter.NumberStringConverter;
 
 public class UI {
 
+    private static final Logger logger = Logger.getLogger(UI.class.getName());
+
     // ================================================================================
     // Message strings
     // ================================================================================
@@ -39,8 +41,6 @@ public class UI {
     // ================================================================================
     // Class variables
     // ================================================================================
-
-    private static Logger logger;
 
     private Logic logic;
 
@@ -63,9 +63,6 @@ public class UI {
     @FXML private TextField userInputField;
 
     public void initialize() {
-        logger = Logger.getLogger(this.getClass().getSimpleName());
-        logger.setLevel(Level.ALL);
-
         initLogic();
 
         initUI();
