@@ -23,10 +23,10 @@ public class FileHandler {
             if (!directoryPath.endsWith("/")) {
                 directoryPath += "/";
             }
-        	Utilities.printDebug("Directory is " + directoryPath);
             this.directoryPath = directoryPath;
         }
         file = new File(this.directoryPath + FILENAME);
+        Utilities.printDebug("FileHandler initialised. Using file " + file.getAbsolutePath());
     }
 
     /**

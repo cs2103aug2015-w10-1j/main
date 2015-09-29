@@ -30,7 +30,7 @@ public class UI {
 
     private static final String UI_NUMBER_SEPARATOR = ". ";
 
-    private static final String DEBUG_VIEW_LOADED = "View is now loaded!";
+    private static final String DEBUG_UI_INIT = "UI initialised. View is now loaded!";
 
     // ================================================================================
     // Class variables
@@ -57,8 +57,6 @@ public class UI {
     @FXML private TextField userInputField;
 
     public void initialize() {
-        Utilities.printDebug(DEBUG_VIEW_LOADED);
-
         initLogic();
 
         initUI();
@@ -66,6 +64,8 @@ public class UI {
         initBinding();
 
         setStatus(STATUS_READY);
+
+        Utilities.printDebug(DEBUG_UI_INIT);
     }
 
     public void addDreamToTaskList(Task task) {

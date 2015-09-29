@@ -7,6 +7,12 @@ import procrastinate.Task.TaskType;
 
 public class TaskEngine {
 
+    // ================================================================================
+    // Message strings
+    // ================================================================================
+
+    private static final String DEBUG_TASK_ENGINE_INIT = "TaskEngine initialised.";
+
     private FileHandler fileHandler;
 
     private List<Task> outstandingTasks, completedTasks;
@@ -16,6 +22,7 @@ public class TaskEngine {
     public TaskEngine() {
         initLists();
         initFileHandler();
+        Utilities.printDebug(DEBUG_TASK_ENGINE_INIT);
     }
 
     // ================================================================================

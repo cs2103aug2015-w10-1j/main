@@ -8,6 +8,8 @@ public class Logic {
 
     private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
 
+    private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
+
     private static final String ERROR_PARSER_UNKNOWN_COMMAND = "Error with parser: unknown command type returned";
 
     // ================================================================================
@@ -25,6 +27,7 @@ public class Logic {
 
     private Logic() {
         initTaskEngine();
+        Utilities.printDebug(DEBUG_LOGIC_INIT);
     }
 
     public static Logic getInstance() {
