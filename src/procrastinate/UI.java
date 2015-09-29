@@ -1,5 +1,7 @@
 package procrastinate;
 
+import java.util.List;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -68,9 +70,13 @@ public class UI {
         Utilities.printDebug(DEBUG_UI_INIT);
     }
 
-    public void addDreamToTaskList(Task task) {
-        taskList.add(taskCountFormatted.get() + task.getDescription());
-        taskCount.set(taskCount.get() + 1);
+    public void updateTaskList(List<Task> tasks) {
+        taskList.clear();
+        taskCount.set(1);
+        for (Task task : tasks) {
+            taskList.add(taskCountFormatted.get() + task.getDescription());
+            taskCount.set(taskCount.get() + 1);
+        }
         updateListView();
     }
 

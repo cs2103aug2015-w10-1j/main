@@ -56,7 +56,7 @@ public class Logic {
                 String description = command.getDescription();
                 Task newDream = new Task(description);
                 taskEngine.add(newDream);
-                ui.addDreamToTaskList(newDream);
+                ui.updateTaskList(taskEngine.getOutstandingTasks());
                 return FEEDBACK_ADD_DREAM + description;
 
             case EXIT:
