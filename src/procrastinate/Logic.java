@@ -9,7 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -18,27 +17,30 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.util.converter.NumberStringConverter;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class Logic implements Initializable {
+public class Logic {
 
     // ================================================================================
     // Message Strings
     // ================================================================================
-    private static final String DEBUG_VIEW_LOADED = "View is now loaded!";
+    private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
     private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
 
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
 
+    private static final String UI_NUMBER_SEPARATOR = ". ";
+
+    private static final String DEBUG_VIEW_LOADED = "View is now loaded!";
+
+    private static final String ERROR_PARSER_UNKNOWN_COMMAND = "Error with parser: unknown command type returned";
+
     // ================================================================================
     // Class Variables
     // ================================================================================
     private IntegerProperty taskCount = new SimpleIntegerProperty(1);
 
-    private ObservableList taskList = FXCollections.observableArrayList();
+    private ObservableList<String> taskList = FXCollections.observableArrayList();
 
     private StringProperty statusLabelText = new SimpleStringProperty();
     private StringProperty taskCountFormatted = new SimpleStringProperty();
@@ -55,8 +57,7 @@ public class Logic implements Initializable {
     @FXML private ListView<String> taskListView;
     @FXML private TextField userInputField;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize() {
         Utilities.printDebug(DEBUG_VIEW_LOADED);
 
         initUI();
@@ -85,7 +86,7 @@ public class Logic implements Initializable {
                 System.exit(0);
 
             default:
-                throw new Error("Error with parser: unknown command type returned");
+                throw new Error(ERROR_PARSER_UNKNOWN_COMMAND);
 
         }
 
@@ -106,7 +107,7 @@ public class Logic implements Initializable {
     }
 
     private void initUI() {
-        taskListView.setPlaceholder(new Label("What would you like to Procrastinate today?"));
+        taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
     }
 
     private void attachHandlersAndListeners() {
@@ -124,8 +125,7 @@ public class Logic implements Initializable {
         userInput.bindBidirectional(userInputField.textProperty());
         statusLabelText.bindBidirectional(statusLabel.textProperty());
         taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
-        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(". "));
-
+        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
     }
 
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
@@ -133,13 +133,13 @@ public class Logic implements Initializable {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 if (!getInput().trim().isEmpty()) {
                     String userCommand = getInput();
-                    clearInput();
 
                     String feedback = executeCommand(userCommand);
                     setStatus(feedback);
                 } else {
                     setStatus(STATUS_READY);
                 }
+                clearInput();
             }
         };
     }
