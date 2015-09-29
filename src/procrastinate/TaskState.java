@@ -4,12 +4,11 @@ import java.util.List;
 
 public class TaskState {
 
-    public List<Task> deadlines, events, dreams;
+    public List<Task> outstandingTasks, completedTasks;
 
-    public TaskState(List<Task> deadlines, List<Task> events, List<Task> dreams) {
-        this.deadlines = deadlines;
-        this.events = events;
-        this.dreams = dreams;
+    public TaskState(List<Task> outstandingTasks, List<Task> completedTasks) {
+        this.outstandingTasks = outstandingTasks;
+        this.completedTasks = completedTasks;
     }
 
 }

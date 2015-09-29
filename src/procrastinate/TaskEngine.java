@@ -9,7 +9,7 @@ public class TaskEngine {
 
     private FileHandler fileHandler;
 
-    private List<Task> deadlines, events, dreams;
+    private List<Task> outstandingTasks, completedTasks;
 
     private TaskState previousState;
 
@@ -18,27 +18,30 @@ public class TaskEngine {
         initFileHandler();
     }
 
+    // ================================================================================
+    // Public CRUD methods
+    // ================================================================================
+
     public void add(Task task) {
         previousState = getCurrentState();
 
         TaskType type = task.getType();
         String description = task.getDescription();
 
+        outstandingTasks.add(task);
+
         switch (type) {
 
             case DEADLINE:
                 Utilities.printDebug("Added deadline: " + description);
-                deadlines.add(task);
                 break;
 
             case EVENT:
                 Utilities.printDebug("Added event: " + description);
-                events.add(task);
                 break;
 
             case DREAM:
                 Utilities.printDebug("Added dream: " + description);
-                dreams.add(task);
                 break;
 
         }
@@ -54,14 +57,25 @@ public class TaskEngine {
         previousState = backupNewerState;
     }
 
+    public List<Task> getOutstandingTasks() {
+        return outstandingTasks;
+    }
+
+    public List<Task> getCompletedTasks() {
+        return completedTasks;
+    }
+
+    // ================================================================================
+    // State handling methods
+    // ================================================================================
+
     private TaskState getCurrentState() {
-        return new TaskState(deadlines, events, dreams);
+        return new TaskState(outstandingTasks, completedTasks);
     }
 
     private void loadState(TaskState state) {
-        this.deadlines = state.deadlines;
-        this.events = state.events;
-        this.dreams = state.dreams;
+        this.outstandingTasks = state.outstandingTasks;
+        this.completedTasks = state.completedTasks;
     }
 
     // ================================================================================
@@ -69,9 +83,8 @@ public class TaskEngine {
     // ================================================================================
 
     private void initLists() {
-        deadlines = new ArrayList<Task>();
-        events = new ArrayList<Task>();
-        dreams = new ArrayList<Task>();
+        outstandingTasks = new ArrayList<Task>();
+        completedTasks = new ArrayList<Task>();
     }
 
     private void initFileHandler() {
