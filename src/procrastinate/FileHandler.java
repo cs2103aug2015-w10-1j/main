@@ -12,7 +12,7 @@ public class FileHandler {
 
     private static final Logger logger = Logger.getLogger(FileHandler.class.getName());
 
-    private static final String FILENAME = "storage.txt";
+    private static final String FILE_NAME = "storage.txt";
 
     private String directoryPath = "";
     private File file;
@@ -29,7 +29,7 @@ public class FileHandler {
             }
             this.directoryPath = directoryPath;
         }
-        file = new File(this.directoryPath + FILENAME);
+		file = new File(this.directoryPath + FILE_NAME);
         logger.log(Level.INFO, "FileHandler initialised. Using file " + file.getAbsolutePath());
     }
 
