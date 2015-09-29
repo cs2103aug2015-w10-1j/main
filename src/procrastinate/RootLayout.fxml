@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="mainBorderPane" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="procrastinate.Logic">
+<BorderPane fx:id="mainBorderPane" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="procrastinate.UI">
 	<bottom>
 		<VBox spacing="2.0" BorderPane.alignment="CENTER">
 			<children>
