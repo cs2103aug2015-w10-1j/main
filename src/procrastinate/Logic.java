@@ -50,7 +50,7 @@ public class Logic implements Initializable {
     // ================================================================================
     // FXML Field Variables
     // ================================================================================
-    @FXML private BorderPane borderPane;
+    @FXML private BorderPane mainBorderPane;
     @FXML private Label statusLabel;
     @FXML private ListView<String> taskListView;
     @FXML private TextField userInputField;
