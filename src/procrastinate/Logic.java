@@ -1,5 +1,8 @@
 package procrastinate;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -13,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.util.converter.NumberStringConverter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -23,28 +27,33 @@ public class Logic implements Initializable {
     // Message Strings
     // ================================================================================
     private static final String DEBUG_VIEW_LOADED = "View is now loaded!";
+
+    private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
+
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
-    private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
 
     // ================================================================================
     // Class Variables
     // ================================================================================
-    private int taskCount = 1;
+    private IntegerProperty taskCount = new SimpleIntegerProperty(1);
+
     private ObservableList taskList = FXCollections.observableArrayList();
 
-    private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
+    private StringProperty taskCountFormatted = new SimpleStringProperty();
+    private StringProperty taskCountString = new SimpleStringProperty();
+    private StringProperty userInput = new SimpleStringProperty();
 
     private TaskEngine taskEngine;
 
     // ================================================================================
     // FXML Field Variables
     // ================================================================================
-    @FXML private Label statusLabel;
-    @FXML private TextField userInputField;
     @FXML private BorderPane borderPane;
+    @FXML private Label statusLabel;
     @FXML private ListView<String> taskListView;
+    @FXML private TextField userInputField;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -69,7 +78,7 @@ public class Logic implements Initializable {
             	String description = command.getDescription();
             	Task newDream = new Task(description);
             	taskEngine.add(newDream);
-                addToTaskList(description);
+                addDreamToTaskList(newDream);
                 return FEEDBACK_ADD_DREAM + description;
 
             case EXIT:
@@ -82,9 +91,9 @@ public class Logic implements Initializable {
 
     }
 
-    private void addToTaskList(String description) {
-        taskList.add(taskCount + ". " + description);
-        taskCount++;
+    private void addDreamToTaskList(Task task) {
+        taskList.add(taskCountFormatted.get() + task.getDescription());
+        taskCount.set(taskCount.get() + 1);
         updateListView();
     }
 
@@ -97,7 +106,7 @@ public class Logic implements Initializable {
     }
 
     private void initUI() {
-        taskListView.setPlaceholder(new Label("No Pending Tasks."));
+        taskListView.setPlaceholder(new Label("What would you like to Procrastinate today?"));
     }
 
     private void attachHandlersAndListeners() {
@@ -114,6 +123,9 @@ public class Logic implements Initializable {
     private void initBinding() {
         userInput.bindBidirectional(userInputField.textProperty());
         statusLabelText.bindBidirectional(statusLabel.textProperty());
+        taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
+        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(". "));
+
     }
 
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
