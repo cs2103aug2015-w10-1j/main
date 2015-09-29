@@ -2,10 +2,13 @@ package procrastinate;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -27,6 +30,9 @@ public class Logic implements Initializable {
     // ================================================================================
     // Class Variables
     // ================================================================================
+    private int taskCount = 1;
+    private ObservableList taskList = FXCollections.observableArrayList();
+
     private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
 
@@ -38,11 +44,13 @@ public class Logic implements Initializable {
     @FXML private Label statusLabel;
     @FXML private TextField userInputField;
     @FXML private BorderPane borderPane;
+    @FXML private ListView<String> taskListView;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Utilities.printDebug(DEBUG_VIEW_LOADED);
 
+        initUI();
         attachHandlersAndListeners();
         initBinding();
 
@@ -61,6 +69,7 @@ public class Logic implements Initializable {
             	String description = command.getDescription();
             	Task newDream = new Task(description);
             	taskEngine.add(newDream);
+                addToTaskList(description);
                 return FEEDBACK_ADD_DREAM + description;
 
             case EXIT:
@@ -73,12 +82,22 @@ public class Logic implements Initializable {
 
     }
 
+    private void addToTaskList(String description) {
+        taskList.add(taskCount + ". " + description);
+        taskCount++;
+        updateListView();
+    }
+
     // ================================================================================
     // Init methods
     // ================================================================================
 
     private void initTaskEngine() {
         taskEngine = new TaskEngine();
+    }
+
+    private void initUI() {
+        taskListView.setPlaceholder(new Label("No Pending Tasks."));
     }
 
     private void attachHandlersAndListeners() {
@@ -100,7 +119,7 @@ public class Logic implements Initializable {
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (KeyEvent keyEvent) -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                if (!getInput().isEmpty()) {
+                if (!getInput().trim().isEmpty()) {
                     String userCommand = getInput();
                     clearInput();
 
@@ -116,6 +135,10 @@ public class Logic implements Initializable {
     // ================================================================================
     // UI utility methods
     // ================================================================================
+
+    private void updateListView() {
+        taskListView.setItems(taskList);
+    }
 
     private void clearInput() {
         userInputField.clear();
