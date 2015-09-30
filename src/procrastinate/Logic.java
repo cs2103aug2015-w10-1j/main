@@ -16,6 +16,8 @@ public class Logic {
     private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
+    private static final String FEEDBACK_UNDONE = "Undid last operation";
+    private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
@@ -95,6 +97,17 @@ public class Logic {
                 }
 
                 return String.format(FEEDBACK_DELETED, type, task.getDescription());
+
+            case UNDO:
+                if (taskEngine.hasPreviousOperation()) {
+                    if (execute) {
+                        taskEngine.undo();
+                        updateUiTaskList();
+                    }
+                    return FEEDBACK_UNDONE;
+                } else {
+                    return FEEDBACK_NOTHING_TO_UNDO;
+                }
 
             case INVALID:
                 return command.getDescription();

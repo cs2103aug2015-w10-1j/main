@@ -41,7 +41,7 @@ public class TaskEngine {
     // ================================================================================
 
     public void add(Task task) {
-        previousState = getCurrentState();
+        previousState = getBackupOfCurrentState();
 
         TaskType type = task.getType();
         String description = task.getDescription();
@@ -70,6 +70,8 @@ public class TaskEngine {
     }
 
     public void delete(UUID taskId) {
+        previousState = getBackupOfCurrentState();
+
         int index = getIndexFromId(taskId);
         if (index == -1) {
             throw new Error(ERROR_TASK_NOT_FOUND);
@@ -93,9 +95,15 @@ public class TaskEngine {
     }
 
     public void undo() {
-        TaskState backupNewerState = getCurrentState();
-        loadState(previousState);
-        previousState = backupNewerState;
+        if (hasPreviousOperation()) {
+            TaskState backupNewerState = getBackupOfCurrentState();
+            loadState(previousState);
+            previousState = backupNewerState;
+        }
+    }
+
+    public boolean hasPreviousOperation() {
+        return previousState != null;
     }
 
     public List<Task> getOutstandingTasks() {
@@ -122,6 +130,10 @@ public class TaskEngine {
     // ================================================================================
     // State handling methods
     // ================================================================================
+
+    private TaskState getBackupOfCurrentState() {
+        return TaskState.copy(getCurrentState());
+    }
 
     private TaskState getCurrentState() {
         return new TaskState(outstandingTasks, completedTasks);

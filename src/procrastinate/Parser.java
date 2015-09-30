@@ -12,6 +12,7 @@ public class Parser {
     private static final String DEBUG_PARSING_COMMAND = "Parsing command: ";
 
     private static final String COMMAND_DELETE = "delete";
+    private static final String COMMAND_UNDO = "undo";
     private static final String COMMAND_EXIT = "exit";
     private static final String COMMAND_PROCRASTINATE = "procrastinate";
 
@@ -27,7 +28,11 @@ public class Parser {
 
             case COMMAND_EXIT:
             case COMMAND_PROCRASTINATE:
-                return new Command(CommandType.EXIT);
+                if (userCommand.equalsIgnoreCase(firstWord)) {
+                    return new Command(CommandType.EXIT);
+                } else {
+                    return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                }
 
             case COMMAND_DELETE:
                 try {
@@ -38,6 +43,13 @@ public class Parser {
 
                 } catch (Exception e) {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_DELETE);
+                }
+
+            case COMMAND_UNDO:
+                if (userCommand.equalsIgnoreCase(firstWord)) {
+                    return new Command(CommandType.UNDO);
+                } else {
+                    return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
                 }
 
             default:
