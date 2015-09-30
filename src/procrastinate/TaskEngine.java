@@ -51,6 +51,11 @@ public class TaskEngine {
 
     }
 
+    public void edit(UUID taskId, Task newTask) {
+        delete(taskId);
+        add(newTask);
+    }
+
     public void delete(UUID taskId) {
         previousState = getBackupOfCurrentState();
 
@@ -74,6 +79,7 @@ public class TaskEngine {
         logger.log(Level.INFO, String.format(DEBUG_DELETED_TASK, type, description));
 
         fileHandler.saveTaskState(getCurrentState());
+
     }
 
     public void undo() {
