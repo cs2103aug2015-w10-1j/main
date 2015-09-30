@@ -16,6 +16,7 @@ public class TaskEngine {
 
     private static final String DEBUG_TASK_ENGINE_INIT = "TaskEngine initialised.";
     private static final String DEBUG_ADDED_TASK = "Added %1$s: %2$s";
+    private static final String DEBUG_EDITED_TASK = "Edited #%1$s: %2$s";
     private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
@@ -46,13 +47,31 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_ADDED_TASK, type, description));
 
-        fileHandler.saveTaskState(getCurrentState());
+        saveState();
 
     }
 
     public void edit(UUID taskId, Task newTask) {
-        delete(taskId);
-        add(newTask);
+        previousState = getBackupOfCurrentState();
+
+        int index = getIndexFromId(taskId);
+        if (index == -1) {
+            throw new Error(ERROR_TASK_NOT_FOUND);
+        }
+
+        if (index < outstandingTasks.size()) {
+            outstandingTasks.remove(index);
+            outstandingTasks.add(index, newTask);
+        } else {
+            index -= outstandingTasks.size();
+            completedTasks.remove(index);
+            completedTasks.add(index, newTask);
+        }
+
+        logger.log(Level.INFO, String.format(DEBUG_EDITED_TASK, index + 1, newTask.getDescription()));
+
+        saveState();
+
     }
 
     public void delete(UUID taskId) {
@@ -68,8 +87,9 @@ public class TaskEngine {
             task = outstandingTasks.get(index);
             outstandingTasks.remove(index);
         } else {
-            task = completedTasks.get(index - outstandingTasks.size());
-            completedTasks.remove(index - outstandingTasks.size());
+            index -= outstandingTasks.size();
+            task = completedTasks.get(index);
+            completedTasks.remove(index);
         }
 
         String description = task.getDescription();
@@ -77,7 +97,7 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_DELETED_TASK, type, description));
 
-        fileHandler.saveTaskState(getCurrentState());
+        saveState();
 
     }
 
@@ -129,6 +149,10 @@ public class TaskEngine {
     private void loadState(TaskState state) {
         this.outstandingTasks = state.outstandingTasks;
         this.completedTasks = state.completedTasks;
+    }
+
+    private void saveState() {
+        fileHandler.saveTaskState(getCurrentState());
     }
 
     // ================================================================================

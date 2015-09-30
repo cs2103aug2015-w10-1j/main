@@ -14,6 +14,7 @@ public class Logic {
     // ================================================================================
 
     private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
+    private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
     private static final String FEEDBACK_UNDONE = "Undid last operation";
@@ -71,7 +72,7 @@ public class Logic {
 
         switch (command.getType()) {
 
-            case ADD_DREAM:
+            case ADD_DREAM: {
                 String description = command.getDescription();
 
                 if (execute) {
@@ -80,8 +81,29 @@ public class Logic {
                 }
 
                 return FEEDBACK_ADD_DREAM + description;
+            }
 
-            case DELETE:
+            case EDIT: {
+                int lineNumber = command.getLineNumber();
+
+                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+                }
+
+                Task task = getTaskFromLineNumber(lineNumber);
+
+                String newDescription = command.getDescription();
+                Task newTask = new Dream(newDescription);
+
+                if (execute) {
+                    taskEngine.edit(task.getId(), newTask);
+                    updateUiTaskList();
+                }
+
+                return String.format(FEEDBACK_EDIT_DREAM, lineNumber, newDescription);
+            }
+
+            case DELETE: {
                 int lineNumber = command.getLineNumber();
 
                 if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
@@ -90,15 +112,17 @@ public class Logic {
 
                 Task task = getTaskFromLineNumber(lineNumber);
                 String type = task.getTypeString();
+                String description = task.getDescription();
 
                 if (execute) {
                     taskEngine.delete(task.getId());
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_DELETED, type, task.getDescription());
+                return String.format(FEEDBACK_DELETED, type, description);
+            }
 
-            case UNDO:
+            case UNDO: {
                 if (taskEngine.hasPreviousOperation()) {
                     if (execute) {
                         taskEngine.undo();
@@ -108,19 +132,23 @@ public class Logic {
                 } else {
                     return FEEDBACK_NOTHING_TO_UNDO;
                 }
+            }
 
-            case INVALID:
+            case INVALID: {
                 return command.getDescription();
+            }
 
-            case EXIT:
+            case EXIT: {
                 if (execute) {
                     System.exit(0);
                 }
 
                 return PREVIEW_EXIT;
+            }
 
-            default:
+            default: {
                 throw new Error(ERROR_PARSER_UNKNOWN_COMMAND);
+            }
 
         }
 
