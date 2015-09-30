@@ -16,6 +16,8 @@ public class Parser {
     private static final String COMMAND_EXIT = "exit";
     private static final String COMMAND_PROCRASTINATE = "procrastinate";
 
+    private static final String COMMAND_SHORT_DELETE = "del";
+
     private static final String MESSAGE_INVALID_DELETE = "Please specify a valid line number";
 
     public static Command parse(String userCommand) {
@@ -28,15 +30,16 @@ public class Parser {
 
             case COMMAND_EXIT:
             case COMMAND_PROCRASTINATE:
-                if (userCommand.equalsIgnoreCase(firstWord)) {
+                if (userCommand.equalsIgnoreCase(firstWord)) { // So "procrastinate something" is a dream
                     return new Command(CommandType.EXIT);
                 } else {
                     return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
                 }
 
             case COMMAND_DELETE:
+            case COMMAND_SHORT_DELETE:
                 try {
-                    String argument = userCommand.substring(COMMAND_DELETE.length() + 1);
+                    String argument = userCommand.substring(firstWord.length() + 1);
                     int lineNumber = Integer.parseInt(argument);
 
                     return new Command(CommandType.DELETE).addLineNumber(lineNumber);
@@ -46,7 +49,7 @@ public class Parser {
                 }
 
             case COMMAND_UNDO:
-                if (userCommand.equalsIgnoreCase(firstWord)) {
+                if (userCommand.equalsIgnoreCase(firstWord)) { // So "undo something" is a dream
                     return new Command(CommandType.UNDO);
                 } else {
                     return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
