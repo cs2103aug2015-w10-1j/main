@@ -6,8 +6,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import procrastinate.Task.TaskType;
-
 public class TaskEngine {
 
     private static final Logger logger = Logger.getLogger(TaskEngine.class.getName());
@@ -17,9 +15,7 @@ public class TaskEngine {
     // ================================================================================
 
     private static final String DEBUG_TASK_ENGINE_INIT = "TaskEngine initialised.";
-    private static final String DEBUG_ADDED_DEADLINE = "Added deadline: ";
-    private static final String DEBUG_ADDED_EVENT = "Added event: ";
-    private static final String DEBUG_ADDED_DREAM = "Added dream: ";
+    private static final String DEBUG_ADDED_TASK = "Added %1$s: %2$s";
     private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
@@ -43,26 +39,12 @@ public class TaskEngine {
     public void add(Task task) {
         previousState = getBackupOfCurrentState();
 
-        TaskType type = task.getType();
         String description = task.getDescription();
+        String type = task.getTypeString();
 
         outstandingTasks.add(task);
 
-        switch (type) {
-
-            case DEADLINE:
-                logger.log(Level.INFO, DEBUG_ADDED_DEADLINE + description);
-                break;
-
-            case EVENT:
-                logger.log(Level.INFO, DEBUG_ADDED_EVENT + description);
-                break;
-
-            case DREAM:
-                logger.log(Level.INFO, DEBUG_ADDED_DREAM + description);
-                break;
-
-        }
+        logger.log(Level.INFO, String.format(DEBUG_ADDED_TASK, type, description));
 
         fileHandler.writeToFile(description);
         fileHandler.saveTaskState(getCurrentState());
@@ -87,7 +69,7 @@ public class TaskEngine {
         }
 
         String description = task.getDescription();
-        String type = task.getType().toString().toLowerCase();
+        String type = task.getTypeString();
 
         logger.log(Level.INFO, String.format(DEBUG_DELETED_TASK, type, description));
 

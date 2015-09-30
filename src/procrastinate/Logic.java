@@ -89,7 +89,7 @@ public class Logic {
                 }
 
                 Task task = getTaskFromLineNumber(lineNumber);
-                String type = task.getType().toString().toLowerCase();
+                String type = task.getTypeString();
 
                 if (execute) {
                     taskEngine.delete(task.getId());

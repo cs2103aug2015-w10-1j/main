@@ -25,6 +25,10 @@ public abstract class Task {
 		return type;
 	}
 
+    public String getTypeString() {
+        return type.toString().toLowerCase();
+    }
+
 	public String getDescription() {
 		return description;
 	}
