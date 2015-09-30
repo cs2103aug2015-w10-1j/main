@@ -72,8 +72,8 @@ public class Parser {
                     return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
                 }
 
-            case COMMAND_SHORT_EXIT:
             case COMMAND_EXIT:
+            case COMMAND_SHORT_EXIT:
                 if (userCommand.equalsIgnoreCase(firstWord)) { // So "procrastinate something" is a dream
                     return new Command(CommandType.EXIT);
                 } else {

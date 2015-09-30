@@ -38,7 +38,7 @@ public class TaskEngine {
     // ================================================================================
 
     public void add(Task task) {
-        previousState = getBackupOfCurrentState();
+        saveState();
 
         String description = task.getDescription();
         String type = task.getTypeString();
@@ -47,12 +47,12 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_ADDED_TASK, type, description));
 
-        saveState();
+        writeStateToFile();
 
     }
 
     public void edit(UUID taskId, Task newTask) {
-        previousState = getBackupOfCurrentState();
+        saveState();
 
         int index = getIndexFromId(taskId);
         if (index == -1) {
@@ -70,12 +70,12 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_EDITED_TASK, index + 1, newTask.getDescription()));
 
-        saveState();
+        writeStateToFile();
 
     }
 
     public void delete(UUID taskId) {
-        previousState = getBackupOfCurrentState();
+        saveState();
 
         int index = getIndexFromId(taskId);
         if (index == -1) {
@@ -97,7 +97,7 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_DELETED_TASK, type, description));
 
-        saveState();
+        writeStateToFile();
 
     }
 
@@ -138,12 +138,12 @@ public class TaskEngine {
     // State handling methods
     // ================================================================================
 
-    private TaskState getBackupOfCurrentState() {
-        return TaskState.copy(getCurrentState());
+    private void writeStateToFile() {
+        fileHandler.saveTaskState(getCurrentState());
     }
 
-    private TaskState getCurrentState() {
-        return new TaskState(outstandingTasks, completedTasks);
+    private void saveState() {
+        previousState = getBackupOfCurrentState();
     }
 
     private void loadState(TaskState state) {
@@ -151,8 +151,12 @@ public class TaskEngine {
         this.completedTasks = state.completedTasks;
     }
 
-    private void saveState() {
-        fileHandler.saveTaskState(getCurrentState());
+    private TaskState getBackupOfCurrentState() {
+        return TaskState.copy(getCurrentState());
+    }
+
+    private TaskState getCurrentState() {
+        return new TaskState(outstandingTasks, completedTasks);
     }
 
     // ================================================================================
