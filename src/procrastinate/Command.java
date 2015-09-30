@@ -5,7 +5,7 @@ import java.util.Date;
 public class Command {
 
     public static enum CommandType {
-        ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE, EXIT;
+        ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE, EXIT, INVALID;
     }
 
     // Required field for all command types

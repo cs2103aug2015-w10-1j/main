@@ -1,5 +1,8 @@
 package procrastinate;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +15,8 @@ public class Logic {
     // ================================================================================
 
     private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
+    private static final String FEEDBACK_DELETED = "Deleted task: ";
+    private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
 
     private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
 
@@ -23,6 +28,7 @@ public class Logic {
 
     private TaskEngine taskEngine;
     private UI ui;
+    private List<Task> currentTaskList;
 
     // ================================================================================
     // Singleton pattern
@@ -32,6 +38,7 @@ public class Logic {
 
     private Logic() {
         initTaskEngine();
+        initCurrentTaskList();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
@@ -60,9 +67,29 @@ public class Logic {
             case ADD_DREAM:
                 String description = command.getDescription();
                 Task newDream = new Dream(description);
+
                 taskEngine.add(newDream);
-                ui.updateTaskList(taskEngine.getOutstandingTasks());
+                updateUiTaskList();
+
                 return FEEDBACK_ADD_DREAM + description;
+
+            case DELETE:
+                int lineNumber = command.getLineNumber();
+
+                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+                }
+
+                Task task = getTaskFromLineNumber(lineNumber);
+                UUID taskId = task.getId();
+
+                taskEngine.delete(taskId);
+                updateUiTaskList();
+
+                return FEEDBACK_DELETED + task.getDescription();
+
+            case INVALID:
+                return command.getDescription();
 
             case EXIT:
                 System.exit(0);
@@ -74,12 +101,29 @@ public class Logic {
 
     }
 
+    private void updateUiTaskList() {
+        currentTaskList = taskEngine.getOutstandingTasks();
+        ui.updateTaskList(currentTaskList);
+    }
+
     // ================================================================================
     // Init methods
     // ================================================================================
 
     private void initTaskEngine() {
         taskEngine = new TaskEngine();
+    }
+
+    private void initCurrentTaskList() {
+        currentTaskList = new ArrayList<Task>();
+    }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
+    private Task getTaskFromLineNumber(int lineNumber) {
+        return currentTaskList.get(lineNumber - 1);
     }
 
 }

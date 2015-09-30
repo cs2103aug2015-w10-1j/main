@@ -2,6 +2,7 @@ package procrastinate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +63,15 @@ public class TaskEngine {
 
     }
 
+    public void delete(UUID taskId) {
+        Task task = getTaskFromId(taskId);
+        if (!outstandingTasks.remove(task) && !completedTasks.remove(task)) {
+            throw new Error("Task not found!");
+        }
+        logger.log(Level.INFO, "Deleted task " + taskId);
+        fileHandler.saveTaskState(getCurrentState());
+    }
+
     public void undo() {
         TaskState backupNewerState = getCurrentState();
         loadState(previousState);
@@ -74,6 +84,19 @@ public class TaskEngine {
 
     public List<Task> getCompletedTasks() {
         return completedTasks;
+    }
+
+    // ================================================================================
+    // Init methods
+    // ================================================================================
+
+    private void initLists() {
+        outstandingTasks = new ArrayList<Task>();
+        completedTasks = new ArrayList<Task>();
+    }
+
+    private void initFileHandler() {
+        fileHandler = new FileHandler();
     }
 
     // ================================================================================
@@ -90,16 +113,21 @@ public class TaskEngine {
     }
 
     // ================================================================================
-    // Init methods
+    // Utility methods
     // ================================================================================
 
-    private void initLists() {
-        outstandingTasks = new ArrayList<Task>();
-        completedTasks = new ArrayList<Task>();
-    }
-
-    private void initFileHandler() {
-        fileHandler = new FileHandler();
+    private Task getTaskFromId(UUID id) {
+        for (Task task : outstandingTasks) {
+            if (task.getId().equals(id)) {
+                return task;
+            }
+        }
+        for (Task task : completedTasks) {
+            if (task.getId().equals(id)) {
+                return task;
+            }
+        }
+        return null;
     }
 
 }

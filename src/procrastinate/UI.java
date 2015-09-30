@@ -118,15 +118,14 @@ public class UI {
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (KeyEvent keyEvent) -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                if (!getInput().trim().isEmpty()) {
-                    String userCommand = getInput();
-
-                    String feedback = logic.executeCommand(userCommand);
+                String input = getInput();
+                clearInput(); // Must come before setStatus as key release handler resets status
+                if (!input.trim().isEmpty()) {
+                    String feedback = logic.executeCommand(input);
                     setStatus(feedback);
                 } else {
                     setStatus(STATUS_READY);
                 }
-                clearInput();
             }
         };
     }
@@ -149,6 +148,7 @@ public class UI {
 
     private void setStatus(String status) {
         statusLabelText.set(status);
+        //logger.log(Level.INFO, status);
     }
 
 }
