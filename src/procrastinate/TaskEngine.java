@@ -21,11 +21,15 @@ public class TaskEngine {
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
-    private FileHandler fileHandler;
+    // ================================================================================
+    // Class variables
+    // ================================================================================
 
     private List<Task> outstandingTasks, completedTasks;
 
-    private TaskState previousState;
+    private TaskState previousState = null;
+
+    private FileHandler fileHandler;
 
     public TaskEngine() {
         initLists();
@@ -38,7 +42,7 @@ public class TaskEngine {
     // ================================================================================
 
     public void add(Task task) {
-        saveState();
+        backupOlderState();
 
         String description = task.getDescription();
         String type = task.getTypeString();
@@ -52,12 +56,9 @@ public class TaskEngine {
     }
 
     public void edit(UUID taskId, Task newTask) {
-        saveState();
+        backupOlderState();
 
         int index = getIndexFromId(taskId);
-        if (index == -1) {
-            throw new Error(ERROR_TASK_NOT_FOUND);
-        }
 
         if (index < outstandingTasks.size()) {
             outstandingTasks.remove(index);
@@ -75,12 +76,9 @@ public class TaskEngine {
     }
 
     public void delete(UUID taskId) {
-        saveState();
+        backupOlderState();
 
         int index = getIndexFromId(taskId);
-        if (index == -1) {
-            throw new Error(ERROR_TASK_NOT_FOUND);
-        }
 
         Task task;
         if (index < outstandingTasks.size()) {
@@ -106,6 +104,7 @@ public class TaskEngine {
             TaskState backupNewerState = getBackupOfCurrentState();
             loadState(previousState);
             previousState = backupNewerState;
+            writeStateToFile();
         }
     }
 
@@ -128,6 +127,7 @@ public class TaskEngine {
     private void initLists() {
         outstandingTasks = new ArrayList<Task>();
         completedTasks = new ArrayList<Task>();
+        //loadState(new TaskStateStub()); // Load example data from stub
     }
 
     private void initFileHandler() {
@@ -138,17 +138,17 @@ public class TaskEngine {
     // State handling methods
     // ================================================================================
 
-    private void writeStateToFile() {
-        fileHandler.saveTaskState(getCurrentState());
-    }
-
-    private void saveState() {
+    private void backupOlderState() {
         previousState = getBackupOfCurrentState();
     }
 
     private void loadState(TaskState state) {
         this.outstandingTasks = state.outstandingTasks;
         this.completedTasks = state.completedTasks;
+    }
+
+    private void writeStateToFile() {
+        fileHandler.saveTaskState(getCurrentState());
     }
 
     private TaskState getBackupOfCurrentState() {
@@ -174,7 +174,7 @@ public class TaskEngine {
                 return i + outstandingTasks.size();
             }
         }
-        return -1;
+        throw new Error(ERROR_TASK_NOT_FOUND);
     }
 
 }

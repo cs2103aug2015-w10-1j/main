@@ -63,11 +63,11 @@ public class UI {
     @FXML private TextField userInputField;
 
     public void initialize() {
-        initLogic();
-
         initUI();
         attachHandlersAndListeners();
         initBinding();
+
+        initLogic(); // Must be after UI is up as it causes Logic to call UI
 
         setStatus(STATUS_READY);
 

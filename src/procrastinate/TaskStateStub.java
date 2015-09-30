@@ -17,10 +17,10 @@ public class TaskStateStub extends TaskState{
 	private static List<Task> getOutstanding() {
 		List<Task> stub = new ArrayList<Task>();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		stub.add(new Dream("foo"));
+		stub.add(new Dream("foo dream"));
 		try {
-			stub.add(new Deadline("foo", sdf.parse("30/09/2015")));
-			stub.add(new Event("foo", sdf.parse("30/09/2015"), sdf.parse("02/10/2015")));
+			stub.add(new Deadline("foo deadline", sdf.parse("30/09/2015")));
+			stub.add(new Event("foo event", sdf.parse("30/09/2015"), sdf.parse("02/10/2015")));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

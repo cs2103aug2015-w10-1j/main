@@ -1,6 +1,5 @@
 package procrastinate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +55,7 @@ public class Logic {
     // UI handle
     public void setUi(UI ui) {
         this.ui = ui;
+        ui.updateTaskList(currentTaskList);
     }
 
     // ================================================================================
@@ -168,7 +168,7 @@ public class Logic {
     }
 
     private void initCurrentTaskList() {
-        currentTaskList = new ArrayList<Task>();
+        currentTaskList = taskEngine.getOutstandingTasks();
     }
 
     // ================================================================================
