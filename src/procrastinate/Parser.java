@@ -15,6 +15,7 @@ public class Parser {
     private static final String COMMAND_UNDO = "undo";
     private static final String COMMAND_EXIT = "exit";
     private static final String COMMAND_PROCRASTINATE = "procrastinate";
+    private static final String COMMAND_EDIT = "edit";
 
     private static final String COMMAND_SHORT_DELETE = "del";
 
@@ -54,6 +55,21 @@ public class Parser {
                 } else {
                     return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
                 }
+
+            case COMMAND_EDIT:
+            	if (!userCommand.equalsIgnoreCase(firstWord)){ // So "edit", "edit something" is a dream
+            		try {
+            			String[] argument = userCommand.split(" ", 3);
+            			int lineNumber = Integer.parseInt(argument[1]);
+            			String description = argument[2];
+            			return new Command(CommandType.EDIT).addDescription(description).addLineNumber(lineNumber);
+
+            		} catch (Exception e) {
+            			return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+            		}
+            	} else {
+            		return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+            	}
 
             default:
                 return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
