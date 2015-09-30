@@ -103,7 +103,7 @@ public class UI {
             if (newValue.trim().isEmpty()) {
                 setStatus(STATUS_READY);
             } else {
-                setStatus(STATUS_PREVIEW_COMMAND + logic.previewCommand(newValue));
+                setStatus(STATUS_PREVIEW_COMMAND + logic.executeCommand(newValue, false));
             }
         });
     }

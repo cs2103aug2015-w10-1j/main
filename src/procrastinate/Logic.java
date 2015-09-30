@@ -2,7 +2,6 @@ package procrastinate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,8 +13,8 @@ public class Logic {
     // Message strings
     // ================================================================================
 
-    private static final String FEEDBACK_ADD_DREAM = "Adding dream: ";
-    private static final String FEEDBACK_DELETED = "Deleted task: ";
+    private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
+    private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
@@ -61,49 +60,10 @@ public class Logic {
     // ================================================================================
 
     public String executeCommand(String userCommand) {
-
-        Command command = Parser.parse(userCommand);
-
-        switch (command.getType()) {
-
-            case ADD_DREAM:
-                String description = command.getDescription();
-                Task newDream = new Dream(description);
-
-                taskEngine.add(newDream);
-                updateUiTaskList();
-
-                return FEEDBACK_ADD_DREAM + description;
-
-            case DELETE:
-                int lineNumber = command.getLineNumber();
-
-                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
-                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
-                }
-
-                Task task = getTaskFromLineNumber(lineNumber);
-                UUID taskId = task.getId();
-
-                taskEngine.delete(taskId);
-                updateUiTaskList();
-
-                return FEEDBACK_DELETED + task.getDescription();
-
-            case INVALID:
-                return command.getDescription();
-
-            case EXIT:
-                System.exit(0);
-
-            default:
-                throw new Error(ERROR_PARSER_UNKNOWN_COMMAND);
-
-        }
-
+        return executeCommand(userCommand, true);
     }
 
-    public String previewCommand(String userCommand) {
+    public String executeCommand(String userCommand, boolean execute) {
 
         Command command = Parser.parse(userCommand);
 
@@ -111,6 +71,12 @@ public class Logic {
 
             case ADD_DREAM:
                 String description = command.getDescription();
+
+                if (execute) {
+                    taskEngine.add(new Dream(description));
+                    updateUiTaskList();
+                }
+
                 return FEEDBACK_ADD_DREAM + description;
 
             case DELETE:
@@ -121,13 +87,23 @@ public class Logic {
                 }
 
                 Task task = getTaskFromLineNumber(lineNumber);
+                String type = task.getType().toString().toLowerCase();
 
-                return FEEDBACK_DELETED + task.getDescription();
+                if (execute) {
+                    taskEngine.delete(task.getId());
+                    updateUiTaskList();
+                }
+
+                return String.format(FEEDBACK_DELETED, type, task.getDescription());
 
             case INVALID:
                 return command.getDescription();
 
             case EXIT:
+                if (execute) {
+                    System.exit(0);
+                }
+
                 return PREVIEW_EXIT;
 
             default:

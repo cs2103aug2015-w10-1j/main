@@ -17,6 +17,12 @@ public class TaskEngine {
     // ================================================================================
 
     private static final String DEBUG_TASK_ENGINE_INIT = "TaskEngine initialised.";
+    private static final String DEBUG_ADDED_DEADLINE = "Added deadline: ";
+    private static final String DEBUG_ADDED_EVENT = "Added event: ";
+    private static final String DEBUG_ADDED_DREAM = "Added dream: ";
+    private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
+
+    private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
     private FileHandler fileHandler;
 
@@ -45,15 +51,15 @@ public class TaskEngine {
         switch (type) {
 
             case DEADLINE:
-                logger.log(Level.INFO, "Added deadline: " + description);
+                logger.log(Level.INFO, DEBUG_ADDED_DEADLINE + description);
                 break;
 
             case EVENT:
-                logger.log(Level.INFO, "Added event: " + description);
+                logger.log(Level.INFO, DEBUG_ADDED_EVENT + description);
                 break;
 
             case DREAM:
-                logger.log(Level.INFO, "Added dream: " + description);
+                logger.log(Level.INFO, DEBUG_ADDED_DREAM + description);
                 break;
 
         }
@@ -66,9 +72,14 @@ public class TaskEngine {
     public void delete(UUID taskId) {
         Task task = getTaskFromId(taskId);
         if (!outstandingTasks.remove(task) && !completedTasks.remove(task)) {
-            throw new Error("Task not found!");
+            throw new Error(ERROR_TASK_NOT_FOUND);
         }
-        logger.log(Level.INFO, "Deleted task " + taskId);
+
+        String description = task.getDescription();
+        String type = task.getType().toString().toLowerCase();
+
+        logger.log(Level.INFO, String.format(DEBUG_DELETED_TASK, type, description));
+
         fileHandler.saveTaskState(getCurrentState());
     }
 
