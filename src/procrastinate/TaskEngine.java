@@ -70,9 +70,18 @@ public class TaskEngine {
     }
 
     public void delete(UUID taskId) {
-        Task task = getTaskFromId(taskId);
-        if (!outstandingTasks.remove(task) && !completedTasks.remove(task)) {
+        int index = getIndexFromId(taskId);
+        if (index == -1) {
             throw new Error(ERROR_TASK_NOT_FOUND);
+        }
+
+        Task task;
+        if (index < outstandingTasks.size()) {
+            task = outstandingTasks.get(index);
+            outstandingTasks.remove(index);
+        } else {
+            task = completedTasks.get(index - outstandingTasks.size());
+            completedTasks.remove(index - outstandingTasks.size());
         }
 
         String description = task.getDescription();
@@ -127,18 +136,18 @@ public class TaskEngine {
     // Utility methods
     // ================================================================================
 
-    private Task getTaskFromId(UUID id) {
-        for (Task task : outstandingTasks) {
-            if (task.getId().equals(id)) {
-                return task;
+    private int getIndexFromId(UUID id) {
+        for (int i = 0; i < outstandingTasks.size(); i++) {
+            if (outstandingTasks.get(i).getId().equals(id)) {
+                return i;
             }
         }
-        for (Task task : completedTasks) {
-            if (task.getId().equals(id)) {
-                return task;
+        for (int i = 0; i < completedTasks.size(); i++) {
+            if (completedTasks.get(i).getId().equals(id)) {
+                return i + outstandingTasks.size();
             }
         }
-        return null;
+        return -1;
     }
 
 }
