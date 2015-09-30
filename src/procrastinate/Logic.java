@@ -18,6 +18,8 @@ public class Logic {
     private static final String FEEDBACK_DELETED = "Deleted task: ";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
 
+    private static final String PREVIEW_EXIT = "Goodbye!";
+
     private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
 
     private static final String ERROR_PARSER_UNKNOWN_COMMAND = "Error with parser: unknown command type returned";
@@ -93,6 +95,40 @@ public class Logic {
 
             case EXIT:
                 System.exit(0);
+
+            default:
+                throw new Error(ERROR_PARSER_UNKNOWN_COMMAND);
+
+        }
+
+    }
+
+    public String previewCommand(String userCommand) {
+
+        Command command = Parser.parse(userCommand);
+
+        switch (command.getType()) {
+
+            case ADD_DREAM:
+                String description = command.getDescription();
+                return FEEDBACK_ADD_DREAM + description;
+
+            case DELETE:
+                int lineNumber = command.getLineNumber();
+
+                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+                }
+
+                Task task = getTaskFromLineNumber(lineNumber);
+
+                return FEEDBACK_DELETED + task.getDescription();
+
+            case INVALID:
+                return command.getDescription();
+
+            case EXIT:
+                return PREVIEW_EXIT;
 
             default:
                 throw new Error(ERROR_PARSER_UNKNOWN_COMMAND);
