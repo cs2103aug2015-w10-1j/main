@@ -1,38 +1,42 @@
 package procrastinate;
 
+import java.util.UUID;
+
 public abstract class Task {
+
 	public static enum TaskType {
 		DEADLINE, EVENT, DREAM;
 	}
-	
-	private TaskType type;
+
+    private final UUID id = UUID.randomUUID();
+	private final TaskType type; // Cannot change type; subclass object already created
 	private String description;
-	
+
 	public Task(TaskType type, String description) {
 		this.type = type;
 		this.description = description;
 	}
-	
+
 	// ================================================================================
     // Getter methods
     // ================================================================================
-	
+
 	public TaskType getType() {
-		return this.type;
+		return type;
 	}
-	
+
 	public String getDescription() {
-		return this.description;
+		return description;
+	}
+
+	public UUID getId() {
+	    return id;
 	}
 
 	// ================================================================================
     // Setter methods
     // ================================================================================
-	
-	public void setType(TaskType type) {
-		this.type = type;
-	}
-	
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
