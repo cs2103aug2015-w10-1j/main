@@ -46,7 +46,6 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_ADDED_TASK, type, description));
 
-        fileHandler.writeToFile(description);
         fileHandler.saveTaskState(getCurrentState());
 
     }
