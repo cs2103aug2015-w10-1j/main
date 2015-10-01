@@ -15,6 +15,10 @@ import javafx.stage.StageStyle;
 
 public class Main extends Application {
 
+    private static final String TRAY_MENU_SHOW = "Show";
+    private static final String TRAY_MENU_EXIT = "Exit";
+    private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
+    private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
     private static final String WINDOW_TITLE = "Procrastinate";
     private static final double WINDOW_WIDTH = 500;
     private static final double WINDOW_MIN_WIDTH = 500;
@@ -25,7 +29,7 @@ public class Main extends Application {
     private static final String ICON_IMAGE = "testicon.png";
 
     private Stage primaryStage;
-    private TrayIcon sysTrayIcon; // required for displaying msg through the icon
+    private TrayIcon sysTrayIcon; // required for displaying message through the tray icon
 
     public static void main(String[] args) {
         launch(args);
@@ -36,7 +40,8 @@ public class Main extends Application {
         Parent root;
         try {
             root = FXMLLoader.load(getClass().getResource("MainWindowLayout.fxml"));
-//             overwriteDecorations(primaryStage, root); //Removes all borders and buttons, overwrites mouse events to enable dragging of window
+//             overwriteDecorations(primaryStage, root); //Removes all borders and buttons,
+                                                         //overwrites mouse events to enable dragging of window
             initPrimaryStage(primaryStage, root);
         } catch (IOException e) {
             e.printStackTrace();
@@ -65,7 +70,7 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(e -> {
             if (checkSysTraySupport()) {
                 primaryStage.hide();
-                showMinimizeMsg();
+                showMinimiseMsg();
             } else {
                 System.exit(0);
             }
@@ -88,18 +93,26 @@ public class Main extends Application {
         return  SystemTray.isSupported();
     }
 
-    private void showMinimizeMsg(){
-        sysTrayIcon.displayMessage("Procrastinate is still running!", "Access or exit Procrastinate from here.", TrayIcon.MessageType.INFO);
+    private void showMinimiseMsg(){
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
+                                       TRAY_MESSAGE_DESCRIPTION,
+                                       TrayIcon.MessageType.INFO);
+        }
     }
 
     private PopupMenu createSysTrayMenu(Stage primaryStage) {
         PopupMenu menu = new PopupMenu();
 
-        MenuItem menuExit = new MenuItem("Exit");
+        MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
         menuExit.addActionListener(e -> System.exit(0));
 
-        MenuItem menuShow = new MenuItem("Show");
-        menuShow.addActionListener(e -> Platform.runLater(() -> primaryStage.show()));
+        MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW);
+        menuShow.addActionListener(e -> Platform.runLater(() -> {
+            primaryStage.show();
+            primaryStage.toFront();
+            primaryStage.requestFocus();
+        }));
 
         menu.add(menuShow);
         menu.add(menuExit);
