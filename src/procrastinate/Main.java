@@ -61,6 +61,7 @@ public class Main extends Application {
     }
 
     private void configureSysTray(Stage primaryStage) {
+        Platform.setImplicitExit(false);    // Set this up before creating the trays
         primaryStage.setOnCloseRequest(e -> {
             if (checkSysTraySupport()) {
                 primaryStage.hide();
@@ -69,7 +70,6 @@ public class Main extends Application {
                 System.exit(0);
             }
         });
-        Platform.setImplicitExit(false);
     }
 
     private void createSysTray(Stage primaryStage) {
@@ -116,17 +116,17 @@ public class Main extends Application {
         TrayIcon trayIcon = new TrayIcon(iconImage, WINDOW_TITLE, popupMenu);
         trayIcon.setImageAutoSize(true);
         trayIcon.setPopupMenu(popupMenu);
-        trayIcon.addMouseListener(createIconClickListenr());
+        trayIcon.addMouseListener(createIconClickListener());
         return trayIcon;
     }
 
-    private MouseListener createIconClickListenr(){
+    private MouseListener createIconClickListener(){
         MouseListener iconClickListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 Platform.runLater(() -> primaryStage.show());
             }
-
+            // Unused methods, left empty.
             @Override
             public void mousePressed(MouseEvent e) {
             }
