@@ -14,7 +14,7 @@
 				<Label fx:id="statusLabel" />
 			</children>
 			<padding>
-				<Insets bottom="5.0" left="10.0" right="10.0" />
+				<Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
 			</padding>
 		</VBox>
 	</bottom>
