@@ -53,6 +53,8 @@ public class UI {
     private StringProperty taskCountString = new SimpleStringProperty();
     private StringProperty userInput = new SimpleStringProperty();
 
+    private Command lastParsedCommand;
+
     // ================================================================================
     // FXML field variables
     // ================================================================================
@@ -103,7 +105,8 @@ public class UI {
             if (newValue.trim().isEmpty()) {
                 setStatus(STATUS_READY);
             } else {
-                setStatus(STATUS_PREVIEW_COMMAND + logic.executeCommand(newValue, false));
+                lastParsedCommand = Parser.parse(newValue);
+                setStatus(STATUS_PREVIEW_COMMAND + logic.executeCommand(lastParsedCommand, false));
             }
         });
     }
@@ -121,7 +124,10 @@ public class UI {
                 String input = getInput();
                 clearInput(); // Must come before setStatus as key release handler resets status
                 if (!input.trim().isEmpty()) {
-                    String feedback = logic.executeCommand(input);
+                    if (lastParsedCommand == null) {
+                        lastParsedCommand = Parser.parse(input);
+                    }
+                    String feedback = logic.executeCommand(lastParsedCommand);
                     setStatus(feedback);
                 } else {
                     setStatus(STATUS_READY);

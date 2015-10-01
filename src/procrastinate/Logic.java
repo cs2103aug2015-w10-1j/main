@@ -62,13 +62,13 @@ public class Logic {
     // Public logic methods
     // ================================================================================
 
-    public String executeCommand(String userCommand) {
-        return executeCommand(userCommand, true);
+    public String executeCommand(Command command) {
+        return executeCommand(command, true);
     }
 
-    public String executeCommand(String userCommand, boolean execute) {
+    public String executeCommand(Command command, boolean execute) {
 
-        Command command = Parser.parse(userCommand);
+        //Command command = Parser.parse(userCommand);
 
         switch (command.getType()) {
 
