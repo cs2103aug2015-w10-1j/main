@@ -4,6 +4,7 @@ import java.awt.*;
 import java.io.IOException;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,6 +21,7 @@ public class Main extends Application {
     private static double xOffset, yOffset;
 
     private static final String ICON_IMAGE = "testicon.png";
+    private TrayIcon sysTrayIcon; // required for displaying msg through the icon
 
     public static void main(String[] args) {
         launch(args);
@@ -40,6 +42,7 @@ public class Main extends Application {
     private void initPrimaryStage(Stage primaryStage, Parent root) {
         configurePrimaryStage(primaryStage, root);
         if (checkSysTraySupport()) {
+            configureSysTray(primaryStage);
             createSysTray(primaryStage);
         }
         primaryStage.show();
@@ -52,11 +55,23 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
     }
 
+    private void configureSysTray(Stage primaryStage) {
+        primaryStage.setOnCloseRequest(e -> {
+            if (checkSysTraySupport()) {
+                primaryStage.hide();
+                showMinimizeMsg();
+            } else {
+                System.exit(0);
+            }
+        });
+        Platform.setImplicitExit(false);
+    }
+
     private void createSysTray(Stage primaryStage) {
         SystemTray sysTray = SystemTray.getSystemTray();
-        TrayIcon sysTrayIcon = createSysTrayIcon();
-        sysTrayIcon.setImageAutoSize(true);
+        Image sysTrayIconImage = createSysTrayIconImage();
         PopupMenu sysTrayPopup = createSysTrayMenu(primaryStage);
+        sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup);
         sysTrayIcon.setPopupMenu(sysTrayPopup);
         try {
             sysTray.add(sysTrayIcon);
@@ -65,10 +80,12 @@ public class Main extends Application {
         }
     }
 
-    private TrayIcon createSysTrayIcon() {
-        // Load image as system tray icon image
-        Image iconImage = Toolkit.getDefaultToolkit().getImage(ICON_IMAGE);
-        return new TrayIcon(iconImage, WINDOW_TITLE);
+    private boolean checkSysTraySupport() {
+        return  SystemTray.isSupported();
+    }
+
+    private void showMinimizeMsg(){
+        sysTrayIcon.displayMessage("Procrastinate is still running!", "Access or exit Procrastinate from here.", TrayIcon.MessageType.INFO);
     }
 
     private PopupMenu createSysTrayMenu(Stage primaryStage) {
@@ -77,12 +94,24 @@ public class Main extends Application {
         MenuItem menuExit = new MenuItem("Exit");
         menuExit.addActionListener(e -> System.exit(0));
 
+        MenuItem menuShow = new MenuItem("Show");
+        menuShow.addActionListener(e -> Platform.runLater(() -> primaryStage.show()));
+
+        menu.add(menuShow);
         menu.add(menuExit);
         return menu;
     }
 
-    private boolean checkSysTraySupport() {
-        return  SystemTray.isSupported();
+    private Image createSysTrayIconImage() {
+        // Load image as system tray icon image
+        Image iconImage = Toolkit.getDefaultToolkit().getImage(ICON_IMAGE);
+        return iconImage;
+    }
+
+    private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
+        TrayIcon trayIcon = new TrayIcon(iconImage, WINDOW_TITLE, popupMenu);
+        trayIcon.setImageAutoSize(true);
+        return trayIcon;
     }
 
     // Unused for now
