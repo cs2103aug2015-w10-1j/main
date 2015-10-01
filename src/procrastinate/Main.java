@@ -40,6 +40,7 @@ public class Main extends Application {
 
     private Stage primaryStage;
     private TrayIcon sysTrayIcon; // required for displaying message through the tray icon
+    private boolean shownMinimiseMessage = false;
 
     public static void main(String[] args) {
         launch(args);
@@ -103,7 +104,7 @@ public class Main extends Application {
             if (isSysTraySupported()) {
                 primaryStage.hide();
                 if (isWindowsOs()) {
-                    showMinimiseMsg();
+                    showMinimiseMessage();
                 }
             } else {
                 System.exit(0);
@@ -123,10 +124,13 @@ public class Main extends Application {
         }
     }
 
-    private void showMinimiseMsg(){
-        sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
-                                   TRAY_MESSAGE_DESCRIPTION,
-                                   TrayIcon.MessageType.INFO);
+    private void showMinimiseMessage(){
+    	if (!shownMinimiseMessage) {
+    		sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
+                    TRAY_MESSAGE_DESCRIPTION,
+                    TrayIcon.MessageType.INFO);
+    		shownMinimiseMessage = true;
+    	}
     }
 
     private PopupMenu createSysTrayMenu(Stage primaryStage) {
@@ -139,7 +143,6 @@ public class Main extends Application {
         menuShow.addActionListener(e -> Platform.runLater(() -> {
             primaryStage.show();
             primaryStage.toFront();
-            primaryStage.requestFocus();
         }));
 
         menu.add(menuShow);
@@ -174,7 +177,10 @@ public class Main extends Application {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (isWindowsOs()) {
-                    Platform.runLater(() -> primaryStage.show());
+                    Platform.runLater(() -> {
+                        primaryStage.show();
+                        primaryStage.toFront();
+                    });
                 }
             }
             // Unused methods, left empty.
