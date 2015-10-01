@@ -102,7 +102,9 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(e -> {
             if (isSysTraySupported()) {
                 primaryStage.hide();
-                showMinimiseMsg();
+                if (isWindowsOs()) {
+                    showMinimiseMsg();
+                }
             } else {
                 System.exit(0);
             }
@@ -122,11 +124,9 @@ public class Main extends Application {
     }
 
     private void showMinimiseMsg(){
-        if (isWindowsOs()) {
-            sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
-                                       TRAY_MESSAGE_DESCRIPTION,
-                                       TrayIcon.MessageType.INFO);
-        }
+        sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
+                                   TRAY_MESSAGE_DESCRIPTION,
+                                   TrayIcon.MessageType.INFO);
     }
 
     private PopupMenu createSysTrayMenu(Stage primaryStage) {
@@ -173,7 +173,9 @@ public class Main extends Application {
         MouseListener iconClickListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                Platform.runLater(() -> primaryStage.show());
+                if (isWindowsOs()) {
+                    Platform.runLater(() -> primaryStage.show());
+                }
             }
             // Unused methods, left empty.
             @Override
