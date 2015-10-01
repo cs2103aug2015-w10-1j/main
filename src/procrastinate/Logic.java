@@ -12,6 +12,8 @@ public class Logic {
     // Message strings
     // ================================================================================
 
+    private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
+
     private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
     private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
@@ -21,9 +23,7 @@ public class Logic {
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
-    private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
-
-    private static final String ERROR_PARSER_UNKNOWN_COMMAND = "Error with parser: unknown command type returned";
+    private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
     // ================================================================================
     // Class variables
@@ -59,7 +59,7 @@ public class Logic {
     }
 
     // ================================================================================
-    // Public logic methods
+    // Logic methods
     // ================================================================================
 
     public String executeCommand(Command command) {
@@ -70,7 +70,7 @@ public class Logic {
         return executeCommand(command, false);
     }
 
-    public String executeCommand(Command command, boolean execute) {
+    private String executeCommand(Command command, boolean execute) {
 
         switch (command.getType()) {
 
@@ -149,16 +149,11 @@ public class Logic {
             }
 
             default: {
-                throw new Error(ERROR_PARSER_UNKNOWN_COMMAND);
+                throw new Error(ERROR_UNIMPLEMENTED_COMMAND);
             }
 
         }
 
-    }
-
-    private void updateUiTaskList() {
-        currentTaskList = taskEngine.getOutstandingTasks();
-        ui.updateTaskList(currentTaskList);
     }
 
     // ================================================================================
@@ -179,6 +174,11 @@ public class Logic {
 
     private Task getTaskFromLineNumber(int lineNumber) {
         return currentTaskList.get(lineNumber - 1);
+    }
+
+    private void updateUiTaskList() {
+        currentTaskList = taskEngine.getOutstandingTasks();
+        ui.updateTaskList(currentTaskList);
     }
 
 }

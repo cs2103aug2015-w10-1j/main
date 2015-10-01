@@ -12,7 +12,19 @@ public class FileHandler {
 
     private static final Logger logger = Logger.getLogger(FileHandler.class.getName());
 
+    // ================================================================================
+    // Message strings
+    // ================================================================================
+
+    private static final String DEBUG_FILE_INIT = "FileHandler initialised. Using file ";
+    private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
+    private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file:\n";
+
     private static final String FILE_NAME = "storage.txt";
+
+    // ================================================================================
+    // Class variables
+    // ================================================================================
 
     private String directoryPath = "";
     private File file;
@@ -30,8 +42,12 @@ public class FileHandler {
             this.directoryPath = directoryPath;
         }
 		file = new File(this.directoryPath + FILE_NAME);
-        logger.log(Level.INFO, "FileHandler initialised. Using file " + file.getAbsolutePath());
+        logger.log(Level.INFO, DEBUG_FILE_INIT + file.getAbsolutePath());
     }
+
+    // ================================================================================
+    // FileHandler methods
+    // ================================================================================
 
     /**
      * Converts TaskState into json format and writes to disk
@@ -42,17 +58,21 @@ public class FileHandler {
         try {
 			jsonToFile(json);
 		} catch (IOException e) {
-			logger.log(Level.WARNING, "Could not write to file: " + json);
+			logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE + json);
 			e.printStackTrace();
 		}
     }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
 
 	private void jsonToFile(String json) throws IOException {
 		file.createNewFile();
 		bw = new BufferedWriter(new FileWriter(file));
 		bw.write(json);
 		bw.close();
-		logger.log(Level.INFO, "Wrote to file:\n" + json);
+		logger.log(Level.INFO, DEBUG_FILE_WRITE_SUCCESS + json);
 	}
 
     private String jsonify(TaskState taskState) {

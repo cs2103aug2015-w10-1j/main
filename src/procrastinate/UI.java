@@ -29,14 +29,14 @@ public class UI {
     // Message strings
     // ================================================================================
 
+    private static final String DEBUG_UI_INIT = "UI initialised. View is now loaded!";
+
     private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = "Preview: ";
 
     private static final String UI_NUMBER_SEPARATOR = ". ";
-
-    private static final String DEBUG_UI_INIT = "UI initialised. View is now loaded!";
 
     // ================================================================================
     // Class variables
@@ -63,6 +63,10 @@ public class UI {
     @FXML private Label statusLabel;
     @FXML private ListView<String> taskListView;
     @FXML private TextField userInputField;
+
+    // ================================================================================
+    // UI methods
+    // ================================================================================
 
     public void initialize() {
         initUI();
@@ -137,7 +141,7 @@ public class UI {
     }
 
     // ================================================================================
-    // UI utility methods
+    // Utility methods
     // ================================================================================
 
     private void updateListView() {
@@ -154,7 +158,6 @@ public class UI {
 
     private void setStatus(String status) {
         statusLabelText.set(status);
-        //logger.log(Level.INFO, status);
     }
 
 }

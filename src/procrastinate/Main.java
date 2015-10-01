@@ -15,18 +15,28 @@ import javafx.stage.StageStyle;
 
 public class Main extends Application {
 
-    private static final String TRAY_MENU_SHOW = "Show";
-    private static final String TRAY_MENU_EXIT = "Exit";
-    private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
-    private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
+    // ================================================================================
+    // Message strings
+    // ================================================================================
+
     private static final String WINDOW_TITLE = "Procrastinate";
     private static final double WINDOW_WIDTH = 500;
     private static final double WINDOW_MIN_WIDTH = 500;
     private static final double WINDOW_HEIGHT = 600;
     private static final double WINDOW_MIN_HEIGHT = 600;
-    private static double xOffset, yOffset;
+
+    private static final String TRAY_MENU_SHOW = "Show";
+    private static final String TRAY_MENU_EXIT = "Exit";
+    private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
+    private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
 
     private static final String ICON_IMAGE = "testicon.png";
+
+    // ================================================================================
+    // Class variables
+    // ================================================================================
+
+    private static double xOffset, yOffset;
 
     private Stage primaryStage;
     private TrayIcon sysTrayIcon; // required for displaying message through the tray icon
@@ -40,18 +50,21 @@ public class Main extends Application {
         Parent root;
         try {
             root = FXMLLoader.load(getClass().getResource("MainWindowLayout.fxml"));
-//             overwriteDecorations(primaryStage, root); //Removes all borders and buttons,
-                                                         //overwrites mouse events to enable dragging of window
+            //overwriteDecorations(primaryStage, root);
             initPrimaryStage(primaryStage, root);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
     private void initPrimaryStage(Stage primaryStage, Parent root) {
         this.primaryStage = primaryStage;
         configurePrimaryStage(primaryStage, root);
-        if (checkSysTraySupport()) {
+        if (isSysTraySupported()) {
             configureSysTray(primaryStage);
             createSysTray(primaryStage);
         }
@@ -65,10 +78,14 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
     }
 
+    // ================================================================================
+    // System tray methods
+    // ================================================================================
+
     private void configureSysTray(Stage primaryStage) {
-        Platform.setImplicitExit(false);    // Set this up before creating the trays
+        Platform.setImplicitExit(false); // Set this up before creating the trays
         primaryStage.setOnCloseRequest(e -> {
-            if (checkSysTraySupport()) {
+            if (isSysTraySupported()) {
                 primaryStage.hide();
                 showMinimiseMsg();
             } else {
@@ -89,12 +106,8 @@ public class Main extends Application {
         }
     }
 
-    private boolean checkSysTraySupport() {
-        return  SystemTray.isSupported();
-    }
-
     private void showMinimiseMsg(){
-        if (System.getProperty("os.name").startsWith("Windows")) {
+        if (isWindowsOs()) {
             sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
                                        TRAY_MESSAGE_DESCRIPTION,
                                        TrayIcon.MessageType.INFO);
@@ -133,6 +146,14 @@ public class Main extends Application {
         return trayIcon;
     }
 
+    private boolean isSysTraySupported() {
+        return  SystemTray.isSupported();
+    }
+
+    private boolean isWindowsOs() {
+        return System.getProperty("os.name").startsWith("Windows");
+    }
+
     private MouseListener createIconClickListener(){
         MouseListener iconClickListener = new MouseListener() {
             @Override
@@ -157,6 +178,7 @@ public class Main extends Application {
     }
 
     // Unused for now
+    // Removes all borders and buttons, enables dragging of window through frame
     @SuppressWarnings("unused")
     private void overwriteDecorations(Stage primaryStage, Parent root) {
         primaryStage.initStyle(StageStyle.UNDECORATED);

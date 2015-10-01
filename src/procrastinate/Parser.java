@@ -9,7 +9,14 @@ public class Parser {
 
     private static final Logger logger = Logger.getLogger(Parser.class.getName());
 
+    // ================================================================================
+    // Message strings
+    // ================================================================================
+
     private static final String DEBUG_PARSING_COMMAND = "Parsing command: ";
+
+    private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
+    private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description";
 
     private static final String COMMAND_EDIT = "edit";
     private static final String COMMAND_DELETE = "delete";
@@ -21,8 +28,9 @@ public class Parser {
     private static final String COMMAND_SHORT_UNDO = "un";
     private static final String COMMAND_SHORT_EXIT = "exit";
 
-    private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
-    private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description";
+    // ================================================================================
+    // Parser methods
+    // ================================================================================
 
     public static Command parse(String userCommand) {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userCommand);
@@ -86,6 +94,10 @@ public class Parser {
         }
 
     }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
 
     private static String getFirstWord(String userCommand) {
         return userCommand.split(" ")[0];
