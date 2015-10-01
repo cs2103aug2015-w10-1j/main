@@ -72,7 +72,6 @@ public class Main extends Application {
         Image sysTrayIconImage = createSysTrayIconImage();
         PopupMenu sysTrayPopup = createSysTrayMenu(primaryStage);
         sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup);
-        sysTrayIcon.setPopupMenu(sysTrayPopup);
         try {
             sysTray.add(sysTrayIcon);
         } catch (AWTException e) {
@@ -111,6 +110,7 @@ public class Main extends Application {
     private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
         TrayIcon trayIcon = new TrayIcon(iconImage, WINDOW_TITLE, popupMenu);
         trayIcon.setImageAutoSize(true);
+        trayIcon.setPopupMenu(popupMenu);
         return trayIcon;
     }
 
