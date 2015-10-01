@@ -30,7 +30,7 @@ public class Main extends Application {
     private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
     private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
 
-    private static final String ICON_IMAGE = "testicon.png";
+    private static final String IMAGE_ICON = "icon.png";
 
     // ================================================================================
     // Class variables
@@ -50,7 +50,6 @@ public class Main extends Application {
         Parent root;
         try {
             root = FXMLLoader.load(getClass().getResource("MainWindowLayout.fxml"));
-            //overwriteDecorations(primaryStage, root);
             initPrimaryStage(primaryStage, root);
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,6 +75,22 @@ public class Main extends Application {
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
         primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
+        //overwriteDecorations(primaryStage, root);
+    }
+
+    // Removes all borders and buttons, enables dragging of window through frame
+    // Unused for now
+    @SuppressWarnings("unused")
+    private void overwriteDecorations(Stage primaryStage, Parent root) {
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        root.setOnMousePressed((event) -> {
+                xOffset = event.getSceneX();
+                yOffset = event.getSceneY();
+            });
+        root.setOnMouseDragged((event) -> {
+                primaryStage.setX(event.getScreenX() - xOffset);
+                primaryStage.setY(event.getScreenY() - yOffset);
+            });
     }
 
     // ================================================================================
@@ -134,7 +149,7 @@ public class Main extends Application {
 
     private Image createSysTrayIconImage() {
         // Load image as system tray icon image
-        Image iconImage = Toolkit.getDefaultToolkit().getImage(ICON_IMAGE);
+        Image iconImage = Toolkit.getDefaultToolkit().getImage(IMAGE_ICON);
         return iconImage;
     }
 
@@ -175,21 +190,6 @@ public class Main extends Application {
             }
         };
         return iconClickListener;
-    }
-
-    // Unused for now
-    // Removes all borders and buttons, enables dragging of window through frame
-    @SuppressWarnings("unused")
-    private void overwriteDecorations(Stage primaryStage, Parent root) {
-        primaryStage.initStyle(StageStyle.UNDECORATED);
-        root.setOnMousePressed((event) -> {
-                xOffset = event.getSceneX();
-                yOffset = event.getSceneY();
-            });
-        root.setOnMouseDragged((event) -> {
-                primaryStage.setX(event.getScreenX() - xOffset);
-                primaryStage.setY(event.getScreenY() - yOffset);
-            });
     }
 
 }
