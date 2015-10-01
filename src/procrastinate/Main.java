@@ -1,6 +1,8 @@
 package procrastinate;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 
 import javafx.application.Application;
@@ -21,6 +23,8 @@ public class Main extends Application {
     private static double xOffset, yOffset;
 
     private static final String ICON_IMAGE = "testicon.png";
+
+    private Stage primaryStage;
     private TrayIcon sysTrayIcon; // required for displaying msg through the icon
 
     public static void main(String[] args) {
@@ -40,6 +44,7 @@ public class Main extends Application {
     }
 
     private void initPrimaryStage(Stage primaryStage, Parent root) {
+        this.primaryStage = primaryStage;
         configurePrimaryStage(primaryStage, root);
         if (checkSysTraySupport()) {
             configureSysTray(primaryStage);
@@ -71,7 +76,7 @@ public class Main extends Application {
         SystemTray sysTray = SystemTray.getSystemTray();
         Image sysTrayIconImage = createSysTrayIconImage();
         PopupMenu sysTrayPopup = createSysTrayMenu(primaryStage);
-        sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup);
+        sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup, primaryStage);
         try {
             sysTray.add(sysTrayIcon);
         } catch (AWTException e) {
@@ -107,11 +112,35 @@ public class Main extends Application {
         return iconImage;
     }
 
-    private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
+    private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu, Stage primaryStage) {
         TrayIcon trayIcon = new TrayIcon(iconImage, WINDOW_TITLE, popupMenu);
         trayIcon.setImageAutoSize(true);
         trayIcon.setPopupMenu(popupMenu);
+        trayIcon.addMouseListener(createIconClickListenr());
         return trayIcon;
+    }
+
+    private MouseListener createIconClickListenr(){
+        MouseListener iconClickListener = new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Platform.runLater(() -> primaryStage.show());
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        };
+        return iconClickListener;
     }
 
     // Unused for now
