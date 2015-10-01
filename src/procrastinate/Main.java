@@ -3,11 +3,9 @@ package procrastinate;
 import java.io.IOException;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -28,9 +26,8 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         Parent root;
         try {
-            root = FXMLLoader.load(getClass().getResource("RootLayout.fxml"));
-//             overwriteDecorations(primaryStage, root); //Removes all borders
-            // and buttons, overwrites mouse events to enable dragging of window
+            root = FXMLLoader.load(getClass().getResource("MainWindowLayout.fxml"));
+//             overwriteDecorations(primaryStage, root); //Removes all borders and buttons, overwrites mouse events to enable dragging of window
             initPrimaryStage(primaryStage, root);
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,31 +35,29 @@ public class Main extends Application {
     }
 
     private void initPrimaryStage(Stage primaryStage, Parent root) {
+        configurePrimaryStage(primaryStage, root);
+        primaryStage.show();
+    }
+
+    private void configurePrimaryStage(Stage primaryStage, Parent root) {
         primaryStage.setTitle(WINDOW_TITLE);
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
         primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
-        primaryStage.show();
     }
 
     // Unused for now
     @SuppressWarnings("unused")
     private void overwriteDecorations(Stage primaryStage, Parent root) {
         primaryStage.initStyle(StageStyle.UNDECORATED);
-        root.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+        root.setOnMousePressed((event) -> {
                 xOffset = event.getSceneX();
                 yOffset = event.getSceneY();
-            }
-        });
-        root.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+            });
+        root.setOnMouseDragged((event) -> {
                 primaryStage.setX(event.getScreenX() - xOffset);
                 primaryStage.setY(event.getScreenY() - yOffset);
-            }
-        });
+            });
     }
 
 }
