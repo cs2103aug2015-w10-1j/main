@@ -21,6 +21,7 @@ public class Parser {
     private static final String COMMAND_EDIT = "edit";
     private static final String COMMAND_DELETE = "delete";
     private static final String COMMAND_UNDO = "undo";
+    private static final String COMMAND_DONE = "done";
     private static final String COMMAND_EXIT = "procrastinate";
 
     private static final String COMMAND_SHORT_EDIT = "ed";
@@ -78,6 +79,20 @@ public class Parser {
                     return new Command(CommandType.UNDO);
                 } else {
                     return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                }
+
+            case COMMAND_DONE:
+            	if (!userCommand.equalsIgnoreCase(firstWord)){
+                    try {
+                        String[] argument = userCommand.split(" ", 2);
+                        int lineNumber = Integer.parseInt(argument[1]);
+                        return new Command(CommandType.DONE).addLineNumber(lineNumber);
+
+                    } catch (NumberFormatException e) { // So "done something" is a dream
+                        return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                    }
+                } else { // So "done" is invalid (no line number given)
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
             case COMMAND_EXIT:
