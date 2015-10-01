@@ -32,7 +32,7 @@ public class UI {
     private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
     private static final String STATUS_READY = "Ready!";
-    private static final String STATUS_PREVIEW_COMMAND = "Preview command: ";
+    private static final String STATUS_PREVIEW_COMMAND = "Preview: ";
 
     private static final String UI_NUMBER_SEPARATOR = ". ";
 
@@ -106,7 +106,7 @@ public class UI {
                 setStatus(STATUS_READY);
             } else {
                 lastParsedCommand = Parser.parse(newValue);
-                setStatus(STATUS_PREVIEW_COMMAND + logic.executeCommand(lastParsedCommand, false));
+                setStatus(STATUS_PREVIEW_COMMAND + logic.previewCommand(lastParsedCommand));
             }
         });
     }

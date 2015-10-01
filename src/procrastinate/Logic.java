@@ -66,9 +66,11 @@ public class Logic {
         return executeCommand(command, true);
     }
 
-    public String executeCommand(Command command, boolean execute) {
+    public String previewCommand(Command command) {
+        return executeCommand(command, false);
+    }
 
-        //Command command = Parser.parse(userCommand);
+    public String executeCommand(Command command, boolean execute) {
 
         switch (command.getType()) {
 

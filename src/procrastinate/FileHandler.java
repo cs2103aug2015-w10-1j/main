@@ -52,7 +52,7 @@ public class FileHandler {
 		bw = new BufferedWriter(new FileWriter(file));
 		bw.write(json);
 		bw.close();
-		logger.log(Level.INFO, "Wrote to file: " + json);
+		logger.log(Level.INFO, "Wrote to file:\n" + json);
 	}
 
     private String jsonify(TaskState taskState) {

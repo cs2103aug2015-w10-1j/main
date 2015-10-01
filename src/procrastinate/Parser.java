@@ -25,7 +25,7 @@ public class Parser {
     private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description";
 
     public static Command parse(String userCommand) {
-        logger.log(Level.INFO, DEBUG_PARSING_COMMAND + userCommand);
+        logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userCommand);
 
         userCommand = userCommand.trim(); // Trim leading and trailing whitespace
         String firstWord = getFirstWord(userCommand).toLowerCase(); // Case insensitive
