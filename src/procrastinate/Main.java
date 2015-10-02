@@ -41,7 +41,7 @@ public class Main extends Application {
     private Stage primaryStage;
     private TrayIcon sysTrayIcon; // required for displaying message through the tray icon
     private boolean shownMinimiseMessage = false;
-    private boolean isHidden = false;
+    private boolean isWindowHidden = false;
 
     public static void main(String[] args) {
         launch(args);
@@ -104,7 +104,7 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(e -> {
             if (isSysTraySupported()) {
                 primaryStage.hide();
-                isHidden = true;
+                isWindowHidden = true;
                 if (isWindowsOs()) {
                     showMinimiseMessage();
                 }
@@ -176,17 +176,15 @@ public class Main extends Application {
     }
 
     private void windowHideOrShow() {
-        if (isHidden) {
+        if (isWindowHidden) {
             Platform.runLater(() -> {
                 primaryStage.show();
                 primaryStage.toFront();
             });
-            isHidden = false;
+            isWindowHidden = false;
         } else {
-            Platform.runLater(() ->
-                            primaryStage.hide()
-            );
-            isHidden = true;
+            Platform.runLater(() -> primaryStage.hide());
+            isWindowHidden = true;
         }
     }
 
