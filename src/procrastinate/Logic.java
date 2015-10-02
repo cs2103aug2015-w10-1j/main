@@ -37,6 +37,7 @@ public class Logic {
     private TaskEngine taskEngine;
     private UI ui;
     private List<Task> currentTaskList;
+    private Command lastPreviewedCommand = null;
 
     // ================================================================================
     // Singleton pattern
@@ -67,15 +68,21 @@ public class Logic {
     // Logic methods
     // ================================================================================
 
-    public String executeCommand(Command command) {
-        return executeCommand(command, true);
+    public String previewCommand(String userCommand) {
+    	lastPreviewedCommand = Parser.parse(userCommand);
+        return runCommand(lastPreviewedCommand, false);
     }
 
-    public String previewCommand(Command command) {
-        return executeCommand(command, false);
+    public String executeLastPreviewedCommand() {
+    	assert(lastPreviewedCommand != null);
+        return runCommand(lastPreviewedCommand, true);
     }
 
-    private String executeCommand(Command command, boolean execute) {
+    public boolean hasLastPreviewedCommand() {
+    	return lastPreviewedCommand != null;
+    }
+
+    private String runCommand(Command command, boolean execute) {
 
         switch (command.getType()) {
 

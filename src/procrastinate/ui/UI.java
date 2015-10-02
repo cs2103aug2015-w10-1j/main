@@ -20,9 +20,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.util.converter.NumberStringConverter;
-import procrastinate.Command;
+
 import procrastinate.Logic;
-import procrastinate.Parser;
 import procrastinate.task.Task;
 
 public class UI {
@@ -56,8 +55,6 @@ public class UI {
     private StringProperty taskCountFormatted = new SimpleStringProperty();
     private StringProperty taskCountString = new SimpleStringProperty();
     private StringProperty userInput = new SimpleStringProperty();
-
-    private Command lastParsedCommand;
 
     // ================================================================================
     // FXML field variables
@@ -113,8 +110,7 @@ public class UI {
             if (newValue.trim().isEmpty()) {
                 setStatus(STATUS_READY);
             } else {
-                lastParsedCommand = Parser.parse(newValue);
-                setStatus(STATUS_PREVIEW_COMMAND + logic.previewCommand(lastParsedCommand));
+                setStatus(STATUS_PREVIEW_COMMAND + logic.previewCommand(newValue));
             }
         });
     }
@@ -132,10 +128,10 @@ public class UI {
                 String input = getInput();
                 clearInput(); // Must come before setStatus as key release handler resets status
                 if (!input.trim().isEmpty()) {
-                    if (lastParsedCommand == null) {
-                        lastParsedCommand = Parser.parse(input);
+                    if (!logic.hasLastPreviewedCommand()) {
+                        logic.previewCommand(input);
                     }
-                    String feedback = logic.executeCommand(lastParsedCommand);
+                    String feedback = logic.executeLastPreviewedCommand();
                     setStatus(feedback);
                 } else {
                     setStatus(STATUS_READY);
