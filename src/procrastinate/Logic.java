@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javafx.stage.Stage;
 import procrastinate.task.Dream;
 import procrastinate.task.Task;
 import procrastinate.task.TaskEngine;
@@ -46,9 +47,18 @@ public class Logic {
     private static Logic logic;
 
     private Logic() {
+        initUi();
         initTaskEngine();
         initCurrentTaskList();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
+    }
+
+    private void initUi() {
+        ui = new UI();
+    }
+
+    public void initialiseWindow(Stage primaryStage) {
+        ui.setUpStage(primaryStage);
     }
 
     public static Logic getInstance() {

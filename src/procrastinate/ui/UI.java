@@ -1,5 +1,6 @@
 package procrastinate.ui;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,12 +14,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
 
 import procrastinate.Logic;
@@ -69,12 +74,31 @@ public class UI {
     // UI methods
     // ================================================================================
 
+    private Parent root;
+
+    public UI() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindowLayout.fxml"));
+//        loader.setRoot(this);
+        loader.setController(this);
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void setUpStage(Stage primaryStage) {
+        primaryStage.setScene(new Scene(root, 500, 500));
+        primaryStage.show();
+    }
+
     public void initialize() {
         initUI();
         attachHandlersAndListeners();
         initBinding();
 
-        initLogic(); // Must be after UI is up as it causes Logic to call UI
+//        initLogic(); // Must be after UI is up as it causes Logic to call UI
 
         setStatus(STATUS_READY);
 

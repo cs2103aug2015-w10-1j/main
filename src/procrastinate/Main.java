@@ -3,11 +3,8 @@ package procrastinate;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
-
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -43,12 +40,18 @@ public class Main extends Application {
     private boolean shownMinimiseMessage = false;
     private boolean isWindowHidden = false;
 
+    /// OVERWRITE ////
+    private Logic logic;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
+        logic = Logic.getInstance();
+        logic.initialiseWindow(primaryStage);
+
         // Start overwrite to shift all methods into UI class //
 //        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindowLayout.fxml"));
 //        Parent root = loader.load();
@@ -56,13 +59,13 @@ public class Main extends Application {
 //        ui.setStage(primaryStage);            // require new method to set the stage for initialization
 //        ui.initialize();
         // End overwrite //
-        Parent root;
-        try {
-            root = FXMLLoader.load(getClass().getResource("ui/MainWindowLayout.fxml"));
-            initPrimaryStage(primaryStage, root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        Parent root;
+//        try {
+//            root = FXMLLoader.load(getClass().getResource("ui/MainWindowLayout.fxml"));
+//            initPrimaryStage(primaryStage, root);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     // ================================================================================
