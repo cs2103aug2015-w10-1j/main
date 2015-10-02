@@ -53,14 +53,6 @@ public class Logic {
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
-    private void initUi() {
-        ui = new UI();
-    }
-
-    public void initialiseWindow(Stage primaryStage) {
-        ui.setUpStage(primaryStage);
-    }
-
     public static Logic getInstance() {
         if (logic == null) {
             logic = new Logic();
@@ -72,6 +64,12 @@ public class Logic {
     public void setUi(UI ui) {
         this.ui = ui;
         ui.updateTaskList(currentTaskList);
+    }
+
+    // Main handle
+    public void initialiseWindow(Stage primaryStage) {
+        ui.setUpStage(primaryStage);
+        ui.initialize();
     }
 
     // ================================================================================
@@ -181,6 +179,10 @@ public class Logic {
     // ================================================================================
     // Init methods
     // ================================================================================
+
+    private void initUi() {
+        ui = new UI();
+    }
 
     private void initTaskEngine() {
         taskEngine = new TaskEngine();

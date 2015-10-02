@@ -78,12 +78,10 @@ public class UI {
 
     public UI() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindowLayout.fxml"));
-//        loader.setRoot(this);
-        loader.setController(this);
+        loader.setController(this); // Required due to different package declaration from Main
         try {
             root = loader.load();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -94,7 +92,7 @@ public class UI {
     }
 
     public void initialize() {
-        initUI();
+        initTaskDisplay();
         attachHandlersAndListeners();
         initBinding();
 
@@ -124,7 +122,7 @@ public class UI {
         logic.setUi(this);
     }
 
-    private void initUI() {
+    private void initTaskDisplay() {
         taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
     }
 

@@ -95,13 +95,13 @@ public class Main extends Application {
     @SuppressWarnings("unused")
     private void overwriteDecorations(Stage primaryStage, Parent root) {
         primaryStage.initStyle(StageStyle.UNDECORATED);
-        root.setOnMousePressed((event) -> {
-                xOffset = event.getSceneX();
-                yOffset = event.getSceneY();
+        root.setOnMousePressed((mouseEvent) -> {
+                xOffset = mouseEvent.getSceneX();
+                yOffset = mouseEvent.getSceneY();
             });
-        root.setOnMouseDragged((event) -> {
-                primaryStage.setX(event.getScreenX() - xOffset);
-                primaryStage.setY(event.getScreenY() - yOffset);
+        root.setOnMouseDragged((mouseEvent) -> {
+                primaryStage.setX(mouseEvent.getScreenX() - xOffset);
+                primaryStage.setY(mouseEvent.getScreenY() - yOffset);
             });
     }
 
@@ -111,7 +111,7 @@ public class Main extends Application {
 
     private void configureSysTray(Stage primaryStage) {
         Platform.setImplicitExit(false); // Set this up before creating the trays
-        primaryStage.setOnCloseRequest(e -> {
+        primaryStage.setOnCloseRequest(windowEvent -> {
             if (isSysTraySupported()) {
                 primaryStage.hide();
                 isWindowHidden = true;
@@ -149,10 +149,10 @@ public class Main extends Application {
         PopupMenu menu = new PopupMenu();
 
         MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
-        menuExit.addActionListener(e -> System.exit(0));
+        menuExit.addActionListener(actionEvent -> System.exit(0));
 
         MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
-        menuShow.addActionListener(e -> windowHideOrShow());
+        menuShow.addActionListener(actionEvent -> windowHideOrShow());
 
         menu.add(menuShow);
         menu.add(menuExit);
