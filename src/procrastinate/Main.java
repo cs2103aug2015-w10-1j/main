@@ -25,7 +25,7 @@ public class Main extends Application {
     private static final double WINDOW_HEIGHT = 600;
     private static final double WINDOW_MIN_HEIGHT = 600;
 
-    private static final String TRAY_MENU_SHOW = "Show";
+    private static final String TRAY_MENU_SHOW_OR_HIDE = "Show/Hide";
     private static final String TRAY_MENU_EXIT = "Exit";
     private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
     private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
@@ -41,6 +41,7 @@ public class Main extends Application {
     private Stage primaryStage;
     private TrayIcon sysTrayIcon; // required for displaying message through the tray icon
     private boolean shownMinimiseMessage = false;
+    private boolean isHidden = false;
 
     public static void main(String[] args) {
         launch(args);
@@ -103,6 +104,7 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(e -> {
             if (isSysTraySupported()) {
                 primaryStage.hide();
+                isHidden = true;
                 if (isWindowsOs()) {
                     showMinimiseMessage();
                 }
@@ -139,11 +141,8 @@ public class Main extends Application {
         MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
         menuExit.addActionListener(e -> System.exit(0));
 
-        MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW);
-        menuShow.addActionListener(e -> Platform.runLater(() -> {
-            primaryStage.show();
-            primaryStage.toFront();
-        }));
+        MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
+        menuShow.addActionListener(e -> windowHideOrShow());
 
         menu.add(menuShow);
         menu.add(menuExit);
@@ -172,15 +171,31 @@ public class Main extends Application {
         return System.getProperty("os.name").startsWith("Windows");
     }
 
+    private boolean isLeftClick(MouseEvent e) {
+        return e.getButton() == MouseEvent.BUTTON1;
+    }
+
+    private void windowHideOrShow() {
+        if (isHidden) {
+            Platform.runLater(() -> {
+                primaryStage.show();
+                primaryStage.toFront();
+            });
+            isHidden = false;
+        } else {
+            Platform.runLater(() ->
+                            primaryStage.hide()
+            );
+            isHidden = true;
+        }
+    }
+
     private MouseListener createIconClickListener(){
         MouseListener iconClickListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (isWindowsOs()) {
-                    Platform.runLater(() -> {
-                        primaryStage.show();
-                        primaryStage.toFront();
-                    });
+                if (isWindowsOs() && isLeftClick(e)) {
+                    windowHideOrShow();
                 }
             }
             // Unused methods, left empty.

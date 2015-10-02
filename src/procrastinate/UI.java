@@ -123,7 +123,7 @@ public class UI {
     }
 
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
-        return (KeyEvent keyEvent) -> {
+        return (keyEvent) -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String input = getInput();
                 clearInput(); // Must come before setStatus as key release handler resets status
