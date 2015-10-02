@@ -49,9 +49,16 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // Start overwrite to shift all methods into UI class //
+//        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindowLayout.fxml"));
+//        Parent root = loader.load();
+//        UI ui = (UI) loader.getController();
+//        ui.setStage(primaryStage);            // require new method to set the stage for initialization
+//        ui.initialize();
+        // End overwrite //
         Parent root;
         try {
-            root = FXMLLoader.load(getClass().getResource("MainWindowLayout.fxml"));
+            root = FXMLLoader.load(getClass().getResource("ui/MainWindowLayout.fxml"));
             initPrimaryStage(primaryStage, root);
         } catch (IOException e) {
             e.printStackTrace();

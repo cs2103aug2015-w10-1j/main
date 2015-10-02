@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import com.google.gson.*;
 
+import procrastinate.task.TaskState;
+
 public class FileHandler {
 
     private static final Logger logger = Logger.getLogger(FileHandler.class.getName());

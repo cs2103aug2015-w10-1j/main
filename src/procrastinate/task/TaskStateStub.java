@@ -1,4 +1,4 @@
-package procrastinate;
+package procrastinate.task;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package procrastinate;
+package procrastinate.ui;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -20,6 +20,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.util.converter.NumberStringConverter;
+import procrastinate.Command;
+import procrastinate.Logic;
+import procrastinate.Parser;
+import procrastinate.task.Task;
 
 public class UI {
 

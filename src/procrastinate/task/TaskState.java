@@ -1,4 +1,4 @@
-package procrastinate;
+package procrastinate.task;
 
 import java.util.ArrayList;
 import java.util.List;

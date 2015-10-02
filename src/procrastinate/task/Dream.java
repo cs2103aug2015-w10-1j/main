@@ -1,4 +1,4 @@
-package procrastinate;
+package procrastinate.task;
 
 public class Dream extends Task {
 

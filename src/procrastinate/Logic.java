@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import procrastinate.task.Dream;
+import procrastinate.task.Task;
+import procrastinate.task.TaskEngine;
+import procrastinate.ui.UI;
+
 public class Logic {
 
     private static final Logger logger = Logger.getLogger(Logic.class.getName());
