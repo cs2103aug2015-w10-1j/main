@@ -27,14 +27,14 @@ public class TaskEngine {
     // Class variables
     // ================================================================================
 
-    private List<Task> outstandingTasks, completedTasks;
+    private List<Task> tasks;
 
     private TaskState previousState = null;
 
     private FileHandler fileHandler;
 
     public TaskEngine() {
-        initLists();
+        initTasks();
         initFileHandler();
         logger.log(Level.INFO, DEBUG_TASK_ENGINE_INIT);
     }
@@ -49,7 +49,7 @@ public class TaskEngine {
         String description = task.getDescription();
         String type = task.getTypeString();
 
-        outstandingTasks.add(task);
+        tasks.add(task);
 
         logger.log(Level.INFO, String.format(DEBUG_ADDED_TASK, type, description));
 
@@ -61,15 +61,8 @@ public class TaskEngine {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
-
-        if (index < outstandingTasks.size()) {
-            outstandingTasks.remove(index);
-            outstandingTasks.add(index, newTask);
-        } else {
-            index -= outstandingTasks.size();
-            completedTasks.remove(index);
-            completedTasks.add(index, newTask);
-        }
+        tasks.remove(index);
+        tasks.add(index, newTask);
 
         logger.log(Level.INFO, String.format(DEBUG_EDITED_TASK, index + 1, newTask.getDescription()));
 
@@ -81,16 +74,8 @@ public class TaskEngine {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
-
-        Task task;
-        if (index < outstandingTasks.size()) {
-            task = outstandingTasks.get(index);
-            outstandingTasks.remove(index);
-        } else {
-            index -= outstandingTasks.size();
-            task = completedTasks.get(index);
-            completedTasks.remove(index);
-        }
+        Task task = tasks.get(index);
+        tasks.remove(index);
 
         String description = task.getDescription();
         String type = task.getTypeString();
@@ -115,21 +100,36 @@ public class TaskEngine {
     }
 
     public List<Task> getOutstandingTasks() {
+        List<Task> outstandingTasks = new ArrayList<Task>();
+        for (Task task : tasks) {
+            if (!task.isDone()) {
+                outstandingTasks.add(task);
+            }
+        }
         return outstandingTasks;
     }
 
     public List<Task> getCompletedTasks() {
+        List<Task> completedTasks = new ArrayList<Task>();
+        for (Task task : tasks) {
+            if (task.isDone()) {
+                completedTasks.add(task);
+            }
+        }
         return completedTasks;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
     }
 
     // ================================================================================
     // Init methods
     // ================================================================================
 
-    private void initLists() {
-        outstandingTasks = new ArrayList<Task>();
-        completedTasks = new ArrayList<Task>();
-        //loadState(new TaskStateStub()); // Load example data from stub
+    private void initTasks() {
+        tasks = new ArrayList<Task>();
+        loadState(new TaskStateStub()); // Load example data from stub
     }
 
     private void initFileHandler() {
@@ -145,8 +145,7 @@ public class TaskEngine {
     }
 
     private void loadState(TaskState state) {
-        this.outstandingTasks = state.outstandingTasks;
-        this.completedTasks = state.completedTasks;
+        tasks = state.tasks;
     }
 
     private void writeStateToFile() {
@@ -158,7 +157,7 @@ public class TaskEngine {
     }
 
     private TaskState getCurrentState() {
-        return new TaskState(outstandingTasks, completedTasks);
+        return new TaskState(tasks);
     }
 
     // ================================================================================
@@ -166,14 +165,9 @@ public class TaskEngine {
     // ================================================================================
 
     private int getIndexFromId(UUID id) {
-        for (int i = 0; i < outstandingTasks.size(); i++) {
-            if (outstandingTasks.get(i).getId().equals(id)) {
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getId().equals(id)) {
                 return i;
-            }
-        }
-        for (int i = 0; i < completedTasks.size(); i++) {
-            if (completedTasks.get(i).getId().equals(id)) {
-                return i + outstandingTasks.size();
             }
         }
         throw new Error(ERROR_TASK_NOT_FOUND);

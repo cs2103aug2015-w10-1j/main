@@ -5,16 +5,14 @@ import java.util.List;
 
 public class TaskState {
 
-    public List<Task> outstandingTasks, completedTasks;
+    public List<Task> tasks;
 
-    public TaskState(List<Task> outstandingTasks, List<Task> completedTasks) {
-        this.outstandingTasks = outstandingTasks;
-        this.completedTasks = completedTasks;
+    public TaskState(List<Task> tasks) {
+        this.tasks = tasks;
     }
 
     public static TaskState copy(TaskState state) {
-        return new TaskState(new ArrayList<Task>(state.outstandingTasks),
-                             new ArrayList<Task>(state.completedTasks));
+        return new TaskState(new ArrayList<Task>(state.tasks));
     }
 
 }

@@ -10,12 +10,14 @@ import java.util.List;
  * Constructs a hard coded TaskState
  */
 public class TaskStateStub extends TaskState{
+
 	public TaskStateStub() {
-		super(getOutstanding(), getCompleted());
+		super(getTasks());
 	}
 
-	private static List<Task> getOutstanding() {
+	private static List<Task> getTasks() {
 		List<Task> stub = new ArrayList<Task>();
+
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		stub.add(new Dream("foo dream"));
 		try {
@@ -25,12 +27,9 @@ public class TaskStateStub extends TaskState{
 			e.printStackTrace();
 		}
 
-		return stub;
-	}
-
-	private static List<Task> getCompleted() {
-		List<Task> stub = new ArrayList<Task>();
-		stub.add(new Dream("bar"));
+		Dream doneDream = (new Dream("bar done"));
+		doneDream.setDone();
+		stub.add(doneDream);
 
 		return stub;
 	}
