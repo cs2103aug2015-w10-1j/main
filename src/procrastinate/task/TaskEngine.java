@@ -20,6 +20,7 @@ public class TaskEngine {
     private static final String DEBUG_ADDED_TASK = "Added %1$s: %2$s";
     private static final String DEBUG_EDITED_TASK = "Edited #%1$s: %2$s";
     private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
+    private static final String DEBUG_DONE_TASK = "Done %1$s: %2$s";
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
@@ -81,6 +82,22 @@ public class TaskEngine {
         String type = task.getTypeString();
 
         logger.log(Level.INFO, String.format(DEBUG_DELETED_TASK, type, description));
+
+        writeStateToFile();
+
+    }
+
+    public void done(UUID taskId) {
+        backupOlderState();
+
+        int index = getIndexFromId(taskId);
+        Task task = tasks.get(index);
+        task.setDone();
+
+        String description = task.getDescription();
+        String type = task.getTypeString();
+
+        logger.log(Level.INFO, String.format(DEBUG_DONE_TASK, type, description));
 
         writeStateToFile();
 

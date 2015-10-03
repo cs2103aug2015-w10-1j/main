@@ -29,6 +29,7 @@ public class Logic {
     private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
     private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
+    private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
     private static final String FEEDBACK_UNDONE = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
@@ -150,6 +151,25 @@ public class Logic {
                 }
 
                 return String.format(FEEDBACK_DELETED, type, description);
+            }
+
+            case DONE: {
+                int lineNumber = command.getLineNumber();
+
+                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+                }
+
+                Task task = getTaskFromLineNumber(lineNumber);
+                String type = task.getTypeString();
+                String description = task.getDescription();
+
+                if (execute) {
+                    taskEngine.done(task.getId());
+                    updateUiTaskList();
+                }
+
+                return String.format(FEEDBACK_DONE, type, description);
             }
 
             case UNDO: {
