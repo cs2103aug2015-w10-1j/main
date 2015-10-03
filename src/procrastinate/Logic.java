@@ -74,6 +74,7 @@ public class Logic {
 
     // Main handle
     public void initialiseWindow(Stage primaryStage) {
+        assert (ui != null);
         ui.setUpStage(primaryStage);
         ui.setUpBinding(userInput, statusLabelText);
         attachHandlersAndListeners();

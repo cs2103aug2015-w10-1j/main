@@ -14,6 +14,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         logic = Logic.getInstance();
+        assert (logic != null);
         logic.initialiseWindow(primaryStage);
     }
 }
