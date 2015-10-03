@@ -44,7 +44,8 @@ public class UI {
     // Message strings
     // ================================================================================
 
-    private static final String DEBUG_UI_INIT = "UI initialised. View is now loaded!";
+    private static final String DEBUG_UI_INIT = "UI initialised.";
+    private static final String DEBUG_UI_LOAD = "View is now loaded!";
 
     private static final String IMAGE_ICON = "icon.png";
 
@@ -109,13 +110,12 @@ public class UI {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
     // This auto gets called from the UI constructor when load is executed.
     public void initialize() {
         initTaskDisplay();
-
-        logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
     public void setUpBinding(StringProperty userInput, StringProperty statusLabelText) {
@@ -125,6 +125,7 @@ public class UI {
     public void setUpStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
         initPrimaryStage();
+        logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
     public void updateTaskList(List<Task> tasks) {
