@@ -4,6 +4,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.event.EventHandler;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import procrastinate.task.Dream;
 import procrastinate.task.Task;
@@ -31,6 +37,9 @@ public class Logic {
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
+    private static final String STATUS_READY = "Ready!";
+    private static final String STATUS_PREVIEW_COMMAND = "Preview: ";
+
     // ================================================================================
     // Class variables
     // ================================================================================
@@ -39,6 +48,9 @@ public class Logic {
     private UI ui;
     private List<Task> currentTaskList;
     private Command lastPreviewedCommand = null;
+
+    private StringProperty userInput = new SimpleStringProperty();
+    private StringProperty statusLabelText = new SimpleStringProperty();
 
     // ================================================================================
     // Singleton pattern
@@ -69,7 +81,9 @@ public class Logic {
     // Main handle
     public void initialiseWindow(Stage primaryStage) {
         ui.setUpStage(primaryStage);
-        ui.initialize();
+        ui.setUpBinding(userInput, statusLabelText);
+        attachHandlersAndListeners();
+        setStatus(STATUS_READY);
     }
 
     // ================================================================================
@@ -205,4 +219,41 @@ public class Logic {
         ui.updateTaskList(currentTaskList);
     }
 
+    private String getInput() {
+        return userInput.get();
+    }
+
+    private void setStatus(String status) {
+        statusLabelText.set(status);
+    }
+
+    private EventHandler<KeyEvent> createKeyReleaseHandler() {
+        return (keyEvent) -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                String input = getInput();
+                ui.clearInput(); // Must come before setStatus as key release handler resets status
+                if (!input.trim().isEmpty()) {
+                    if (!logic.hasLastPreviewedCommand()) {
+                        logic.previewCommand(input);
+                    }
+                    String feedback = logic.executeLastPreviewedCommand();
+                    setStatus(feedback);
+                } else {
+                    setStatus(STATUS_READY);
+                }
+            }
+        };
+    }
+
+    private void attachHandlersAndListeners() {
+        TextField userInputField = ui.getUserInputField();
+        userInputField.setOnKeyReleased(createKeyReleaseHandler());
+        userInputField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.trim().isEmpty()) {
+                setStatus(STATUS_READY);
+            } else {
+                setStatus(STATUS_PREVIEW_COMMAND + logic.previewCommand(newValue));
+            }
+        });
+    }
 }
