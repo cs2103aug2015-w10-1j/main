@@ -35,8 +35,8 @@ public class TaskEngine {
     private FileHandler fileHandler;
 
     public TaskEngine() {
-        initTasks();
         initFileHandler();
+        initTasks();
         logger.log(Level.INFO, DEBUG_TASK_ENGINE_INIT);
     }
 
@@ -144,13 +144,13 @@ public class TaskEngine {
     // Init methods
     // ================================================================================
 
-    private void initTasks() {
-        tasks = new ArrayList<Task>();
-        loadState(new TaskStateStub()); // Load example data from stub
-    }
-
     private void initFileHandler() {
         fileHandler = new FileHandler();
+    }
+
+    private void initTasks() {
+        tasks = new ArrayList<Task>();
+        //loadState(new TaskStateStub()); // Load example data from stub
     }
 
     // ================================================================================
