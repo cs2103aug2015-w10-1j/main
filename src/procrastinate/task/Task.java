@@ -11,12 +11,17 @@ public abstract class Task {
     private final UUID id = UUID.randomUUID();
 	private final TaskType type; // Cannot change type; subclass object already created
 	private String description;
-	private boolean done = false;
+	private boolean done;
 
 	public Task(TaskType type, String description) {
-		this.type = type;
-		this.description = description;
+	    this(type, description, false);
 	}
+
+	public Task(TaskType type, String description, boolean done) {
+        this.type = type;
+        this.description = description;
+        this.done = done;
+    }
 
 	// ================================================================================
     // Getter methods
