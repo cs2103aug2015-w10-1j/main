@@ -48,6 +48,8 @@ public class UI {
 
     private static final String IMAGE_ICON = "icon.png";
 
+    private static final String LOCATION_MAIN_WINDOW_LAYOUT = "MainWindowLayout.fxml";
+
     private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
     private static final String TRAY_MENU_SHOW_OR_HIDE = "Show/Hide";
@@ -100,7 +102,7 @@ public class UI {
     // ================================================================================
 
     public UI() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindowLayout.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_MAIN_WINDOW_LAYOUT));
         loader.setController(this); // Required due to different package declaration from Main
         try {
             root = loader.load();
@@ -116,13 +118,13 @@ public class UI {
         logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
-    public void setUpStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        initPrimaryStage(primaryStage, root);
-    }
-
     public void setUpBinding(StringProperty userInput, StringProperty statusLabelText) {
         initBinding(userInput, statusLabelText);
+    }
+
+    public void setUpStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        initPrimaryStage();
     }
 
     public void updateTaskList(List<Task> tasks) {
@@ -139,21 +141,20 @@ public class UI {
     // Init methods
     // ================================================================================
 
-    private void initPrimaryStage(Stage primaryStage, Parent root) {
-        this.primaryStage = primaryStage;
+    private void initBinding(StringProperty userInput, StringProperty statusLabelText) {
+        userInput.bindBidirectional(userInputField.textProperty());
+        statusLabelText.bindBidirectional(statusLabel.textProperty());
+        taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
+        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
+    }
+
+    private void initPrimaryStage() {
         configurePrimaryStage(primaryStage, root);
         if (isSysTraySupported()) {
             configureSysTray(primaryStage);
             createSysTray(primaryStage);
         }
         primaryStage.show();
-    }
-
-    private void initBinding(StringProperty userInput, StringProperty statusLabelText) {
-        userInput.bindBidirectional(userInputField.textProperty());
-        statusLabelText.bindBidirectional(statusLabel.textProperty());
-        taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
-        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
     }
 
     private void initTaskDisplay() {
