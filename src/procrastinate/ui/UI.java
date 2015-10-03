@@ -139,7 +139,8 @@ public class UI {
     private void initWindowAndTray() {
         configurePrimaryStage(primaryStage, root);
         if (isSysTraySupported()) {
-            sysTrayHandler = new SystemTrayHandler(primaryStage);
+            sysTrayHandler = new SystemTrayHandler(primaryStage, userInputField);
+            // userInputField is passed to SystemTrayHandler to request for focus whenever the window is shown
             sysTray = sysTrayHandler.initialiseTray();
             assert (sysTray != null);
         }

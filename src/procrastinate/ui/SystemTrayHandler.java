@@ -29,14 +29,16 @@ public class SystemTrayHandler {
 
     private Stage primaryStage;
     private SystemTray sysTray;
+    private javafx.scene.control.TextField userInputField;
     private TrayIcon sysTrayIcon;
 
     // ================================================================================
     // SystemTrayHandler methods
     // ================================================================================
 
-    public SystemTrayHandler(Stage primaryStage) {
+    public SystemTrayHandler(Stage primaryStage, javafx.scene.control.TextField userInputField) {
         this.primaryStage = primaryStage;
+        this.userInputField = userInputField;
     }
 
     public SystemTray initialiseTray() {
@@ -122,6 +124,7 @@ public class SystemTrayHandler {
         if (isWindowHidden) {
             Platform.runLater(() -> {
                 primaryStage.show();
+                userInputField.requestFocus();
                 primaryStage.toFront();
             });
             isWindowHidden = false;
