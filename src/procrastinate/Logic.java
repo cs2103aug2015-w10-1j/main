@@ -217,19 +217,23 @@ public class Logic {
         ui.updateTaskList(currentTaskList);
     }
 
+    // Retrieves the current user input from the TextField.
     private String getInput() {
         return userInput.get();
     }
 
+    // Sets the text of the 'Status' Label directly.
     private void setStatus(String status) {
         statusLabelText.set(status);
     }
 
+    // Handles KeyEvents upon key release by the user.
+    // Key release is used to enable user to see the response first before the event executes.
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (keyEvent) -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String input = getInput();
-                ui.clearInput(); // Must come before setStatus as key release handler resets status
+                ui.clearInput(); // Must come before setStatus as key release handler resets status.
                 if (!input.trim().isEmpty()) {
                     if (!logic.hasLastPreviewedCommand()) {
                         logic.previewCommand(input);
@@ -243,14 +247,17 @@ public class Logic {
         };
     }
 
+    // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
     private void attachHandlersAndListeners() {
         TextField userInputField = ui.getUserInputField();
         userInputField.setOnKeyReleased(createKeyReleaseHandler());
         userInputField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // A ChangeListener is added and the arguments are sent to its 'changed' method,
+            // which is overwritten below:
             if (newValue.trim().isEmpty()) {
                 setStatus(STATUS_READY);
             } else {
-                setStatus(STATUS_PREVIEW_COMMAND + logic.previewCommand(newValue));
+                setStatus(STATUS_PREVIEW_COMMAND + previewCommand(newValue));
             }
         });
     }

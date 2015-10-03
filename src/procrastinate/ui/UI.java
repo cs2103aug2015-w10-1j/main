@@ -118,13 +118,14 @@ public class UI {
         initTaskDisplay();
     }
 
+    // Logic Handles
     public void setUpBinding(StringProperty userInput, StringProperty statusLabelText) {
         initBinding(userInput, statusLabelText);
     }
 
     public void setUpStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        initPrimaryStage();
+        initWindowAndTray();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
@@ -143,13 +144,15 @@ public class UI {
     // ================================================================================
 
     private void initBinding(StringProperty userInput, StringProperty statusLabelText) {
+        // Binds the input and status text to the StringProperty in Logic.
         userInput.bindBidirectional(userInputField.textProperty());
         statusLabelText.bindBidirectional(statusLabel.textProperty());
+
         taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
         taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
     }
 
-    private void initPrimaryStage() {
+    private void initWindowAndTray() {
         configurePrimaryStage(primaryStage, root);
         if (isSysTraySupported()) {
             configureSysTray(primaryStage);
@@ -194,12 +197,14 @@ public class UI {
     // ================================================================================
 
     private void configureSysTray(Stage primaryStage) {
-        Platform.setImplicitExit(false); // Set this up before creating the trays
+        Platform.setImplicitExit(false);    // Set this up before creating the trays
+        // Enables the app to run normally until the app calls exit, even if the last app window is closed.
         primaryStage.setOnCloseRequest(windowEvent -> {
             if (isSysTraySupported()) {
                 primaryStage.hide();
                 isWindowHidden = true;
                 if (isWindowsOs()) {
+                    // Windows check needed as MacOS doesn't recognise balloon messages
                     showMinimiseMessage();
                 }
             } else {
@@ -235,7 +240,7 @@ public class UI {
     }
 
     private Image createSysTrayIconImage() {
-        // Load image as system tray icon image
+        // Load an image as system tray icon image. Auto resize is enabled in createSysTrayIcon method.
         Image iconImage = Toolkit.getDefaultToolkit().getImage(IMAGE_ICON);
         return iconImage;
     }
@@ -299,6 +304,7 @@ public class UI {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (isWindowsOs() && isLeftClick(e)) {
+                    // Windows check needed as MacOS doesn't differentiate buttons
                     windowHideOrShow();
                 }
             }
