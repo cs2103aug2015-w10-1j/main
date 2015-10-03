@@ -1,6 +1,7 @@
 package procrastinate.ui;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -13,12 +14,12 @@ public class SystemTrayHandler {
     // Message strings
     // ================================================================================
 
+    private static final String TRAY_ICON_TITLE = "Procrastinate";
+    private static final String TRAY_IMAGE_ICON = "icon.png";
     private static final String TRAY_MENU_SHOW_OR_HIDE = "Show/Hide";
     private static final String TRAY_MENU_EXIT = "Exit";
     private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
     private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
-    private static final String TRAY_IMAGE_ICON = "icon.png";
-    private static final String TRAY_ICON_TITLE = "Procrastinate";
 
     // ================================================================================
     // Class variables
@@ -29,14 +30,14 @@ public class SystemTrayHandler {
 
     private Stage primaryStage;
     private SystemTray sysTray;
-    private javafx.scene.control.TextField userInputField;
     private TrayIcon sysTrayIcon;
+    private TextField userInputField;
 
     // ================================================================================
     // SystemTrayHandler methods
     // ================================================================================
 
-    public SystemTrayHandler(Stage primaryStage, javafx.scene.control.TextField userInputField) {
+    public SystemTrayHandler(Stage primaryStage, TextField userInputField) {
         this.primaryStage = primaryStage;
         this.userInputField = userInputField;
     }
@@ -109,7 +110,7 @@ public class SystemTrayHandler {
     // ================================================================================
 
     private boolean isSysTraySupported() {
-        return  SystemTray.isSupported();
+        return SystemTray.isSupported();
     }
 
     private boolean isWindowsOs() {
@@ -134,7 +135,7 @@ public class SystemTrayHandler {
         }
     }
 
-    private void showMinimiseMessage(){
+    private void showMinimiseMessage() {
         if (!shownMinimiseMessage) {
             sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
                     TRAY_MESSAGE_DESCRIPTION,
@@ -143,7 +144,7 @@ public class SystemTrayHandler {
         }
     }
 
-    private MouseListener createIconClickListener(){
+    private MouseListener createIconClickListener() {
         MouseListener iconClickListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -152,16 +153,20 @@ public class SystemTrayHandler {
                     windowHideOrShow();
                 }
             }
+
             // Unused methods, left empty.
             @Override
             public void mousePressed(MouseEvent e) {
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
             }
+
             @Override
             public void mouseEntered(MouseEvent e) {
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
             }
