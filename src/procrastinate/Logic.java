@@ -72,12 +72,6 @@ public class Logic {
         return logic;
     }
 
-    // UI handle
-    public void setUi(UI ui) {
-        this.ui = ui;
-        ui.updateTaskList(currentTaskList);
-    }
-
     // Main handle
     public void initialiseWindow(Stage primaryStage) {
         ui.setUpStage(primaryStage);
@@ -213,6 +207,10 @@ public class Logic {
     private Task getTaskFromLineNumber(int lineNumber) {
         return currentTaskList.get(lineNumber - 1);
     }
+
+    // ================================================================================
+    // UI Interaction methods
+    // ================================================================================
 
     private void updateUiTaskList() {
         currentTaskList = taskEngine.getOutstandingTasks();
