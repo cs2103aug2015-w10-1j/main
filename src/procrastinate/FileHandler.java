@@ -2,12 +2,14 @@ package procrastinate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import com.google.gson.*;
 
+import procrastinate.task.Task;
 import procrastinate.task.TaskState;
 
 public class FileHandler {
@@ -37,7 +39,7 @@ public class FileHandler {
     }
 
     public FileHandler(String directoryPath) {
-        if (directoryPath.length() > 0) {
+        if (!directoryPath.isEmpty()) {
             if (!directoryPath.endsWith("/")) {
                 directoryPath += "/";
             }
@@ -63,6 +65,10 @@ public class FileHandler {
 			logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE + json);
 			e.printStackTrace();
 		}
+    }
+
+    public TaskState loadTaskState() {
+        return new TaskState(new ArrayList<Task>());
     }
 
     // ================================================================================

@@ -34,7 +34,14 @@ public class TaskEngine {
 
     private FileHandler fileHandler;
 
+    private String directoryPath = "";
+
     public TaskEngine() {
+        this("");
+    }
+
+    public TaskEngine(String directoryPath) {
+        this.directoryPath = directoryPath;
         initFileHandler();
         initTasks();
         logger.log(Level.INFO, DEBUG_TASK_ENGINE_INIT);
@@ -145,11 +152,11 @@ public class TaskEngine {
     // ================================================================================
 
     private void initFileHandler() {
-        fileHandler = new FileHandler();
+        fileHandler = new FileHandler(directoryPath);
     }
 
     private void initTasks() {
-        tasks = new ArrayList<Task>();
+        loadState(fileHandler.loadTaskState());
         //loadState(new TaskStateStub()); // Load example data from stub
     }
 
