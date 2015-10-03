@@ -257,10 +257,6 @@ public class UI {
     // Utility methods
     // ================================================================================
 
-    public void clearInput() {
-        userInputField.clear();
-    }
-
     private void updateListView() {
         taskListView.setItems(taskList);
     }

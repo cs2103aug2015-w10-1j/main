@@ -222,6 +222,10 @@ public class Logic {
         return userInput.get();
     }
 
+    private void clearInput() {
+        ui.getUserInputField().clear();
+    }
+
     // Sets the text of the 'Status' Label directly.
     private void setStatus(String status) {
         statusLabelText.set(status);
@@ -233,12 +237,12 @@ public class Logic {
         return (keyEvent) -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String input = getInput();
-                ui.clearInput(); // Must come before setStatus as key release handler resets status.
+                clearInput(); // Must come before setStatus as key release handler resets status.
                 if (!input.trim().isEmpty()) {
-                    if (!logic.hasLastPreviewedCommand()) {
-                        logic.previewCommand(input);
+                    if (!hasLastPreviewedCommand()) {
+                        previewCommand(input);
                     }
-                    String feedback = logic.executeLastPreviewedCommand();
+                    String feedback = executeLastPreviewedCommand();
                     setStatus(feedback);
                 } else {
                     setStatus(STATUS_READY);
