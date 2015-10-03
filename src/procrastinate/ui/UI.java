@@ -1,20 +1,11 @@
 package procrastinate.ui;
 
-import java.awt.AWTException;
-import java.awt.Image;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
 import java.awt.SystemTray;
-import java.awt.Toolkit;
-import java.awt.TrayIcon;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -116,6 +107,7 @@ public class UI {
     }
 
     public void setUpStage(Stage primaryStage) {
+        assert (primaryStage != null);
         this.primaryStage = primaryStage;
         initWindowAndTray();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
@@ -149,6 +141,7 @@ public class UI {
         if (isSysTraySupported()) {
             sysTrayHandler = new SystemTrayHandler(primaryStage);
             sysTray = sysTrayHandler.initialiseTray();
+            assert (sysTray != null);
         }
         primaryStage.show();
     }
