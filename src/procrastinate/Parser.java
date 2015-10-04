@@ -20,12 +20,13 @@ public class Parser {
 
     private static final String COMMAND_EDIT = "edit";
     private static final String COMMAND_DELETE = "delete";
-    private static final String COMMAND_UNDO = "undo";
     private static final String COMMAND_DONE = "done";
+    private static final String COMMAND_UNDO = "undo";
     private static final String COMMAND_EXIT = "procrastinate";
 
     private static final String COMMAND_SHORT_EDIT = "ed";
     private static final String COMMAND_SHORT_DELETE = "del";
+    private static final String COMMAND_SHORT_DONE = "do";
     private static final String COMMAND_SHORT_UNDO = "un";
     private static final String COMMAND_SHORT_EXIT = "exit";
 
@@ -82,6 +83,7 @@ public class Parser {
                 }
 
             case COMMAND_DONE:
+            case COMMAND_SHORT_DONE:
             	if (!userCommand.equalsIgnoreCase(firstWord)){
                     try {
                         String[] argument = userCommand.split(" ", 2);
