@@ -1,9 +1,15 @@
-package procrastinate.task;
+package procrastinate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import procrastinate.task.Deadline;
+import procrastinate.task.Dream;
+import procrastinate.task.Event;
+import procrastinate.task.Task;
+import procrastinate.task.TaskState;
 
 /*
  * Stub class to mimic TaskState
@@ -12,10 +18,10 @@ import java.util.List;
 public class TaskStateStub extends TaskState{
 
 	public TaskStateStub() {
-		super(getTasks());
+		super(makeTasks());
 	}
 
-	private static List<Task> getTasks() {
+	private static List<Task> makeTasks() {
 		List<Task> stub = new ArrayList<Task>();
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -27,7 +33,7 @@ public class TaskStateStub extends TaskState{
 			e.printStackTrace();
 		}
 
-		Dream doneDream = (new Dream("bar done"));
+		Dream doneDream = (new Dream("bar bee"));
 		doneDream.setDone();
 		stub.add(doneDream);
 
