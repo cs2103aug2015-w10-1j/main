@@ -24,13 +24,13 @@ public class FileHandler {
     private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file:\n";
 
-    private static final String FILE_NAME = "storage.txt";
+    private static final String FILE_NAME = "storage.json";
 
     // ================================================================================
     // Class variables
     // ================================================================================
 
-    private String directoryPath = "";
+    private String directoryPath = "./";
     private File file;
     private BufferedWriter bw = null;
 
@@ -45,9 +45,10 @@ public class FileHandler {
             }
             this.directoryPath = directoryPath;
         }
-		file = new File(this.directoryPath + FILE_NAME);
+        file = new File(this.directoryPath, FILE_NAME);
         logger.log(Level.INFO, DEBUG_FILE_INIT + file.getAbsolutePath());
     }
+
 
     // ================================================================================
     // FileHandler methods
@@ -67,9 +68,19 @@ public class FileHandler {
 		}
     }
 
+    /**
+     * Loads TaskState from a json file
+     * @return
+     */
+
     public TaskState loadTaskState() {
         return new TaskState(new ArrayList<Task>());
+//    	return loadTaskState(file);
     }
+
+//    private TaskState loadTaskState(File file) {
+//
+//    }
 
     // ================================================================================
     // Utility methods
