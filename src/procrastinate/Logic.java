@@ -63,7 +63,6 @@ public class Logic {
     private Logic() {
         initUi();
         initTaskEngine();
-        initCurrentTaskList();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
@@ -80,6 +79,7 @@ public class Logic {
         ui.setUpStage(primaryStage);
         ui.setUpBinding(userInput, statusLabelText);
         attachHandlersAndListeners();
+        updateUiTaskList();
         setStatus(STATUS_READY);
     }
 
@@ -236,10 +236,6 @@ public class Logic {
 
     private void initTaskEngine() {
         taskEngine = new TaskEngine();
-    }
-
-    private void initCurrentTaskList() {
-        currentTaskList = taskEngine.getOutstandingTasks();
     }
 
     // ================================================================================
