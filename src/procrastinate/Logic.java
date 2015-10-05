@@ -1,5 +1,6 @@
 package procrastinate;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -108,7 +109,11 @@ public class Logic {
                 String description = command.getDescription();
 
                 if (execute) {
-                    taskEngine.add(new Dream(description));
+                    try {
+						taskEngine.add(new Dream(description));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
                     updateUiTaskList();
                 }
 
@@ -128,7 +133,11 @@ public class Logic {
                 Task newTask = new Dream(newDescription);
 
                 if (execute) {
-                    taskEngine.edit(task.getId(), newTask);
+                    try {
+						taskEngine.edit(task.getId(), newTask);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
                     updateUiTaskList();
                 }
 
@@ -147,7 +156,11 @@ public class Logic {
                 String description = task.getDescription();
 
                 if (execute) {
-                    taskEngine.delete(task.getId());
+                    try {
+						taskEngine.delete(task.getId());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
                     updateUiTaskList();
                 }
 
@@ -166,7 +179,11 @@ public class Logic {
                 String description = task.getDescription();
 
                 if (execute) {
-                    taskEngine.done(task.getId());
+                    try {
+						taskEngine.done(task.getId());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
                     updateUiTaskList();
                 }
 
@@ -176,7 +193,11 @@ public class Logic {
             case UNDO: {
                 if (taskEngine.hasPreviousOperation()) {
                     if (execute) {
-                        taskEngine.undo();
+                        try {
+							taskEngine.undo();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
                         updateUiTaskList();
                     }
                     return FEEDBACK_UNDONE;

@@ -1,15 +1,21 @@
 package procrastinate;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
+
+import java.lang.reflect.Type;
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
 import procrastinate.task.Task;
+import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
 
 public class FileHandler {
@@ -23,14 +29,16 @@ public class FileHandler {
     private static final String DEBUG_FILE_INIT = "FileHandler initialised. Using file ";
     private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file:\n";
+    private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded from file:\n";
+    private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file:\n";
 
-    private static final String FILE_NAME = "storage.json";
+    private final String FILENAME = "storage.json";
 
     // ================================================================================
-    // Class variables
+    // Instance variables
     // ================================================================================
 
-    private String directoryPath = "./";
+    private String directoryPath = "";
     private File file;
     private BufferedWriter bw = null;
 
@@ -39,14 +47,15 @@ public class FileHandler {
     }
 
     public FileHandler(String directoryPath) {
-        if (!directoryPath.isEmpty()) {
-            if (!directoryPath.endsWith("/")) {
-                directoryPath += "/";
-            }
-            this.directoryPath = directoryPath;
-        }
-        file = new File(this.directoryPath, FILE_NAME);
-        logger.log(Level.INFO, DEBUG_FILE_INIT + file.getAbsolutePath());
+    	if (!directoryPath.isEmpty()) {
+    		if (!directoryPath.endsWith("/")) {
+    			directoryPath += "/";
+    		}
+    		this.directoryPath = directoryPath;
+    	}
+
+    	file = new File(this.directoryPath + FILENAME);
+    	logger.log(Level.INFO, DEBUG_FILE_INIT + file.getAbsolutePath());
     }
 
 
@@ -58,29 +67,53 @@ public class FileHandler {
      * Converts TaskState into json format and writes to disk
      * @param taskState
      */
-    public void saveTaskState(TaskState taskState) {
+    public void saveTaskState(TaskState taskState) throws IOException {
     	String json = jsonify(taskState);
         try {
 			jsonToFile(json);
 		} catch (IOException e) {
 			logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE + json);
-			e.printStackTrace();
+			throw e;
 		}
     }
 
     /**
      * Loads TaskState from a json file
-     * @return
+     * @return TaskState
      */
-
-    public TaskState loadTaskState() {
-        return new TaskState(new ArrayList<Task>());
-//    	return loadTaskState(file);
+    public TaskState loadTaskState() throws FileNotFoundException {
+    	return loadTaskState(file);
     }
 
-//    private TaskState loadTaskState(File file) {
-//
-//    }
+    /**
+     * Loads TaskState from json formatted file
+     *
+     * @return TaskState that was saved when the application last closed.
+     */
+	private TaskState loadTaskState(File file) throws FileNotFoundException {
+    	BufferedReader br = null;
+    	Gson gson = new GsonBuilder().registerTypeAdapter(Task.class, new TaskDeserializer()).create();
+    	Type type = new TypeToken<TaskState>() {}.getType();
+
+    	try {
+    		br = new BufferedReader(new FileReader(file));
+ 			TaskState taskState = gson.fromJson(br, type);
+
+			logger.log(Level.INFO, DEBUG_FILE_LOAD_SUCCESS + file.getAbsolutePath());
+			return taskState;
+		} catch (FileNotFoundException e) {
+			logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE + file.getAbsolutePath());
+			throw e;
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+    };
 
     // ================================================================================
     // Utility methods

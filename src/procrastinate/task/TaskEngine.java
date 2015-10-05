@@ -1,5 +1,7 @@
 package procrastinate.task;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -51,7 +53,7 @@ public class TaskEngine {
     // TaskEngine methods
     // ================================================================================
 
-    public void add(Task task) {
+    public void add(Task task) throws IOException {
         backupOlderState();
 
         String description = task.getDescription();
@@ -65,7 +67,7 @@ public class TaskEngine {
 
     }
 
-    public void edit(UUID taskId, Task newTask) {
+    public void edit(UUID taskId, Task newTask) throws IOException {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
@@ -78,7 +80,7 @@ public class TaskEngine {
 
     }
 
-    public void delete(UUID taskId) {
+    public void delete(UUID taskId) throws IOException {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
@@ -94,7 +96,7 @@ public class TaskEngine {
 
     }
 
-    public void done(UUID taskId) {
+    public void done(UUID taskId) throws IOException {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
@@ -110,7 +112,7 @@ public class TaskEngine {
 
     }
 
-    public void undo() {
+    public void undo() throws IOException {
         if (hasPreviousOperation()) {
             TaskState backupNewerState = getBackupOfCurrentState();
             loadState(previousState);
@@ -152,12 +154,16 @@ public class TaskEngine {
     // ================================================================================
 
     private void initFileHandler() {
-        fileHandler = new FileHandler(directoryPath);
+//        fileHandler = new FileHandler(directoryPath);
+        fileHandler = new FileHandler();
     }
 
     private void initTasks() {
-        loadState(fileHandler.loadTaskState());
-        //loadState(new TaskStateStub()); // Load example data from stub
+        try {
+			loadState(fileHandler.loadTaskState());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
     }
 
     // ================================================================================
@@ -172,8 +178,8 @@ public class TaskEngine {
         tasks = state.tasks;
     }
 
-    private void writeStateToFile() {
-        fileHandler.saveTaskState(getCurrentState());
+    private void writeStateToFile() throws IOException {
+    	fileHandler.saveTaskState(getCurrentState());
     }
 
     private TaskState getBackupOfCurrentState() {
