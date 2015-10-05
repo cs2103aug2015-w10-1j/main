@@ -1,0 +1,12 @@
+.root {
+
+}
+
+.list-view {
+    -fx-background-color: white;
+}
+
+.list-cell:empty {
+    visibility:hidden;
+    -fx-opacity: 0;
+}
