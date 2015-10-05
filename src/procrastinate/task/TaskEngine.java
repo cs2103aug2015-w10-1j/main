@@ -23,6 +23,8 @@ public class TaskEngine {
     private static final String DEBUG_EDITED_TASK = "Edited #%1$s: %2$s";
     private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
     private static final String DEBUG_DONE_TASK = "Done %1$s: %2$s";
+    private static final String DEBUG_FILE_NOT_FOUND = "No data file found; creating...";
+    private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
@@ -162,11 +164,11 @@ public class TaskEngine {
 			loadState(fileHandler.loadTaskState());
 		} catch (FileNotFoundException e) {
 	        tasks = new ArrayList<Task>();
-		    logger.log(Level.INFO, "No data file found; creating...");
+		    logger.log(Level.INFO, DEBUG_FILE_NOT_FOUND);
             try {
                 writeStateToFile();
             } catch (IOException e1) {
-                logger.log(Level.SEVERE, "Could not write to file");
+                logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
             }
 		}
     }

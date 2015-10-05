@@ -29,7 +29,7 @@ public class FileHandler {
     private static final String DEBUG_FILE_INIT = "FileHandler initialised. Using file ";
     private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
-    private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded from file %1$s task(s)";
+    private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded %1$s task(s) from file";
     private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file";
 
     private final String FILENAME = "storage.json";
