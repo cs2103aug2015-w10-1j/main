@@ -39,6 +39,7 @@ public class UI {
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
 
     private static final String LOCATION_MAIN_WINDOW_LAYOUT = "MainWindowLayout.fxml";
+    private static final String LOCATION_CSS_STYLESHEET = "procrastinate.css";
 
     private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
@@ -160,7 +161,9 @@ public class UI {
         primaryStage.setTitle(WINDOW_TITLE);
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
-        primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
+        Scene mainWindow = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        mainWindow.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
+        primaryStage.setScene(mainWindow);
         //overwriteDecorations(primaryStage, root);
     }
 
