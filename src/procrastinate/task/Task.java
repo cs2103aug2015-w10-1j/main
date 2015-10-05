@@ -63,4 +63,28 @@ public abstract class Task {
 	    done = false;
 	}
 
+	/**
+	 * For two tasks to be indentical, they must be the same type
+	 * and have the same description
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+		if (!(o instanceof Task)) {
+			return false;
+		}
+		Task t = (Task)o;
+		if (t.getType().toString().equals(this.getType().toString())
+				&& t.getDescription().equals(this.getDescription())) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }
