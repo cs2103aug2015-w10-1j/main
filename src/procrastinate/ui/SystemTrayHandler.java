@@ -93,8 +93,7 @@ public class SystemTrayHandler {
 
     private Image createSysTrayIconImage() {
         // Load an image as system tray icon image. Auto resize is enabled in createSysTrayIcon method.
-        Image iconImage = Toolkit.getDefaultToolkit().getImage(TRAY_IMAGE_ICON);
-        return iconImage;
+        return Toolkit.getDefaultToolkit().getImage(SystemTrayHandler.class.getResource(TRAY_IMAGE_ICON));
     }
 
     private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu, Stage primaryStage) {
