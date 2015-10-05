@@ -1,6 +1,8 @@
 package procrastinate.task;
 
 import java.lang.reflect.Type;
+import java.util.UUID;
+
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -24,10 +26,12 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 
 		// type as in the variable, type in Task class
 		String type = jObj.get("type").getAsString();
-		String desc = jObj.get("description").getAsString();
+		String description = jObj.get("description").getAsString();
+		boolean done = jObj.get("done").getAsBoolean();
+		UUID id = UUID.fromString(jObj.get("id").getAsString());
 
 		if (type.equals(TaskType.DREAM.toString())) {
-			return new Dream(desc);
+			return new Dream(description, done, id);
 		} else if (type.equals(TaskType.DEADLINE.toString())) {
 			// TODO: decide on date format
 			return null;

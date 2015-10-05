@@ -1,8 +1,14 @@
 package procrastinate.task;
 
+import java.util.UUID;
+
 public class Dream extends Task {
 
 	public Dream(String description) {
-		super(TaskType.DREAM, description); // check how to use super class static var
+		super(TaskType.DREAM, description);
+	}
+
+	protected Dream(String description, boolean done, UUID id) {
+		super(TaskType.DREAM, description, done, id);
 	}
 }

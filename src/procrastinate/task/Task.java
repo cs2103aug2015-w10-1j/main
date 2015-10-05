@@ -8,19 +8,20 @@ public abstract class Task {
 		DEADLINE, EVENT, DREAM;
 	}
 
-    private final UUID id = UUID.randomUUID();
 	private final TaskType type; // Cannot change type; subclass object already created
+    private UUID id;
 	private String description;
 	private boolean done;
 
 	public Task(TaskType type, String description) {
-	    this(type, description, false);
+	    this(type, description, false, UUID.randomUUID());
 	}
 
-	public Task(TaskType type, String description, boolean done) {
+	protected Task(TaskType type, String description, boolean done, UUID id) {
         this.type = type;
         this.description = description;
         this.done = done;
+        this.id = id;
     }
 
 	// ================================================================================
