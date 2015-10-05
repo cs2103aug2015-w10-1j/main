@@ -154,15 +154,20 @@ public class TaskEngine {
     // ================================================================================
 
     private void initFileHandler() {
-//        fileHandler = new FileHandler(directoryPath);
-        fileHandler = new FileHandler();
+        fileHandler = new FileHandler(directoryPath);
     }
 
     private void initTasks() {
         try {
 			loadState(fileHandler.loadTaskState());
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+	        tasks = new ArrayList<Task>();
+		    logger.log(Level.INFO, "No data file found; creating...");
+            try {
+                writeStateToFile();
+            } catch (IOException e1) {
+                logger.log(Level.SEVERE, "Could not write to file");
+            }
 		}
     }
 

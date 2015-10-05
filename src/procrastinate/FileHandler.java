@@ -28,9 +28,9 @@ public class FileHandler {
 
     private static final String DEBUG_FILE_INIT = "FileHandler initialised. Using file ";
     private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
-    private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file:\n";
-    private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded from file:\n";
-    private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file:\n";
+    private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
+    private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded from file %1$s task(s)";
+    private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file";
 
     private final String FILENAME = "storage.json";
 
@@ -72,7 +72,7 @@ public class FileHandler {
         try {
 			jsonToFile(json);
 		} catch (IOException e) {
-			logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE + json);
+			logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE);
 			throw e;
 		}
     }
@@ -99,10 +99,10 @@ public class FileHandler {
     		br = new BufferedReader(new FileReader(file));
  			TaskState taskState = gson.fromJson(br, type);
 
-			logger.log(Level.INFO, DEBUG_FILE_LOAD_SUCCESS + file.getAbsolutePath());
+			logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.tasks.size()));
 			return taskState;
 		} catch (FileNotFoundException e) {
-			logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE + file.getAbsolutePath());
+			logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);
 			throw e;
 		} finally {
 			if (br != null) {
