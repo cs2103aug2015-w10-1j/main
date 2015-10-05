@@ -149,6 +149,7 @@ public class UI {
 
     private void initTaskDisplay() {
         taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
+        taskListView.setItems(taskList);        // Initialises the list view and applies the CSS styling
     }
 
     // ================================================================================
