@@ -161,9 +161,9 @@ public class UI {
         primaryStage.setTitle(WINDOW_TITLE);
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
-        Scene mainWindow = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-        mainWindow.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
-        primaryStage.setScene(mainWindow);
+        Scene primaryScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);  // This is the 'primary window' that consists of the user input field
+        primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
+        primaryStage.setScene(primaryScene);
         //overwriteDecorations(primaryStage, root);
     }
 
