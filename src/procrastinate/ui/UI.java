@@ -1,11 +1,5 @@
 package procrastinate.ui;
 
-import java.awt.SystemTray;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -24,8 +18,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.converter.NumberStringConverter;
-
 import procrastinate.task.Task;
+
+import java.awt.*;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UI {
 
@@ -40,6 +39,7 @@ public class UI {
 
     private static final String LOCATION_MAIN_WINDOW_LAYOUT = "MainWindowLayout.fxml";
     private static final String LOCATION_CSS_STYLESHEET = "procrastinate.css";
+    private static final String LOCATION_WINDOW_ICON = "icon.png";
 
     private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
