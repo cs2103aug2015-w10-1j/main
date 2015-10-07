@@ -1,4 +1,4 @@
-package procrastinate.task;
+package procrastinate.file;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -9,6 +9,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+import procrastinate.task.Dream;
+import procrastinate.task.Task;
 import procrastinate.task.Task.TaskType;
 
 public class TaskDeserializer implements JsonDeserializer<Task> {

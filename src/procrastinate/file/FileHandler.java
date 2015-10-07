@@ -1,4 +1,4 @@
-package procrastinate;
+package procrastinate.file;
 
 import java.io.File;
 import java.io.FileReader;
@@ -15,7 +15,6 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 import procrastinate.task.Task;
-import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
 
 public class FileHandler {

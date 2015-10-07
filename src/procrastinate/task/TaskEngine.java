@@ -8,7 +8,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import procrastinate.FileHandler;
+import procrastinate.file.FileHandler;
 
 public class TaskEngine {
 
