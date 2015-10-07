@@ -8,7 +8,7 @@ public class Dream extends Task {
 		super(TaskType.DREAM, description);
 	}
 
-	public Dream(String description, boolean done, UUID id) {
+	protected Dream(String description, boolean done, UUID id) {
 		super(TaskType.DREAM, description, done, id);
 	}
 }

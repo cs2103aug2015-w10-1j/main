@@ -12,7 +12,7 @@ public class Deadline extends Task {
 		this.date = date;
 	}
 
-	public Deadline(String description, Date date, boolean done, UUID id) {
+	protected Deadline(String description, Date date, boolean done, UUID id) {
 		super(TaskType.DEADLINE, description, done, id);
 		this.date = date;
 	}
