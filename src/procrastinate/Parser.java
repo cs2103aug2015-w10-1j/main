@@ -47,8 +47,8 @@ public class Parser {
         String firstWord = getFirstWord(userCommand).toLowerCase(); // Case insensitive
         Date inputDate = null;
         if(hasDates(groups)){
-        	inputDate = getDate(groups);
-        	userCommand = splitDatesFromUserCommand(groups, userCommand);
+            inputDate = getDate(groups);
+            userCommand = splitDatesFromUserCommand(groups, userCommand);
         }
 
         switch (firstWord) {
@@ -63,11 +63,11 @@ public class Parser {
                         return new Command(CommandType.EDIT).addDescription(description).addLineNumber(lineNumber);
 
                     } catch (NumberFormatException e) { // So "edit something" is a dream
-                    	if(hasDates(groups)){
-                    		return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
-                    	} else {
-                    		 return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
-                    	}
+                        if(hasDates(groups)){
+                            return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
+                        } else {
+                             return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                        }
                     } catch (Exception e) { // So "edit 1" is invalid (no description given)
                         return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_DESCRIPTION);
                     }
@@ -84,11 +84,11 @@ public class Parser {
                     return new Command(CommandType.DELETE).addLineNumber(lineNumber);
 
                 } catch (NumberFormatException e) { // So "delete something" is a dream
-                	if(hasDates(groups)){
-                		return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
-                	} else {
-                		 return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
-                	}
+                    if(hasDates(groups)){
+                        return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
+                    } else {
+                         return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                    }
                 } catch (Exception e) { // So "delete" is invalid (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
@@ -98,27 +98,27 @@ public class Parser {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // So "undo something" is a dream
                     return new Command(CommandType.UNDO);
                 } else {
-                	if(hasDates(groups)){
-                		return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
-                	} else {
-                		 return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
-                	}
+                    if(hasDates(groups)){
+                        return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
+                    } else {
+                         return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                    }
                 }
 
             case COMMAND_DONE:
             case COMMAND_SHORT_DONE:
-            	if (!userCommand.equalsIgnoreCase(firstWord)){
+                if (!userCommand.equalsIgnoreCase(firstWord)){
                     try {
                         String[] argument = userCommand.split(" ", 2);
                         int lineNumber = Integer.parseInt(argument[1]);
                         return new Command(CommandType.DONE).addLineNumber(lineNumber);
 
                     } catch (NumberFormatException e) { // So "done something" is a dream
-                    	if(hasDates(groups)){
-                    		return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
-                    	} else {
-                    		 return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
-                    	}
+                        if(hasDates(groups)){
+                            return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
+                        } else {
+                             return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                        }
                     }
                 } else { // So "done" is invalid (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
@@ -129,19 +129,19 @@ public class Parser {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // So "procrastinate something" is a dream
                     return new Command(CommandType.EXIT);
                 } else {
-                	if(hasDates(groups)){
-                		return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
-                	} else {
-                		 return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
-                	}
+                    if(hasDates(groups)){
+                        return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
+                    } else {
+                         return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                    }
                 }
 
             default:
-            	if(hasDates(groups)){
-            		return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
-            	} else {
-            		 return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
-            	}
+                if(hasDates(groups)){
+                    return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
+                } else {
+                    return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
+                }
         }
 
     }
@@ -155,23 +155,23 @@ public class Parser {
     }
 
     private static boolean hasDates(List<DateGroup> groups){
-    	return !groups.isEmpty();
+        return !groups.isEmpty();
     }
 
     private static Date getDate(List<DateGroup> groups){
-    	Date date = groups.get(0).getDates().get(0);
-    	return date;
+        Date date = groups.get(0).getDates().get(0);
+        return date;
     }
 
     private static String splitDatesFromUserCommand(List<DateGroup> groups, String userCommand){
-    	int endIndex = groups.get(0).getPosition();
-    	String removedDateCommand = userCommand.substring(0, endIndex - 1);
-    	String[] temp = removedDateCommand.split("due");
-    	StringBuilder stringBuilder = new StringBuilder();
-    	for(int i = 0; i < temp.length; i ++){
-    		stringBuilder.append(temp[i]);
-    	}
-    	return stringBuilder.toString();
+        int endIndex = groups.get(0).getPosition();
+        String removedDateCommand = userCommand.substring(0, endIndex - 1);
+        String[] temp = removedDateCommand.split("due");
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int i = 0; i < temp.length; i ++){
+            stringBuilder.append(temp[i]);
+        }
+        return stringBuilder.toString();
     }
 
 }
