@@ -1,6 +1,7 @@
 package procrastinate;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,7 +13,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import procrastinate.task.Deadline;
 import procrastinate.task.Dream;
+import procrastinate.task.Event;
 import procrastinate.task.Task;
 import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
@@ -28,6 +31,8 @@ public class Logic {
     private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
 
     private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
+    private static final String FEEDBACK_ADD_DEADLINE = "Added deadline: %1$s due: %2$s";
+    private static final String FEEDBACK_ADD_EVENT = "Added event: %1$s from: %2$s to: %3$s";
     private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
@@ -118,6 +123,39 @@ public class Logic {
                 }
 
                 return FEEDBACK_ADD_DREAM + description;
+            }
+
+            case ADD_DEADLINE: {
+                String description = command.getDescription();
+                Date date = command.getDate();
+
+                if (execute) {
+                    try {
+                        taskEngine.add(new Deadline(description, date));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    updateUiTaskList();
+                }
+
+                return String.format(FEEDBACK_ADD_DEADLINE, description, date);
+            }
+
+            case ADD_EVENT: {
+                String description = command.getDescription();
+                Date startDate = command.getStartDate();
+                Date endDate = command.getEndDate();
+
+                if (execute) {
+                    try {
+                        taskEngine.add(new Event(description, startDate, endDate));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    updateUiTaskList();
+                }
+
+                return String.format(FEEDBACK_ADD_EVENT, description, startDate, endDate);
             }
 
             case EDIT: {
