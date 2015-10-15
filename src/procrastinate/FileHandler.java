@@ -99,7 +99,7 @@ public class FileHandler {
     		br = new BufferedReader(new FileReader(file));
  			TaskState taskState = gson.fromJson(br, type);
 
-			logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.tasks.size()));
+			logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.getTasks().size()));
 			return taskState;
 		} catch (FileNotFoundException e) {
 			logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);

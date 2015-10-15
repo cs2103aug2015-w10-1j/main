@@ -5,7 +5,11 @@ import java.util.List;
 
 public class TaskState {
 
-    public List<Task> tasks;
+    private List<Task> tasks;
+
+    public TaskState() {
+        this.tasks = new ArrayList<Task>();
+    }
 
     public TaskState(List<Task> tasks) {
         this.tasks = tasks;
@@ -15,8 +19,8 @@ public class TaskState {
         return new TaskState(new ArrayList<Task>(state.tasks));
     }
 
-    public int getTaskSize() {
-    	return tasks.size();
+    public List<Task> getTasks() {
+        return tasks;
     }
 
     /**
@@ -38,7 +42,7 @@ public class TaskState {
     	TaskState ts = (TaskState)o;
     	List<Task> t = ts.tasks;
 
-    	if (this.getTaskSize() != ts.getTaskSize()) {
+    	if (this.tasks.size() != ts.tasks.size()) {
     		return false;
     	}
 

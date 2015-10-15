@@ -53,7 +53,6 @@ public class Logic {
 
     private TaskEngine taskEngine;
     private UI ui;
-    private List<Task> currentTaskList;
     private Command lastPreviewedCommand = null;
 
     private StringProperty userInput = new SimpleStringProperty();
@@ -161,7 +160,7 @@ public class Logic {
             case EDIT: {
                 int lineNumber = command.getLineNumber();
 
-                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
@@ -185,7 +184,7 @@ public class Logic {
             case DELETE: {
                 int lineNumber = command.getLineNumber();
 
-                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
@@ -208,7 +207,7 @@ public class Logic {
             case DONE: {
                 int lineNumber = command.getLineNumber();
 
-                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
@@ -281,7 +280,11 @@ public class Logic {
     // ================================================================================
 
     private Task getTaskFromLineNumber(int lineNumber) {
-        return currentTaskList.get(lineNumber - 1);
+        return getCurrentTaskList().get(lineNumber - 1);
+    }
+
+    private List<Task> getCurrentTaskList() {
+        return taskEngine.getOutstandingTasks();
     }
 
     // ================================================================================
@@ -289,8 +292,7 @@ public class Logic {
     // ================================================================================
 
     private void updateUiTaskList() {
-        currentTaskList = taskEngine.getOutstandingTasks();
-        ui.updateTaskList(currentTaskList);
+        ui.updateTaskList(getCurrentTaskList());
     }
 
     // Retrieves the current user input from the TextField.
