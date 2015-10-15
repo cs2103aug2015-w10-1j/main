@@ -67,6 +67,7 @@ public class Logic {
     private Logic() {
         initUi();
         initTaskEngine();
+        initParser();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
@@ -273,6 +274,10 @@ public class Logic {
 
     private void initTaskEngine() {
         taskEngine = new TaskEngine();
+    }
+
+    private void initParser() {
+        Parser.parse("Natty starts up slowly due tomorrow");
     }
 
     // ================================================================================

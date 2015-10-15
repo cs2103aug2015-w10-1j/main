@@ -23,6 +23,7 @@ public class TaskEngine {
     private static final String DEBUG_EDITED_TASK = "Edited #%1$s: %2$s";
     private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
     private static final String DEBUG_DONE_TASK = "Done %1$s: %2$s";
+    private static final String DEBUG_UNDONE = "Last task operation undone";
     private static final String DEBUG_FILE_NOT_FOUND = "No data file found; creating...";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
 
@@ -115,8 +116,11 @@ public class TaskEngine {
     public void undo() throws IOException {
         if (hasPreviousOperation()) {
             TaskState backupNewerState = getBackupOfCurrentState();
-            loadState(previousState);
+            restoreOlderState();
             previousState = backupNewerState;
+
+            logger.log(Level.INFO, String.format(DEBUG_UNDONE));
+
             writeStateToFile();
         }
     }
@@ -177,6 +181,10 @@ public class TaskEngine {
 
     private void backupOlderState() {
         previousState = getBackupOfCurrentState();
+    }
+
+    private void restoreOlderState() {
+        loadState(previousState);
     }
 
     private void loadState(TaskState state) {
