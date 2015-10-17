@@ -9,12 +9,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.converter.NumberStringConverter;
@@ -23,6 +26,7 @@ import procrastinate.task.Task;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,6 +85,10 @@ public class UI {
     @FXML private Label statusLabel;
     @FXML private ListView<String> taskListView;
     @FXML private TextField userInputField;
+
+    // ADDED STUFFS
+    @FXML private StackPane centerScreen;
+    private CenterPaneController centerPaneController;
 
     // ================================================================================
     // UI methods
@@ -161,6 +169,7 @@ public class UI {
         primaryStage.setTitle(WINDOW_TITLE);
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream(LOCATION_WINDOW_ICON)));
         Scene primaryScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);  // This is the 'primary window' that consists of the user input field
         primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
         primaryStage.setScene(primaryScene);
@@ -200,5 +209,27 @@ public class UI {
 
     public TextField getUserInputField() {
         return userInputField;
+    }
+
+    // ================================================================================
+    // Center screen methods
+    // ================================================================================
+
+    public void getCSC() {
+//        CenterPaneController csc = new CenterPaneController();
+//        StackPane centerPane = csc.getCenterStackPane();
+//        mainBorderPane.setCenter(centerPane);
+
+        this.centerPaneController = new CenterPaneController(centerScreen);
+    }
+
+    public void showHelp() {
+        taskListView.setOpacity(0);
+        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+    }
+
+    public void showMain() {
+        taskListView.setOpacity(0);
+        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
     }
 }

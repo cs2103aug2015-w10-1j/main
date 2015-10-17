@@ -19,6 +19,10 @@
 		</VBox>
 	</bottom>
    <center>
-      <ListView fx:id="taskListView" BorderPane.alignment="CENTER" />
+      <StackPane fx:id="centerScreen" BorderPane.alignment="CENTER">
+         <children>
+            <ListView fx:id="taskListView" />
+         </children>
+      </StackPane>
    </center>
 </BorderPane>
