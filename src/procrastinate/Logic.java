@@ -324,6 +324,13 @@ public class Logic {
                     setStatus(STATUS_READY);
                 }
             }
+            // For testing purposes
+            if (keyEvent.getCode().equals(KeyCode.SHIFT)) {
+                ui.getCSC();
+            }
+            if (keyEvent.getCode().equals(KeyCode.ALT)) {
+                ui.showHelp();
+            }
         };
     }
 
