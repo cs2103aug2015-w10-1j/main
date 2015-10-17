@@ -1,15 +1,11 @@
 package procrastinate;
 
+import procrastinate.task.*;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import procrastinate.task.Deadline;
-import procrastinate.task.Dream;
-import procrastinate.task.Event;
-import procrastinate.task.Task;
-import procrastinate.task.TaskState;
 
 /*
  * Stub class to mimic TaskState

@@ -1,22 +1,16 @@
 package procrastinate;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import java.lang.reflect.Type;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-
 import procrastinate.task.Task;
 import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
+
+import java.io.*;
+import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileHandler {
 
@@ -99,7 +93,7 @@ public class FileHandler {
     		br = new BufferedReader(new FileReader(file));
  			TaskState taskState = gson.fromJson(br, type);
 
-			logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.tasks.size()));
+			logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.getTasks().size()));
 			return taskState;
 		} catch (FileNotFoundException e) {
 			logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);

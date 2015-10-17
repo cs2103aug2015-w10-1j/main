@@ -1,5 +1,7 @@
 package procrastinate.task;
 
+import procrastinate.FileHandler;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,8 +9,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import procrastinate.FileHandler;
 
 public class TaskEngine {
 
@@ -23,6 +23,7 @@ public class TaskEngine {
     private static final String DEBUG_EDITED_TASK = "Edited #%1$s: %2$s";
     private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
     private static final String DEBUG_DONE_TASK = "Done %1$s: %2$s";
+    private static final String DEBUG_UNDONE = "Last task operation undone";
     private static final String DEBUG_FILE_NOT_FOUND = "No data file found; creating...";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
 
@@ -32,9 +33,7 @@ public class TaskEngine {
     // Class variables
     // ================================================================================
 
-    private List<Task> tasks;
-
-    private TaskState previousState = null;
+    private TaskState previousState = null, currentState = null;
 
     private FileHandler fileHandler;
 
@@ -61,7 +60,7 @@ public class TaskEngine {
         String description = task.getDescription();
         String type = task.getTypeString();
 
-        tasks.add(task);
+        getTasks().add(task);
 
         logger.log(Level.INFO, String.format(DEBUG_ADDED_TASK, type, description));
 
@@ -73,8 +72,8 @@ public class TaskEngine {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
-        tasks.remove(index);
-        tasks.add(index, newTask);
+        getTasks().remove(index);
+        getTasks().add(index, newTask);
 
         logger.log(Level.INFO, String.format(DEBUG_EDITED_TASK, index + 1, newTask.getDescription()));
 
@@ -86,8 +85,8 @@ public class TaskEngine {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
-        Task task = tasks.get(index);
-        tasks.remove(index);
+        Task task = getTasks().get(index);
+        getTasks().remove(index);
 
         String description = task.getDescription();
         String type = task.getTypeString();
@@ -102,7 +101,7 @@ public class TaskEngine {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
-        Task task = tasks.get(index);
+        Task task = getTasks().get(index);
         task.setDone();
 
         String description = task.getDescription();
@@ -117,8 +116,11 @@ public class TaskEngine {
     public void undo() throws IOException {
         if (hasPreviousOperation()) {
             TaskState backupNewerState = getBackupOfCurrentState();
-            loadState(previousState);
+            restoreOlderState();
             previousState = backupNewerState;
+
+            logger.log(Level.INFO, String.format(DEBUG_UNDONE));
+
             writeStateToFile();
         }
     }
@@ -129,7 +131,7 @@ public class TaskEngine {
 
     public List<Task> getOutstandingTasks() {
         List<Task> outstandingTasks = new ArrayList<Task>();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (!task.isDone()) {
                 outstandingTasks.add(task);
             }
@@ -139,7 +141,7 @@ public class TaskEngine {
 
     public List<Task> getCompletedTasks() {
         List<Task> completedTasks = new ArrayList<Task>();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.isDone()) {
                 completedTasks.add(task);
             }
@@ -148,7 +150,7 @@ public class TaskEngine {
     }
 
     public List<Task> getTasks() {
-        return tasks;
+        return currentState.getTasks();
     }
 
     // ================================================================================
@@ -163,7 +165,7 @@ public class TaskEngine {
         try {
 			loadState(fileHandler.loadTaskState());
 		} catch (FileNotFoundException e) {
-	        tasks = new ArrayList<Task>();
+		    loadState(new TaskState());
 		    logger.log(Level.INFO, DEBUG_FILE_NOT_FOUND);
             try {
                 writeStateToFile();
@@ -181,8 +183,12 @@ public class TaskEngine {
         previousState = getBackupOfCurrentState();
     }
 
+    private void restoreOlderState() {
+        loadState(previousState);
+    }
+
     private void loadState(TaskState state) {
-        tasks = state.tasks;
+        currentState = state;
     }
 
     private void writeStateToFile() throws IOException {
@@ -194,7 +200,7 @@ public class TaskEngine {
     }
 
     private TaskState getCurrentState() {
-        return new TaskState(tasks);
+        return currentState;
     }
 
     // ================================================================================
@@ -202,8 +208,8 @@ public class TaskEngine {
     // ================================================================================
 
     private int getIndexFromId(UUID id) {
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).getId().equals(id)) {
+        for (int i = 0; i < getTasks().size(); i++) {
+            if (getTasks().get(i).getId().equals(id)) {
                 return i;
             }
         }

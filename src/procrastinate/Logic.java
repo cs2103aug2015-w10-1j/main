@@ -1,11 +1,5 @@
 package procrastinate;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
@@ -13,12 +7,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import procrastinate.task.Deadline;
-import procrastinate.task.Dream;
-import procrastinate.task.Event;
-import procrastinate.task.Task;
-import procrastinate.task.TaskEngine;
+import procrastinate.task.*;
 import procrastinate.ui.UI;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Logic {
 
@@ -53,7 +49,6 @@ public class Logic {
 
     private TaskEngine taskEngine;
     private UI ui;
-    private List<Task> currentTaskList;
     private Command lastPreviewedCommand = null;
 
     private StringProperty userInput = new SimpleStringProperty();
@@ -68,6 +63,7 @@ public class Logic {
     private Logic() {
         initUi();
         initTaskEngine();
+        initParser();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
@@ -161,7 +157,7 @@ public class Logic {
             case EDIT: {
                 int lineNumber = command.getLineNumber();
 
-                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
@@ -185,7 +181,7 @@ public class Logic {
             case DELETE: {
                 int lineNumber = command.getLineNumber();
 
-                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
@@ -208,7 +204,7 @@ public class Logic {
             case DONE: {
                 int lineNumber = command.getLineNumber();
 
-                if (lineNumber < 1 || lineNumber > currentTaskList.size()) {
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
@@ -276,12 +272,20 @@ public class Logic {
         taskEngine = new TaskEngine();
     }
 
+    private void initParser() {
+        Parser.parse("Natty starts up slowly due tomorrow");
+    }
+
     // ================================================================================
     // Utility methods
     // ================================================================================
 
     private Task getTaskFromLineNumber(int lineNumber) {
-        return currentTaskList.get(lineNumber - 1);
+        return getCurrentTaskList().get(lineNumber - 1);
+    }
+
+    private List<Task> getCurrentTaskList() {
+        return taskEngine.getOutstandingTasks();
     }
 
     // ================================================================================
@@ -289,8 +293,7 @@ public class Logic {
     // ================================================================================
 
     private void updateUiTaskList() {
-        currentTaskList = taskEngine.getOutstandingTasks();
-        ui.updateTaskList(currentTaskList);
+        ui.updateTaskList(getCurrentTaskList());
     }
 
     // Retrieves the current user input from the TextField.

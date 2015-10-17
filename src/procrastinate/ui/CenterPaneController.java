@@ -1,6 +1,5 @@
 package procrastinate.ui;
 
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
@@ -67,7 +66,7 @@ public class CenterPaneController {
     }
 
     private void setScreen(Node screen) {
-        currentScreen.setOpacity(0);
+//        currentScreen.setOpacity(0);
         screen.toFront();
         screen.setOpacity(1);
     }
