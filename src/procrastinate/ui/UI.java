@@ -9,7 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -26,7 +25,6 @@ import procrastinate.task.Task;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
-import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -169,7 +167,10 @@ public class UI {
         primaryStage.setTitle(WINDOW_TITLE);
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream(LOCATION_WINDOW_ICON)));
+        primaryStage.getIcons().addAll(
+                new Image(getClass().getResourceAsStream("icon.png"))
+        );
+
         Scene primaryScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);  // This is the 'primary window' that consists of the user input field
         primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
         primaryStage.setScene(primaryScene);
