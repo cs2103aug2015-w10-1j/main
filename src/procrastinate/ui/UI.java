@@ -10,15 +10,12 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.converter.NumberStringConverter;
 import procrastinate.task.Task;
 
@@ -74,9 +71,10 @@ public class UI {
     @FXML private ListView<String> taskListView;
     @FXML private TextField userInputField;
 
-    // ADDED STUFFS
+    // ADDED STUFFS, TO BE REARRANGED LATER ON
     @FXML private StackPane centerScreen;
     private CenterPaneController centerPaneController;
+    private boolean isHelpOverlayed;
 
     // ================================================================================
     // UI methods
@@ -138,6 +136,10 @@ public class UI {
     private void initTaskDisplay() {
         taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
         taskListView.setItems(taskList);        // Initialises the list view and applies the CSS styling
+
+        // Set up controller for new UI
+        this.centerPaneController = new CenterPaneController(centerScreen);
+        showHelp();                             // Acts as the splash/welcome and help screen for now.
     }
 
     private void initTray() {
@@ -178,13 +180,15 @@ public class UI {
     // Center screen methods
     // ================================================================================
 
-    public void getCSC() {
-        this.centerPaneController = new CenterPaneController(centerScreen);
+    public void checkForHelpOverlay() {
+        if (isHelpOverlayed) {
+            centerPaneController.hideHelpOverlay();
+        }
     }
 
     public void showHelp() {
-        taskListView.setOpacity(0);
         centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+        isHelpOverlayed = true;
     }
 
     public void showMain() {

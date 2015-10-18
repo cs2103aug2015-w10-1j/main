@@ -314,6 +314,8 @@ public class Logic {
     // Key release is used to enable user to see the response first before the event executes.
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (keyEvent) -> {
+            // To remove the help overlay once the user starts typing
+            ui.checkForHelpOverlay();
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String input = getInput();
                 clearInput(); // Must come before setStatus as key release handler resets status.
@@ -329,9 +331,9 @@ public class Logic {
             }
             // For testing purposes
             if (keyEvent.getCode().equals(KeyCode.SHIFT)) {
-                ui.getCSC();
+                ui.showMain();
             }
-            if (keyEvent.getCode().equals(KeyCode.ALT)) {
+            if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
             }
         };

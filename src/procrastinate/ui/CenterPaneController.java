@@ -32,23 +32,17 @@ public class CenterPaneController {
     private StackPane centerStackPane;
     private Node currentScreen;
 
-//    protected CenterPaneController() {
-//        this.controlledScreens = new HashMap<Integer, Node>();
-//        this.centerStackPane = new StackPane();
-//
-//        createScreens();
-//        centerStackPane.getChildren().add(mainScreen);
-//    }
-
     protected CenterPaneController(StackPane centerStackPane) {
         this.controlledScreens = new HashMap<Integer, Node>();
         this.centerStackPane = centerStackPane;
 
-//        createScreens();
-//        centerStackPane.getChildren().add(mainScreen);
         initialiseScreens();
         currentScreen = mainScreen;
-        mainScreen.setOpacity(1);
+//        mainScreen.setOpacity(1); // Setup straight into main screen. disabled for now.
+    }
+
+    protected void hideHelpOverlay() {
+        helpScreen.setOpacity(0);
     }
 
     protected void changeScreen(int screenKey) {
@@ -56,19 +50,23 @@ public class CenterPaneController {
         setScreen(screen);
     }
 
-    protected void initialiseScreens() {
+    private void setScreen(Node screen) {
+//        currentScreen.setOpacity(0);      // Disabled for now since there are no other screens
+        screen.toFront();
+        screen.setOpacity(1);
+    }
+
+    // ================================================================================
+    // Init methods
+    // ================================================================================
+
+    private void initialiseScreens() {
         ArrayList<Node> screensList = createScreens();
         centerStackPane.getChildren().addAll(screensList);
     }
 
     private void mapScreen(int screenKey, Node newScreen) {
         controlledScreens.put(screenKey, newScreen);
-    }
-
-    private void setScreen(Node screen) {
-//        currentScreen.setOpacity(0);
-        screen.toFront();
-        screen.setOpacity(1);
     }
 
     private ArrayList<Node> createScreens() {
@@ -94,7 +92,6 @@ public class CenterPaneController {
 
     private Node createMainScreen() {
         this.mainScreen = new MainScreen(LOCATION_MAIN_SCREEN_LAYOUT).getScreen();
-//        mainScreen.resize(centerStackPane.getWidth(), centerStackPane.getHeight());
         mainScreen.setOpacity(0);
         mapScreen(SCREEN_MAIN, mainScreen);
         return mainScreen;
