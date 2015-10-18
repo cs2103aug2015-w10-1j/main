@@ -66,11 +66,19 @@ public class CenterPaneController {
     // Utility methods
     // ================================================================================
 
+    /**
+     * Each screen is mapped to a key for use in UI/Logic for screen changing
+     * @param screenKey
+     */
     protected void changeScreen(int screenKey) {
         Node screen = controlledScreens.get(screenKey);
         setScreen(screen);
     }
 
+    /**
+     * Updates the given task list onto the MainScreen view
+     * @param taskList
+     */
     protected void updateMainScreen(List<Task> taskList) {
         mainScreen.updateTaskList(taskList);
     }
@@ -79,6 +87,10 @@ public class CenterPaneController {
         helpScreenNode.setOpacity(0);
     }
 
+    /**
+     * Changes the top most screen to the screen specified, animations/fading is not yet implemented
+     * @param screen
+     */
     private void setScreen(Node screen) {
 //        currentScreen.setOpacity(0);      // Disabled for now since there are no other screens
         screen.toFront();
@@ -98,6 +110,10 @@ public class CenterPaneController {
         controlledScreens.put(screenKey, newScreen);
     }
 
+    /**
+     * This creates and holds a list of the screens that can be easily added onto the center pane
+     * @return list of screens
+     */
     private ArrayList<Node> createScreens() {
         ArrayList<Node> screensList = new ArrayList<>();
 

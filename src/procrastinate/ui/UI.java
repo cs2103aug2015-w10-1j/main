@@ -38,24 +38,16 @@ public class UI {
 
     private static final String LOCATION_MAIN_WINDOW_LAYOUT = "MainWindowLayout.fxml";
 
-    private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
-
-    private static final String UI_NUMBER_SEPARATOR = ". ";
-
     // ================================================================================
     // Class variables
     // ================================================================================
 
-    private IntegerProperty taskCount = new SimpleIntegerProperty(1);
-
-    private ObservableList<String> taskList = FXCollections.observableArrayList();
+    private boolean isHelpOverlayed;
+    private CenterPaneController centerPaneController;
 
     private Parent root;
 
     private Stage primaryStage;
-
-    private StringProperty taskCountFormatted = new SimpleStringProperty();
-    private StringProperty taskCountString = new SimpleStringProperty();
 
     private SystemTrayHandler sysTrayHandler;
     private SystemTray sysTray;
@@ -67,12 +59,8 @@ public class UI {
 
     @FXML private BorderPane mainBorderPane;
     @FXML private Label statusLabel;
-    @FXML private TextField userInputField;
-
-    // ADDED STUFFS, TO BE REARRANGED LATER ON
     @FXML private StackPane centerScreen;
-    private CenterPaneController centerPaneController;
-    private boolean isHelpOverlayed;
+    @FXML private TextField userInputField;
 
     // ================================================================================
     // UI methods
@@ -121,9 +109,6 @@ public class UI {
         // Binds the input and status text to the StringProperty in Logic.
         userInput.bindBidirectional(userInputField.textProperty());
         statusLabelText.bindBidirectional(statusLabel.textProperty());
-
-        taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
-        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
     }
 
     private void initTaskDisplay() {
@@ -166,6 +151,7 @@ public class UI {
     // Center screen methods
     // ================================================================================
 
+    // Used by Logic to remove the HelpScreen overlay whenever the user starts typing
     public void checkForHelpOverlay() {
         if (isHelpOverlayed) {
             centerPaneController.hideHelpOverlay();

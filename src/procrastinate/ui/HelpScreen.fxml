@@ -19,7 +19,7 @@
                </image>
             </ImageView>
             <Label fx:id="titleLabel" alignment="CENTER" text="Welcome to Procrastinate!" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
-            <Label VBox.vgrow="ALWAYS" />
+            <Label fx:id="subtitleLabel" VBox.vgrow="ALWAYS" />
           </children>
          <padding>
             <Insets top="10.0" />

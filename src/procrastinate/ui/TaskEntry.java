@@ -1,6 +1,5 @@
 package procrastinate.ui;
 
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -36,16 +35,11 @@ public class TaskEntry extends HBox{
     // TaskEntry methods
     // ================================================================================
 
-    protected TaskEntry() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TASK_ENTRY_FXML));
-        loader.setController(this); // Required due to different package declaration from Main
-        try {
-            this.taskEntry = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Constructor to be used for displaying "DREAMS"
+     * @param lineNum
+     * @param description
+     */
     protected TaskEntry(String lineNum, String description) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TASK_ENTRY_FXML));
         loader.setController(this); // Required due to different package declaration from Main
@@ -59,6 +53,11 @@ public class TaskEntry extends HBox{
         }
     }
 
+    /**
+     * Constructor to be used for displaying all other TaskTypes
+     * @param lineNum
+     * @param description
+     */
     protected TaskEntry(String lineNum, String description, String time) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TASK_ENTRY_FXML));
         loader.setController(this); // Required due to different package declaration from Main

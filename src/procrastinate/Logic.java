@@ -316,6 +316,7 @@ public class Logic {
         return (keyEvent) -> {
             // To remove the help overlay once the user starts typing
             ui.checkForHelpOverlay();
+
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String input = getInput();
                 clearInput(); // Must come before setStatus as key release handler resets status.
@@ -329,6 +330,7 @@ public class Logic {
                     setStatus(STATUS_READY);
                 }
             }
+
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
             }

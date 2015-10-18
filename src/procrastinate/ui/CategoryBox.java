@@ -33,6 +33,10 @@ public class CategoryBox extends VBox {
     // CategoryBox methods
     // ================================================================================
 
+    /**
+     * Creates a category with the given label for tasks to go into
+     * @param label
+     */
     protected CategoryBox(String label) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_CATEGORYBOX_FXML));
         loader.setController(this); // Required due to different package declaration from Main
@@ -52,6 +56,9 @@ public class CategoryBox extends VBox {
         return this.categoryBox;
     }
 
+    /**
+     * Retrieves the VBox that acts as a task list for a TaskEntry to go into
+     */
     protected VBox getTaskListVBox() {
         return this.categoryVBox;
     }

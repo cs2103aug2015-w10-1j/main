@@ -35,16 +35,19 @@ public class MainScreen extends CenterScreen {
     // Class variables
     // ================================================================================
 
+    // Nodes are used to add them onto the screen
     private Node overdueNode;
     private Node thisWeekNode;
     private Node futureNode;
     private Node dreamsNode;
 
+    // Each category box is saved here for easy referencing in case the box is extended next time
     private CategoryBox overdueBox;
     private CategoryBox thisWeekBox;
     private CategoryBox futureBox;
     private CategoryBox dreamsBox;
 
+    // The main variables to call when adding tasks since they act as a task list for a TaskEntry to be displayed
     private VBox overdueTaskList;
     private VBox thisWeekTaskList;
     private VBox futureTaskList;
@@ -71,6 +74,11 @@ public class MainScreen extends CenterScreen {
         getEntriesBoxes();
     }
 
+    /**
+     * The list of tasks displayed is updated by removing all previously added tasks and re-adding them back to allow
+     * the line number to be sorted by category and not insertion time. **NOT FULLY IMPLEMENTED**
+     * @param taskList
+     */
     protected void updateTaskList(List<Task> taskList) {
         clearTaskList();
 
@@ -81,7 +89,7 @@ public class MainScreen extends CenterScreen {
         for (Task task : taskList) {
             String taskType = task.getTypeString();
             if (taskType.equals(TASKTYPE_DEADLINE) || taskType.equals(TASKTYPE_EVENT)) {
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), "Need to get date here");
                 taskCount.set(taskCount.get() + 1);
                 futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
             } else {
@@ -96,6 +104,9 @@ public class MainScreen extends CenterScreen {
     // Utility methods
     // ================================================================================
 
+    /**
+     * Used when updating the task list, removes all tasks and resets the task counter
+     */
     private void clearTaskList() {
         resetTaskCount();
         resetTaskList();
@@ -116,6 +127,9 @@ public class MainScreen extends CenterScreen {
     // Init methods
     // ================================================================================
 
+    /**
+     * Setup the various categories that tasks can fall under
+     */
     private void createCategories() {
         // Create all the different categories(by time frame) for entries to go into
         this.overdueBox = new CategoryBox(CATEGORY_OVERDUE);
@@ -134,6 +148,9 @@ public class MainScreen extends CenterScreen {
         mainVBox.getChildren().addAll(overdueNode, thisWeekNode, futureNode, dreamsNode);
     }
 
+    /**
+     * Retrieves all the VBoxes for each TaskEntry to go into
+     */
     private void getEntriesBoxes() {
         this.overdueTaskList = overdueBox.getTaskListVBox();
         this.thisWeekTaskList = thisWeekBox.getTaskListVBox();
@@ -141,6 +158,9 @@ public class MainScreen extends CenterScreen {
         this.dreamsTaskList = dreamsBox.getTaskListVBox();
     }
 
+    /**
+     * Creates a formatted shared task counter for use when adding tasks onto the screen
+     */
     private void setupBinding() {
         taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
         taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
