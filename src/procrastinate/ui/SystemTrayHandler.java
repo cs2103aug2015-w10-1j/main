@@ -40,12 +40,12 @@ public class SystemTrayHandler {
     // SystemTrayHandler methods
     // ================================================================================
 
-    public SystemTrayHandler(Stage primaryStage, TextField userInputField) {
+    protected SystemTrayHandler(Stage primaryStage, TextField userInputField) {
         this.primaryStage = primaryStage;
         this.userInputField = userInputField;
     }
 
-    public SystemTray initialiseTray() {
+    protected SystemTray initialiseTray() {
         configureSysTray(primaryStage);
         createSysTray(primaryStage);
         return sysTray;
