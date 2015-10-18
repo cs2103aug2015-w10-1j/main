@@ -28,6 +28,7 @@ public class Parser {
     private static final String COMMAND_DELETE = "delete";
     private static final String COMMAND_DONE = "done";
     private static final String COMMAND_UNDO = "undo";
+    private static final String COMMAND_SEARCH = "search";
     private static final String COMMAND_EXIT = "procrastinate";
 
     private static final String COMMAND_SHORT_EDIT = "ed";
@@ -132,6 +133,21 @@ public class Parser {
                     }
                 } else { // So "done" is invalid (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
+                }
+
+            case COMMAND_SEARCH:
+                if(!userCommand.equalsIgnoreCase(firstWord)){
+                    try {
+                        String[] argument = userCommand.split(" ", 2);
+                        String searchDescription = argument[1];
+                        return new Command(CommandType.SEARCH).addDescription(searchDescription).addDate(inputDate);
+                    } catch (Exception e) {
+                        if(inputDate == null){ // So "search" is invalid
+                            return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+                        } else {
+                            return new Command(CommandType.SEARCH).addDate(inputDate);
+                        }
+                    }
                 }
 
             case COMMAND_EXIT:
