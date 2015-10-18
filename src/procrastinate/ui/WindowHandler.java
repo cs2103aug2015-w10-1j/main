@@ -8,6 +8,10 @@ import javafx.stage.StageStyle;
 
 public class WindowHandler {
 
+    // ================================================================================
+    // Fixed variables
+    // ================================================================================
+
     private static final String LOCATION_CSS_STYLESHEET = "procrastinate.css";
     private static final String LOCATION_WINDOW_ICON = "icon.png";
 
@@ -17,10 +21,18 @@ public class WindowHandler {
     private static final double WINDOW_HEIGHT = 600;
     private static final double WINDOW_MIN_HEIGHT = 600;
 
+    // ================================================================================
+    // Class variables
+    // ================================================================================
+
     private Stage primaryStage;
     private Parent root;
 
     private static double xOffset, yOffset;
+
+    // ================================================================================
+    // WindowHandler methods
+    // ================================================================================
 
     protected WindowHandler(Stage primaryStage,Parent root) {
         this.primaryStage = primaryStage;

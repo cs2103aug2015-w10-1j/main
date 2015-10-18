@@ -8,24 +8,37 @@ import java.io.IOException;
 
 public abstract class CenterScreen extends VBox {
 
+    // ================================================================================
+    // Class variables
+    // ================================================================================
+
     private CenterPaneController parentController;
-    private Node screen;
+    private Node node;
+
+    // ================================================================================
+    // CenterScreen methods
+    // ================================================================================
 
     protected CenterScreen(String filePath) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(filePath));
         loader.setController(this); // Required due to different package declaration from Main
         try {
-            screen = loader.load();
+            node = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
+    // ================================================================================
+    // Getters and Setters
+    // ================================================================================
+
     protected void setParentController(CenterPaneController centerScreenController) {
         this.parentController = centerScreenController;
     }
 
-    protected Node getScreen() {
-        return this.screen;
+    protected Node getNode() {
+        return this.node;
     }
 }

@@ -61,7 +61,6 @@ public class UI {
     private SystemTray sysTray;
     private WindowHandler windowHandler;
 
-
     // ================================================================================
     // FXML field variables
     // ================================================================================
@@ -118,6 +117,9 @@ public class UI {
             taskCount.set(taskCount.get() + 1);
         }
         updateListView();
+
+        // Pass the updates to the main screen
+        centerPaneController.updateMainScreen(tasks);
     }
 
     // ================================================================================

@@ -2,19 +2,33 @@ package procrastinate.ui;
 
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
+import procrastinate.task.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class CenterPaneController {
+
+    // ================================================================================
+    // Screen change keys
+    // ================================================================================
 
     protected static final int SCREEN_MAIN = 1;
     protected static final int SCREEN_SEARCH = 2;
     protected static final int SCREEN_HELP = 3;  // Maybe should use arraylist of these integers/string to reference the integers?
 
+    // ================================================================================
+    // Message strings
+    // ================================================================================
+
     private static final String LOCATION_MAIN_SCREEN_LAYOUT = "MainScreen.fxml";
     private static final String LOCATION_HELP_SCREEN_LAYOUT = "HelpScreen.fxml";
     private static final String LOCATION_SEARCH_SCREEN_LAYOUT = "SearchScreen.fxml";
+
+    // ================================================================================
+    // Class variables
+    // ================================================================================
 
     private HashMap<Integer, Node> controlledScreens;   // CHANGE TO SWITCH
     /**
@@ -25,29 +39,44 @@ public class CenterPaneController {
      * SPLIT OUT SCREENS TO LIKE DISPLAY, HELP ETC.
      */
 
-    private Node mainScreen;
-    private Node searchScreen;
-    private Node helpScreen;
+    private Node mainScreenNode;
+    private Node searchScreenNode;
+    private Node helpScreenNode;
+
+    private MainScreen mainScreen;
+    private HelpScreen helpScreen;
 
     private StackPane centerStackPane;
     private Node currentScreen;
+
+    // ================================================================================
+    // CenterPaneController methods
+    // ================================================================================
 
     protected CenterPaneController(StackPane centerStackPane) {
         this.controlledScreens = new HashMap<Integer, Node>();
         this.centerStackPane = centerStackPane;
 
         initialiseScreens();
-        currentScreen = mainScreen;
-//        mainScreen.setOpacity(1); // Setup straight into main screen. disabled for now.
+        currentScreen = mainScreenNode;
+//        mainScreenNode.setOpacity(1); // Setup straight into main screen. disabled for now.
     }
 
-    protected void hideHelpOverlay() {
-        helpScreen.setOpacity(0);
-    }
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
 
     protected void changeScreen(int screenKey) {
         Node screen = controlledScreens.get(screenKey);
         setScreen(screen);
+    }
+
+    protected void updateMainScreen(List<Task> taskList) {
+        mainScreen.updateTaskList(taskList);
+    }
+
+    protected void hideHelpOverlay() {
+        helpScreenNode.setOpacity(0);
     }
 
     private void setScreen(Node screen) {
@@ -84,16 +113,18 @@ public class CenterPaneController {
     }
 
     private Node createHelpScreen() {
-        this.helpScreen = new HelpScreen(LOCATION_HELP_SCREEN_LAYOUT).getScreen();
-        helpScreen.setOpacity(0);
-        mapScreen(SCREEN_HELP, helpScreen);
-        return helpScreen;
+        this.helpScreen = new HelpScreen(LOCATION_HELP_SCREEN_LAYOUT);
+        this.helpScreenNode = helpScreen.getNode();
+        helpScreenNode.setOpacity(0);
+        mapScreen(SCREEN_HELP, helpScreenNode);
+        return helpScreenNode;
     }
 
     private Node createMainScreen() {
-        this.mainScreen = new MainScreen(LOCATION_MAIN_SCREEN_LAYOUT).getScreen();
-        mainScreen.setOpacity(0);
-        mapScreen(SCREEN_MAIN, mainScreen);
-        return mainScreen;
+        this.mainScreen = new MainScreen(LOCATION_MAIN_SCREEN_LAYOUT);
+        this.mainScreenNode = mainScreen.getNode();
+        mainScreenNode.setOpacity(0);
+        mapScreen(SCREEN_MAIN, mainScreenNode);
+        return mainScreenNode;
     }
 }

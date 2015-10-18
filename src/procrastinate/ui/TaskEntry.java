@@ -11,14 +11,30 @@ import java.io.IOException;
 
 public class TaskEntry extends HBox{
 
+    // ================================================================================
+    // Message strings
+    // ================================================================================
+
     private static final String LOCATION_TASK_ENTRY_FXML = "TaskEntry.fxml";
     private static final String EMPTY_STRING = "";
 
+    // ================================================================================
+    // Class variables
+    // ================================================================================
+
     private Node taskEntry;
+
+    // ================================================================================
+    // FXML field variables
+    // ================================================================================
 
     @FXML Label lineNum;
     @FXML Label description;
     @FXML Label time;
+
+    // ================================================================================
+    // TaskEntry methods
+    // ================================================================================
 
     protected TaskEntry() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TASK_ENTRY_FXML));
@@ -56,7 +72,11 @@ public class TaskEntry extends HBox{
         }
     }
 
-    protected Node getTaskEntry() {
+    // ================================================================================
+    // Getter methods
+    // ================================================================================
+
+    protected Node getEntryDisplay() {
         return this.taskEntry;
     }
 }

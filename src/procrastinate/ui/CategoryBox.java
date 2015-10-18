@@ -10,12 +10,28 @@ import java.io.IOException;
 
 public class CategoryBox extends VBox {
 
+    // ================================================================================
+    // Message strings
+    // ================================================================================
+
     private static final String LOCATION_CATEGORYBOX_FXML = "CategoryBox.fxml";
+
+    // ================================================================================
+    // Class variables
+    // ================================================================================
 
     private Node categoryBox;
 
+    // ================================================================================
+    // FXML field variables
+    // ================================================================================
+
     @FXML Label categoryLabel;
-    @FXML VBox entriesBox;
+    @FXML VBox categoryVBox;
+
+    // ================================================================================
+    // CategoryBox methods
+    // ================================================================================
 
     protected CategoryBox(String label) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_CATEGORYBOX_FXML));
@@ -28,11 +44,15 @@ public class CategoryBox extends VBox {
         }
     }
 
+    // ================================================================================
+    // Getter methods
+    // ================================================================================
+
     protected Node getCategoryBox() {
         return this.categoryBox;
     }
 
-    protected VBox getEntriesBox() {
-        return this.entriesBox;
+    protected VBox getTaskListVBox() {
+        return this.categoryVBox;
     }
 }
