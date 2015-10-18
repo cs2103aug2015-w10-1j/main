@@ -112,11 +112,11 @@ public class Parser {
 
             case COMMAND_UNDO:
             case COMMAND_SHORT_UNDO:
-                if (userCommand.equalsIgnoreCase(firstWord)) { // So "undo something" is an add command, inject add to the front of command and recurse
+                if (userCommand.equalsIgnoreCase(firstWord)) {
+                    return new Command(CommandType.UNDO);
+                } else { // So "undo something" is an add command, inject add to the front of command and recurse
                     String newUserCommand = putAddInCommand(userInput);
                     return Parser.parse(newUserCommand);
-                } else {
-                    return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
                 }
 
             case COMMAND_DONE:
@@ -137,16 +137,14 @@ public class Parser {
 
             case COMMAND_SEARCH:
                 if(!userCommand.equalsIgnoreCase(firstWord)){
-                    try {
-                        String[] argument = userCommand.split(" ", 2);
-                        String searchDescription = argument[1];
-                        return new Command(CommandType.SEARCH).addDescription(searchDescription).addDate(inputDate);
-                    } catch (Exception e) {
-                        if(inputDate == null){ // So "search" is invalid
-                            return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
-                        } else {
-                            return new Command(CommandType.SEARCH).addDate(inputDate);
-                        }
+                    String[] argument = userCommand.split(" ", 2);
+                    String searchDescription = argument[1];
+                    return new Command(CommandType.SEARCH).addDescription(searchDescription).addDate(inputDate);
+                } else{
+                    if(inputDate == null){ // So "search" is invalid
+                        return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+                    } else {
+                        return new Command(CommandType.SEARCH).addDate(inputDate);
                     }
                 }
 
