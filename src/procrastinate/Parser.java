@@ -19,7 +19,7 @@ public class Parser {
 
     private static final String DEBUG_PARSING_COMMAND = "Parsing command: ";
 
-    private static final String MESSAGE_INVALID_ADD_NO_DESCRIPTION = "Please specify the description";
+    private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
     private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description";
 
@@ -46,6 +46,11 @@ public class Parser {
         String userCommand = userInput.trim(); // Trim leading and trailing whitespace
         Date inputDate = getDate(userCommand);
         userCommand = splitDatesFromUserCommand(userCommand, inputDate);
+
+        if(isCommandEmpty(userCommand)){
+            return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+        }
+
         String firstWord = getFirstWord(userCommand).toLowerCase(); // Case insensitive
 
         switch (firstWord) {
@@ -58,7 +63,7 @@ public class Parser {
                     }
                     return new Command(CommandType.ADD_DREAM).addDescription(description);
                 } else {
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_ADD_NO_DESCRIPTION);
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
             case COMMAND_EDIT:
@@ -154,7 +159,7 @@ public class Parser {
 
     private static Date getDate(String userCommand){
         String[] arguments = userCommand.split("due");
-        if(arguments.length == 1){
+        if(arguments.length <= 1){
             return null;
         }
 
@@ -168,7 +173,11 @@ public class Parser {
 
     private static String splitDatesFromUserCommand(String userCommand, Date inputDate){
         if(inputDate == null){
-            return userCommand;
+            if(userCommand.equals("due")){
+                return null;
+            } else {
+                return userCommand;
+            }
         } else {
             String[] arguments = userCommand.split("due");
             StringBuilder stringBuilder = new StringBuilder();
@@ -180,6 +189,10 @@ public class Parser {
             }
             return stringBuilder.toString();
         }
+    }
+
+    private static boolean isCommandEmpty(String userCommand){
+        return userCommand == null || userCommand.equals("");
     }
 
     private static String getFirstWord(String userCommand) {
