@@ -2,15 +2,6 @@
     -fx-font-family: Open Sans;
 }
 
-.list-view {
-    -fx-background-color: white;
-}
-
-.list-cell:empty {
-    visibility:hidden;
-    -fx-opacity: 0;
-}
-
 .helpScreen #titleLabel {
     -fx-font-weight: bold;
     -fx-font-size: 24px;

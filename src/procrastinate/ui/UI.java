@@ -67,7 +67,6 @@ public class UI {
 
     @FXML private BorderPane mainBorderPane;
     @FXML private Label statusLabel;
-    @FXML private ListView<String> taskListView;
     @FXML private TextField userInputField;
 
     // ADDED STUFFS, TO BE REARRANGED LATER ON
@@ -110,14 +109,6 @@ public class UI {
     }
 
     public void updateTaskList(List<Task> tasks) {
-        taskList.clear();
-        taskCount.set(1);
-        for (Task task : tasks) {
-            taskList.add(taskCountFormatted.get() + task.getDescription());
-            taskCount.set(taskCount.get() + 1);
-        }
-        updateListView();
-
         // Pass the updates to the main screen
         centerPaneController.updateMainScreen(tasks);
     }
@@ -136,9 +127,6 @@ public class UI {
     }
 
     private void initTaskDisplay() {
-        taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
-        taskListView.setItems(taskList);        // Initialises the list view and applies the CSS styling
-
         // Set up controller for new UI
         this.centerPaneController = new CenterPaneController(centerScreen);
         showHelp();                             // Acts as the splash/welcome and help screen for now.
@@ -161,10 +149,6 @@ public class UI {
     // ================================================================================
     // Utility methods
     // ================================================================================
-
-    private void updateListView() {
-        taskListView.setItems(taskList);
-    }
 
     private boolean isSysTraySupported() {
         return  SystemTray.isSupported();
@@ -194,7 +178,6 @@ public class UI {
     }
 
     public void showMain() {
-        taskListView.setOpacity(0);
         centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
     }
 }

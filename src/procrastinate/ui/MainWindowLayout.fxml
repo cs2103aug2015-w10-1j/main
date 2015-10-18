@@ -19,9 +19,6 @@
 	</bottom>
    <center>
       <StackPane fx:id="centerScreen" BorderPane.alignment="CENTER">
-         <children>
-            <ListView fx:id="taskListView" />
-         </children>
       </StackPane>
    </center>
 </BorderPane>

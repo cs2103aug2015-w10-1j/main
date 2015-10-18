@@ -329,10 +329,6 @@ public class Logic {
                     setStatus(STATUS_READY);
                 }
             }
-            // For testing purposes
-            if (keyEvent.getCode().equals(KeyCode.SHIFT)) {
-                ui.showMain();
-            }
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
             }

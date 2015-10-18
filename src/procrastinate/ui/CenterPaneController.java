@@ -59,7 +59,7 @@ public class CenterPaneController {
 
         initialiseScreens();
         currentScreen = mainScreenNode;
-//        mainScreenNode.setOpacity(1); // Setup straight into main screen. disabled for now.
+        mainScreenNode.setOpacity(1); // Setup straight into main screen.
     }
 
     // ================================================================================
