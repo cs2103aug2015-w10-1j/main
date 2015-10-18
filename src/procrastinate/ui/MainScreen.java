@@ -25,6 +25,10 @@ public class MainScreen extends CenterScreen {
     private static final String CATEGORY_FUTURE = "Future";
     private static final String CATEGORY_DREAMS = "Dreams";
 
+    private static final String TASKTYPE_DEADLINE = "deadline";
+    private static final String TASKTYPE_DREAMS = "dream";
+    private static final String TASKTYPE_EVENT = "event";
+
     private static final String UI_NUMBER_SEPARATOR = ". ";
 
     // ================================================================================
@@ -70,11 +74,21 @@ public class MainScreen extends CenterScreen {
     protected void updateTaskList(List<Task> taskList) {
         clearTaskList();
 
-        // Currently add all to just dreams, until a comparator for the dates is created
+        // Currently add without looking at dates, until a comparator for the dates is created
+        // Need to rearrange the tasks retrieved as well. Maybe to create multiple update methods for
+        // the different categories.
+        // Also the dates does not get saved after the program is reloaded.
         for (Task task : taskList) {
-            TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
-            taskCount.set(taskCount.get() + 1);
-            dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+            String taskType = task.getTypeString();
+            if (taskType.equals(TASKTYPE_DEADLINE) || taskType.equals(TASKTYPE_EVENT)) {
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
+                taskCount.set(taskCount.get() + 1);
+                futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+            } else {
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
+                taskCount.set(taskCount.get() + 1);
+                dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+            }
         }
     }
 
