@@ -40,18 +40,10 @@ public class UI {
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
 
     private static final String LOCATION_MAIN_WINDOW_LAYOUT = "MainWindowLayout.fxml";
-    private static final String LOCATION_CSS_STYLESHEET = "procrastinate.css";
-    private static final String LOCATION_WINDOW_ICON = "icon.png";
 
     private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
     private static final String UI_NUMBER_SEPARATOR = ". ";
-
-    private static final String WINDOW_TITLE = "Procrastinate";
-    private static final double WINDOW_WIDTH = 500;
-    private static final double WINDOW_MIN_WIDTH = 500;
-    private static final double WINDOW_HEIGHT = 600;
-    private static final double WINDOW_MIN_HEIGHT = 600;
 
     // ================================================================================
     // Class variables
@@ -70,9 +62,7 @@ public class UI {
 
     private SystemTrayHandler sysTrayHandler;
     private SystemTray sysTray;
-
-    // Window or System Tray related variables
-    private static double xOffset, yOffset;
+    private WindowHandler windowHandler;
 
 
     // ================================================================================
@@ -116,7 +106,9 @@ public class UI {
     public void setUpStage(Stage primaryStage) {
         assert (primaryStage != null);
         this.primaryStage = primaryStage;
-        initWindowAndTray();
+        initWindow();
+        initTray();
+        primaryStage.show();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
@@ -143,53 +135,23 @@ public class UI {
         taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
     }
 
-    private void initWindowAndTray() {
-        configurePrimaryStage(primaryStage, root);
+    private void initTaskDisplay() {
+        taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
+        taskListView.setItems(taskList);        // Initialises the list view and applies the CSS styling
+    }
+
+    private void initTray() {
         if (isSysTraySupported()) {
             sysTrayHandler = new SystemTrayHandler(primaryStage, userInputField);
             // userInputField is passed to SystemTrayHandler to request for focus whenever the window is shown
             sysTray = sysTrayHandler.initialiseTray();
             assert (sysTray != null);
         }
-        primaryStage.show();
     }
 
-    private void initTaskDisplay() {
-        taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
-        taskListView.setItems(taskList);        // Initialises the list view and applies the CSS styling
-    }
-
-    // ================================================================================
-    // Window Configurations
-    // ================================================================================
-
-    private void configurePrimaryStage(Stage primaryStage, Parent root) {
-        primaryStage.setTitle(WINDOW_TITLE);
-        primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
-        primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
-        primaryStage.getIcons().addAll(
-                new Image(getClass().getResourceAsStream("icon.png"))
-        );
-
-        Scene primaryScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);  // This is the 'primary window' that consists of the user input field
-        primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
-        primaryStage.setScene(primaryScene);
-        //overwriteDecorations(primaryStage, root);
-    }
-
-    // Removes all borders and buttons, enables dragging of window through frame
-    // Unused for now
-    @SuppressWarnings("unused")
-    private void overwriteDecorations(Stage primaryStage, Parent root) {
-        primaryStage.initStyle(StageStyle.UNDECORATED);
-        root.setOnMousePressed((mouseEvent) -> {
-                xOffset = mouseEvent.getSceneX();
-                yOffset = mouseEvent.getSceneY();
-            });
-        root.setOnMouseDragged((mouseEvent) -> {
-                primaryStage.setX(mouseEvent.getScreenX() - xOffset);
-                primaryStage.setY(mouseEvent.getScreenY() - yOffset);
-            });
+    private void initWindow() {
+        windowHandler = new WindowHandler(primaryStage, root);
+        windowHandler.initialiseWindow();
     }
 
     // ================================================================================
@@ -217,10 +179,6 @@ public class UI {
     // ================================================================================
 
     public void getCSC() {
-//        CenterPaneController csc = new CenterPaneController();
-//        StackPane centerPane = csc.getCenterStackPane();
-//        mainBorderPane.setCenter(centerPane);
-
         this.centerPaneController = new CenterPaneController(centerScreen);
     }
 
