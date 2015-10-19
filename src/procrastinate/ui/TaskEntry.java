@@ -14,7 +14,7 @@ public class TaskEntry extends HBox{
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_TASK_ENTRY_FXML = "TaskEntry.fxml";
+    private static final String LOCATION_TASK_ENTRY_FXML = "views/TaskEntry.fxml";
     private static final String EMPTY_STRING = "";
 
     // ================================================================================
