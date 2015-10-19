@@ -1,5 +1,10 @@
 package procrastinate;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -7,7 +12,6 @@ import procrastinate.task.Task;
 import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
 
-import java.io.*;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.logging.Level;
@@ -33,26 +37,56 @@ public class FileHandler {
     // Instance variables
     // ================================================================================
 
-    private String directoryPath = "";
+    private final String filename = "storage";
+    private final String fileExtension = ".json";
+    private final String fullFilename = filename + fileExtension;
     private File file;
     private BufferedWriter bw = null;
 
-    public FileHandler() {
-    	this("");
+    public FileHandler() throws IOException {
+        this("");
     }
 
-    public FileHandler(String directoryPath) {
-    	if (!directoryPath.isEmpty()) {
-    		if (!directoryPath.endsWith("/")) {
-    			directoryPath += "/";
-    		}
-    		this.directoryPath = directoryPath;
-    	}
+    /**
+     * Make a new file based on give directoryPath. directoryPath can be
+     * multi-level directory and any type of path i.e. absolute or relative.
+     * Will not overwrite file if it already exists.
+     * Will make directories if it does not exists.
+     *
+     * @param path if only directory is given, default file name is used otherwise
+     * provide a filename along json extension
+     * @throws IOException
+     * @author Gerald
+     */
+    public FileHandler(String path) throws IOException {
+        Path pathOnly = null;
+        Path pathWithFileName = null;
 
-    	file = new File(this.directoryPath + FILENAME);
-    	logger.log(Level.INFO, DEBUG_FILE_INIT + file.getAbsolutePath());
+        if (hasFileName(path)) {
+            pathWithFileName = Paths.get(path).normalize();
+            pathOnly = pathWithFileName.toAbsolutePath().getParent();
+        } else {
+            pathWithFileName = Paths.get(path + fullFilename);
+            pathOnly = Paths.get(path);
+        }
+
+        assert pathOnly != null;
+        assert pathWithFileName != null;
+
+        // if file does not exists, directory might not exists too
+        if (Files.notExists(pathWithFileName)) {
+            if (Files.notExists(pathOnly)) {
+                Files.createDirectories(pathOnly);
+            }
+            file = Files.createFile(pathWithFileName).toFile();
+            makeEmptyState();
+        } else {
+            file = pathWithFileName.toFile();
+        }
+
+
+        logger.log(Level.INFO, DEBUG_FILE_INIT + file.getCanonicalPath());
     }
-
 
     // ================================================================================
     // FileHandler methods
@@ -63,13 +97,13 @@ public class FileHandler {
      * @param taskState
      */
     public void saveTaskState(TaskState taskState) throws IOException {
-    	String json = jsonify(taskState);
+        String json = jsonify(taskState);
         try {
-			jsonToFile(json);
-		} catch (IOException e) {
-			logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE);
-			throw e;
-		}
+            jsonToFile(json);
+        } catch (IOException e) {
+            logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE);
+            throw e;
+        }
     }
 
     /**
@@ -77,7 +111,7 @@ public class FileHandler {
      * @return TaskState
      */
     public TaskState loadTaskState() throws FileNotFoundException {
-    	return loadTaskState(file);
+        return loadTaskState(file);
     }
 
     /**
@@ -85,49 +119,67 @@ public class FileHandler {
      *
      * @return TaskState that was saved when the application last closed.
      */
-	private TaskState loadTaskState(File file) throws FileNotFoundException {
-    	BufferedReader br = null;
-    	Gson gson = new GsonBuilder().registerTypeAdapter(Task.class, new TaskDeserializer()).create();
-    	Type type = new TypeToken<TaskState>() {}.getType();
+    private TaskState loadTaskState(File file) throws FileNotFoundException {
+        BufferedReader br = null;
+        Gson gson = new GsonBuilder().registerTypeAdapter(Task.class, new TaskDeserializer()).create();
+        Type type = new TypeToken<TaskState>() {}.getType();
 
-    	try {
-    		br = new BufferedReader(new FileReader(file));
- 			TaskState taskState = gson.fromJson(br, type);
+        try {
+            br = new BufferedReader(new FileReader(file));
+            TaskState taskState = gson.fromJson(br, type);
 
-			logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.getTasks().size()));
-			return taskState;
-		} catch (FileNotFoundException e) {
-			logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);
-			throw e;
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+            logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.getTasks().size()));
+            return taskState;
+        } catch (FileNotFoundException e) {
+            logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);
+            throw e;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     };
 
     // ================================================================================
     // Utility methods
     // ================================================================================
 
-	private void jsonToFile(String json) throws IOException {
-		file.createNewFile();
-		bw = new BufferedWriter(new FileWriter(file));
-		bw.write(json);
-		bw.close();
-		logger.log(Level.INFO, DEBUG_FILE_WRITE_SUCCESS + json);
-	}
+    private void jsonToFile(String json) throws IOException {
+        file.createNewFile();
+        bw = new BufferedWriter(new FileWriter(file));
+        bw.write(json);
+        bw.close();
+        logger.log(Level.INFO, DEBUG_FILE_WRITE_SUCCESS + json);
+    }
 
     private String jsonify(TaskState taskState) {
     	Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
     	        .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
     	String json = gson.toJson(taskState);
 
-    	return json;
+        return json;
+    }
+
+    // ================================================================================
+    // FileHandler methods
+    // ================================================================================
+
+    /**
+     * Makes a empty state when a file is first initialised so that the json
+     * file has the right structure
+     */
+    private void makeEmptyState() throws IOException {
+        saveTaskState(new TaskState());
+    }
+
+    // uses file extension to check for filename within a path
+    private boolean hasFileName(String directoryPath) {
+        String pattern = ".*\\" + fileExtension;
+        return directoryPath.matches(pattern);
     }
 
 }
