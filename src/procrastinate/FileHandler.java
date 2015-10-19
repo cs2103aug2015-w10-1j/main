@@ -1,8 +1,23 @@
 package procrastinate;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import procrastinate.task.Task;
 import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
@@ -26,38 +41,67 @@ public class FileHandler {
     private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded %1$s task(s) from file";
     private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file";
 
-    private final String FILENAME = "storage.json";
 
     // ================================================================================
     // Instance variables
     // ================================================================================
 
-    private String directoryPath = "";
+    private final String filename = "storage";
+    private final String fileExtension = ".json";
+    private final String fullFilename = filename + fileExtension;
+    private String filePath = "";
     private File file;
     private BufferedWriter bw = null;
 
-    public FileHandler() {
+    public FileHandler() throws IOException {
     	this("");
     }
 
-    public FileHandler(String directoryPath) {
-    	if (!directoryPath.isEmpty()) {
-    		if (!directoryPath.endsWith("/")) {
-    			directoryPath += "/";
-    		}
-    		this.directoryPath = directoryPath;
+    /**
+     * Make a new file based on give directoryPath. directoryPath can be
+     * multi-level directory and any type of path i.e. absolute or relative.
+     * Will not overwrite file if it already exists.
+     * Will make directories if it does not exists.
+     *
+     * @param path if only directory is given, default file name is used otherwise
+     * provide a filename along json extension
+     * @throws IOException
+     * @author Gerald
+     */
+    public FileHandler(String path) throws IOException {
+    	Path pathOnly = null;
+    	Path pathWithFileName = null;
+
+    	if (hasFileName(path)) {
+    		pathWithFileName = Paths.get(path).normalize();
+    		pathOnly = pathWithFileName.toAbsolutePath().getParent();
+    	} else {
+    		pathWithFileName = Paths.get(path + fullFilename);
+    		pathOnly = Paths.get(path);
     	}
 
-    	file = new File(this.directoryPath + FILENAME);
-    	logger.log(Level.INFO, DEBUG_FILE_INIT + file.getAbsolutePath());
+    	assert pathOnly != null;
+    	assert pathWithFileName != null;
+
+    	// if file does not exists, directory might not exists too
+    	if (Files.notExists(pathWithFileName)) {
+    		if (Files.notExists(pathOnly)) {
+    			Files.createDirectories(pathOnly);
+    		}
+    		Files.createFile(pathWithFileName);
+    	}
+
+    	file = pathWithFileName.toFile();
+
+    	logger.log(Level.INFO, DEBUG_FILE_INIT + file.getCanonicalPath());
     }
 
-
-    // ================================================================================
+	// ================================================================================
     // FileHandler methods
     // ================================================================================
 
-    /**
+
+	/**
      * Converts TaskState into json format and writes to disk
      * @param taskState
      */
@@ -128,5 +172,11 @@ public class FileHandler {
 
     	return json;
     }
+
+    // uses file extension to check for filename within a path
+	private boolean hasFileName(String directoryPath) {
+		String pattern = ".*\\" + fileExtension;
+		return directoryPath.matches(pattern);
+	}
 
 }
