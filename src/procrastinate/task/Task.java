@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public abstract class Task implements Comparable<Task> {
 
+    private static final String ERROR_UNKNOWN_TYPE = "Error: unknown task type";
+
 	public static enum TaskType {
 		DEADLINE, EVENT, DREAM;
 	}
@@ -23,6 +25,26 @@ public abstract class Task implements Comparable<Task> {
         this.done = done;
         this.id = id;
     }
+
+	public static Task copy(Task task) {
+	    switch (task.getType()) {
+	        case DEADLINE: {
+	            Deadline other = (Deadline) task;
+                return new Deadline(other.getDescription(), other.getDate(), other.isDone(), other.getId());
+	        }
+	        case EVENT: {
+	            Event other = (Event) task;
+                return new Event(other.getDescription(), other.getStartDate(), other.getEndDate(), other.isDone(), other.getId());
+	        }
+	        case DREAM: {
+	            Dream other = (Dream) task;
+	            return new Dream(other.getDescription(), other.isDone(), other.getId());
+	        }
+	        default: {
+	            throw new Error(ERROR_UNKNOWN_TYPE);
+	        }
+	    }
+	}
 
 	// ================================================================================
     // Getter methods

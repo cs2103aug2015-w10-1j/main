@@ -5,12 +5,11 @@ import procrastinate.FileHandler;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class TaskEngine {
 

@@ -29,7 +29,9 @@ public class Logic {
     private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
     private static final String FEEDBACK_ADD_DEADLINE = "Added deadline: %1$s due: %2$s";
     private static final String FEEDBACK_ADD_EVENT = "Added event: %1$s from: %2$s to: %3$s";
-    private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
+    private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s to dream: %2$s";
+    private static final String FEEDBACK_EDIT_DEADLINE = "Edited #%1$s to deadline: %2$s due: %3$s";
+    private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s to event: %2$s from: %3$s to: %4$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
@@ -161,21 +163,48 @@ public class Logic {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
-                Task task = getTaskFromLineNumber(lineNumber);
+                Task oldTask = getTaskFromLineNumber(lineNumber);
+                String oldDescription = oldTask.getDescription();
 
                 String newDescription = command.getDescription();
-                Task newTask = new Dream(newDescription);
+                Date newDate = command.getDate();
+                Date newStartDate = command.getStartDate();
+                Date newEndDate = command.getEndDate();
+
+                Task newTask;
+
+                if (newDate != null) {
+                    newTask = new Deadline(oldDescription, newDate);
+                } else if (newStartDate != null) {
+                    newTask = new Event(oldDescription, newStartDate, newEndDate);
+                } else {
+                    newTask = Task.copy(oldTask);
+                }
+
+                if (newDescription != null) {
+                    newTask.setDescription(newDescription);
+                }
 
                 if (execute) {
                     try {
-						taskEngine.edit(task.getId(), newTask);
+						taskEngine.edit(oldTask.getId(), newTask);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_EDIT_DREAM, lineNumber, newDescription);
+                switch (newTask.getType()) {
+                    case DREAM:
+                        return String.format(FEEDBACK_EDIT_DREAM, lineNumber, newTask.getDescription());
+                    case DEADLINE:
+                        return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber, newTask.getDescription(),
+                                ((Deadline) newTask).getDate());
+                    case EVENT:
+                        return String.format(FEEDBACK_EDIT_EVENT, lineNumber, newDescription,
+                                ((Event) newTask).getStartDate(), ((Event) newTask).getEndDate());
+                }
+
             }
 
             case DELETE: {
