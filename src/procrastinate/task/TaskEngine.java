@@ -10,6 +10,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 public class TaskEngine {
 
     private static final Logger logger = Logger.getLogger(TaskEngine.class.getName());
@@ -200,6 +202,7 @@ public class TaskEngine {
     }
 
     private TaskState getCurrentState() {
+        Collections.sort(currentState.getTasks());
         return currentState;
     }
 

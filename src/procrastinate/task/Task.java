@@ -2,7 +2,7 @@ package procrastinate.task;
 
 import java.util.UUID;
 
-public abstract class Task {
+public abstract class Task implements Comparable<Task> {
 
 	public static enum TaskType {
 		DEADLINE, EVENT, DREAM;

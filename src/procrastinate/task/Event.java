@@ -27,4 +27,23 @@ public class Event extends Task {
 	public Date getEndDate() {
 		return endDate;
 	}
+
+	@Override
+    public int compareTo(Task other) {
+	    if (other.getType() == TaskType.DREAM) {
+	        return -1;
+	    } else {
+	        Date otherDate = null;
+	        if (other.getType() == TaskType.DEADLINE) {
+	            otherDate = ((Deadline) other).getDate();
+	        } else {
+	            otherDate = ((Event) other).getStartDate();
+	        }
+	        if (!this.getStartDate().equals(otherDate)) {
+	            return this.getStartDate().compareTo(otherDate);
+	        } else {
+	            return this.getDescription().compareTo(other.getDescription());
+	        }
+	    }
+	}
 }
