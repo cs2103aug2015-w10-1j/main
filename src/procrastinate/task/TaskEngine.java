@@ -40,11 +40,11 @@ public class TaskEngine {
 
     private String directoryPath = "";
 
-    public TaskEngine() {
+    public TaskEngine() throws IOException {
         this("");
     }
 
-    public TaskEngine(String directoryPath) {
+    public TaskEngine(String directoryPath) throws IOException {
         this.directoryPath = directoryPath;
         initFileHandler();
         initTasks();
@@ -158,22 +158,22 @@ public class TaskEngine {
     // Init methods
     // ================================================================================
 
-    private void initFileHandler() {
+    private void initFileHandler() throws IOException {
         fileHandler = new FileHandler(directoryPath);
     }
 
     private void initTasks() {
         try {
-			loadState(fileHandler.loadTaskState());
-		} catch (FileNotFoundException e) {
-		    loadState(new TaskState());
-		    logger.log(Level.INFO, DEBUG_FILE_NOT_FOUND);
+            loadState(fileHandler.loadTaskState());
+        } catch (FileNotFoundException e) {
+            loadState(new TaskState());
+            logger.log(Level.INFO, DEBUG_FILE_NOT_FOUND);
             try {
                 writeStateToFile();
             } catch (IOException e1) {
                 logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
             }
-		}
+        }
     }
 
     // ================================================================================
@@ -193,7 +193,7 @@ public class TaskEngine {
     }
 
     private void writeStateToFile() throws IOException {
-    	fileHandler.saveTaskState(getCurrentState());
+        fileHandler.saveTaskState(getCurrentState());
     }
 
     private TaskState getBackupOfCurrentState() {

@@ -67,7 +67,11 @@ public class Logic {
 
     private Logic() {
         initUi();
-        initTaskEngine();
+        try {
+            initTaskEngine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         initParser();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
@@ -314,8 +318,8 @@ public class Logic {
         ui = new UI();
     }
 
-    private void initTaskEngine() {
-        taskEngine = new TaskEngine();
+    private void initTaskEngine() throws IOException {
+		taskEngine = new TaskEngine();
     }
 
     private void initParser() {

@@ -1,4 +1,4 @@
-package procrastinate;
+package procrastinate.test;
 
 import procrastinate.task.*;
 
@@ -29,7 +29,7 @@ public class TaskStateStub extends TaskState{
 			e.printStackTrace();
 		}
 
-		Dream doneDream = (new Dream("bar bee"));
+		Dream doneDream = new Dream("bar bee");
 		doneDream.setDone();
 		stub.add(doneDream);
 
