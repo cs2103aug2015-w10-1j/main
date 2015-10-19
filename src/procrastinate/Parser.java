@@ -63,59 +63,65 @@ public class Parser {
         String firstWord = getFirstWord(userCommand).toLowerCase(); // Case insensitive
 
         switch (firstWord) {
-            case COMMAND_ADD:
-                if (!userCommand.equalsIgnoreCase(firstWord)) {
-                    String[] argument = userCommand.split(" ", 2);
-                    String description = argument[1];
-
-                    if (description.isEmpty()) { // No description
-                        return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
-                    }
-
-                    Command command;
-                    if (inputDate != null) {
-                        command = new Command(CommandType.ADD_DEADLINE).addDate(inputDate);
-                    } else {
-                        command = new Command(CommandType.ADD_DREAM);
-                    }
-                    command.addDescription(description);
-
-                    return command;
-
-                } else { // No arguments at all
+            case COMMAND_ADD: {
+                if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
+                    // Treat "add" as an invalid command
+                    // Display a helpful message (no description)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
+                String[] argument = userCommand.split(" ", 2);
+                String description = argument[1];
+
+                if (description.isEmpty()) {
+                    // Display a helpful message (no description)
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+                }
+
+                Command command;
+                if (inputDate != null) {
+                    command = new Command(CommandType.ADD_DEADLINE).addDate(inputDate);
+                } else {
+                    command = new Command(CommandType.ADD_DREAM);
+                }
+                command.addDescription(description);
+
+                return command;
+            }
+
             case COMMAND_EDIT:
-            case COMMAND_SHORT_EDIT:
-                if (!userCommand.equalsIgnoreCase(firstWord)) {
-                    int lineNumber = 0;
-                    try {
-                        String[] argument = userCommand.split(" ", 3);
-                        lineNumber = Integer.parseInt(argument[1]);
-                        String description = argument[2];
-
-                        Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
-                        if (inputDate != null) {
-                            command.addDate(inputDate);
-                        }
-                        if (!description.isEmpty()) {
-                            command.addDescription(description);
-                        }
-
-                        return command;
-
-                    } catch (NumberFormatException e) { // So "edit something" is an add command
-                        // Inject add to the front of command and recurse
-                        return Parser.parse(putAddInCommand(userInput));
-
-                    } catch (Exception e) { // Display a helpful message for "edit 1" (no description or date(s) given)
-                        return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_NEW_DATA);
-                    }
-
-                } else { // Display a helpful message for "edit" (no line number given)
+            case COMMAND_SHORT_EDIT: {
+                if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
+                    // Treat "edit" as an invalid command
+                    // Display a helpful message (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
+
+                int lineNumber = 0;
+                try {
+                    String[] argument = userCommand.split(" ", 3);
+                    lineNumber = Integer.parseInt(argument[1]);
+                    String description = argument[2];
+
+                    Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
+                    if (inputDate != null) {
+                        command.addDate(inputDate);
+                    }
+                    if (!description.isEmpty()) {
+                        command.addDescription(description);
+                    }
+
+                    return command;
+
+                } catch (NumberFormatException e) { // Not a line number
+                    // Treat "edit something" as an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInFront(userInput));
+
+                } catch (Exception e) { // Display a helpful message for "edit 1" (no description or date(s) given)
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_NEW_DATA);
+                }
+            }
 
             case COMMAND_DELETE:
             case COMMAND_SHORT_DELETE:
@@ -125,77 +131,84 @@ public class Parser {
 
                     return new Command(CommandType.DELETE).addLineNumber(lineNumber);
 
-                } catch (NumberFormatException e) { // So "delete something" is an add command
+                } catch (NumberFormatException e) { // Not a line number
+                    // Treat "delete something" is an add command
                     // Inject add to the front of command and recurse
-                    return Parser.parse(putAddInCommand(userInput));
+                    return Parser.parse(putAddInFront(userInput));
 
                 } catch (Exception e) { // Display a helpful message for "delete" (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
             case COMMAND_UNDO:
-            case COMMAND_SHORT_UNDO:
-                if (userCommand.equalsIgnoreCase(firstWord)) {
-
-                    return new Command(CommandType.UNDO);
-
-                } else { // So "undo something" is an add command
+            case COMMAND_SHORT_UNDO: {
+                if (!userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
+                    // Treat "undo something" as an add command
                     // Inject add to the front of command and recurse
-                    return Parser.parse(putAddInCommand(userInput));
+                    return Parser.parse(putAddInFront(userInput));
                 }
 
+                return new Command(CommandType.UNDO);
+            }
+
             case COMMAND_DONE:
-            case COMMAND_SHORT_DONE:
-                if (!userCommand.equalsIgnoreCase(firstWord)) {
-                    try {
-                        String[] argument = userCommand.split(" ", 2);
-                        int lineNumber = Integer.parseInt(argument[1]);
-
-                        return new Command(CommandType.DONE).addLineNumber(lineNumber);
-
-                    } catch (NumberFormatException e) { // So "done something" is an add command
-                        // Inject add to the front of command and recurse
-                        return Parser.parse(putAddInCommand(userInput));
-                    }
-
-                } else { // Display a helpful message for "done" (no line number given)
+            case COMMAND_SHORT_DONE: {
+                if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
+                    // Treat "done" as an invalid command
+                    // Display a helpful message (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
-            case COMMAND_SEARCH:
-            case COMMAND_SHORT_SEARCH:
-                if (!userCommand.equalsIgnoreCase(firstWord)) {
+                try {
                     String[] argument = userCommand.split(" ", 2);
-                    String searchDescription = argument[1];
+                    int lineNumber = Integer.parseInt(argument[1]);
 
-                    Command command = new Command(CommandType.SEARCH);
-                    if (inputDate != null) {
-                        command.addDate(inputDate);
-                    }
-                    if (!searchDescription.isEmpty()) {
-                        command.addDescription(searchDescription);
-                    }
+                    return new Command(CommandType.DONE).addLineNumber(lineNumber);
 
-                    return command;
+                } catch (NumberFormatException e) { // Not a line number
+                    // Treat "done something" as an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInFront(userInput));
+                }
+            }
 
-                } else {
+            case COMMAND_SEARCH:
+            case COMMAND_SHORT_SEARCH: {
+                if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
+                    // Treat "search" as an invalid command
+                    // Display a helpful message (no description)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-            case COMMAND_EXIT:
-            case COMMAND_SHORT_EXIT:
-                if (userCommand.equalsIgnoreCase(firstWord)) {
+                String[] argument = userCommand.split(" ", 2);
+                String searchDescription = argument[1];
 
-                    return new Command(CommandType.EXIT);
-
-                } else { // So "procrastinate something" is an add command
-                    // Inject add to the front of command and recurse
-                    return Parser.parse(putAddInCommand(userInput));
+                Command command = new Command(CommandType.SEARCH);
+                if (inputDate != null) {
+                    command.addDate(inputDate);
+                }
+                if (!searchDescription.isEmpty()) {
+                    command.addDescription(searchDescription);
                 }
 
-            default:
+                return command;
+            }
+
+            case COMMAND_EXIT:
+            case COMMAND_SHORT_EXIT: {
+                if (!userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
+                    // Treat "procrastinate something" as an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInFront(userInput));
+                }
+
+                return new Command(CommandType.EXIT);
+            }
+
+            default: {
                 // Inject add to the front of command and recurse
-                return Parser.parse(putAddInCommand(userInput));
+                return Parser.parse(putAddInFront(userInput));
+            }
         }
 
     }
@@ -246,11 +259,11 @@ public class Parser {
         return userCommand.split(" ")[0];
     }
 
-    private static String putAddInCommand(String description) {
+    private static String putAddInFront(String userInput) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(COMMAND_ADD);
         stringBuilder.append(" ");
-        stringBuilder.append(description);
+        stringBuilder.append(userInput);
         return stringBuilder.toString();
     }
 
