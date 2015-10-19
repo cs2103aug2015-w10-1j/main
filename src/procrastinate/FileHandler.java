@@ -31,14 +31,15 @@ public class FileHandler {
     private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded %1$s task(s) from file";
     private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file";
 
-    private final String FILENAME = "storage.json";
+    private static final String DEFAULT_FILENAME = "storage";
+    private static final String DEFAULT_FILE_EXTENSION = ".json";
 
     // ================================================================================
     // Instance variables
     // ================================================================================
 
-    private final String filename = "storage";
-    private final String fileExtension = ".json";
+    private final String filename = DEFAULT_FILENAME;
+    private final String fileExtension = DEFAULT_FILE_EXTENSION;
     private final String fullFilename = filename + fileExtension;
     private File file;
     private BufferedWriter bw = null;
