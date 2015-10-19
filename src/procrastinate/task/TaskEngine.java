@@ -41,11 +41,11 @@ public class TaskEngine {
 
     private String directoryPath = "";
 
-    public TaskEngine() throws IOException {
+    public TaskEngine() {
         this("");
     }
 
-    public TaskEngine(String directoryPath) throws IOException {
+    public TaskEngine(String directoryPath) {
         this.directoryPath = directoryPath;
         initFileHandler();
         initTasks();
@@ -159,9 +159,8 @@ public class TaskEngine {
     // Init methods
     // ================================================================================
 
-    private void initFileHandler() throws IOException {
-//        fileHandler = new FileHandler(directoryPath);
-        fileHandler = new FileHandler();
+    private void initFileHandler() {
+        fileHandler = new FileHandler(directoryPath);
     }
 
     private void initTasks() {
