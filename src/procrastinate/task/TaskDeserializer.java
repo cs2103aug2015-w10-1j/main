@@ -6,8 +6,8 @@ import procrastinate.task.Task.TaskType;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 public class TaskDeserializer implements JsonDeserializer<Task> {
@@ -28,7 +28,7 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 		String description = jObj.get("description").getAsString();
 		boolean done = jObj.get("done").getAsBoolean();
 		UUID id = UUID.fromString(jObj.get("id").getAsString());
-        DateFormat defaultDateFormat = new SimpleDateFormat();
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.getDefault());
 
 		if (type.equals(TaskType.DREAM.toString())) {
 			return new Dream(description, done, id);
@@ -37,7 +37,7 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 	        Date date = null;
 
             try {
-                date = defaultDateFormat.parse(jObj.get("date").getAsString());
+                date = dateFormat.parse(jObj.get("date").getAsString());
             } catch (ParseException e) {
                 // TODO Show warning that the file has been modified to an unrecognisable date format
                 return new Dream(description, done, id);
@@ -50,8 +50,8 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 		    Date endDate = null;
 
             try {
-                startDate = defaultDateFormat.parse(jObj.get("startDate").getAsString());
-                endDate = defaultDateFormat.parse(jObj.get("endDate").getAsString());
+                startDate = dateFormat.parse(jObj.get("startDate").getAsString());
+                endDate = dateFormat.parse(jObj.get("endDate").getAsString());
             } catch (ParseException e) {
                 // TODO Show warning that the file has been modified to an unrecognisable date format
                 return new Dream(description, done, id);

@@ -9,6 +9,7 @@ import procrastinate.task.TaskState;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -122,8 +123,8 @@ public class FileHandler {
 	}
 
     private String jsonify(TaskState taskState) {
-    	GsonBuilder builder = new GsonBuilder().setPrettyPrinting().serializeNulls();
-    	Gson gson = builder.create();
+    	Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+    	        .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
     	String json = gson.toJson(taskState);
 
     	return json;
