@@ -22,9 +22,9 @@ public class CenterPaneController {
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_MAIN_SCREEN_LAYOUT = "MainScreen.fxml";
-    private static final String LOCATION_HELP_SCREEN_LAYOUT = "HelpScreen.fxml";
-    private static final String LOCATION_SEARCH_SCREEN_LAYOUT = "SearchScreen.fxml";
+    private static final String LOCATION_MAIN_SCREEN_LAYOUT = "views/MainScreen.fxml";
+    private static final String LOCATION_HELP_SCREEN_LAYOUT = "views/HelpScreen.fxml";
+    private static final String LOCATION_SEARCH_SCREEN_LAYOUT = "views/SearchScreen.fxml";
 
     // ================================================================================
     // Class variables

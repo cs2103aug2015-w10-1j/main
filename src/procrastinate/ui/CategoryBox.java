@@ -14,7 +14,7 @@ public class CategoryBox extends VBox {
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_CATEGORYBOX_FXML = "CategoryBox.fxml";
+    private static final String LOCATION_CATEGORYBOX_FXML = "views/CategoryBox.fxml";
 
     // ================================================================================
     // Class variables

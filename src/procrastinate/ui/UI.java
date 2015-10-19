@@ -28,7 +28,7 @@ public class UI {
     private static final String DEBUG_UI_INIT = "UI initialised.";
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
 
-    private static final String LOCATION_MAIN_WINDOW_LAYOUT = "MainWindowLayout.fxml";
+    private static final String LOCATION_MAIN_WINDOW_LAYOUT = "views/MainWindowLayout.fxml";
 
     // ================================================================================
     // Class variables

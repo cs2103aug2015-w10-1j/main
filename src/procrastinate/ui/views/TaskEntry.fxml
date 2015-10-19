@@ -7,12 +7,12 @@
 
 <HBox xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Region minWidth="20.0" prefWidth="20.0" HBox.hgrow="NEVER" />
-      <Label fx:id="lineNum" text="Line Number" />
-      <Label fx:id="description" text="Description" wrapText="true">
-         <padding>
-            <Insets left="5.0" />
-         </padding>
+      <Label fx:id="lineNum" minWidth="20.0" text="Line Number" HBox.hgrow="ALWAYS" />
+      <Region minWidth="5.0" HBox.hgrow="NEVER" />
+      <Label fx:id="description" alignment="CENTER" text="Description" wrapText="true" HBox.hgrow="ALWAYS">
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
       </Label>
       <Region minWidth="10.0" HBox.hgrow="ALWAYS" />
       <Label fx:id="time" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" minWidth="150.0" text="Time" textAlignment="RIGHT" HBox.hgrow="ALWAYS" />
