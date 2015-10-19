@@ -21,7 +21,7 @@ public class Parser {
 
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
-    private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description";
+    private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description or date(s)";
 
     private static final String COMMAND_ADD = "add";
     private static final String COMMAND_EDIT = "edit";
@@ -75,7 +75,6 @@ public class Parser {
                         String[] argument = userCommand.split(" ", 3);
                         lineNumber = Integer.parseInt(argument[1]);
                         String description = argument[2];
-                        System.out.println('"' + description + '"');
                         Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
                         if (inputDate != null) {
                             command.addDate(inputDate);
@@ -83,7 +82,6 @@ public class Parser {
                         if (!description.isEmpty()) {
                             command.addDescription(description);
                         }
-                        System.out.println("normal edit");
                         return command;
 
                     } catch (NumberFormatException e) { // So "edit something" is an add command, inject add to the front of command and recurse
@@ -91,7 +89,6 @@ public class Parser {
                         return Parser.parse(newUserCommand);
                     } catch (Exception e) { // So "edit 1" is invalid (no description given)
                         if (inputDate != null) {
-                            System.out.println("? edit");
                             return new Command(CommandType.EDIT).addLineNumber(lineNumber).addDate(inputDate);
                         } else {
                             return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_DESCRIPTION);

@@ -27,11 +27,11 @@ public class Logic {
     private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
 
     private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
-    private static final String FEEDBACK_ADD_DEADLINE = "Added deadline: %1$s due: %2$s";
-    private static final String FEEDBACK_ADD_EVENT = "Added event: %1$s from: %2$s to: %3$s";
-    private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s to dream: %2$s";
-    private static final String FEEDBACK_EDIT_DEADLINE = "Edited #%1$s to deadline: %2$s due: %3$s";
-    private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s to event: %2$s from: %3$s to: %4$s";
+    private static final String FEEDBACK_ADD_DEADLINE = "Added deadline: %1$s due %2$s";
+    private static final String FEEDBACK_ADD_EVENT = "Added event: %1$s from %2$s to %3$s";
+    private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
+    private static final String FEEDBACK_EDIT_DEADLINE = "Edited #%1$s: %2$s due %3$s";
+    private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s: %2$s from %3$s to %4$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
