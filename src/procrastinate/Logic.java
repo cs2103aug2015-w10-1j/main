@@ -34,6 +34,9 @@ public class Logic {
     private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s: %2$s from %3$s to %4$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
+    private static final String FEEDBACK_SEARCH = "Searching for tasks ";
+    private static final String FEEDBACK_SEARCH_CONTAINING = "containing '%1$s'";
+    private static final String FEEDBACK_SEARCH_DUE = "due ";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
     private static final String FEEDBACK_UNDONE = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
@@ -267,6 +270,20 @@ public class Logic {
                 } else {
                     return FEEDBACK_NOTHING_TO_UNDO;
                 }
+            }
+
+            case SEARCH: {
+                String description = command.getDescription();
+                Date date = command.getDate();
+
+                String feedback = FEEDBACK_SEARCH;
+                if (description != null) {
+                    feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
+                }
+                if (date != null) {
+                    feedback += FEEDBACK_SEARCH_DUE + date;
+                }
+                return feedback;
             }
 
             case INVALID: {

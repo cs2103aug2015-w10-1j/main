@@ -21,7 +21,7 @@ public class Parser {
 
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
-    private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description or date(s)";
+    private static final String MESSAGE_INVALID_EDIT_NO_NEW_DATA = "Please specify the new description or date(s)";
 
     private static final String COMMAND_ADD = "add";
     private static final String COMMAND_EDIT = "edit";
@@ -48,7 +48,7 @@ public class Parser {
         Date inputDate = getDate(userCommand);
         userCommand = splitDatesFromUserCommand(userCommand, inputDate);
 
-        if(isCommandEmpty(userCommand)) {
+        if (isCommandEmpty(userCommand)) {
             return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
         }
 
@@ -56,13 +56,20 @@ public class Parser {
 
         switch (firstWord) {
             case COMMAND_ADD:
-                if(!userCommand.equalsIgnoreCase(firstWord)) {
+                if (!userCommand.equalsIgnoreCase(firstWord)) {
                     String[] argument = userCommand.split(" ", 2);
                     String description = argument[1];
+
+                    Command command;
                     if (inputDate != null) {
-                        return new Command(CommandType.ADD_DEADLINE).addDescription(description).addDate(inputDate);
+                        command = new Command(CommandType.ADD_DEADLINE).addDate(inputDate);
+                    } else {
+                        command = new Command(CommandType.ADD_DREAM);
                     }
-                    return new Command(CommandType.ADD_DREAM).addDescription(description);
+                    command.addDescription(description);
+
+                    return command;
+
                 } else {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
@@ -75,6 +82,7 @@ public class Parser {
                         String[] argument = userCommand.split(" ", 3);
                         lineNumber = Integer.parseInt(argument[1]);
                         String description = argument[2];
+
                         Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
                         if (inputDate != null) {
                             command.addDate(inputDate);
@@ -82,19 +90,18 @@ public class Parser {
                         if (!description.isEmpty()) {
                             command.addDescription(description);
                         }
+
                         return command;
 
-                    } catch (NumberFormatException e) { // So "edit something" is an add command, inject add to the front of command and recurse
-                        String newUserCommand = putAddInCommand(userInput);
-                        return Parser.parse(newUserCommand);
-                    } catch (Exception e) { // So "edit 1" is invalid (no description given)
-                        if (inputDate != null) {
-                            return new Command(CommandType.EDIT).addLineNumber(lineNumber).addDate(inputDate);
-                        } else {
-                            return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_DESCRIPTION);
-                        }
+                    } catch (NumberFormatException e) { // So "edit something" is an add command
+                        // Inject add to the front of command and recurse
+                        return Parser.parse(putAddInCommand(userInput));
+
+                    } catch (Exception e) { // Display a helpful message for "edit 1" (no description or date(s) given)
+                        return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_NEW_DATA);
                     }
-                } else { // So "edit" is invalid (no line number given)
+
+                } else { // Display a helpful message for "edit" (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
@@ -106,20 +113,23 @@ public class Parser {
 
                     return new Command(CommandType.DELETE).addLineNumber(lineNumber);
 
-                } catch (NumberFormatException e) { // So "delete something" is an add command, inject add to the front of command and recurse
-                    String newUserCommand = putAddInCommand(userInput);
-                    return Parser.parse(newUserCommand);
-                } catch (Exception e) { // So "delete" is invalid (no line number given)
+                } catch (NumberFormatException e) { // So "delete something" is an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInCommand(userInput));
+
+                } catch (Exception e) { // Display a helpful message for "delete" (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
             case COMMAND_UNDO:
             case COMMAND_SHORT_UNDO:
                 if (userCommand.equalsIgnoreCase(firstWord)) {
+
                     return new Command(CommandType.UNDO);
-                } else { // So "undo something" is an add command, inject add to the front of command and recurse
-                    String newUserCommand = putAddInCommand(userInput);
-                    return Parser.parse(newUserCommand);
+
+                } else { // So "undo something" is an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInCommand(userInput));
                 }
 
             case COMMAND_DONE:
@@ -128,44 +138,51 @@ public class Parser {
                     try {
                         String[] argument = userCommand.split(" ", 2);
                         int lineNumber = Integer.parseInt(argument[1]);
+
                         return new Command(CommandType.DONE).addLineNumber(lineNumber);
 
-                    } catch (NumberFormatException e) { // So "done something" is an add command, inject add to the front of command and recurse
-                        String newUserCommand = putAddInCommand(userInput);
-                        return Parser.parse(newUserCommand);
+                    } catch (NumberFormatException e) { // So "done something" is an add command
+                        // Inject add to the front of command and recurse
+                        return Parser.parse(putAddInCommand(userInput));
                     }
-                } else { // So "done" is invalid (no line number given)
+
+                } else { // Display a helpful message for "done" (no line number given)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
             case COMMAND_SEARCH:
-                if(!userCommand.equalsIgnoreCase(firstWord)) {
+                if (!userCommand.equalsIgnoreCase(firstWord)) {
                     String[] argument = userCommand.split(" ", 2);
                     String searchDescription = argument[1];
-                    return new Command(CommandType.SEARCH).addDescription(searchDescription).addDate(inputDate);
-                } else{
-                    if(inputDate == null) { // So "search" is invalid
-                        return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
-                    } else {
-                        return new Command(CommandType.SEARCH).addDate(inputDate);
+
+                    Command command = new Command(CommandType.SEARCH);
+                    if (inputDate != null) {
+                        command.addDate(inputDate);
                     }
+                    if (!searchDescription.isEmpty()) {
+                        command.addDescription(searchDescription);
+                    }
+
+                    return command;
+
+                } else {
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
             case COMMAND_EXIT:
             case COMMAND_SHORT_EXIT:
-                if (userCommand.equalsIgnoreCase(firstWord)) { // So "procrastinate something" is an add command, inject add to the front of command and recurse
+                if (userCommand.equalsIgnoreCase(firstWord)) {
+
                     return new Command(CommandType.EXIT);
-                } else {
-                    String newUserCommand = putAddInCommand(userInput);
-                    return Parser.parse(newUserCommand);
+
+                } else { // So "procrastinate something" is an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInCommand(userInput));
                 }
 
             default:
-                if(inputDate != null) {
-                    return new Command(CommandType.ADD_DEADLINE).addDescription(userCommand).addDate(inputDate);
-                } else {
-                    return new Command(CommandType.ADD_DREAM).addDescription(userCommand);
-                }
+                // Inject add to the front of command and recurse
+                return Parser.parse(putAddInCommand(userInput));
         }
 
     }
@@ -176,12 +193,12 @@ public class Parser {
 
     private static Date getDate(String userCommand) {
         String[] arguments = userCommand.split("due");
-        if(arguments.length <= 1) {
+        if (arguments.length <= 1) {
             return null;
         }
 
         List<DateGroup> dateGroups = dateParser.parse(arguments[arguments.length - 1]);
-        if(hasDates(dateGroups)) {
+        if (hasDates(dateGroups)) {
             return dateGroups.get(0).getDates().get(0);
         } else {
             return null;
@@ -189,8 +206,8 @@ public class Parser {
     }
 
     private static String splitDatesFromUserCommand(String userCommand, Date inputDate) {
-        if(inputDate == null) {
-            if(userCommand.equals("due")) {
+        if (inputDate == null) {
+            if (userCommand.equals("due")) {
                 return null;
             } else {
                 return userCommand;
@@ -200,7 +217,7 @@ public class Parser {
             StringBuilder stringBuilder = new StringBuilder();
             for(int i = 0; i < arguments.length - 1; i ++) {
                 stringBuilder.append(arguments[i]);
-                if(i != arguments.length - 2) {
+                if (i != arguments.length - 2) {
                     stringBuilder.append("due");
                 }
             }
