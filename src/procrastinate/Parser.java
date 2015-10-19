@@ -35,7 +35,10 @@ public class Parser {
     private static final String COMMAND_SHORT_DELETE = "del";
     private static final String COMMAND_SHORT_DONE = "do";
     private static final String COMMAND_SHORT_UNDO = "un";
+    private static final String COMMAND_SHORT_SEARCH = "se";
     private static final String COMMAND_SHORT_EXIT = "exit";
+
+    private static final String KEYWORD_DEADLINE = "due";
 
     // ================================================================================
     // Parser methods
@@ -46,7 +49,12 @@ public class Parser {
 
         String userCommand = userInput.trim(); // Trim leading and trailing whitespace
         Date inputDate = getDate(userCommand);
-        userCommand = splitDatesFromUserCommand(userCommand, inputDate);
+        userCommand = removeDatesFromUserCommand(userCommand, inputDate);
+        // If there was a date, userCommand now comes with a trailing space.
+        // This helps identify commands with no arguments: the expression
+        // userCommand.equalsIgnoreCase(firstWord) will only be true if
+        // no arguments were ever specified (if a date argument was specified and
+        // subsequently removed, the expression will be false due to the trailing space).
 
         if (isCommandEmpty(userCommand)) {
             return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
@@ -60,6 +68,10 @@ public class Parser {
                     String[] argument = userCommand.split(" ", 2);
                     String description = argument[1];
 
+                    if (description.isEmpty()) { // No description
+                        return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+                    }
+
                     Command command;
                     if (inputDate != null) {
                         command = new Command(CommandType.ADD_DEADLINE).addDate(inputDate);
@@ -70,7 +82,7 @@ public class Parser {
 
                     return command;
 
-                } else {
+                } else { // No arguments at all
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
@@ -151,6 +163,7 @@ public class Parser {
                 }
 
             case COMMAND_SEARCH:
+            case COMMAND_SHORT_SEARCH:
                 if (!userCommand.equalsIgnoreCase(firstWord)) {
                     String[] argument = userCommand.split(" ", 2);
                     String searchDescription = argument[1];
@@ -205,28 +218,28 @@ public class Parser {
         }
     }
 
-    private static String splitDatesFromUserCommand(String userCommand, Date inputDate) {
+    private static String removeDatesFromUserCommand(String userCommand, Date inputDate) {
         if (inputDate == null) {
-            if (userCommand.equals("due")) {
+            if (userCommand.equals(KEYWORD_DEADLINE)) {
                 return null;
             } else {
                 return userCommand;
             }
         } else {
-            String[] arguments = userCommand.split("due");
+            String[] arguments = userCommand.split(KEYWORD_DEADLINE);
             StringBuilder stringBuilder = new StringBuilder();
             for(int i = 0; i < arguments.length - 1; i ++) {
                 stringBuilder.append(arguments[i]);
                 if (i != arguments.length - 2) {
-                    stringBuilder.append("due");
+                    stringBuilder.append(KEYWORD_DEADLINE);
                 }
             }
-            return stringBuilder.toString();
+            return stringBuilder.toString(); // Do NOT trim
         }
     }
 
     private static boolean isCommandEmpty(String userCommand) {
-        return userCommand == null || userCommand.equals("");
+        return userCommand == null || userCommand.isEmpty();
     }
 
     private static String getFirstWord(String userCommand) {
