@@ -218,13 +218,13 @@ public class Parser {
             }
 
             case COMMAND_HELP: {
-                if (userCommand.equalsIgnoreCase(firstWord) && commandInputType.equals(CommandStringType.NO_DATE)) { // No arguments
-                    // Treat "help" as an help command
-                    return new Command(CommandType.HELP);
+                if (!userCommand.equalsIgnoreCase(firstWord)) {
+                    // Treat "help something" as an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInFront(userInput));
                 }
 
-                // Inject add to the front of the command and recurse
-                return Parser.parse(putAddInFront(userInput));
+                return new Command(CommandType.HELP);
             }
 
             case COMMAND_EXIT:
