@@ -21,6 +21,10 @@ public class Logic {
 
     private static final Logger logger = Logger.getLogger(Logic.class.getName());
 
+    private static enum ViewType {
+        SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SEARCH_RESULTS
+    }
+
     // ================================================================================
     // Message strings
     // ================================================================================
@@ -35,11 +39,12 @@ public class Logic {
     private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s: %2$s from %3$s to %4$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
+    private static final String FEEDBACK_UNDONE = "Undone %1$s: %2$s";
     private static final String FEEDBACK_SEARCH = "Searching for tasks";
     private static final String FEEDBACK_SEARCH_CONTAINING = " containing '%1$s'";
     private static final String FEEDBACK_SEARCH_DUE = " due %1$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
-    private static final String FEEDBACK_UNDONE = "Undid last operation";
+    private static final String FEEDBACK_UNDO = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
     private static final String FEEDBACK_HELP = "Showing help screen";
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
@@ -47,6 +52,8 @@ public class Logic {
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
+
+    private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
@@ -60,6 +67,8 @@ public class Logic {
     private TaskEngine taskEngine;
     private UI ui;
     private Command lastPreviewedCommand = null;
+    private ViewType currentView = ViewType.SHOW_OUTSTANDING; // default view
+    private String lastSearchTerm = null;
 
     private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
@@ -92,11 +101,11 @@ public class Logic {
 
     // Main handle
     public void initialiseWindow(Stage primaryStage) {
-        assert (ui != null);
+        assert(ui != null);
         ui.setUpStage(primaryStage);
         ui.setUpBinding(userInput, statusLabelText);
         attachHandlersAndListeners();
-        updateUiTaskList(taskEngine.getOutstandingTasks());
+        updateUiTaskList();
         setStatus(STATUS_READY);
     }
 
@@ -126,11 +135,11 @@ public class Logic {
                 String description = command.getDescription();
 
                 if (execute) {
-                    try {
-						taskEngine.add(new Dream(description));
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+                    boolean success = taskEngine.add(new Dream(description));
+                    if (!success) {
+                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                    }
+                    currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
                 }
 
@@ -142,11 +151,11 @@ public class Logic {
                 Date date = command.getDate();
 
                 if (execute) {
-                    try {
-                        taskEngine.add(new Deadline(description, date));
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    boolean success = taskEngine.add(new Deadline(description, date));
+                    if (!success) {
+                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
                     }
+                    currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
                 }
 
@@ -159,11 +168,11 @@ public class Logic {
                 Date endDate = command.getEndDate();
 
                 if (execute) {
-                    try {
-                        taskEngine.add(new Event(description, startDate, endDate));
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    boolean success = taskEngine.add(new Event(description, startDate, endDate));
+                    if (!success) {
+                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
                     }
+                    currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
                 }
 
@@ -200,11 +209,10 @@ public class Logic {
                 }
 
                 if (execute) {
-                    try {
-						taskEngine.edit(oldTask.getId(), newTask);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+                    boolean success = taskEngine.edit(oldTask.getId(), newTask);
+                    if (!success) {
+                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                    }
                     updateUiTaskList();
                 }
 
@@ -234,11 +242,10 @@ public class Logic {
                 String description = task.getDescription();
 
                 if (execute) {
-                    try {
-						taskEngine.delete(task.getId());
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+                    boolean success = taskEngine.delete(task.getId());
+                    if (!success) {
+                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                    }
                     updateUiTaskList();
                 }
 
@@ -255,33 +262,44 @@ public class Logic {
                 Task task = getTaskFromLineNumber(lineNumber);
                 String type = task.getTypeString();
                 String description = task.getDescription();
+                String feedback;
+
+                if (!task.isDone()) {
+                    feedback = FEEDBACK_DONE;
+                } else {
+                    feedback = FEEDBACK_UNDONE;
+                }
 
                 if (execute) {
-                    try {
-						taskEngine.done(task.getId());
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+                    boolean success;
+                    if (!task.isDone()) {
+                        success = taskEngine.done(task.getId());
+                    } else {
+                        success = taskEngine.undone(task.getId());
+                    }
+                    if (!success) {
+                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                    }
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_DONE, type, description);
+                return String.format(feedback, type, description);
             }
 
             case UNDO: {
-                if (taskEngine.hasPreviousOperation()) {
-                    if (execute) {
-                        try {
-							taskEngine.undo();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-                        updateUiTaskList();
-                    }
-                    return FEEDBACK_UNDONE;
-                } else {
+                if (!taskEngine.hasPreviousOperation()) {
                     return FEEDBACK_NOTHING_TO_UNDO;
                 }
+
+                if (execute) {
+                    boolean success = taskEngine.undo();
+                    if (!success) {
+                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                    }
+                    updateUiTaskList();
+                }
+
+                return FEEDBACK_UNDO;
             }
 
             case SEARCH: {
@@ -292,7 +310,9 @@ public class Logic {
                 if (description != null) {
                     feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
                     if (execute) {
-                        updateUiTaskList(taskEngine.getTasksContaining(description));
+                        lastSearchTerm = description;
+                        currentView = ViewType.SHOW_SEARCH_RESULTS;
+                        updateUiTaskList();
                     }
                 }
                 if (date != null) {
@@ -303,7 +323,8 @@ public class Logic {
 
             case SHOW_OUTSTANDING: {
                 if (execute) {
-                    updateUiTaskList(taskEngine.getOutstandingTasks());
+                    currentView = ViewType.SHOW_OUTSTANDING;
+                    updateUiTaskList();
                 }
 
                 return FEEDBACK_SHOW_OUTSTANDING;
@@ -311,7 +332,8 @@ public class Logic {
 
             case SHOW_DONE: {
                 if (execute) {
-                    updateUiTaskList(taskEngine.getCompletedTasks());
+                    currentView = ViewType.SHOW_DONE;
+                    updateUiTaskList();
                 }
 
                 return FEEDBACK_SHOW_DONE;
@@ -319,7 +341,8 @@ public class Logic {
 
             case SHOW_ALL: {
                 if (execute) {
-                    updateUiTaskList(taskEngine.getAllTasks());
+                    currentView = ViewType.SHOW_ALL;
+                    updateUiTaskList();
                 }
 
                 return FEEDBACK_SHOW_ALL;
@@ -386,7 +409,21 @@ public class Logic {
     // ================================================================================
 
     private void updateUiTaskList() {
-        updateUiTaskList(taskEngine.getCurrentTaskList());
+        switch (currentView) {
+            case SHOW_OUTSTANDING:
+                updateUiTaskList(taskEngine.getOutstandingTasks());
+                break;
+            case SHOW_DONE:
+                updateUiTaskList(taskEngine.getCompletedTasks());
+                break;
+            case SHOW_ALL:
+                updateUiTaskList(taskEngine.getAllTasks());
+                break;
+            case SHOW_SEARCH_RESULTS:
+                assert(lastSearchTerm != null);
+                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm));
+                break;
+        }
     }
 
     private void updateUiTaskList(List<Task> taskList) {

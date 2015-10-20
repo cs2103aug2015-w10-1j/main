@@ -97,14 +97,15 @@ public class FileHandler {
      * Converts TaskState into json format and writes to disk
      * @param taskState
      */
-    public void saveTaskState(TaskState taskState) throws IOException {
+    public boolean saveTaskState(TaskState taskState) {
         String json = jsonify(taskState);
         try {
             jsonToFile(json);
         } catch (IOException e) {
-            logger.log(Level.WARNING, DEBUG_FILE_WRITE_FAILURE);
-            throw e;
+            logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+            return false;
         }
+        return true;
     }
 
     /**

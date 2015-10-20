@@ -24,9 +24,10 @@ public class TaskEngine {
     private static final String DEBUG_EDITED_TASK = "Edited #%1$s: %2$s";
     private static final String DEBUG_DELETED_TASK = "Deleted %1$s: %2$s";
     private static final String DEBUG_DONE_TASK = "Done %1$s: %2$s";
+    private static final String DEBUG_UNDONE_TASK = "Undone %1$s: %2$s";
     private static final String DEBUG_UNDONE = "Last task operation undone";
     private static final String DEBUG_FILE_NOT_FOUND = "No data file found; creating...";
-    private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
+    private static final String DEBUG_INIT_TASK_FAILURE = "Could not create storage file";
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
@@ -57,7 +58,7 @@ public class TaskEngine {
     // TaskEngine methods
     // ================================================================================
 
-    public void add(Task task) throws IOException {
+    public boolean add(Task task) {
         backupOlderState();
 
         String description = task.getDescription();
@@ -67,11 +68,10 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_ADDED_TASK, type, description));
 
-        writeStateToFile();
-
+        return writeStateToFile();
     }
 
-    public void edit(UUID taskId, Task newTask) throws IOException {
+    public boolean edit(UUID taskId, Task newTask) {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
@@ -80,11 +80,10 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_EDITED_TASK, index + 1, newTask.getDescription()));
 
-        writeStateToFile();
-
+        return writeStateToFile();
     }
 
-    public void delete(UUID taskId) throws IOException {
+    public boolean delete(UUID taskId) {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
@@ -96,29 +95,46 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_DELETED_TASK, type, description));
 
-        writeStateToFile();
-
+        return writeStateToFile();
     }
 
-    public void done(UUID taskId) throws IOException {
+    public boolean done(UUID taskId) {
         backupOlderState();
 
         int index = getIndexFromId(taskId);
-        Task task = getTasks().get(index);
+        Task task = Task.copy(getTasks().get(index));
         task.setDone();
+        getTasks().remove(index);
+        getTasks().add(index, task);
 
         String description = task.getDescription();
         String type = task.getTypeString();
 
         logger.log(Level.INFO, String.format(DEBUG_DONE_TASK, type, description));
 
-        writeStateToFile();
-
+        return writeStateToFile();
     }
 
-    public void undo() throws IOException {
+    public boolean undone(UUID taskId) {
+        backupOlderState();
+
+        int index = getIndexFromId(taskId);
+        Task task = Task.copy(getTasks().get(index));
+        task.clearDone();
+        getTasks().remove(index);
+        getTasks().add(index, task);
+
+        String description = task.getDescription();
+        String type = task.getTypeString();
+
+        logger.log(Level.INFO, String.format(DEBUG_UNDONE_TASK, type, description));
+
+        return writeStateToFile();
+    }
+
+    public boolean undo() {
         if (!hasPreviousOperation()) {
-            return;
+            return true;
         }
 
         TaskState backupNewerState = getBackupOfCurrentState();
@@ -127,7 +143,7 @@ public class TaskEngine {
 
         logger.log(Level.INFO, String.format(DEBUG_UNDONE));
 
-        writeStateToFile();
+        return writeStateToFile();
     }
 
     public boolean hasPreviousOperation() {
@@ -142,7 +158,7 @@ public class TaskEngine {
             }
         }
         currentView = new TaskState(results);
-        return results;
+        return currentView.getTasks();
     }
 
     public List<Task> getOutstandingTasks() {
@@ -153,7 +169,7 @@ public class TaskEngine {
             }
         }
         currentView = new TaskState(outstandingTasks);
-        return outstandingTasks;
+        return currentView.getTasks();
     }
 
     public List<Task> getCompletedTasks() {
@@ -164,12 +180,12 @@ public class TaskEngine {
             }
         }
         currentView = new TaskState(completedTasks);
-        return completedTasks;
+        return currentView.getTasks();
     }
 
     public List<Task> getAllTasks() {
         currentView = currentState;
-        return currentState.getTasks();
+        return currentView.getTasks();
     }
 
     public List<Task> getCurrentTaskList() {
@@ -190,10 +206,9 @@ public class TaskEngine {
         } catch (FileNotFoundException e) {
             loadState(new TaskState());
             logger.log(Level.INFO, DEBUG_FILE_NOT_FOUND);
-            try {
-                writeStateToFile();
-            } catch (IOException e1) {
-                logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+            boolean success = writeStateToFile();
+            if (!success) {
+                logger.log(Level.SEVERE, DEBUG_INIT_TASK_FAILURE);
             }
         } finally {
             currentView = currentState;
@@ -216,8 +231,8 @@ public class TaskEngine {
         currentState = state;
     }
 
-    private void writeStateToFile() throws IOException {
-        fileHandler.saveTaskState(getCurrentState());
+    private boolean writeStateToFile() {
+        return fileHandler.saveTaskState(getCurrentState());
     }
 
     private TaskState getBackupOfCurrentState() {
@@ -225,7 +240,7 @@ public class TaskEngine {
     }
 
     private TaskState getCurrentState() {
-        Collections.sort(currentState.getTasks());
+        Collections.sort(getTasks());
         return currentState;
     }
 
