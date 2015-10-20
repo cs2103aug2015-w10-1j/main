@@ -40,6 +40,7 @@ public class Logic {
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
     private static final String FEEDBACK_UNDONE = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
+    private static final String FEEDBACK_HELP = "Shows help screen";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
@@ -294,8 +295,10 @@ public class Logic {
             }
 
             case HELP: {
-                //TODO
-                return "Placeholder help";
+                if (execute) {
+                    ui.showHelp();
+                }
+                return FEEDBACK_HELP;
             }
 
             case INVALID: {
