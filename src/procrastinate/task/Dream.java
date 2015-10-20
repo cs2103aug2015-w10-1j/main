@@ -20,4 +20,21 @@ public class Dream extends Task {
             return this.getDescription().compareTo(other.getDescription());
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Dream)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        return true;
+    }
 }

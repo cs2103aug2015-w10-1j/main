@@ -46,4 +46,22 @@ public class Event extends Task {
 	        }
 	    }
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Event)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        Event t = (Event) o;
+        return t.getStartDate().equals(this.getStartDate()) && t.getEndDate().equals(this.getEndDate());
+    }
 }

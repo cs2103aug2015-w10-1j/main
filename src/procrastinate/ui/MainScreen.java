@@ -10,19 +10,16 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
-import org.apache.commons.lang.time.DateUtils;
 import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -96,9 +93,7 @@ public class MainScreen extends CenterScreen {
     protected void updateTaskList(List<Task> taskList) {
         clearTaskList();
 
-        // Currently add without looking at dates, until a comparator for the dates is created
-        // Need to rearrange the tasks retrieved as well. Maybe to create multiple update methods for
-        // the different categories.
+        // TO-DO: CLEANUP/REFACTORING
         for (Task task : taskList) {
             String taskType = task.getTypeString();
             Date today = Date.from(getDateTimeToday().atZone(ZoneId.systemDefault()).toInstant());
@@ -137,6 +132,9 @@ public class MainScreen extends CenterScreen {
                     taskCount.set(taskCount.get() + 1);
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                taskCount.set(taskCount.get() + 1);
+                futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
             } else {
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
                 taskCount.set(taskCount.get() + 1);
@@ -183,10 +181,6 @@ public class MainScreen extends CenterScreen {
             daysOfWeek.add(today.plusDays(i));
         }
         return daysOfWeek;
-    }
-
-    private SimpleDateFormat getDateFormatComparator() {
-        return new SimpleDateFormat("dd-MM-yyyy");
     }
 
     // ================================================================================

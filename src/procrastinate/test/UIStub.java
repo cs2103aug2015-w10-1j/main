@@ -1,5 +1,6 @@
 package procrastinate.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.property.StringProperty;
@@ -9,8 +10,10 @@ import procrastinate.task.Task;
 import procrastinate.ui.UI;
 
 public class UIStub extends UI {
+    public List<Task> taskList;
     public UIStub() {
         super(true);
+        taskList = new ArrayList<Task>();
     }
     @Override
     public void initialize() {
@@ -23,6 +26,7 @@ public class UIStub extends UI {
     }
     @Override
     public void updateTaskList(List<Task> tasks) {
+        taskList = tasks;
     }
     @Override
     public TextField getUserInputField() {

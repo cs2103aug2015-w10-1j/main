@@ -43,4 +43,22 @@ public class Deadline extends Task {
             }
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Deadline)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        Deadline t = (Deadline) o;
+        return t.getDate().equals(this.getDate());
+    }
 }
