@@ -34,7 +34,9 @@ public class TaskEngine {
     // Class variables
     // ================================================================================
 
-    private TaskState previousState = null, currentState = null;
+    private TaskState previousState = null;
+    private TaskState currentState = null;
+    private TaskState currentView = null;
 
     private FileHandler fileHandler;
 
@@ -137,6 +139,7 @@ public class TaskEngine {
                 results.add(task);
             }
         }
+        currentView = new TaskState(results);
         return results;
     }
 
@@ -147,6 +150,7 @@ public class TaskEngine {
                 outstandingTasks.add(task);
             }
         }
+        currentView = new TaskState(outstandingTasks);
         return outstandingTasks;
     }
 
@@ -157,11 +161,17 @@ public class TaskEngine {
                 completedTasks.add(task);
             }
         }
+        currentView = new TaskState(completedTasks);
         return completedTasks;
     }
 
-    public List<Task> getTasks() {
+    public List<Task> getAllTasks() {
+        currentView = currentState;
         return currentState.getTasks();
+    }
+
+    public List<Task> getCurrentTaskList() {
+        return currentView.getTasks();
     }
 
     // ================================================================================
@@ -183,6 +193,8 @@ public class TaskEngine {
             } catch (IOException e1) {
                 logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
             }
+        } finally {
+            currentView = currentState;
         }
     }
 
@@ -226,6 +238,10 @@ public class TaskEngine {
             }
         }
         throw new Error(ERROR_TASK_NOT_FOUND);
+    }
+
+    private List<Task> getTasks() {
+        return currentState.getTasks();
     }
 
 }

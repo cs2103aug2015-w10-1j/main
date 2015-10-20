@@ -40,7 +40,7 @@ public class Logic {
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
     private static final String FEEDBACK_UNDONE = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
-    private static final String FEEDBACK_HELP = "Shows help screen";
+    private static final String FEEDBACK_HELP = "Showing help screen";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
@@ -294,10 +294,35 @@ public class Logic {
                 return feedback;
             }
 
+            case SHOW_OUTSTANDING: {
+                if (execute) {
+                    updateUiTaskList();
+                }
+
+                return "Showing outstanding tasks";
+            }
+
+            case SHOW_DONE: {
+                if (execute) {
+                    updateUiTaskList(taskEngine.getCompletedTasks());
+                }
+
+                return "Showing completed tasks";
+            }
+
+            case SHOW_ALL: {
+                if (execute) {
+                    updateUiTaskList(taskEngine.getAllTasks());
+                }
+
+                return "Showing all tasks";
+            }
+
             case HELP: {
                 if (execute) {
                     ui.showHelp();
                 }
+
                 return FEEDBACK_HELP;
             }
 
@@ -346,7 +371,7 @@ public class Logic {
     }
 
     private List<Task> getCurrentTaskList() {
-        return taskEngine.getOutstandingTasks();
+        return taskEngine.getCurrentTaskList();
     }
 
     // ================================================================================
@@ -354,7 +379,7 @@ public class Logic {
     // ================================================================================
 
     private void updateUiTaskList() {
-        updateUiTaskList(getCurrentTaskList());
+        updateUiTaskList(taskEngine.getOutstandingTasks());
     }
 
     private void updateUiTaskList(List<Task> taskList) {

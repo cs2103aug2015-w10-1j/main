@@ -30,6 +30,7 @@ public class Parser {
     private static final String COMMAND_DONE = "done";
     private static final String COMMAND_UNDO = "undo";
     private static final String COMMAND_SEARCH = "search";
+    private static final String COMMAND_SHOW = "show";
     private static final String COMMAND_HELP = "help";
     private static final String COMMAND_EXIT = "procrastinate";
 
@@ -38,6 +39,7 @@ public class Parser {
     private static final String COMMAND_SHORT_DONE = "do";
     private static final String COMMAND_SHORT_UNDO = "un";
     private static final String COMMAND_SHORT_SEARCH = "se";
+    private static final String COMMAND_SHORT_SHOW = "sh";
     private static final String COMMAND_SHORT_EXIT = "exit";
 
     private static final String KEYWORD_DEADLINE = "due";
@@ -144,7 +146,13 @@ public class Parser {
             }
 
             case COMMAND_DELETE:
-            case COMMAND_SHORT_DELETE:
+            case COMMAND_SHORT_DELETE: {
+                if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
+                    // Treat "delete" as an invalid command
+                    // Display a helpful message (no line number given)
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
+                }
+
                 try {
                     String argument = userCommand.substring(firstWord.length() + 1);
                     int lineNumber = Integer.parseInt(argument);
@@ -155,10 +163,8 @@ public class Parser {
                     // Treat "delete something" is an add command
                     // Inject add to the front of command and recurse
                     return Parser.parse(putAddInFront(userInput));
-
-                } catch (Exception e) { // Display a helpful message for "delete" (no line number given)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
+            }
 
             case COMMAND_UNDO:
             case COMMAND_SHORT_UNDO: {
@@ -217,8 +223,29 @@ public class Parser {
                 return command;
             }
 
+            case COMMAND_SHOW:
+            case COMMAND_SHORT_SHOW: {
+                if (userCommand.equalsIgnoreCase(firstWord)) {
+                    return new Command(CommandType.SHOW_OUTSTANDING);
+                }
+
+                String argument = userCommand.substring(firstWord.length() + 1);
+
+                if (argument.equals("done")) {
+                    return new Command(CommandType.SHOW_DONE);
+
+                } else if (argument.equals("all")) {
+                    return new Command(CommandType.SHOW_ALL);
+
+                } else {
+                    // Treat "show something" as an add command
+                    // Inject add to the front of command and recurse
+                    return Parser.parse(putAddInFront(userInput));
+                }
+            }
+
             case COMMAND_HELP: {
-                if (!userCommand.equalsIgnoreCase(firstWord)) {
+                if (!userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
                     // Treat "help something" as an add command
                     // Inject add to the front of command and recurse
                     return Parser.parse(putAddInFront(userInput));
