@@ -4,12 +4,12 @@ import procrastinate.FileHandler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class TaskEngine {
 
@@ -151,34 +151,25 @@ public class TaskEngine {
     }
 
     public List<Task> getTasksContaining(String description) {
-        List<Task> results = new ArrayList<Task>();
-        for (Task task : getTasks()) {
-            if (task.contains(description)) {
-                results.add(task);
-            }
-        }
+        List<Task> results = getTasks().stream()
+                .filter(task -> task.contains(description))
+                .collect(Collectors.toList());
         currentView = new TaskState(results);
         return currentView.getTasks();
     }
 
     public List<Task> getOutstandingTasks() {
-        List<Task> outstandingTasks = new ArrayList<Task>();
-        for (Task task : getTasks()) {
-            if (!task.isDone()) {
-                outstandingTasks.add(task);
-            }
-        }
+        List<Task> outstandingTasks = getTasks().stream()
+                .filter(task -> !task.isDone())
+                .collect(Collectors.toList());
         currentView = new TaskState(outstandingTasks);
         return currentView.getTasks();
     }
 
     public List<Task> getCompletedTasks() {
-        List<Task> completedTasks = new ArrayList<Task>();
-        for (Task task : getTasks()) {
-            if (task.isDone()) {
-                completedTasks.add(task);
-            }
-        }
+        List<Task> completedTasks = getTasks().stream()
+                .filter(task -> task.isDone())
+                .collect(Collectors.toList());
         currentView = new TaskState(completedTasks);
         return currentView.getTasks();
     }
