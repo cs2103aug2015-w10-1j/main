@@ -1,23 +1,14 @@
 package procrastinate.ui;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.util.converter.NumberStringConverter;
 import procrastinate.task.Task;
 
 import java.awt.*;
@@ -37,41 +28,22 @@ public class UI {
     private static final String DEBUG_UI_INIT = "UI initialised.";
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
 
-    private static final String LOCATION_MAIN_WINDOW_LAYOUT = "MainWindowLayout.fxml";
-    private static final String LOCATION_CSS_STYLESHEET = "procrastinate.css";
-    private static final String LOCATION_WINDOW_ICON = "icon.png";
-
-    private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
-
-    private static final String UI_NUMBER_SEPARATOR = ". ";
-
-    private static final String WINDOW_TITLE = "Procrastinate";
-    private static final double WINDOW_WIDTH = 500;
-    private static final double WINDOW_MIN_WIDTH = 500;
-    private static final double WINDOW_HEIGHT = 600;
-    private static final double WINDOW_MIN_HEIGHT = 600;
+    private static final String LOCATION_MAIN_WINDOW_LAYOUT = "views/MainWindowLayout.fxml";
 
     // ================================================================================
     // Class variables
     // ================================================================================
 
-    private IntegerProperty taskCount = new SimpleIntegerProperty(1);
-
-    private ObservableList<String> taskList = FXCollections.observableArrayList();
+    private boolean isHelpOverlayed;
+    private CenterPaneController centerPaneController;
 
     private Parent root;
 
     private Stage primaryStage;
 
-    private StringProperty taskCountFormatted = new SimpleStringProperty();
-    private StringProperty taskCountString = new SimpleStringProperty();
-
     private SystemTrayHandler sysTrayHandler;
     private SystemTray sysTray;
-
-    // Window or System Tray related variables
-    private static double xOffset, yOffset;
-
+    private WindowHandler windowHandler;
 
     // ================================================================================
     // FXML field variables
@@ -79,7 +51,7 @@ public class UI {
 
     @FXML private BorderPane mainBorderPane;
     @FXML private Label statusLabel;
-    @FXML private ListView<String> taskListView;
+    @FXML private StackPane centerScreen;
     @FXML private TextField userInputField;
 
     // ================================================================================
@@ -97,6 +69,9 @@ public class UI {
         logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
+    public UI(boolean isUnderTest) {
+    }
+
     // This auto gets called from the UI constructor when load is executed.
     public void initialize() {
         initTaskDisplay();
@@ -110,18 +85,15 @@ public class UI {
     public void setUpStage(Stage primaryStage) {
         assert (primaryStage != null);
         this.primaryStage = primaryStage;
-        initWindowAndTray();
+        initWindow();
+        initTray();
+        primaryStage.show();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
     public void updateTaskList(List<Task> tasks) {
-        taskList.clear();
-        taskCount.set(1);
-        for (Task task : tasks) {
-            taskList.add(taskCountFormatted.get() + task.getDescription());
-            taskCount.set(taskCount.get() + 1);
-        }
-        updateListView();
+        // Pass the updates to the main screen
+        centerPaneController.updateMainScreen(tasks);
     }
 
     // ================================================================================
@@ -132,63 +104,31 @@ public class UI {
         // Binds the input and status text to the StringProperty in Logic.
         userInput.bindBidirectional(userInputField.textProperty());
         statusLabelText.bindBidirectional(statusLabel.textProperty());
-
-        taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
-        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
     }
 
-    private void initWindowAndTray() {
-        configurePrimaryStage(primaryStage, root);
+    private void initTaskDisplay() {
+        // Set up controller for new UI
+        this.centerPaneController = new CenterPaneController(centerScreen);
+        showHelp();                             // Acts as the splash/welcome and help screen for now.
+    }
+
+    private void initTray() {
         if (isSysTraySupported()) {
             sysTrayHandler = new SystemTrayHandler(primaryStage, userInputField);
             // userInputField is passed to SystemTrayHandler to request for focus whenever the window is shown
             sysTray = sysTrayHandler.initialiseTray();
             assert (sysTray != null);
         }
-        primaryStage.show();
     }
 
-    private void initTaskDisplay() {
-        taskListView.setPlaceholder(new Label(MESSAGE_WELCOME));
-        taskListView.setItems(taskList);        // Initialises the list view and applies the CSS styling
-    }
-
-    // ================================================================================
-    // Window Configurations
-    // ================================================================================
-
-    private void configurePrimaryStage(Stage primaryStage, Parent root) {
-        primaryStage.setTitle(WINDOW_TITLE);
-        primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
-        primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
-        Scene primaryScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);  // This is the 'primary window' that consists of the user input field
-        primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
-        primaryStage.setScene(primaryScene);
-        //overwriteDecorations(primaryStage, root);
-    }
-
-    // Removes all borders and buttons, enables dragging of window through frame
-    // Unused for now
-    @SuppressWarnings("unused")
-    private void overwriteDecorations(Stage primaryStage, Parent root) {
-        primaryStage.initStyle(StageStyle.UNDECORATED);
-        root.setOnMousePressed((mouseEvent) -> {
-                xOffset = mouseEvent.getSceneX();
-                yOffset = mouseEvent.getSceneY();
-            });
-        root.setOnMouseDragged((mouseEvent) -> {
-                primaryStage.setX(mouseEvent.getScreenX() - xOffset);
-                primaryStage.setY(mouseEvent.getScreenY() - yOffset);
-            });
+    private void initWindow() {
+        windowHandler = new WindowHandler(primaryStage, root);
+        windowHandler.initialiseWindow();
     }
 
     // ================================================================================
     // Utility methods
     // ================================================================================
-
-    private void updateListView() {
-        taskListView.setItems(taskList);
-    }
 
     private boolean isSysTraySupported() {
         return  SystemTray.isSupported();
@@ -200,5 +140,25 @@ public class UI {
 
     public TextField getUserInputField() {
         return userInputField;
+    }
+
+    // ================================================================================
+    // Center screen methods
+    // ================================================================================
+
+    // Used by Logic to remove the HelpScreen overlay whenever the user starts typing
+    public void checkForHelpOverlay() {
+        if (isHelpOverlayed) {
+            centerPaneController.hideHelpOverlay();
+        }
+    }
+
+    public void showHelp() {
+        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+        isHelpOverlayed = true;
+    }
+
+    public void showMain() {
+        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
     }
 }

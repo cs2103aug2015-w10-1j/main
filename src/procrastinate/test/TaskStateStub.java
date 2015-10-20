@@ -1,15 +1,11 @@
-package procrastinate;
+package procrastinate.test;
+
+import procrastinate.task.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import procrastinate.task.Deadline;
-import procrastinate.task.Dream;
-import procrastinate.task.Event;
-import procrastinate.task.Task;
-import procrastinate.task.TaskState;
 
 /*
  * Stub class to mimic TaskState
@@ -33,7 +29,7 @@ public class TaskStateStub extends TaskState{
 			e.printStackTrace();
 		}
 
-		Dream doneDream = (new Dream("bar bee"));
+		Dream doneDream = new Dream("bar bee");
 		doneDream.setDone();
 		stub.add(doneDream);
 

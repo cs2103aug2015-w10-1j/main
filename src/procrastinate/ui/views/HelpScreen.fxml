@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.*?>
+
+<StackPane styleClass="helpScreen" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Region opacity="0.4" style="-fx-background-color: ghostwhite;" />
+      <VBox alignment="CENTER" spacing="10.0">
+          <children>
+            <ImageView fx:id="splashImageView" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
+            <Label fx:id="titleLabel" alignment="CENTER" text="Welcome to Procrastinate!" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
+            <Label fx:id="subtitleLabel" VBox.vgrow="ALWAYS" />
+          </children>
+         <padding>
+            <Insets top="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</StackPane>

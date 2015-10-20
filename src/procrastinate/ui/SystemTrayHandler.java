@@ -4,9 +4,12 @@ import javafx.application.Platform;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class SystemTrayHandler {
 
@@ -37,12 +40,12 @@ public class SystemTrayHandler {
     // SystemTrayHandler methods
     // ================================================================================
 
-    public SystemTrayHandler(Stage primaryStage, TextField userInputField) {
+    protected SystemTrayHandler(Stage primaryStage, TextField userInputField) {
         this.primaryStage = primaryStage;
         this.userInputField = userInputField;
     }
 
-    public SystemTray initialiseTray() {
+    protected SystemTray initialiseTray() {
         configureSysTray(primaryStage);
         createSysTray(primaryStage);
         return sysTray;
@@ -93,7 +96,15 @@ public class SystemTrayHandler {
 
     private Image createSysTrayIconImage() {
         // Load an image as system tray icon image. Auto resize is enabled in createSysTrayIcon method.
-        return Toolkit.getDefaultToolkit().getImage(SystemTrayHandler.class.getResource(TRAY_IMAGE_ICON));
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(SystemTrayHandler.class.getResource(TRAY_IMAGE_ICON));
+        } catch (IOException e) {
+            System.err.println("Unable to load icon image for system tray.");
+        }
+        Dimension trayIconSize = sysTray.getTrayIconSize();
+        Image trayImage = img.getScaledInstance(trayIconSize.width, trayIconSize.height, Image.SCALE_SMOOTH);
+        return trayImage;
     }
 
     private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu, Stage primaryStage) {

@@ -5,7 +5,9 @@ import java.util.Date;
 public class Command {
 
     public static enum CommandType {
-        ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE, EXIT, INVALID;
+        ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE,
+        SEARCH, SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL,
+        EXIT, HELP, INVALID;
     }
 
     // Required field for all command types
@@ -14,6 +16,7 @@ public class Command {
     // Optional fields; availability depends on command type
     private String description;
     private Date date;
+    private Date startDate;
     private Date endDate;
     private int lineNumber;
 
@@ -36,7 +39,7 @@ public class Command {
     }
 
     public Command addStartDate(Date startDate) {
-        this.date = startDate;
+        this.startDate = startDate;
         return this;
     }
 
@@ -67,7 +70,7 @@ public class Command {
     }
 
     public Date getStartDate() {
-        return date;
+        return startDate;
     }
 
     public Date getEndDate() {
