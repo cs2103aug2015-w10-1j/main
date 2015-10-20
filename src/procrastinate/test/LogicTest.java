@@ -2,6 +2,8 @@ package procrastinate.test;
 
 import static org.junit.Assert.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,10 +12,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import procrastinate.Logic;
+import procrastinate.task.Deadline;
 import procrastinate.task.Dream;
+import procrastinate.task.Event;
 import procrastinate.task.Task;
 
 public class LogicTest {
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 
     private Logic logic;
     private UIStub uiStub;
@@ -40,13 +46,26 @@ public class LogicTest {
         assertEquals(logic.previewCommand("show done"), "Showing completed tasks");
         assertEquals(logic.previewCommand("show all"), "Showing all tasks");
         assertEquals(logic.previewCommand("search abc"), "Searching for tasks containing 'abc'");
-        execute("trivial");
+    }
+
+    @Test
+    public void addTest() throws ParseException {
+        execute("dream");
+        execute("deadline due 10/13/17 0");
+        execute("event from 10/14/17 to 10/15/17 0");
+        execute("another dream");
+        execute("urgent deadline due 10/13/16 0");
+        List<Task> expected = new ArrayList<Task>();
+        expected.add(new Deadline("urgent deadline", sdf.parse("10/13/16")));
+        expected.add(new Deadline("deadline", sdf.parse("10/13/17")));
+        expected.add(new Event("event", sdf.parse("10/14/17"), sdf.parse("10/15/17")));
+        expected.add(new Dream("another dream"));
+        expected.add(new Dream("dream"));
+        assertEquals(expected, getTaskList());
     }
 
     @Test
     public void showTest() {
-        List<Task> expected = new ArrayList<Task>();
-
         execute("a");
         execute("b");
         execute("c");
@@ -55,7 +74,7 @@ public class LogicTest {
         execute("done 3");
         execute("done 3");
         execute("show done");
-        expected.clear();
+        List<Task> expected = new ArrayList<Task>();
         expected.add(new Dream("c"));
         expected.add(new Dream("d"));
         expected.get(0).setDone();
