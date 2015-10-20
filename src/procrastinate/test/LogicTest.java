@@ -28,11 +28,8 @@ public class LogicTest {
     @After
     public void tearDown() throws Exception {
         System.out.println("Tearing down. Final state:");
-        for (Task task : uiStub.taskList) {
-            System.out.println(task.getDescription());
-        }
-        System.out.println("Test completed!");
-        System.out.println();
+        System.out.println(getTaskList());
+        System.out.println("Test completed!\n");
     }
 
     @Test
@@ -43,13 +40,44 @@ public class LogicTest {
         assertEquals(logic.previewCommand("show done"), "Showing completed tasks");
         assertEquals(logic.previewCommand("show all"), "Showing all tasks");
         assertEquals(logic.previewCommand("search abc"), "Searching for tasks containing 'abc'");
+        execute("trivial");
     }
 
     @Test
     public void showTest() {
-        execute("123");
         List<Task> expected = new ArrayList<Task>();
-        expected.add(new Dream("123"));
+
+        execute("a");
+        execute("b");
+        execute("c");
+        execute("d");
+        execute("e");
+        execute("done 3");
+        execute("done 3");
+        execute("show done");
+        expected.clear();
+        expected.add(new Dream("c"));
+        expected.add(new Dream("d"));
+        expected.get(0).setDone();
+        expected.get(1).setDone();
+        assertEquals(expected, getTaskList());
+
+        execute("show");
+        expected.clear();
+        expected.add(new Dream("a"));
+        expected.add(new Dream("b"));
+        expected.add(new Dream("e"));
+        assertEquals(expected, getTaskList());
+
+        execute("show all");
+        expected.clear();
+        expected.add(new Dream("a"));
+        expected.add(new Dream("b"));
+        expected.add(new Dream("c"));
+        expected.add(new Dream("d"));
+        expected.add(new Dream("e"));
+        expected.get(2).setDone();
+        expected.get(3).setDone();
         assertEquals(expected, getTaskList());
     }
 

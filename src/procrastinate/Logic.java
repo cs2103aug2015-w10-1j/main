@@ -115,10 +115,7 @@ public class Logic {
     }
 
     public static Logic getTestInstance(UIStub uiStub) {
-        if (logic == null) {
-            logic = new Logic(true, uiStub);
-        }
-        return logic;
+        return new Logic(true, uiStub);
     }
 
     // Main handle
