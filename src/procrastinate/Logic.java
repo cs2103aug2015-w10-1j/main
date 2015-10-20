@@ -96,7 +96,7 @@ public class Logic {
         ui.setUpStage(primaryStage);
         ui.setUpBinding(userInput, statusLabelText);
         attachHandlersAndListeners();
-        updateUiTaskList();
+        updateUiTaskList(taskEngine.getOutstandingTasks());
         setStatus(STATUS_READY);
     }
 
@@ -303,7 +303,7 @@ public class Logic {
 
             case SHOW_OUTSTANDING: {
                 if (execute) {
-                    updateUiTaskList();
+                    updateUiTaskList(taskEngine.getOutstandingTasks());
                 }
 
                 return FEEDBACK_SHOW_OUTSTANDING;
@@ -386,7 +386,7 @@ public class Logic {
     // ================================================================================
 
     private void updateUiTaskList() {
-        updateUiTaskList(taskEngine.getOutstandingTasks());
+        updateUiTaskList(taskEngine.getCurrentTaskList());
     }
 
     private void updateUiTaskList(List<Task> taskList) {
