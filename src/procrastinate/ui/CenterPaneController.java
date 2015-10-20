@@ -24,6 +24,7 @@ public class CenterPaneController {
 
     private static final String LOCATION_MAIN_SCREEN_LAYOUT = "views/MainScreen.fxml";
     private static final String LOCATION_HELP_SCREEN_LAYOUT = "views/HelpScreen.fxml";
+    @SuppressWarnings("unused")
     private static final String LOCATION_SEARCH_SCREEN_LAYOUT = "views/SearchScreen.fxml";
 
     // ================================================================================
@@ -40,6 +41,7 @@ public class CenterPaneController {
      */
 
     private Node mainScreenNode;
+    @SuppressWarnings("unused")
     private Node searchScreenNode;
     private Node helpScreenNode;
 
@@ -47,6 +49,7 @@ public class CenterPaneController {
     private HelpScreen helpScreen;
 
     private StackPane centerStackPane;
+    @SuppressWarnings("unused")
     private Node currentScreen;
 
     // ================================================================================

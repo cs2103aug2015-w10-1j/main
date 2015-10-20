@@ -12,6 +12,7 @@ public abstract class CenterScreen extends VBox {
     // Class variables
     // ================================================================================
 
+    @SuppressWarnings("unused")
     private CenterPaneController parentController;
     private Node node;
 
