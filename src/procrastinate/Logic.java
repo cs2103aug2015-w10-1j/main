@@ -41,6 +41,9 @@ public class Logic {
     private static final String FEEDBACK_UNDONE = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
     private static final String FEEDBACK_HELP = "Showing help screen";
+    private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
+    private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
+    private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
@@ -299,7 +302,7 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return "Showing outstanding tasks";
+                return FEEDBACK_SHOW_OUTSTANDING;
             }
 
             case SHOW_DONE: {
@@ -307,7 +310,7 @@ public class Logic {
                     updateUiTaskList(taskEngine.getCompletedTasks());
                 }
 
-                return "Showing completed tasks";
+                return FEEDBACK_SHOW_DONE;
             }
 
             case SHOW_ALL: {
@@ -315,7 +318,7 @@ public class Logic {
                     updateUiTaskList(taskEngine.getAllTasks());
                 }
 
-                return "Showing all tasks";
+                return FEEDBACK_SHOW_ALL;
             }
 
             case HELP: {
