@@ -9,7 +9,7 @@ import procrastinate.Parser;
 import procrastinate.Command;
 
 public class ParserTest {
-    private static final String MESSAGE_INVALID_EDIT_NO_DESCRIPTION = "Please specify the new description";
+    private static final String MESSAGE_INVALID_EDIT_NO_NEW_DATA = "Please specify the new description or date(s)";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
 
@@ -50,6 +50,15 @@ public class ParserTest {
         assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
         assertEquals("undo a change in project", resultCommand.getDescription());
 
+        /* Add dream with "search" as a keyword */
+        resultCommand = Parser.parse("add search for my stuff");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("search for my stuff", resultCommand.getDescription());
+
+        /* Add dream with "help" as a keyword */
+        resultCommand = Parser.parse("help out a friend");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("help out a friend", resultCommand.getDescription());
     }
 
     @Test
@@ -63,7 +72,7 @@ public class ParserTest {
         /* Edit with no description*/
         resultCommand = Parser.parse("edit 1");
         assertEquals(CommandType.INVALID, resultCommand.getType());
-        assertEquals(MESSAGE_INVALID_EDIT_NO_DESCRIPTION, resultCommand.getDescription());
+        assertEquals(MESSAGE_INVALID_EDIT_NO_NEW_DATA, resultCommand.getDescription());
 
         /* Edit with no line number*/
         resultCommand = Parser.parse("edit");
@@ -72,7 +81,7 @@ public class ParserTest {
     }
 
     @Test
-    public void deleteTest(){
+    public void deleteTest() {
         /* Delete in a standard format*/
         Command resultCommand = Parser.parse("delete 1");
         assertEquals(CommandType.DELETE, resultCommand.getType());
@@ -85,14 +94,14 @@ public class ParserTest {
     }
 
     @Test
-    public void undoTest(){
+    public void undoTest() {
         /* Undo in a standard format*/
         Command resultCommand = Parser.parse("undo");
         assertEquals(resultCommand.getType(), CommandType.UNDO);
     }
 
     @Test
-    public void searchTest(){
+    public void searchTest() {
         /* Search in a standard format*/
         Command resultCommand = Parser.parse("search keyword");
         assertEquals(resultCommand.getType(), CommandType.SEARCH);
@@ -104,5 +113,10 @@ public class ParserTest {
         assertEquals(MESSAGE_INVALID_NO_DESCRIPTION, resultCommand.getDescription());
     }
 
-
+    @Test
+    public void helpTest() {
+        /* Help in a standard format*/
+        Command resultCommand = Parser.parse("help");
+        assertEquals(resultCommand.getType(), CommandType.HELP);
+    }
 }
