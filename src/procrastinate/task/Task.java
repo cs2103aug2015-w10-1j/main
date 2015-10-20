@@ -92,7 +92,7 @@ public abstract class Task implements Comparable<Task> {
 
 	/**
 	 * For two tasks to be indentical, they must be the same type
-	 * and have the same description
+	 * and have the same description and done status
 	 */
 	@Override
 	public boolean equals(Object o) {
@@ -105,9 +105,10 @@ public abstract class Task implements Comparable<Task> {
 		if (!(o instanceof Task)) {
 			return false;
 		}
-		Task t = (Task)o;
-		if (t.getType().toString().equals(this.getType().toString())
-				&& t.getDescription().equals(this.getDescription())) {
+		Task t = (Task) o;
+		if (t.getType() == this.getType()
+				&& t.getDescription().equals(this.getDescription())
+				&& t.isDone() == this.isDone()) {
 			return true;
 		} else {
 			return false;

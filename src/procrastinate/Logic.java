@@ -84,12 +84,12 @@ public class Logic {
     private static Logic logic;
 
     private Logic() {
-        this(false);
+        this(false, null);
     }
 
-    private Logic(boolean isUnderTest) {
+    private Logic(boolean isUnderTest, UIStub uiStub) {
         if (isUnderTest) {
-            ui = new UIStub();
+            ui = uiStub;
             try {
                 taskEngine = new TaskEngine(true);
             } catch (IOException e) {
@@ -114,9 +114,9 @@ public class Logic {
         return logic;
     }
 
-    public static Logic getTestInstance() {
+    public static Logic getTestInstance(UIStub uiStub) {
         if (logic == null) {
-            logic = new Logic(true);
+            logic = new Logic(true, uiStub);
         }
         return logic;
     }

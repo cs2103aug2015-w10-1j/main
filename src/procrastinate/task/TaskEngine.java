@@ -1,6 +1,7 @@
 package procrastinate.task;
 
 import procrastinate.FileHandler;
+import procrastinate.test.FileHandlerStub;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class TaskEngine {
 
     public TaskEngine(boolean isUnderTest) throws IOException {
         if (isUnderTest) {
-            fileHandler = new FileHandler("test.json");
+            fileHandler = new FileHandlerStub();
         } else {
             initFileHandler();
         }

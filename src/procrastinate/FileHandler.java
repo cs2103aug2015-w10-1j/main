@@ -48,6 +48,9 @@ public class FileHandler {
         this("");
     }
 
+    public FileHandler(boolean isUnderTest) {
+    }
+
     /**
      * Make a new file based on give directoryPath. directoryPath can be
      * multi-level directory and any type of path i.e. absolute or relative.
