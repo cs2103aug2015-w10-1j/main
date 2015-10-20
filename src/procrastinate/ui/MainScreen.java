@@ -10,11 +10,19 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
+import org.apache.commons.lang.time.DateUtils;
 import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainScreen extends CenterScreen {
@@ -33,6 +41,8 @@ public class MainScreen extends CenterScreen {
     private static final String TASKTYPE_EVENT = "event";
 
     private static final String UI_NUMBER_SEPARATOR = ". ";
+
+    private static final int NUMBER_DAYS_OF_WEEK = 7;
 
     // ================================================================================
     // Class variables
@@ -100,6 +110,7 @@ public class MainScreen extends CenterScreen {
                                  + " to "
                                  + dateFormat.format(((Event) task).getEndDate());
                 }
+                Date today = Date.from(getDateTimeToday().atZone(ZoneId.systemDefault()).toInstant());
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
                 taskCount.set(taskCount.get() + 1);
                 futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -132,6 +143,27 @@ public class MainScreen extends CenterScreen {
         thisWeekTaskList.getChildren().clear();
         futureTaskList.getChildren().clear();
         dreamsTaskList.getChildren().clear();
+    }
+
+    private LocalDate getDateToday() {
+        return LocalDate.now();
+    }
+
+    private LocalDateTime getDateTimeToday() {
+        return LocalDate.now().atStartOfDay();
+    }
+
+    private ArrayList<LocalDate> getWeek() {
+        LocalDate today = getDateToday();
+        ArrayList<LocalDate> daysOfWeek = new ArrayList<>();
+        for (int i=0; i<NUMBER_DAYS_OF_WEEK; i++) {
+            daysOfWeek.add(today.plusDays(i));
+        }
+        return daysOfWeek;
+    }
+
+    private SimpleDateFormat getDateFormatComparator() {
+        return new SimpleDateFormat("dd-MM-yyyy");
     }
 
     // ================================================================================
