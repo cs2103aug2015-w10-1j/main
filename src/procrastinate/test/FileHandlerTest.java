@@ -23,7 +23,7 @@ import procrastinate.task.Task;
 import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
 
-public class _FileHandler {
+public class FileHandlerTest {
     String defaultName;
     Path myRoot = Paths.get("");
 
