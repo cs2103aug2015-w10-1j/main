@@ -34,7 +34,7 @@ public class _FileHandler {
 
     @Test
     public void fileHandler_DirNotGiven_ShouldMakeFileAtCurrLoc() throws IOException {
-        FileHandler handler = new FileHandler();
+        new FileHandler();
         Path p = Paths.get(defaultName);
 
         assertTrue(Files.exists(p));
@@ -47,7 +47,7 @@ public class _FileHandler {
     @Test
     public void fileHandler_HasProperFilename_ShouldMakeNewFile() throws IOException {
         String filename = "foo.json";
-        FileHandler handler = new FileHandler(filename);
+        new FileHandler(filename);
         Path p = Paths.get(filename);
 
         assertTrue(Files.exists(p));
@@ -60,7 +60,7 @@ public class _FileHandler {
     @Test
     public void fileHandler_HasRelativeDirAndFilename_ShouldMakeNewFile() throws IOException {
         String relativePath = "../" + defaultName;
-        FileHandler handler = new FileHandler(relativePath);
+        new FileHandler(relativePath);
         Path p = Paths.get(relativePath);
 
         assertTrue(Files.exists(p));
@@ -73,7 +73,7 @@ public class _FileHandler {
     @Test
     public void fileHandler_HasMultiLevelDir_ShouldMakeFileAtDir() throws IOException {
         String relativePath = "./baz/boo/bou/";
-        FileHandler handler = new FileHandler(relativePath);
+        new FileHandler(relativePath);
         Path p = Paths.get(relativePath + defaultName);
 
         assertTrue(Files.exists(p));

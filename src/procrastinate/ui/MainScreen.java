@@ -26,7 +26,7 @@ public class MainScreen extends CenterScreen {
     private static final String CATEGORY_DREAMS = "Dreams";
 
     private static final String TASKTYPE_DEADLINE = "deadline";
-    private static final String TASKTYPE_DREAMS = "dream";
+    //private static final String TASKTYPE_DREAMS = "dream";
     private static final String TASKTYPE_EVENT = "event";
 
     private static final String UI_NUMBER_SEPARATOR = ". ";
@@ -85,7 +85,6 @@ public class MainScreen extends CenterScreen {
         // Currently add without looking at dates, until a comparator for the dates is created
         // Need to rearrange the tasks retrieved as well. Maybe to create multiple update methods for
         // the different categories.
-        // Also the dates does not get saved after the program is reloaded.
         for (Task task : taskList) {
             String taskType = task.getTypeString();
             if (taskType.equals(TASKTYPE_DEADLINE) || taskType.equals(TASKTYPE_EVENT)) {
