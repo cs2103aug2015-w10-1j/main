@@ -19,6 +19,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -100,20 +101,42 @@ public class MainScreen extends CenterScreen {
         // the different categories.
         for (Task task : taskList) {
             String taskType = task.getTypeString();
-            if (taskType.equals(TASKTYPE_DEADLINE) || taskType.equals(TASKTYPE_EVENT)) {
-                String dateString = null;
-                DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-                if (taskType.equals(TASKTYPE_DEADLINE)) {
-                    dateString = dateFormat.format(((Deadline) task).getDate());
+            Date today = Date.from(getDateTimeToday().atZone(ZoneId.systemDefault()).toInstant());
+            DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+            String dateString;
+            ArrayList<LocalDate> daysOfWeek = getWeek();
+            if (taskType.equals(TASKTYPE_DEADLINE)) {
+                dateString = dateFormat.format(((Deadline) task).getDate());
+                if (((Deadline) task).getDate().before(today)) {
+                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                    taskCount.set(taskCount.get() + 1);
+                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (((Deadline) task).getDate().before(Date.from(daysOfWeek.get(6).atTime(LocalTime.now()).atZone(ZoneId.systemDefault()).toInstant()))) {
+                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                    taskCount.set(taskCount.get() + 1);
+                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
-                    dateString = dateFormat.format(((Event) task).getStartDate())
-                                 + " to "
-                                 + dateFormat.format(((Event) task).getEndDate());
+                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                    taskCount.set(taskCount.get() + 1);
+                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
-                Date today = Date.from(getDateTimeToday().atZone(ZoneId.systemDefault()).toInstant());
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                taskCount.set(taskCount.get() + 1);
-                futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+            } else if (taskType.equals(TASKTYPE_EVENT)) {
+                dateString = dateFormat.format(((Event) task).getStartDate())
+                             + " to "
+                             + dateFormat.format(((Event) task).getEndDate());
+                if (((Event) task).getStartDate().before(today)) {
+                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                    taskCount.set(taskCount.get() + 1);
+                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (((Event) task).getStartDate().before(Date.from(daysOfWeek.get(6).atTime(LocalTime.now()).atZone(ZoneId.systemDefault()).toInstant()))) {
+                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                    taskCount.set(taskCount.get() + 1);
+                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else {
+                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                    taskCount.set(taskCount.get() + 1);
+                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                }
             } else {
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
                 taskCount.set(taskCount.get() + 1);
