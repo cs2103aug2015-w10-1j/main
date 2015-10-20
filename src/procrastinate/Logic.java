@@ -25,6 +25,8 @@ public class Logic {
         SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SEARCH_RESULTS
     }
 
+    private static DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+
     // ================================================================================
     // Message strings
     // ================================================================================
@@ -72,8 +74,6 @@ public class Logic {
 
     private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
-
-    private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 
     // ================================================================================
     // Singleton pattern
@@ -159,7 +159,7 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_ADD_DEADLINE, description, dateFormat.format(date));
+                return String.format(FEEDBACK_ADD_DEADLINE, description, formatDate(date));
             }
 
             case ADD_EVENT: {
@@ -176,7 +176,7 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_ADD_EVENT, description, dateFormat.format(startDate), dateFormat.format(endDate));
+                return String.format(FEEDBACK_ADD_EVENT, description, formatDate(startDate), formatDate(endDate));
             }
 
             case EDIT: {
@@ -221,11 +221,11 @@ public class Logic {
                         return String.format(FEEDBACK_EDIT_DREAM, lineNumber, newTask.getDescription());
                     case DEADLINE:
                         return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber, newTask.getDescription(),
-                                dateFormat.format(((Deadline) newTask).getDate()));
+                                formatDate(((Deadline) newTask).getDate()));
                     case EVENT:
                         return String.format(FEEDBACK_EDIT_EVENT, lineNumber, newTask.getDescription(),
-                                dateFormat.format(((Event) newTask).getStartDate()),
-                                dateFormat.format(((Event) newTask).getEndDate()));
+                                formatDate(((Event) newTask).getStartDate()),
+                                formatDate(((Event) newTask).getEndDate()));
                 }
 
             }
@@ -317,6 +317,7 @@ public class Logic {
                 }
                 if (date != null) {
                     feedback += String.format(FEEDBACK_SEARCH_DUE, date);
+                    //TODO: implement searching by date
                 }
                 return feedback;
             }
@@ -402,6 +403,10 @@ public class Logic {
 
     private List<Task> getCurrentTaskList() {
         return taskEngine.getCurrentTaskList();
+    }
+
+    private static String formatDate(Date date) {
+        return dateFormat.format(date);
     }
 
     // ================================================================================
