@@ -119,13 +119,13 @@ public class Parser {
                 int lineNumber = 0;
                 try {
                     String[] argument = userCommand.split(WHITESPACE, 3);
+                    lineNumber = Integer.parseInt(argument[1]);
                     if (argument.length <= 2 && commandInputType == CommandStringType.NO_DATE) { // Too few arguments
                         // Treat "edit 1" as an invalid command
                         // Display a helpful message (no description or date(s) given)
                         return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_NEW_DATA);
                     }
 
-                    lineNumber = Integer.parseInt(argument[1]);
                     String description = "";
                     if (argument.length > 2) {
                         description = argument[2];
