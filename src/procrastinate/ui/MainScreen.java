@@ -10,8 +10,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
+import procrastinate.task.Deadline;
+import procrastinate.task.Event;
 import procrastinate.task.Task;
 
+import java.text.DateFormat;
 import java.util.List;
 
 public class MainScreen extends CenterScreen {
@@ -88,7 +91,16 @@ public class MainScreen extends CenterScreen {
         for (Task task : taskList) {
             String taskType = task.getTypeString();
             if (taskType.equals(TASKTYPE_DEADLINE) || taskType.equals(TASKTYPE_EVENT)) {
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), "Need to get date here");
+                String dateString = null;
+                DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+                if (taskType.equals(TASKTYPE_DEADLINE)) {
+                    dateString = dateFormat.format(((Deadline) task).getDate());
+                } else {
+                    dateString = dateFormat.format(((Event) task).getStartDate())
+                                 + " to "
+                                 + dateFormat.format(((Event) task).getEndDate());
+                }
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
                 taskCount.set(taskCount.get() + 1);
                 futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
             } else {

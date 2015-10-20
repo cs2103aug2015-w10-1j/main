@@ -11,6 +11,7 @@ import procrastinate.task.*;
 import procrastinate.ui.UI;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -62,6 +63,8 @@ public class Logic {
 
     private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
+
+    private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 
     // ================================================================================
     // Singleton pattern
@@ -147,7 +150,7 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_ADD_DEADLINE, description, date);
+                return String.format(FEEDBACK_ADD_DEADLINE, description, dateFormat.format(date));
             }
 
             case ADD_EVENT: {
@@ -164,7 +167,7 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_ADD_EVENT, description, startDate, endDate);
+                return String.format(FEEDBACK_ADD_EVENT, description, dateFormat.format(startDate), dateFormat.format(endDate));
             }
 
             case EDIT: {
@@ -210,10 +213,11 @@ public class Logic {
                         return String.format(FEEDBACK_EDIT_DREAM, lineNumber, newTask.getDescription());
                     case DEADLINE:
                         return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber, newTask.getDescription(),
-                                ((Deadline) newTask).getDate());
+                                dateFormat.format(((Deadline) newTask).getDate()));
                     case EVENT:
-                        return String.format(FEEDBACK_EDIT_EVENT, lineNumber, newDescription,
-                                ((Event) newTask).getStartDate(), ((Event) newTask).getEndDate());
+                        return String.format(FEEDBACK_EDIT_EVENT, lineNumber, newTask.getDescription(),
+                                dateFormat.format(((Event) newTask).getStartDate()),
+                                dateFormat.format(((Event) newTask).getEndDate()));
                 }
 
             }
