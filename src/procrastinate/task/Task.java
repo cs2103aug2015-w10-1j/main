@@ -115,4 +115,9 @@ public abstract class Task implements Comparable<Task> {
 		}
 	}
 
+    @Override
+    public String toString() {
+        return getDescription();
+    }
+
 }
