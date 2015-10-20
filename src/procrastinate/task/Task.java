@@ -46,6 +46,10 @@ public abstract class Task implements Comparable<Task> {
 	    }
 	}
 
+	public boolean contains(String term) {
+	    return description.contains(term);
+	}
+
 	// ================================================================================
     // Getter methods
     // ================================================================================

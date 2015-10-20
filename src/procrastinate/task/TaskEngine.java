@@ -130,6 +130,16 @@ public class TaskEngine {
         return previousState != null;
     }
 
+    public List<Task> getTasksContaining(String description) {
+        List<Task> results = new ArrayList<Task>();
+        for (Task task : getTasks()) {
+            if (task.contains(description)) {
+                results.add(task);
+            }
+        }
+        return results;
+    }
+
     public List<Task> getOutstandingTasks() {
         List<Task> outstandingTasks = new ArrayList<Task>();
         for (Task task : getTasks()) {

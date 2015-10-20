@@ -283,11 +283,19 @@ public class Logic {
                 String feedback = FEEDBACK_SEARCH;
                 if (description != null) {
                     feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
+                    if (execute) {
+                        updateUiTaskList(taskEngine.getTasksContaining(description));
+                    }
                 }
                 if (date != null) {
                     feedback += String.format(FEEDBACK_SEARCH_DUE, date);
                 }
                 return feedback;
+            }
+
+            case HELP: {
+                //TODO
+                return "Placeholder help";
             }
 
             case INVALID: {
@@ -343,7 +351,11 @@ public class Logic {
     // ================================================================================
 
     private void updateUiTaskList() {
-        ui.updateTaskList(getCurrentTaskList());
+        updateUiTaskList(getCurrentTaskList());
+    }
+
+    private void updateUiTaskList(List<Task> taskList) {
+        ui.updateTaskList(taskList);
     }
 
     // Retrieves the current user input from the TextField.
