@@ -8,6 +8,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import procrastinate.task.*;
+import procrastinate.test.UIStub;
 import procrastinate.ui.UI;
 
 import java.io.IOException;
@@ -68,6 +69,7 @@ public class Logic {
 
     private TaskEngine taskEngine;
     private UI ui;
+
     private Command lastPreviewedCommand = null;
     private ViewType currentView = ViewType.SHOW_OUTSTANDING; // default view
     private String lastSearchTerm = null;
@@ -82,11 +84,24 @@ public class Logic {
     private static Logic logic;
 
     private Logic() {
-        initUi();
-        try {
-            initTaskEngine();
-        } catch (IOException e) {
-            e.printStackTrace();
+        this(false);
+    }
+
+    private Logic(boolean isUnderTest) {
+        if (isUnderTest) {
+            ui = new UIStub();
+            try {
+                taskEngine = new TaskEngine(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            initUi();
+            try {
+                initTaskEngine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         initParser();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
@@ -95,6 +110,13 @@ public class Logic {
     public static Logic getInstance() {
         if (logic == null) {
             logic = new Logic();
+        }
+        return logic;
+    }
+
+    public static Logic getTestInstance() {
+        if (logic == null) {
+            logic = new Logic(true);
         }
         return logic;
     }

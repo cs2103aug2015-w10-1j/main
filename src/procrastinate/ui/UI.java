@@ -69,6 +69,9 @@ public class UI {
         logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
+    public UI(boolean isUnderTest) {
+    }
+
     // This auto gets called from the UI constructor when load is executed.
     public void initialize() {
         initTaskDisplay();

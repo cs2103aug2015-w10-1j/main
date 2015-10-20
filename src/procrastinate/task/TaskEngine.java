@@ -41,15 +41,16 @@ public class TaskEngine {
 
     private FileHandler fileHandler;
 
-    private String directoryPath = "";
-
     public TaskEngine() throws IOException {
-        this("");
+        this(false);
     }
 
-    public TaskEngine(String directoryPath) throws IOException {
-        this.directoryPath = directoryPath;
-        initFileHandler();
+    public TaskEngine(boolean isUnderTest) throws IOException {
+        if (isUnderTest) {
+            fileHandler = new FileHandler("test.json");
+        } else {
+            initFileHandler();
+        }
         initTasks();
         logger.log(Level.INFO, DEBUG_TASK_ENGINE_INIT);
     }
@@ -188,7 +189,7 @@ public class TaskEngine {
     // ================================================================================
 
     private void initFileHandler() throws IOException {
-        fileHandler = new FileHandler(directoryPath);
+        fileHandler = new FileHandler();
     }
 
     private void initTasks() {
