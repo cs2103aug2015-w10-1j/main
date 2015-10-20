@@ -10,7 +10,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
-import org.apache.commons.lang.time.DateUtils;
 import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
@@ -21,7 +20,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -110,6 +108,7 @@ public class MainScreen extends CenterScreen {
                                  + " to "
                                  + dateFormat.format(((Event) task).getEndDate());
                 }
+                @SuppressWarnings("unused")
                 Date today = Date.from(getDateTimeToday().atZone(ZoneId.systemDefault()).toInstant());
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
                 taskCount.set(taskCount.get() + 1);
@@ -153,6 +152,7 @@ public class MainScreen extends CenterScreen {
         return LocalDate.now().atStartOfDay();
     }
 
+    @SuppressWarnings("unused")
     private ArrayList<LocalDate> getWeek() {
         LocalDate today = getDateToday();
         ArrayList<LocalDate> daysOfWeek = new ArrayList<>();
@@ -162,6 +162,7 @@ public class MainScreen extends CenterScreen {
         return daysOfWeek;
     }
 
+    @SuppressWarnings("unused")
     private SimpleDateFormat getDateFormatComparator() {
         return new SimpleDateFormat("dd-MM-yyyy");
     }
