@@ -117,15 +117,17 @@ public class TaskEngine {
     }
 
     public void undo() throws IOException {
-        if (hasPreviousOperation()) {
-            TaskState backupNewerState = getBackupOfCurrentState();
-            restoreOlderState();
-            previousState = backupNewerState;
-
-            logger.log(Level.INFO, String.format(DEBUG_UNDONE));
-
-            writeStateToFile();
+        if (!hasPreviousOperation()) {
+            return;
         }
+
+        TaskState backupNewerState = getBackupOfCurrentState();
+        restoreOlderState();
+        previousState = backupNewerState;
+
+        logger.log(Level.INFO, String.format(DEBUG_UNDONE));
+
+        writeStateToFile();
     }
 
     public boolean hasPreviousOperation() {

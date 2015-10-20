@@ -95,6 +95,7 @@ public class Parser {
                 }
 
                 Command command;
+
                 if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
                     command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
                 } else if (commandInputType.equals(CommandStringType.NO_DATE)) {
@@ -103,6 +104,7 @@ public class Parser {
                     command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
                             .addEndDate(getEndDate(dateArray));
                 }
+
                 command.addDescription(description);
 
                 return command;
@@ -116,39 +118,41 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
+                String[] argument = userCommand.split(WHITESPACE, 3);
                 int lineNumber = 0;
+
                 try {
-                    String[] argument = userCommand.split(WHITESPACE, 3);
                     lineNumber = Integer.parseInt(argument[1]);
-                    if (argument.length <= 2 && commandInputType == CommandStringType.NO_DATE) { // Too few arguments
-                        // Treat "edit 1" as an invalid command
-                        // Display a helpful message (no description or date(s) given)
-                        return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_NEW_DATA);
-                    }
-
-                    String description = "";
-                    if (argument.length > 2) {
-                        description = argument[2];
-                    }
-
-                    Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
-                    if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
-                        command.addDate(getStartDate(dateArray));
-                    } else if (commandInputType.equals(CommandStringType.EVENT_DATE)) {
-                        command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
-                    }
-
-                    if (!description.isEmpty()) {
-                        command.addDescription(description);
-                    }
-
-                    return command;
-
                 } catch (NumberFormatException e) { // Not a line number
                     // Treat "edit something" as an add command
                     // Inject add to the front of command and recurse
                     return Parser.parse(putAddInFront(userInput));
                 }
+
+                if (argument.length <= 2 && commandInputType == CommandStringType.NO_DATE) { // Too few arguments
+                    // Treat "edit 1" as an invalid command
+                    // Display a helpful message (no description or date(s) given)
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_NEW_DATA);
+                }
+
+                String description = "";
+                if (argument.length > 2) {
+                    description = argument[2];
+                }
+
+                Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
+
+                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
+                    command.addDate(getStartDate(dateArray));
+                } else if (commandInputType.equals(CommandStringType.EVENT_DATE)) {
+                    command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+                }
+
+                if (!description.isEmpty()) {
+                    command.addDescription(description);
+                }
+
+                return command;
             }
 
             case COMMAND_DELETE:
@@ -159,17 +163,18 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
+                String argument = userCommand.substring(firstWord.length() + 1);
+                int lineNumber = 0;
+
                 try {
-                    String argument = userCommand.substring(firstWord.length() + 1);
-                    int lineNumber = Integer.parseInt(argument);
-
-                    return new Command(CommandType.DELETE).addLineNumber(lineNumber);
-
+                    lineNumber = Integer.parseInt(argument);
                 } catch (NumberFormatException e) { // Not a line number
                     // Treat "delete something" is an add command
                     // Inject add to the front of command and recurse
                     return Parser.parse(putAddInFront(userInput));
                 }
+
+                return new Command(CommandType.DELETE).addLineNumber(lineNumber);
             }
 
             case COMMAND_UNDO:
@@ -191,17 +196,18 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
+                String[] argument = userCommand.split(WHITESPACE, 2);
+                int lineNumber = 0;
+
                 try {
-                    String[] argument = userCommand.split(WHITESPACE, 2);
-                    int lineNumber = Integer.parseInt(argument[1]);
-
-                    return new Command(CommandType.DONE).addLineNumber(lineNumber);
-
+                    lineNumber = Integer.parseInt(argument[1]);
                 } catch (NumberFormatException e) { // Not a line number
                     // Treat "done something" as an add command
                     // Inject add to the front of command and recurse
                     return Parser.parse(putAddInFront(userInput));
                 }
+
+                return new Command(CommandType.DONE).addLineNumber(lineNumber);
             }
 
             case COMMAND_SEARCH:
