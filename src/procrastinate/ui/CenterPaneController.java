@@ -49,8 +49,7 @@ public class CenterPaneController {
     private HelpScreen helpScreen;
 
     private StackPane centerStackPane;
-    @SuppressWarnings("unused")
-    private Node currentScreen;
+    protected Node currentScreen;       // Changed to protected for testing purposes.
 
     // ================================================================================
     // CenterPaneController methods
@@ -75,6 +74,7 @@ public class CenterPaneController {
      */
     protected void changeScreen(int screenKey) {
         Node screen = controlledScreens.get(screenKey);
+        currentScreen = screen;
         setScreen(screen);
     }
 
@@ -145,5 +145,17 @@ public class CenterPaneController {
         mainScreenNode.setOpacity(0);
         mapScreen(SCREEN_MAIN, mainScreenNode);
         return mainScreenNode;
+    }
+
+    // ================================================================================
+    // Test methods
+    // ================================================================================
+
+    protected Node getMainScreen() {
+        return mainScreenNode;
+    }
+
+    protected Node getHelpScreen() {
+        return helpScreenNode;
     }
 }

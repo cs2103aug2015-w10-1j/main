@@ -79,3 +79,4 @@ public class TaskEntry extends HBox{
         return this.taskEntry;
     }
 }
+
