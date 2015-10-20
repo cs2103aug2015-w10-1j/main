@@ -1,8 +1,9 @@
 package procrastinate;
 
 import com.joestelmach.natty.DateGroup;
-import procrastinate.Command.CommandType;
 
+import procrastinate.Command.CommandType;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,6 +40,17 @@ public class Parser {
     private static final String COMMAND_SHORT_EXIT = "exit";
 
     private static final String KEYWORD_DEADLINE = "due";
+    private static final String KEYWORD_EVENT = "from";
+
+    private static final String WHITESPACE = " ";
+
+    // ================================================================================
+    // CommandStringType
+    // ================================================================================
+
+    private static enum CommandStringType {
+        NO_DATE, DEADLINE_DATE, EVENT_DATE
+    }
 
     // ================================================================================
     // Parser methods
@@ -48,8 +60,9 @@ public class Parser {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
         String userCommand = userInput.trim(); // Trim leading and trailing whitespace
-        Date inputDate = getDate(userCommand);
-        userCommand = removeDatesFromUserCommand(userCommand, inputDate);
+        CommandStringType commandInputType = getCommandStringType(userCommand);
+        List<Date> dateArray = getDates(userCommand, commandInputType);
+        userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
         // If there was a date, userCommand now comes with a trailing space.
         // This helps identify commands with no arguments: the expression
         // userCommand.equalsIgnoreCase(firstWord) will only be true if
@@ -70,7 +83,7 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-                String[] argument = userCommand.split(" ", 2);
+                String[] argument = userCommand.split(WHITESPACE, 2);
                 String description = argument[1];
 
                 if (description.isEmpty()) {
@@ -79,10 +92,12 @@ public class Parser {
                 }
 
                 Command command;
-                if (inputDate != null) {
-                    command = new Command(CommandType.ADD_DEADLINE).addDate(inputDate);
-                } else {
+                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
+                    command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
+                } else if (commandInputType.equals(CommandStringType.NO_DATE)) {
                     command = new Command(CommandType.ADD_DREAM);
+                } else {
+                    command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
                 }
                 command.addDescription(description);
 
@@ -99,14 +114,17 @@ public class Parser {
 
                 int lineNumber = 0;
                 try {
-                    String[] argument = userCommand.split(" ", 3);
+                    String[] argument = userCommand.split(WHITESPACE, 3);
                     lineNumber = Integer.parseInt(argument[1]);
                     String description = argument[2];
 
                     Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
-                    if (inputDate != null) {
-                        command.addDate(inputDate);
+                    if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
+                        command.addDate(getStartDate(dateArray));
+                    } else if (commandInputType.equals(CommandStringType.EVENT_DATE)) {
+                        command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
                     }
+
                     if (!description.isEmpty()) {
                         command.addDescription(description);
                     }
@@ -160,7 +178,7 @@ public class Parser {
                 }
 
                 try {
-                    String[] argument = userCommand.split(" ", 2);
+                    String[] argument = userCommand.split(WHITESPACE, 2);
                     int lineNumber = Integer.parseInt(argument[1]);
 
                     return new Command(CommandType.DONE).addLineNumber(lineNumber);
@@ -180,13 +198,16 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-                String[] argument = userCommand.split(" ", 2);
+                String[] argument = userCommand.split(WHITESPACE, 2);
                 String searchDescription = argument[1];
 
                 Command command = new Command(CommandType.SEARCH);
-                if (inputDate != null) {
-                    command.addDate(inputDate);
+                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
+                    command.addDate(getStartDate(dateArray));
+                } else if (commandInputType.equals(CommandStringType.EVENT_DATE)) {
+                    command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
                 }
+
                 if (!searchDescription.isEmpty()) {
                     command.addDescription(searchDescription);
                 }
@@ -217,8 +238,70 @@ public class Parser {
     // Utility methods
     // ================================================================================
 
-    private static Date getDate(String userCommand) {
-        String[] arguments = userCommand.split("due");
+    private static CommandStringType getCommandStringType(String userCommand){
+        int indexDue = userCommand.lastIndexOf(KEYWORD_DEADLINE);
+        int indexFrom = userCommand.lastIndexOf(KEYWORD_EVENT);
+        if (indexDue > indexFrom) {
+            String dueSubString = userCommand.substring(indexDue, userCommand.length());
+            Date dueDate = getDate(dueSubString);
+            if (dueDate == null) {
+                return CommandStringType.NO_DATE;
+            } else {
+                return CommandStringType.DEADLINE_DATE;
+            }
+        } else if (indexFrom > indexDue) {
+            String fromSubString = userCommand.substring(indexFrom, userCommand.length());
+            List<DateGroup> dateGroups = dateParser.parse(fromSubString);
+            if (hasDates(dateGroups) && isEventDate(dateGroups)) {
+                return CommandStringType.EVENT_DATE;
+            } else {
+                return CommandStringType.NO_DATE;
+            }
+        } else {
+            return CommandStringType.NO_DATE;
+        }
+    }
+
+    private static List<Date> getDates(String userCommand, CommandStringType commandInputType){
+        List<Date> dateList = new ArrayList<Date>();
+        String keyword = null;
+        if (commandInputType.equals(CommandStringType.NO_DATE)) {
+            return null;
+        } else if(commandInputType.equals(CommandStringType.DEADLINE_DATE)){
+            keyword = KEYWORD_DEADLINE;
+        } else {
+            keyword = KEYWORD_EVENT;
+        }
+
+        String[] arguments = userCommand.split(keyword);
+        List<DateGroup> dateGroups = dateParser.parse(arguments[arguments.length - 1]);
+        try{
+            dateList.add(dateGroups.get(0).getDates().get(0));
+            dateList.add(dateGroups.get(0).getDates().get(1));
+        } catch (Exception e) {}
+        return dateList;
+    }
+
+    private static String removeDatesFromUserCommand(String userCommand, CommandStringType commandInputType){
+        String keyword = null;
+        if(commandInputType.equals(CommandStringType.NO_DATE)){
+            return userCommand;
+        } else if(commandInputType.equals(CommandStringType.DEADLINE_DATE)){
+            keyword = KEYWORD_DEADLINE;
+        } else {
+            keyword = KEYWORD_EVENT;
+        }
+
+        int endIndex = userCommand.lastIndexOf(keyword);
+        if (endIndex == 0) {
+            return null;
+        } else {
+            return userCommand.substring(0, endIndex - 1);
+        }
+    }
+
+    private static Date getDate(String userCommand){
+        String[] arguments = userCommand.split(KEYWORD_DEADLINE);
         if (arguments.length <= 1) {
             return null;
         }
@@ -231,43 +314,35 @@ public class Parser {
         }
     }
 
-    private static String removeDatesFromUserCommand(String userCommand, Date inputDate) {
-        if (inputDate == null) {
-            if (userCommand.equals(KEYWORD_DEADLINE)) {
-                return null;
-            } else {
-                return userCommand;
-            }
-        } else {
-            String[] arguments = userCommand.split(KEYWORD_DEADLINE);
-            StringBuilder stringBuilder = new StringBuilder();
-            for(int i = 0; i < arguments.length - 1; i ++) {
-                stringBuilder.append(arguments[i]);
-                if (i != arguments.length - 2) {
-                    stringBuilder.append(KEYWORD_DEADLINE);
-                }
-            }
-            return stringBuilder.toString(); // Do NOT trim
-        }
-    }
-
     private static boolean isCommandEmpty(String userCommand) {
         return userCommand == null || userCommand.isEmpty();
     }
 
     private static String getFirstWord(String userCommand) {
-        return userCommand.split(" ")[0];
+        return userCommand.split(WHITESPACE)[0];
     }
 
     private static String putAddInFront(String userInput) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(COMMAND_ADD);
-        stringBuilder.append(" ");
+        stringBuilder.append(WHITESPACE);
         stringBuilder.append(userInput);
         return stringBuilder.toString();
     }
 
     private static boolean hasDates(List<DateGroup> groups) {
         return !groups.isEmpty();
+    }
+
+    private static boolean isEventDate(List<DateGroup> groups) {
+        return groups.get(0).getDates().size() == 2;
+    }
+
+    private static Date getStartDate(List<Date> dateArray) {
+        return dateArray.get(0);
+    }
+
+    private static Date getEndDate(List<Date> dateArray) {
+        return dateArray.get(1);
     }
 }
