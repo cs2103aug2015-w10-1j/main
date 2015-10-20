@@ -30,6 +30,7 @@ public class Parser {
     private static final String COMMAND_DONE = "done";
     private static final String COMMAND_UNDO = "undo";
     private static final String COMMAND_SEARCH = "search";
+    private static final String COMMAND_HELP = "help";
     private static final String COMMAND_EXIT = "procrastinate";
 
     private static final String COMMAND_SHORT_EDIT = "ed";
@@ -214,6 +215,16 @@ public class Parser {
                 }
 
                 return command;
+            }
+
+            case COMMAND_HELP: {
+                if (userCommand.equalsIgnoreCase(firstWord) && commandInputType.equals(CommandStringType.NO_DATE)) { // No arguments
+                    // Treat "help" as an help command
+                    return new Command(CommandType.HELP);
+                }
+
+                // Inject add to the front of the command and recurse
+                return Parser.parse(putAddInFront(userInput));
             }
 
             case COMMAND_EXIT:
