@@ -132,9 +132,6 @@ public class MainScreen extends CenterScreen {
                     taskCount.set(taskCount.get() + 1);
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                taskCount.set(taskCount.get() + 1);
-                futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
             } else {
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
                 taskCount.set(taskCount.get() + 1);
