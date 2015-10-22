@@ -90,6 +90,7 @@ public class UI {
         initTray();
         initDialogPopupHandler();
         primaryStage.show();
+        showSplashScreen();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
@@ -113,7 +114,6 @@ public class UI {
      */
     private void initTaskDisplay() {
         this.centerPaneController = new CenterPaneController(centerScreen);
-        showSplashScreen();
     }
 
     private void initTray() {
