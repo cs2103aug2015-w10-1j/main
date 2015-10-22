@@ -1,7 +1,12 @@
 package procrastinate.ui;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import procrastinate.task.Task;
 
 import java.util.ArrayList;
@@ -15,8 +20,7 @@ public class CenterPaneController {
     // ================================================================================
 
     protected static final int SCREEN_MAIN = 1;
-    protected static final int SCREEN_SEARCH = 2;
-    protected static final int SCREEN_HELP = 3;  // Maybe should use arraylist of these integers/string to reference the integers?
+    protected static final int SCREEN_HELP = 2;  // Maybe should use arraylist of these integers/string to reference the integers?
 
     // ================================================================================
     // Message strings
@@ -24,25 +28,31 @@ public class CenterPaneController {
 
     private static final String LOCATION_MAIN_SCREEN_LAYOUT = "views/MainScreen.fxml";
     private static final String LOCATION_HELP_SCREEN_LAYOUT = "views/HelpScreen.fxml";
-    @SuppressWarnings("unused")
-    private static final String LOCATION_SEARCH_SCREEN_LAYOUT = "views/SearchScreen.fxml";
+
+    // ================================================================================
+    // Animation time values
+    // ================================================================================
+
+    private static final double OPACITY_FULL = 1;
+    private static final double OPACITY_ZERO = 0;
+
+    // Time values are in milliseconds
+    private static final double TIME_HELP_SCREEN_FADEOUT = 500;
+
+    private static final double TIME_SPLASH_SCREEN_FADE = 3000;
+    private static final double TIME_SPLASH_SCREEN_FULL_OPACITY = 2000;
+    private static final double TIME_SPLASH_SCREEN_INTERRUPT = 2700;
 
     // ================================================================================
     // Class variables
     // ================================================================================
 
     private HashMap<Integer, Node> controlledScreens;   // CHANGE TO SWITCH
-    /**
-     * NEED TO CHANGE HASHMAP TO SWITCH,
-     * set up subcontrollers for each screen.
-     *
-     * or
-     * SPLIT OUT SCREENS TO LIKE DISPLAY, HELP ETC.
-     */
+
+    private FadeTransition helpScreenFadeOut;
+    private Timeline splashScreenTimeline;
 
     private Node mainScreenNode;
-    @SuppressWarnings("unused")
-    private Node searchScreenNode;
     private Node helpScreenNode;
 
     private MainScreen mainScreen;
@@ -56,12 +66,12 @@ public class CenterPaneController {
     // ================================================================================
 
     protected CenterPaneController(StackPane centerStackPane) {
-        this.controlledScreens = new HashMap<Integer, Node>();
+        this.controlledScreens = new HashMap<>();
         this.centerStackPane = centerStackPane;
 
         initialiseScreens();
         currentScreen = mainScreenNode;
-        mainScreenNode.setOpacity(1); // Setup straight into main screen.
+        mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
     }
 
     // ================================================================================
@@ -86,18 +96,67 @@ public class CenterPaneController {
         mainScreen.updateTaskList(taskList);
     }
 
-    protected void hideHelpOverlay() {
-        helpScreenNode.setOpacity(0);
+    /**
+     * Hides the current screen overlay for:
+     *      - splashScreen: Fast-forwards the fade animation if user starts typing, and builds the actual helpScreen
+     *                      once the animation is terminated
+     *      - helpScreen: Starts the fade out transition that lasts for 0.5 seconds
+     */
+    protected void hideScreenOverlay() {
+        if (currentScreen != helpScreenNode) {
+            Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
+            // Only fast forward the timeline if the current time of the animation is smaller than the given
+            // interrupt time. Else, just wait for the animation to end.
+            if (splashScreenTimeline.getCurrentTime().lessThan(interruptTime)) {
+                splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
+            }
+            // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
+
+        } else {
+                helpScreenFadeOut.playFromStart();
+        }
     }
 
     /**
-     * Changes the top most screen to the screen specified, animations/fading is not yet implemented
+     * Creates a splash screen that maintains full opacity for 2 seconds before completely fading out in 1 second
+     * or until the user starts to type.
+     * currentScreen variable is not updated to helpScreen to differentiate splashScreen from helpScreen in the
+     * hideScreenOverlay method.
+     */
+    protected void showSplashScreen() {
+        helpScreenNode.toFront();
+        helpScreenNode.setOpacity(OPACITY_FULL);
+
+        // Set SplashScreen opacity at full for 2 seconds.
+        Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
+        KeyValue fullOpacityKeyValue = new KeyValue(helpScreenNode.opacityProperty(), OPACITY_FULL);
+        KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
+
+        // Set SplashScreen to fade out completely at time = 3 seconds
+        Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
+        KeyValue zeroOpacityKeyValue = new KeyValue(helpScreenNode.opacityProperty(), OPACITY_ZERO);
+        KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
+
+        splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
+        splashScreenTimeline.play();
+    }
+
+    private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
+        fadeTransition.setFromValue(OPACITY_FULL);
+        fadeTransition.setToValue(OPACITY_ZERO);
+        return fadeTransition;
+    }
+
+    /**
+     * Changes the top most screen to the screen specified
      * @param screen
      */
     private void setScreen(Node screen) {
-//        currentScreen.setOpacity(0);      // Disabled for now since there are no other screens
+        currentScreen.setOpacity(OPACITY_ZERO);
         screen.toFront();
-        screen.setOpacity(1);
+        screen.setOpacity(OPACITY_FULL);
+        currentScreen = screen;
     }
 
     // ================================================================================
@@ -125,8 +184,7 @@ public class CenterPaneController {
 
         // Help Screen setup
         screensList.add(createHelpScreen());
-
-        // Search screen setup
+        helpScreenFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpScreenNode);
 
         return screensList;
     }
@@ -134,7 +192,7 @@ public class CenterPaneController {
     private Node createHelpScreen() {
         this.helpScreen = new HelpScreen(LOCATION_HELP_SCREEN_LAYOUT);
         this.helpScreenNode = helpScreen.getNode();
-        helpScreenNode.setOpacity(0);
+        helpScreenNode.setOpacity(OPACITY_ZERO);
         mapScreen(SCREEN_HELP, helpScreenNode);
         return helpScreenNode;
     }
@@ -142,7 +200,7 @@ public class CenterPaneController {
     private Node createMainScreen() {
         this.mainScreen = new MainScreen(LOCATION_MAIN_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
-        mainScreenNode.setOpacity(0);
+        mainScreenNode.setOpacity(OPACITY_ZERO);
         mapScreen(SCREEN_MAIN, mainScreenNode);
         return mainScreenNode;
     }

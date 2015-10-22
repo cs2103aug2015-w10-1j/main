@@ -473,7 +473,7 @@ public class Logic {
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (keyEvent) -> {
             // To remove the help overlay once the user starts typing
-            ui.checkForHelpOverlay();
+            ui.checkForScreenOverlay();
 
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String input = getInput();

@@ -34,7 +34,7 @@ public class UI {
     // Class variables
     // ================================================================================
 
-    private boolean isHelpOverlayed;
+    private boolean isScreenOverlayed;
     private CenterPaneController centerPaneController;
 
     private Parent root;
@@ -108,10 +108,12 @@ public class UI {
         statusLabelText.bindBidirectional(statusLabel.textProperty());
     }
 
+    /**
+     * Sets up controller for center pane and overlays a splash screen on top of the main screen display.
+     */
     private void initTaskDisplay() {
-        // Set up controller for new UI
         this.centerPaneController = new CenterPaneController(centerScreen);
-        showHelp();                             // Acts as the splash/welcome and help screen for now.
+        showSplashScreen();
     }
 
     private void initTray() {
@@ -155,9 +157,10 @@ public class UI {
     /**
      * Used by Logic to remove the Help Screen overlay once the user starts typing.
      */
-    public void checkForHelpOverlay() {
-        if (isHelpOverlayed) {
-            centerPaneController.hideHelpOverlay();
+    public void checkForScreenOverlay() {
+        if (isScreenOverlayed) {
+            centerPaneController.hideScreenOverlay();
+            isScreenOverlayed = false;
         }
     }
 
@@ -166,11 +169,12 @@ public class UI {
      */
     public void showHelp() {
         centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
-        isHelpOverlayed = true;
+        isScreenOverlayed = true;
     }
 
-    public void showMain() {
-        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
+    private void showSplashScreen() {
+        centerPaneController.showSplashScreen();
+        isScreenOverlayed = true;
     }
 
     // ================================================================================

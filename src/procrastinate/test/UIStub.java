@@ -33,12 +33,9 @@ public class UIStub extends UI {
         return new TextField();
     }
     @Override
-    public void checkForHelpOverlay() {
+    public void checkForScreenOverlay() {
     }
     @Override
     public void showHelp() {
-    }
-    @Override
-    public void showMain() {
     }
 }
