@@ -41,6 +41,7 @@ public class UI {
 
     private Stage primaryStage;
 
+    private DialogPopupHandler dialogPopupHandler;
     private SystemTrayHandler sysTrayHandler;
     private SystemTray sysTray;
     private WindowHandler windowHandler;
@@ -72,7 +73,7 @@ public class UI {
     public UI(boolean isUnderTest) {
     }
 
-    // This auto gets called from the UI constructor when load is executed.
+    // This gets called automatically from the UI constructor when load is executed.
     public void initialize() {
         initTaskDisplay();
     }
@@ -87,6 +88,7 @@ public class UI {
         this.primaryStage = primaryStage;
         initWindow();
         initTray();
+        initDialogPopupHandler();
         primaryStage.show();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
@@ -126,6 +128,10 @@ public class UI {
         windowHandler.initialiseWindow();
     }
 
+    private void initDialogPopupHandler() {
+        dialogPopupHandler = new DialogPopupHandler(primaryStage);
+    }
+
     // ================================================================================
     // Utility methods
     // ================================================================================
@@ -146,13 +152,18 @@ public class UI {
     // Center screen methods
     // ================================================================================
 
-    // Used by Logic to remove the HelpScreen overlay whenever the user starts typing
+    /**
+     * Used by Logic to remove the Help Screen overlay once the user starts typing.
+     */
     public void checkForHelpOverlay() {
         if (isHelpOverlayed) {
             centerPaneController.hideHelpOverlay();
         }
     }
 
+    /**
+     * Overlays the current screen with the Help screen.
+     */
     public void showHelp() {
         centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
         isHelpOverlayed = true;
@@ -160,5 +171,25 @@ public class UI {
 
     public void showMain() {
         centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
+    }
+
+    // ================================================================================
+    // DialogPopupHandler methods
+    // ================================================================================
+
+    /**
+     * Used by Logic to create an Error Dialog with a given message in the popup body
+     * @param message
+     */
+    public void createErrorDialog(String message) {
+        dialogPopupHandler.createErrorDialogPopup(message);
+    }
+
+    /**
+     * Used by Logic to create an Error Dialog that displays the Exception message and its stack trace
+     * @param e
+     */
+    public void createErrorDialogWithTrace(Exception e) {
+        dialogPopupHandler.createErrorDialogPopupWithTrace(e);
     }
 }
