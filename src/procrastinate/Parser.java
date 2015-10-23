@@ -23,6 +23,7 @@ public class Parser {
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
     private static final String MESSAGE_INVALID_EDIT_NO_NEW_DATA = "Please specify the new description or date(s)";
+    private static final String MESSAGE_INVALID_NO_PATH = "Please specify the path of your file";
 
     private static final String COMMAND_ADD = "add";
     private static final String COMMAND_EDIT = "edit";
@@ -40,6 +41,7 @@ public class Parser {
     private static final String COMMAND_SHORT_UNDO = "un";
     private static final String COMMAND_SHORT_SEARCH = "se";
     private static final String COMMAND_SHORT_SHOW = "sh";
+    private static final String COMMAND_SET_PATH = "set";
     private static final String COMMAND_SHORT_EXIT = "exit";
 
     private static final String KEYWORD_DEADLINE = "due";
@@ -264,6 +266,27 @@ public class Parser {
                 }
 
                 return new Command(CommandType.HELP);
+            }
+
+            case COMMAND_SET_PATH: {
+                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)
+                        || commandInputType.equals(CommandStringType.EVENT_DATE)
+                        || userCommand.split(WHITESPACE).length > 2) {
+                    // Have dates or have more than three words
+                    // Inject add to the front of the command and recurse
+                    return Parser.parse(putAddInFront(userInput));
+                }
+
+                if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
+                    // Treat "set" as an invalid command
+                    // Display a helpful message (no path)
+                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_PATH);
+                }
+
+                String[] argument = userCommand.split(WHITESPACE, 2);
+                String pathDescription = argument[1];
+
+                return new Command(CommandType.SET_PATH).addDescription(pathDescription);
             }
 
             case COMMAND_EXIT:
