@@ -173,7 +173,7 @@ public class MainScreen extends CenterScreen {
                                 + EVENT_DATE_SEPARATOR
                                 + dateFormat.format(endDate)
                                 + TIME_SEPARATOR
-                                + timeFormat.format(date);
+                                + timeFormat.format(endDate);
                 } else {
                     dateString = dateFormat.format(date)
                                 + TIME_SEPARATOR
@@ -181,7 +181,7 @@ public class MainScreen extends CenterScreen {
                                 + EVENT_DATE_SEPARATOR
                                 + dateFormatWithYear.format(endDate)
                                 + TIME_SEPARATOR
-                                + timeFormat.format(date);
+                                + timeFormat.format(endDate);
                 }
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
                 if (date.before(today)) {
