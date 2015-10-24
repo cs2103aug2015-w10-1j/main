@@ -2,9 +2,11 @@ package procrastinate.ui;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
 import java.io.IOException;
 
@@ -47,6 +49,8 @@ public class TaskEntry extends HBox{
             this.taskEntry = loader.load();
             this.lineNum.setText(lineNum);
             this.description.setText(description);
+            this.time.setMinWidth(0);
+            this.time.setStyle("-fx-padding: 0;");
             this.time.setText(EMPTY_STRING);
         } catch (IOException e) {
             e.printStackTrace();
