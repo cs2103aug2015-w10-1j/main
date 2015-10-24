@@ -472,9 +472,6 @@ public class Logic {
     // Key release is used to enable user to see the response first before the event executes.
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (keyEvent) -> {
-            // To remove the help overlay once the user starts typing
-            ui.checkForScreenOverlay();
-
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String input = getInput();
                 clearInput(); // Must come before setStatus as key release handler resets status.
@@ -488,9 +485,19 @@ public class Logic {
                     setStatus(STATUS_READY);
                 }
             }
-
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
+            }
+
+
+        };
+    }
+
+    private EventHandler<KeyEvent> createKeyPressHandler() {
+        return (keyEvent) -> {
+            // To remove the help overlay once the user starts typing
+            if (!keyEvent.getCode().equals(KeyCode.F1)) {
+                ui.checkForScreenOverlay();
             }
         };
     }
@@ -499,6 +506,7 @@ public class Logic {
     private void attachHandlersAndListeners() {
         TextField userInputField = ui.getUserInputField();
         userInputField.setOnKeyReleased(createKeyReleaseHandler());
+        userInputField.setOnKeyPressed(createKeyPressHandler());
         userInputField.textProperty().addListener((observable, oldValue, newValue) -> {
             // A ChangeListener is added and the arguments are sent to its 'changed' method,
             // which is overwritten below:

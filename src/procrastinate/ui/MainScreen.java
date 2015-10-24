@@ -210,8 +210,6 @@ public class MainScreen extends CenterScreen {
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
                 if (date.before(today)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(endOfWeek)) {
-                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
@@ -226,8 +224,6 @@ public class MainScreen extends CenterScreen {
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
                 if (date.before(today)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(endOfWeek)) {
-                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }

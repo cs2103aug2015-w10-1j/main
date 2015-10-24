@@ -37,7 +37,7 @@ public class CenterPaneController {
     private static final double OPACITY_ZERO = 0;
 
     // Time values are in milliseconds
-    private static final double TIME_HELP_SCREEN_FADEOUT = 500;
+    private static final double TIME_HELP_SCREEN_FADEOUT = 300;
 
     private static final double TIME_SPLASH_SCREEN_FADE = 3000;
     private static final double TIME_SPLASH_SCREEN_FULL_OPACITY = 2000;
@@ -113,7 +113,8 @@ public class CenterPaneController {
             // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
 
         } else {
-                helpScreenFadeOut.playFromStart();
+            helpScreenFadeOut.playFromStart();
+            currentScreen = mainScreenNode;
         }
     }
 
