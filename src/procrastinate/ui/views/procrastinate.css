@@ -1,5 +1,67 @@
+/*
+ * ================================================================
+ * Font Declarations
+ * ================================================================
+ */
+@font-face {
+	font-family: BebasNeue;
+	font-weight: 400;
+	font-style: normal;
+	src: url("../fonts/bebas/BebasNeue-Regular.otf");
+}
+
+@font-face {
+	font-family: BebasNeue Bold;
+	font-weight: 700;
+	font-style: italic;
+	src: url("../fonts/bebas/BebasNeue-Bold.otf");
+}
+
+@font-face {
+	font-family: Titillium;
+	font-style: italic;
+	src: url("../fonts/titillium/Titillium-LightItalic.otf");
+}
+
+@font-face {
+	font-family: LiberationMono;
+	font-style: normal;
+	src: url("../fonts/liberation_mono/LiberationMono-Regular.ttf");
+}
+
+/*
+ * ================================================================
+ * MainWindow Styling
+ * ================================================================
+ */
 .root {
-    -fx-font-family: Open Sans;
+    -fx-background-color: white;
+    -fx-padding: 0 5 5 5;
+}
+
+.mainWindow #bottom {
+    -fx-background-color: white;
+    -fx-padding: 0 10 0 10;
+    -fx-spacing: 2;
+}
+
+.mainWindow #top {
+    -fx-background-color: white;
+}
+
+/*
+ * ================================================================
+ * HelpScreen Styling
+ * ================================================================
+ */
+.helpScreen #container {
+    -fx-alignment: center;
+    -fx-spacing: 10;
+}
+
+.helpScreen #overlay {
+    -fx-background-color: white;
+    -fx-opacity: 0.5;
 }
 
 .helpScreen #titleLabel {
@@ -7,8 +69,55 @@
     -fx-font-size: 24px;
 }
 
+/*
+ * ================================================================
+ * MainScreen Styling
+ * ================================================================
+ */
+.mainScreen {
+    -fx-background-color: white;
+}
+
+.mainScreen #mainVBox {
+    -fx-spacing: 5;
+}
+
+/*
+ * ================================================================
+ * CategoryBox Styling
+ * ================================================================
+ */
 .categoryBox #categoryLabel {
-	-fx-font-weight: bold;
+    -fx-font-family: BebasNeue Bold;
+	-fx-font-weight: 700;
+	-fx-font-style: italic;
 	-fx-font-size: 20px;
 	-fx-text-fill: steelblue;
 }
+
+.categoryBox #categoryVBox {
+    -fx-padding: 0 0 0 20;
+}
+
+/*
+ * ================================================================
+ * TaskEntry Styling
+ * ================================================================
+ */
+ .taskEntry {
+    -fx-font-family: Titillium;
+	-fx-font-style: italic;
+    -fx-font-size: 16px;
+ }
+
+ .taskEntry #lineNum {
+    -fx-padding: 0 5 0 0;
+ }
+
+ .taskEntry #description {
+    -fx-wrap-text: true;
+ }
+
+ .taskEntry #time {
+    -fx-padding: 0 0 0 25;
+ }
