@@ -14,12 +14,13 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -34,10 +35,10 @@ public class MainScreen extends CenterScreen {
     private static final String CATEGORY_FUTURE = "Future";
     private static final String CATEGORY_DREAMS = "Dreams";
 
-    private static final String TASKTYPE_DEADLINE = "deadline";
-    //private static final String TASKTYPE_DREAMS = "dream";
-    private static final String TASKTYPE_EVENT = "event";
+    private static final String MESSAGE_UNABLE_TO_DETERMINE_TYPE = "Unable to determine TaskType for adding.";
 
+    private static final String EVENT_DATE_SEPARATOR = " to ";
+    private static final String TIME_SEPARATOR = " ";   // should we use 'on'?
     private static final String UI_NUMBER_SEPARATOR = ". ";
 
     private static final int NUMBER_DAYS_OF_WEEK = 7;
@@ -68,6 +69,12 @@ public class MainScreen extends CenterScreen {
     private StringProperty taskCountFormatted = new SimpleStringProperty();
     private StringProperty taskCountString = new SimpleStringProperty();
 
+    private SimpleDateFormat dateFormatWithYear = new SimpleDateFormat("d MMM y h:mma");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
+    private SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+    private Date today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));    // To get today's Date at 0000hrs
+    private Date endOfWeek = getEndOfWeekDate(today);
     // ================================================================================
     // FXML field variables
     // ================================================================================
@@ -88,54 +95,147 @@ public class MainScreen extends CenterScreen {
     /**
      * The list of tasks displayed is updated by removing all previously added tasks and re-adding them back to allow
      * the line number to be sorted by category and not insertion time. **NOT FULLY IMPLEMENTED**
-     * @param taskList
+     * @param taskList List of Tasks to be added onto the screen
      */
     protected void updateTaskList(List<Task> taskList) {
         clearTaskList();
 
-        // TO-DO: CLEANUP/REFACTORING
+        Date taskDate;
+        boolean isSameYear;
+
         for (Task task : taskList) {
-            String taskType = task.getTypeString();
-            Date today = Date.from(getDateTimeToday().atZone(ZoneId.systemDefault()).toInstant());
-            DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-            String dateString;
-            ArrayList<LocalDate> daysOfWeek = getWeek();
-            if (taskType.equals(TASKTYPE_DEADLINE)) {
-                dateString = dateFormat.format(((Deadline) task).getDate());
-                if (((Deadline) task).getDate().before(today)) {
-                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                    taskCount.set(taskCount.get() + 1);
+            taskCount.set(taskCount.get() + 1);
+
+            switch (task.getType()) {
+
+                case DEADLINE: {
+                    taskDate = ((Deadline) task).getDate();
+                    isSameYear = yearFormat.format(today).equals(yearFormat.format(taskDate));
+                    if (isSameYear) {
+                        addTaskWithSameYear(task, taskDate);
+                    } else {
+                        addTaskWithDifferentYear(task, taskDate);
+                    }
+                    break;
+                }
+
+                case EVENT: {
+                    taskDate = ((Event) task).getStartDate();
+                    isSameYear = yearFormat.format(today).equals(yearFormat.format(taskDate));
+                    if (isSameYear) {
+                        addTaskWithSameYear(task, taskDate);
+                    } else {
+                        addTaskWithDifferentYear(task, taskDate);
+                    }
+                    break;
+                }
+
+                case DREAM: {
+                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
+                    dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                    break;
+                }
+
+                default: {
+                    System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                }
+            }
+        }
+    }
+
+    private void addTaskWithSameYear(Task task, Date date) {
+        String dateString;
+
+        switch (task.getType()) {
+
+            case DEADLINE: {
+                dateString = dateFormat.format(date)
+                            + TIME_SEPARATOR
+                            + timeFormat.format(date);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                if (date.before(today)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (((Deadline) task).getDate().before(Date.from(daysOfWeek.get(6).atTime(LocalTime.now()).atZone(ZoneId.systemDefault()).toInstant()))) {
-                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                    taskCount.set(taskCount.get() + 1);
+                } else if (date.before(endOfWeek)) {
                     thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
-                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                    taskCount.set(taskCount.get() + 1);
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
-            } else if (taskType.equals(TASKTYPE_EVENT)) {
-                dateString = dateFormat.format(((Event) task).getStartDate())
-                             + " to "
-                             + dateFormat.format(((Event) task).getEndDate());
-                if (((Event) task).getStartDate().before(today)) {
-                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                    taskCount.set(taskCount.get() + 1);
+                break;
+            }
+
+            case EVENT: {
+                Date endDate = ((Event) task).getEndDate();
+                boolean isSameEndYear = checkEventEndDateYear(endDate);
+                if (isSameEndYear) {
+                    dateString = dateFormat.format(date)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(date)
+                                + EVENT_DATE_SEPARATOR
+                                + dateFormat.format(endDate)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(date);
+                } else {
+                    dateString = dateFormat.format(date)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(date)
+                                + EVENT_DATE_SEPARATOR
+                                + dateFormatWithYear.format(endDate)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(date);
+                }
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                if (date.before(today)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (((Event) task).getStartDate().before(Date.from(daysOfWeek.get(6).atTime(LocalTime.now()).atZone(ZoneId.systemDefault()).toInstant()))) {
-                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                    taskCount.set(taskCount.get() + 1);
+                } else if (date.before(endOfWeek)) {
                     thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
-                    TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                    taskCount.set(taskCount.get() + 1);
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
-            } else {
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
-                taskCount.set(taskCount.get() + 1);
-                dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+            }
+        }
+    }
+
+    private void addTaskWithDifferentYear(Task task, Date date) {
+        String dateString;
+
+        switch (task.getType()) {
+
+            case DEADLINE: {
+                dateString = dateFormatWithYear.format(date);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                if (date.before(today)) {
+                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (date.before(endOfWeek)) {
+                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else {
+                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                }
+                break;
+            }
+
+            case EVENT: {
+                Date endDate = ((Event) task).getEndDate();
+                dateString = dateFormatWithYear.format(date)
+                            + EVENT_DATE_SEPARATOR
+                            + dateFormatWithYear.format(endDate);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                if (date.before(today)) {
+                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (date.before(endOfWeek)) {
+                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else {
+                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                }
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
             }
         }
     }
@@ -153,7 +253,7 @@ public class MainScreen extends CenterScreen {
     }
 
     private void resetTaskCount() {
-        taskCount.set(1);
+        taskCount.set(0);
     }
 
     private void resetTaskList() {
@@ -167,10 +267,42 @@ public class MainScreen extends CenterScreen {
         return LocalDate.now();
     }
 
-    private LocalDateTime getDateTimeToday() {
+    private LocalDateTime getDateTimeStartOfToday() {
         return LocalDate.now().atStartOfDay();
     }
 
+    /**
+     * Converts a LocalDateTime to an Instant
+     * @param localDateTime to be converted
+     * @return Instant generated from the given LocalDateTime
+     */
+    private Instant getInstantFromLocalDateTime(LocalDateTime localDateTime) {
+        return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    /**
+     * Generates the date of the end of the week for task date comparisons
+     * @param today Current date at 0000hrs
+     * @return Date of next Monday at 0000hrs for comparing tasks due this week
+     */
+    private Date getEndOfWeekDate(Date today) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.setTime(today);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        calendar.add(Calendar.DAY_OF_WEEK, 1);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        return calendar.getTime();
+    }
+
+    private boolean checkEventEndDateYear(Date date) {
+        return yearFormat.format(today).equals(yearFormat.format(date));
+    }
+
+    /**
+     * Generates a list of 7 days starting from today
+     * @return Arraylist of LocalDates of 7 consecutive days including today
+     */
     private ArrayList<LocalDate> getWeek() {
         LocalDate today = getDateToday();
         ArrayList<LocalDate> daysOfWeek = new ArrayList<>();
