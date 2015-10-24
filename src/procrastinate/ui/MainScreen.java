@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -40,8 +39,6 @@ public class MainScreen extends CenterScreen {
     private static final String EVENT_DATE_SEPARATOR = " to ";
     private static final String TIME_SEPARATOR = " ";   // should we use 'on'?
     private static final String UI_NUMBER_SEPARATOR = ". ";
-
-    private static final int NUMBER_DAYS_OF_WEEK = 7;
 
     // ================================================================================
     // Class variables
@@ -94,7 +91,10 @@ public class MainScreen extends CenterScreen {
 
     /**
      * The list of tasks displayed is updated by removing all previously added tasks and re-adding them back to allow
-     * the line number to be sorted by category and not insertion time. **NOT FULLY IMPLEMENTED**
+     * the line number to be sorted by category and not insertion time.
+     *
+     * Dreams are directly added via this method but Deadlines and Events are passed to two different
+     * addTask methods depending on their (start) dates.
      * @param taskList List of Tasks to be added onto the screen
      */
     protected void updateTaskList(List<Task> taskList) {
@@ -263,10 +263,6 @@ public class MainScreen extends CenterScreen {
         dreamsTaskList.getChildren().clear();
     }
 
-    private LocalDate getDateToday() {
-        return LocalDate.now();
-    }
-
     private LocalDateTime getDateTimeStartOfToday() {
         return LocalDate.now().atStartOfDay();
     }
@@ -297,19 +293,6 @@ public class MainScreen extends CenterScreen {
 
     private boolean checkEventEndDateYear(Date date) {
         return yearFormat.format(today).equals(yearFormat.format(date));
-    }
-
-    /**
-     * Generates a list of 7 days starting from today
-     * @return Arraylist of LocalDates of 7 consecutive days including today
-     */
-    private ArrayList<LocalDate> getWeek() {
-        LocalDate today = getDateToday();
-        ArrayList<LocalDate> daysOfWeek = new ArrayList<>();
-        for (int i=0; i<NUMBER_DAYS_OF_WEEK; i++) {
-            daysOfWeek.add(today.plusDays(i));
-        }
-        return daysOfWeek;
     }
 
     // ================================================================================
