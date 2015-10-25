@@ -64,7 +64,7 @@ public class Parser {
     public static Command parse(String userInput) {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
-        String userCommand = userInput.trim(); // Trim leading and trailing whitespace
+        String userCommand = userInput.trim().replaceAll("\\s+", " "); // Trim whitespace
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
         userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
