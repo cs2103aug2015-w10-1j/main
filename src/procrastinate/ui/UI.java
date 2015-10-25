@@ -86,8 +86,8 @@ public class UI {
     public void setUpStage(Stage primaryStage) {
         assert (primaryStage != null);
         this.primaryStage = primaryStage;
+//        initTray();
         initWindow();
-        initTray();
         initDialogPopupHandler();
         primaryStage.show();
         showSplashScreen();
@@ -126,7 +126,7 @@ public class UI {
     }
 
     private void initWindow() {
-        windowHandler = new WindowHandler(primaryStage, root);
+        windowHandler = new WindowHandler(primaryStage, root, sysTrayHandler);
         windowHandler.initialiseWindow();
     }
 
@@ -168,8 +168,10 @@ public class UI {
      * Overlays the current screen with the Help screen.
      */
     public void showHelp() {
-        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
-        isScreenOverlayed = true;
+        if (!isScreenOverlayed) {
+            centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+            isScreenOverlayed = true;
+        }
     }
 
     private void showSplashScreen() {

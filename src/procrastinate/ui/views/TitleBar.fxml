@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox styleClass="titleBar" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Region HBox.hgrow="ALWAYS" />
+      <Label fx:id="minimise" focusTraversable="false" text="Minimise">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></Label>
+      <Label fx:id="close" focusTraversable="false" text="Close">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></Label>
+   </children>
+</HBox>

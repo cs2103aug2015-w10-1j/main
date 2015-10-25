@@ -29,14 +29,32 @@
 	src: url("../fonts/liberation_mono/LiberationMono-Regular.ttf");
 }
 
+@font-face {
+	font-family: FontAwesome;
+	font-weight: 400;
+	font-style: normal;
+	src: url("../fonts/FontAwesome.otf");
+}
+
 /*
  * ================================================================
  * MainWindow Styling
  * ================================================================
  */
 .root {
-    -fx-background-color: white;
-    -fx-padding: 0 5 5 5;
+}
+
+.mainWindow {
+    -fx-background-color: transparent;
+}
+
+.mainWindow #mainBorderPane {
+  -fx-effect: dropshadow( gaussian, derive(lightslategray, -20%), 10, 0, 3, 3);
+  -fx-alignment: center;
+  -fx-border-color: white;
+  -fx-border-width: 5;
+  -fx-border-insets: 10;
+  -fx-border-radius: 6;
 }
 
 .mainWindow #bottom {
@@ -104,20 +122,36 @@
  * TaskEntry Styling
  * ================================================================
  */
- .taskEntry {
+.taskEntry {
     -fx-font-family: Titillium;
-	-fx-font-style: italic;
+    -fx-font-style: italic;
     -fx-font-size: 16px;
- }
+}
 
- .taskEntry #lineNum {
+.taskEntry #lineNum {
     -fx-padding: 0 5 0 0;
- }
+}
 
- .taskEntry #description {
+.taskEntry #description {
     -fx-wrap-text: true;
- }
+}
 
- .taskEntry #time {
+.taskEntry #time {
     -fx-padding: 0 0 0 25;
- }
+}
+
+/*
+ * ================================================================
+ * TitleBar Styling
+ * ================================================================
+ */
+
+.titleBar {
+    -fx-spacing: 10;
+    -fx-background-color: white;
+    -fx-font: 16px FontAwesome;
+}
+
+.titleBar #close {
+    -fx-label-padding: 0 0 0 0;
+}

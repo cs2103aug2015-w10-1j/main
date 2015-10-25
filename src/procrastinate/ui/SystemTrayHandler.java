@@ -24,11 +24,14 @@ public class SystemTrayHandler {
     private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
     private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
 
+    private static final String MESSAGE_UNABLE_TO_LOAD_ICON_IMAGE = "Unable to load icon image for system tray.";
+    private static final String OS_CHECK_WINDOWS = "Windows";
+    private static final String OS_CHECK_NAME = "os.name";
+
     // ================================================================================
     // Class variables
     // ================================================================================
 
-    private boolean isWindowHidden = false;
     private boolean shownMinimiseMessage = false;
 
     private Stage primaryStage;
@@ -47,7 +50,7 @@ public class SystemTrayHandler {
 
     protected SystemTray initialiseTray() {
         configureSysTray(primaryStage);
-        createSysTray(primaryStage);
+        createSysTray();
         return sysTray;
     }
 
@@ -57,7 +60,6 @@ public class SystemTrayHandler {
         primaryStage.setOnCloseRequest(windowEvent -> {
             if (isSysTraySupported()) {
                 primaryStage.hide();
-                isWindowHidden = true;
                 if (isWindowsOs()) {
                     // Windows check needed as MacOS doesn't recognise balloon messages
                     showMinimiseMessage();
@@ -68,11 +70,11 @@ public class SystemTrayHandler {
         });
     }
 
-    private void createSysTray(Stage primaryStage) {
+    private void createSysTray() {
         sysTray = SystemTray.getSystemTray();
         Image sysTrayIconImage = createSysTrayIconImage();
-        PopupMenu sysTrayPopup = createSysTrayMenu(primaryStage);
-        sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup, primaryStage);
+        PopupMenu sysTrayPopup = createSysTrayMenu();
+        sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup);
         try {
             sysTray.add(sysTrayIcon);
         } catch (AWTException e) {
@@ -80,7 +82,7 @@ public class SystemTrayHandler {
         }
     }
 
-    private PopupMenu createSysTrayMenu(Stage primaryStage) {
+    private PopupMenu createSysTrayMenu() {
         PopupMenu menu = new PopupMenu();
 
         MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
@@ -100,14 +102,14 @@ public class SystemTrayHandler {
         try {
             img = ImageIO.read(SystemTrayHandler.class.getResource(TRAY_IMAGE_ICON));
         } catch (IOException e) {
-            System.err.println("Unable to load icon image for system tray.");
+            System.err.println(MESSAGE_UNABLE_TO_LOAD_ICON_IMAGE);
         }
         Dimension trayIconSize = sysTray.getTrayIconSize();
         Image trayImage = img.getScaledInstance(trayIconSize.width, trayIconSize.height, Image.SCALE_SMOOTH);
         return trayImage;
     }
 
-    private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu, Stage primaryStage) {
+    private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
         TrayIcon trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, popupMenu);
         trayIcon.setImageAutoSize(true);
         trayIcon.setPopupMenu(popupMenu);
@@ -119,30 +121,31 @@ public class SystemTrayHandler {
     // Utility methods
     // ================================================================================
 
-    private boolean isSysTraySupported() {
-        return SystemTray.isSupported();
-    }
-
-    private boolean isWindowsOs() {
-        return System.getProperty("os.name").startsWith("Windows");
-    }
-
-    private boolean isLeftClick(MouseEvent e) {
-        return e.getButton() == MouseEvent.BUTTON1;
-    }
-
-    private void windowHideOrShow() {
-        if (isWindowHidden) {
+    protected void windowHideOrShow() {
+        if (primaryStage.isShowing()) {
+            if (isWindowsOs()) {
+                showMinimiseMessage();
+            }
+            Platform.runLater(() -> primaryStage.hide());
+        } else {
             Platform.runLater(() -> {
                 primaryStage.show();
                 userInputField.requestFocus();
                 primaryStage.toFront();
             });
-            isWindowHidden = false;
-        } else {
-            Platform.runLater(() -> primaryStage.hide());
-            isWindowHidden = true;
         }
+    }
+
+    private boolean isSysTraySupported() {
+        return SystemTray.isSupported();
+    }
+
+    private boolean isWindowsOs() {
+        return System.getProperty(OS_CHECK_NAME).startsWith(OS_CHECK_WINDOWS);
+    }
+
+    private boolean isLeftClick(MouseEvent e) {
+        return e.getButton() == MouseEvent.BUTTON1;
     }
 
     private void showMinimiseMessage() {
@@ -155,7 +158,7 @@ public class SystemTrayHandler {
     }
 
     private MouseListener createIconClickListener() {
-        MouseListener iconClickListener = new MouseListener() {
+        return new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (isWindowsOs() && isLeftClick(e)) {
@@ -181,7 +184,6 @@ public class SystemTrayHandler {
             public void mouseExited(MouseEvent e) {
             }
         };
-        return iconClickListener;
     }
 
 }

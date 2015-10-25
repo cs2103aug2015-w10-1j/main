@@ -5,21 +5,23 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="mainWindow" fx:id="mainBorderPane" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
-	<bottom>
-		<VBox fx:id="bottom" BorderPane.alignment="CENTER">
-			<children>
-				<TextField fx:id="userInputField" />
-				<Label fx:id="statusLabel" />
-			</children>
-		</VBox>
-	</bottom>
-   <center>
-      <ScrollPane fx:id="top" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="NEVER" BorderPane.alignment="CENTER">
-         <content>
-            <StackPane fx:id="centerScreen">
-      </StackPane>
-         </content>
-      </ScrollPane>
-   </center>
+<BorderPane fx:id="mainBorderPane" styleClass="mainWindow" prefHeight="600.0" prefWidth="500.0"
+            xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+    <bottom>
+        <VBox fx:id="bottom" BorderPane.alignment="CENTER">
+            <children>
+                <TextField fx:id="userInputField"/>
+                <Label fx:id="statusLabel"/>
+            </children>
+        </VBox>
+    </bottom>
+    <center>
+        <ScrollPane fx:id="top" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="NEVER"
+                    BorderPane.alignment="CENTER">
+            <content>
+                <StackPane fx:id="centerScreen">
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
 </BorderPane>
