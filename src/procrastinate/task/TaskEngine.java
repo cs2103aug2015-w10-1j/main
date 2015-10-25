@@ -148,6 +148,10 @@ public class TaskEngine {
         return writeStateToFile();
     }
 
+    public boolean save() {
+        return writeStateToFile();
+    }
+
     public boolean hasPreviousOperation() {
         return previousState != null;
     }

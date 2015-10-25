@@ -54,9 +54,10 @@ public class Logic {
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
 
+    private static final String FEEDBACK_ERROR_FILE_WRITE_FAILURE = "Could not write to file! Your changes will not be saved.";
+
     private static final String PREVIEW_EXIT = "Goodbye!";
 
-    private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
@@ -156,7 +157,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Dream(description));
                     if (!success) {
-                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -172,7 +173,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Deadline(description, date));
                     if (!success) {
-                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -189,7 +190,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Event(description, startDate, endDate));
                     if (!success) {
-                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -230,7 +231,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.edit(oldTask.getId(), newTask);
                     if (!success) {
-                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
                     }
                     updateUiTaskList();
                 }
@@ -263,7 +264,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.delete(task.getId());
                     if (!success) {
-                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
                     }
                     updateUiTaskList();
                 }
@@ -297,7 +298,7 @@ public class Logic {
                         success = taskEngine.undone(task.getId());
                     }
                     if (!success) {
-                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
                     }
                     updateUiTaskList();
                 }
@@ -313,7 +314,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.undo();
                     if (!success) {
-                        logger.log(Level.SEVERE, DEBUG_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
                     }
                     updateUiTaskList();
                 }
@@ -382,6 +383,10 @@ public class Logic {
 
             case EXIT: {
                 if (execute) {
+                    boolean success = taskEngine.save();
+                    if (!success) {
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                    }
                     System.exit(0);
                 }
 
