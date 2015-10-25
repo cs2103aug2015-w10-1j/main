@@ -75,6 +75,10 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
             try {
                 startDate = dateFormat.parse(jObj.get("startDate").getAsString());
                 endDate = dateFormat.parse(jObj.get("endDate").getAsString());
+
+                if (endDate.compareTo(startDate) < 0) { // encountered invalid range
+                    endDate = startDate; // use start date as both start and end date
+                }
             } catch (Exception e) {
                 return new Dream(description, done, id);
             }
