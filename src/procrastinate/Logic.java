@@ -60,8 +60,10 @@ public class Logic {
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
+    private static final String FEEDBACK_USE_DIFFERENT_PATH = "Please try setting a different save directory and try again";
 
-    private static final String FEEDBACK_ERROR_FILE_WRITE = "Could not write to file! Your changes will not be saved.";
+    private static final String FEEDBACK_ERROR_SAVE = "Could not write to file! Your changes were not saved.";
+    private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not write to file! Your changes will NOT be saved! Continue?";
     private static final String FEEDBACK_ERROR_SET_PATH = "Could set path to ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
@@ -166,7 +168,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Dream(description));
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -182,7 +184,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Deadline(description, date));
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -203,7 +205,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Event(description, startDate, endDate));
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -247,7 +249,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.edit(oldTask.getId(), newTask);
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
                     updateUiTaskList();
                 }
@@ -280,7 +282,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.delete(task.getId());
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
                     updateUiTaskList();
                 }
@@ -314,7 +316,7 @@ public class Logic {
                         success = taskEngine.undone(task.getId());
                     }
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
                     updateUiTaskList();
                 }
@@ -330,7 +332,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.undo();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
                     updateUiTaskList();
                 }
@@ -448,7 +450,10 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.save();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
+                        boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
+                        if (!exitAnyway) {
+                            return FEEDBACK_USE_DIFFERENT_PATH;
+                        }
                     }
                     System.exit(0);
                 }
