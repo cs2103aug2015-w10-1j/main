@@ -18,7 +18,7 @@ public class SystemTrayHandler {
     // ================================================================================
 
     private static final String TRAY_ICON_TITLE = "Procrastinate";
-    private static final String TRAY_IMAGE_ICON = "icon.png";
+    private static final String TRAY_IMAGE_ICON = "images/icon.png";
     private static final String TRAY_MENU_SHOW_OR_HIDE = "Show/Hide";
     private static final String TRAY_MENU_EXIT = "Exit";
     private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";

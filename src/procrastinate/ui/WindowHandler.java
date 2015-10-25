@@ -25,7 +25,7 @@ public class WindowHandler {
 
     private static final String LOCATION_CSS_STYLESHEET = "views/procrastinate.css";
     private static final String LOCATION_TITLE_BAR_FXML = "views/TitleBar.fxml";
-    private static final String LOCATION_WINDOW_ICON = "icon.png";
+    private static final String LOCATION_WINDOW_ICON = "images/icon.png";
 
     private static final String WINDOW_TITLE = "Procrastinate";
     private static final double WINDOW_WIDTH = 500;

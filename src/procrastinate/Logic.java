@@ -517,8 +517,6 @@ public class Logic {
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
             }
-
-
         };
     }
 

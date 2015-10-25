@@ -11,7 +11,7 @@ public class HelpScreen extends CenterScreen {
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_SPLASH_IMAGE = "icon.png";
+    private static final String LOCATION_SPLASH_IMAGE = "images/icon.png";
 
     private static final String MESSAGE_WELCOME = "What would you like to Procrastinate today?";
 
