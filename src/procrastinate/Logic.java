@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.time.DateUtils;
+
 public class Logic {
 
     private static final Logger logger = Logger.getLogger(Logic.class.getName());
@@ -27,7 +29,8 @@ public class Logic {
         SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SEARCH_RESULTS
     }
 
-    private static DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+    private static DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+    private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 
     // ================================================================================
     // Message strings
@@ -47,7 +50,9 @@ public class Logic {
     private static final String FEEDBACK_SEARCH = "Searching for tasks";
     private static final String FEEDBACK_SEARCH_CONTAINING = " containing '%1$s'";
     private static final String FEEDBACK_SEARCH_DUE = " due %1$s";
+    private static final String FEEDBACK_SEARCH_FROM_TO = " from %1$s to %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
+    private static final String FEEDBACK_INVALID_FROM_TO = "Invalid date range: %2$s is before %1$s";
     private static final String FEEDBACK_UNDO = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
     private static final String FEEDBACK_SET_PATH = "Set save directory to ";
@@ -76,6 +81,8 @@ public class Logic {
     private Command lastPreviewedCommand = null;
     private ViewType currentView = ViewType.SHOW_OUTSTANDING; // default view
     private String lastSearchTerm = null;
+    private Date lastSearchStartDate = null;
+    private Date lastSearchEndDate = null;
 
     private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
@@ -181,13 +188,17 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_ADD_DEADLINE, description, formatDate(date));
+                return String.format(FEEDBACK_ADD_DEADLINE, description, formatDateTime(date));
             }
 
             case ADD_EVENT: {
                 String description = command.getDescription();
                 Date startDate = command.getStartDate();
                 Date endDate = command.getEndDate();
+
+                if (endDate.compareTo(startDate) < 0) {
+                    return String.format(FEEDBACK_INVALID_FROM_TO, formatDateTime(startDate), formatDateTime(endDate));
+                }
 
                 if (execute) {
                     boolean success = taskEngine.add(new Event(description, startDate, endDate));
@@ -198,7 +209,7 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_ADD_EVENT, description, formatDate(startDate), formatDate(endDate));
+                return String.format(FEEDBACK_ADD_EVENT, description, formatDateTime(startDate), formatDateTime(endDate));
             }
 
             case EDIT: {
@@ -221,6 +232,9 @@ public class Logic {
                 if (newDate != null) {
                     newTask = new Deadline(oldDescription, newDate);
                 } else if (newStartDate != null) {
+                    if (newEndDate.compareTo(newStartDate) < 0) {
+                        return String.format(FEEDBACK_INVALID_FROM_TO, formatDateTime(newStartDate), formatDateTime(newEndDate));
+                    }
                     newTask = new Event(oldDescription, newStartDate, newEndDate);
                 } else {
                     newTask = Task.copy(oldTask);
@@ -243,11 +257,11 @@ public class Logic {
                         return String.format(FEEDBACK_EDIT_DREAM, lineNumber, newTask.getDescription());
                     case DEADLINE:
                         return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber, newTask.getDescription(),
-                                formatDate(((Deadline) newTask).getDate()));
+                                formatDateTime(((Deadline) newTask).getDate()));
                     case EVENT:
                         return String.format(FEEDBACK_EDIT_EVENT, lineNumber, newTask.getDescription(),
-                                formatDate(((Event) newTask).getStartDate()),
-                                formatDate(((Event) newTask).getEndDate()));
+                                formatDateTime(((Event) newTask).getStartDate()),
+                                formatDateTime(((Event) newTask).getEndDate()));
                 }
 
             }
@@ -327,20 +341,45 @@ public class Logic {
             case SEARCH: {
                 String description = command.getDescription();
                 Date date = command.getDate();
+                Date startDate = command.getStartDate();
+                Date endDate = command.getEndDate();
+
+                if (execute) {
+                    lastSearchTerm = null;
+                    lastSearchStartDate = null;
+                    lastSearchEndDate = null;
+                }
 
                 String feedback = FEEDBACK_SEARCH;
                 if (description != null) {
                     feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
                     if (execute) {
                         lastSearchTerm = description;
-                        currentView = ViewType.SHOW_SEARCH_RESULTS;
-                        updateUiTaskList();
                     }
                 }
                 if (date != null) {
-                    feedback += String.format(FEEDBACK_SEARCH_DUE, date);
-                    //TODO: implement searching by date
+                    feedback += String.format(FEEDBACK_SEARCH_DUE, formatDate(date));
+                    if (execute) {
+                        lastSearchStartDate = date;
+                        lastSearchEndDate = DateUtils.addDays(date, 3);
+                    }
+                } else if (startDate != null) {
+                    assert(endDate != null);
+                    if (endDate.compareTo(startDate) < 0) {
+                        return String.format(FEEDBACK_INVALID_FROM_TO, formatDate(startDate), formatDate(endDate));
+                    }
+                    feedback += String.format(FEEDBACK_SEARCH_FROM_TO, formatDate(startDate), formatDate(endDate));
+                    if (execute) {
+                        lastSearchStartDate = startDate;
+                        lastSearchEndDate = endDate;
+                    }
                 }
+
+                if (execute) {
+                    currentView = ViewType.SHOW_SEARCH_RESULTS;
+                    updateUiTaskList();
+                }
+
                 return feedback;
             }
 
@@ -453,6 +492,10 @@ public class Logic {
         return taskEngine.getCurrentTaskList();
     }
 
+    private static String formatDateTime(Date date) {
+        return dateTimeFormat.format(date);
+    }
+
     private static String formatDate(Date date) {
         return dateFormat.format(date);
     }
@@ -473,8 +516,7 @@ public class Logic {
                 updateUiTaskList(taskEngine.getAllTasks());
                 break;
             case SHOW_SEARCH_RESULTS:
-                assert(lastSearchTerm != null);
-                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm));
+                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate));
                 break;
         }
     }
@@ -517,6 +559,8 @@ public class Logic {
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
             }
+
+
         };
     }
 

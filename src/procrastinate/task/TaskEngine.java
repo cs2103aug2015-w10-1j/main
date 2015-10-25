@@ -6,6 +6,7 @@ import procrastinate.test.FileHandlerStub;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -160,10 +161,19 @@ public class TaskEngine {
         return previousState != null;
     }
 
-    public List<Task> getTasksContaining(String description) {
-        List<Task> results = getTasks().stream()
-                .filter(task -> task.contains(description))
-                .collect(Collectors.toList());
+    public List<Task> getTasksContaining(String description, Date startDate, Date endDate) {
+        assert(description != null || startDate != null && endDate != null);
+        List<Task> results = getTasks();
+        if (description != null) {
+            results = results.stream()
+                    .filter(task -> task.contains(description))
+                    .collect(Collectors.toList());
+        }
+        if (startDate != null) {
+            results = results.stream()
+                    .filter(task -> task.isWithin(startDate, endDate))
+                    .collect(Collectors.toList());
+        }
         currentView = new TaskState(results);
         return currentView.getTasks();
     }
