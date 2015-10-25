@@ -1,6 +1,7 @@
 package procrastinate;
 
 import java.io.*;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,14 +43,12 @@ public class FileHandler {
     // Instance variables
     // ================================================================================
 
-    private final String filename = DEFAULT_FILENAME;
-    private final String fileExtension = DEFAULT_FILE_EXTENSION;
-    private final String fullFilename = filename + fileExtension;
+    private String fullFilename = DEFAULT_FILENAME + DEFAULT_FILE_EXTENSION;
     private File file;
     private BufferedWriter bw = null;
 
     public FileHandler() throws IOException {
-        this("");
+        this(DEFAULT_FILENAME + DEFAULT_FILE_EXTENSION);
     }
 
     public FileHandler(boolean isUnderTest) {
@@ -67,33 +66,53 @@ public class FileHandler {
      * @author Gerald
      */
     public FileHandler(String path) throws IOException {
-        Path pathOnly = null;
-        Path pathWithFileName = null;
-
-        if (hasFileName(path)) {
-            pathWithFileName = Paths.get(path).normalize();
-            pathOnly = pathWithFileName.toAbsolutePath().getParent();
-        } else {
-            pathWithFileName = Paths.get(path + fullFilename);
-            pathOnly = Paths.get(path);
-        }
-
-        assert pathOnly != null;
-        assert pathWithFileName != null;
-
-        // if file does not exists, directory might not exists too
-        if (Files.notExists(pathWithFileName)) {
-            if (Files.notExists(pathOnly)) {
-                Files.createDirectories(pathOnly);
-            }
-            file = Files.createFile(pathWithFileName).toFile();
-            makeEmptyState();
-        } else {
-            file = pathWithFileName.toFile();
-        }
-
+        makeFile(Paths.get(path));
 
         logger.log(Level.INFO, DEBUG_FILE_INIT + file.getCanonicalPath());
+    }
+
+    /**
+     *  Create a file tree based on target. If file and directory do not exists then they are created
+     *  other just link to the existing file objects
+     *
+     *  @throws FileAlreadyExistsException when target exists to prevent overwriting existing file
+     *
+     */
+    private void makeFile(Path target) throws IOException {
+        if (Files.notExists(target)) {
+            this.file = makeNewFile(target);
+            makeEmptyState();
+        } else {
+            this.file = linkToExistingFile(target);
+        }
+
+        assert this.file != null;
+    }
+
+
+    private File makeNewFile(Path target) throws IOException {
+        File file = null;
+
+        if (hasFileName(target)) {
+            Files.createDirectories(target.toAbsolutePath().getParent().normalize());
+            file = Files.createFile(target).toFile();
+        } else {
+            Files.createDirectories(target.toAbsolutePath());
+            file = Files.createFile(target.resolve(Paths.get(fullFilename))).toFile();
+        }
+
+        return file;
+    }
+
+    private File linkToExistingFile(Path target) throws IOException {
+        File file = null;
+
+        if (hasFileName(target)) {
+            file = target.toFile();
+        } else {
+            file = target.resolve(Paths.get(fullFilename)).toFile();
+        }
+        return file;
     }
 
     // ================================================================================
@@ -195,8 +214,12 @@ public class FileHandler {
 
     // uses file extension to check for filename within a path
     private boolean hasFileName(String directoryPath) {
-        String pattern = ".*\\" + fileExtension;
+        String pattern = ".*\\" + DEFAULT_FILE_EXTENSION;
         return directoryPath.matches(pattern);
+    }
+
+    private boolean hasFileName(Path directoryPath) {
+        return hasFileName(directoryPath.toString());
     }
 
 }

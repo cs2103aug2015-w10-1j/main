@@ -5,7 +5,12 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ FileHandlerTest.class, LogicTest.class, ParserTest.class, UITest.class })
+@SuiteClasses({
+    FileHandlerTest.class,
+    LogicTest.class,
+    ParserTest.class,
+    UITest.class
+    })
 public class AllTests {
 
 }
