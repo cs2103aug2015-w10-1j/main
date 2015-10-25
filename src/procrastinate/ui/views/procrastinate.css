@@ -73,7 +73,8 @@
  * ================================================================
  */
 .helpScreen #container {
-    -fx-alignment: center;
+    -fx-alignment: top-center;
+    -fx-padding: 100 0 0 0;
     -fx-spacing: 10;
 }
 
