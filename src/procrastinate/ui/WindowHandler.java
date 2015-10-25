@@ -82,6 +82,10 @@ public class WindowHandler {
         primaryStage.setScene(primaryScene);
     }
 
+    /**
+     * Removes all window decorations, replacing a custom title bar and allow dragging of window
+     */
+    @SuppressWarnings("unused")
     private void overwriteDecorations() {
         if (systemTrayHandler != null) {
             createTitleBar();
@@ -89,9 +93,8 @@ public class WindowHandler {
         }
 
     }
-
     /**
-     * Removes all window decorations and allow dragging of window
+     * Removes all window decorations sets mouse events to enable dragging of window
      */
     @SuppressWarnings("unused")
     private void setStyleAndMouseEvents() {

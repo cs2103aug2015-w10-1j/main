@@ -8,9 +8,9 @@
       <Label fx:id="lineNum" text="Line Number" BorderPane.alignment="TOP_LEFT" />
    </left>
    <center>
-      <Label fx:id="description" text="Task Description" wrapText="true" BorderPane.alignment="CENTER" />
+      <Label fx:id="description" text="Task Description" wrapText="true" BorderPane.alignment="TOP_LEFT" />
    </center>
    <right>
-      <Label fx:id="time" text="DateTime" BorderPane.alignment="TOP_LEFT" />
+      <Label fx:id="time" prefWidth="176.5" text="DateTime" wrapText="true" BorderPane.alignment="TOP_LEFT" />
    </right>
 </BorderPane>
