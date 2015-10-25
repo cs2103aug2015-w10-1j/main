@@ -370,7 +370,8 @@ public class Parser {
         if (endIndex == 0) {
             return null;
         } else {
-            return userCommand.substring(0, endIndex - 1);
+            return userCommand.substring(0, endIndex);
+            // NOT endIndex - 1; we need the trailing space! See long comment above
         }
     }
 

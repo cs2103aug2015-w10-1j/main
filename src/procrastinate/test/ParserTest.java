@@ -62,6 +62,14 @@ public class ParserTest {
     }
 
     @Test
+    public void addDeadlineTest() {
+        /* Add deadline with "do" as a keyword with only dates as argument */
+        Command resultCommand = Parser.parse("do due tomorrow");
+        assertEquals(CommandType.ADD_DEADLINE, resultCommand.getType());
+        assertEquals("do", resultCommand.getDescription());
+    }
+
+    @Test
     public void editTest() {
         /* Edit in a standard format with no dates*/
         Command resultCommand = Parser.parse("edit 1 write user guide");
