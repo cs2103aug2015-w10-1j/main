@@ -152,6 +152,10 @@ public class TaskEngine {
         return writeStateToFile();
     }
 
+    public boolean set(String path) {
+        return fileHandler.setPath(path);
+    }
+
     public boolean hasPreviousOperation() {
         return previousState != null;
     }

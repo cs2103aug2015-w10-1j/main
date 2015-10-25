@@ -11,6 +11,7 @@ import procrastinate.task.*;
 import procrastinate.test.UIStub;
 import procrastinate.ui.UI;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
@@ -49,15 +50,16 @@ public class Logic {
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
     private static final String FEEDBACK_UNDO = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
+    private static final String FEEDBACK_SET_PATH = "Set save directory to ";
     private static final String FEEDBACK_HELP = "Showing help screen";
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
 
-    private static final String FEEDBACK_ERROR_FILE_WRITE_FAILURE = "Could not write to file! Your changes will not be saved.";
+    private static final String FEEDBACK_ERROR_FILE_WRITE = "Could not write to file! Your changes will not be saved.";
+    private static final String FEEDBACK_ERROR_SET_PATH = "Could set path to ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
-
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
@@ -157,7 +159,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Dream(description));
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -173,7 +175,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Deadline(description, date));
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -190,7 +192,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.add(new Event(description, startDate, endDate));
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
@@ -231,7 +233,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.edit(oldTask.getId(), newTask);
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     updateUiTaskList();
                 }
@@ -264,7 +266,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.delete(task.getId());
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     updateUiTaskList();
                 }
@@ -298,7 +300,7 @@ public class Logic {
                         success = taskEngine.undone(task.getId());
                     }
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     updateUiTaskList();
                 }
@@ -314,7 +316,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.undo();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     updateUiTaskList();
                 }
@@ -340,6 +342,28 @@ public class Logic {
                     //TODO: implement searching by date
                 }
                 return feedback;
+            }
+
+            case SET_PATH: {
+                String path = command.getDescription();
+                String parsedPath = null;
+                try {
+                    parsedPath = (new File(path)).getCanonicalPath();
+                } catch (IOException e) {
+                    parsedPath = (new File(path)).getAbsolutePath();
+                }
+                if (!parsedPath.endsWith(File.separator)) {
+                    parsedPath += File.separator;
+                }
+
+                if (execute) {
+                    boolean success = taskEngine.set(path);
+                    if (!success) {
+                        ui.createErrorDialog(FEEDBACK_ERROR_SET_PATH + parsedPath);
+                    }
+                }
+
+                return FEEDBACK_SET_PATH + parsedPath;
             }
 
             case SHOW_OUTSTANDING: {
@@ -385,7 +409,7 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.save();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE_FAILURE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_FILE_WRITE);
                     }
                     System.exit(0);
                 }

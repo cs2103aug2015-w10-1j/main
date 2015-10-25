@@ -121,6 +121,34 @@ public class FileHandler {
         return loadTaskState(file);
     }
 
+    public boolean setPath(String path) {
+        return true;
+    }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
+    private void jsonToFile(String json) throws IOException {
+        file.createNewFile();
+        bw = new BufferedWriter(new FileWriter(file));
+        bw.write(json);
+        bw.close();
+        logger.log(Level.INFO, DEBUG_FILE_WRITE_SUCCESS + json);
+    }
+
+    private String jsonify(TaskState taskState) {
+    	Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+    	        .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
+    	String json = gson.toJson(taskState);
+
+        return json;
+    }
+
+    // ================================================================================
+    // FileHandler private methods
+    // ================================================================================
+
     /**
      * Loads TaskState from json formatted file
      *
@@ -153,30 +181,6 @@ public class FileHandler {
             }
         }
     };
-
-    // ================================================================================
-    // Utility methods
-    // ================================================================================
-
-    private void jsonToFile(String json) throws IOException {
-        file.createNewFile();
-        bw = new BufferedWriter(new FileWriter(file));
-        bw.write(json);
-        bw.close();
-        logger.log(Level.INFO, DEBUG_FILE_WRITE_SUCCESS + json);
-    }
-
-    private String jsonify(TaskState taskState) {
-    	Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-    	        .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
-    	String json = gson.toJson(taskState);
-
-        return json;
-    }
-
-    // ================================================================================
-    // FileHandler methods
-    // ================================================================================
 
     /**
      * Makes a empty state when a file is first initialised so that the json
