@@ -4,10 +4,13 @@ import com.joestelmach.natty.DateGroup;
 
 import procrastinate.Command.CommandType;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.lang.time.DateUtils;
 
 public class Parser {
 
@@ -225,9 +228,11 @@ public class Parser {
 
                 Command command = new Command(CommandType.SEARCH);
                 if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
-                    command.addDate(getStartDate(dateArray));
+                    command.addDate(DateUtils.truncate(getStartDate(dateArray), Calendar.DATE));
                 } else if (commandInputType.equals(CommandStringType.EVENT_DATE)) {
-                    command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+                    Date startDate = DateUtils.truncate(getStartDate(dateArray), Calendar.DATE);
+                    Date endDate = DateUtils.truncate(getEndDate(dateArray), Calendar.DATE);
+                    command.addStartDate(startDate).addEndDate(endDate);
                 }
 
                 if (!searchDescription.isEmpty()) {
