@@ -43,6 +43,8 @@ public class DialogPopupHandler {
         dialog.setTitle(MESSAGE_TITLE);
         dialog.setHeaderText(MESSAGE_HEADER);
         dialog.setContentText(message);
+
+        dialog.showAndWait();
     }
 
     /**

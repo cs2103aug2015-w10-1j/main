@@ -96,7 +96,6 @@ public class WindowHandler {
     /**
      * Removes all window decorations sets mouse events to enable dragging of window
      */
-    @SuppressWarnings("unused")
     private void setStyleAndMouseEvents() {
         primaryStage.initStyle(StageStyle.TRANSPARENT);
 
@@ -132,7 +131,6 @@ public class WindowHandler {
     /**
      * Creates a title bar for minimising and closing of Procrastinate.
      */
-    @SuppressWarnings("unused")
     private void createTitleBar() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TITLE_BAR_FXML));
         try {
