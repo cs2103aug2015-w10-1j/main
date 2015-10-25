@@ -5,12 +5,13 @@ import procrastinate.task.Task.TaskType;
 
 import java.lang.reflect.Type;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
 public class TaskDeserializer implements JsonDeserializer<Task> {
+
+    private static DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.getDefault());
 
 	/**
 	 * Task is abstract class so gson is unable to construct a list of Task
@@ -21,14 +22,37 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 	public Task deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 			throws JsonParseException {
 
-		JsonObject jObj = json.getAsJsonObject();
+	    JsonObject jObj = json.getAsJsonObject();
 
-		// type as in the variable, type in Task class
-		String type = jObj.get("type").getAsString();
-		String description = jObj.get("description").getAsString();
-		boolean done = jObj.get("done").getAsBoolean();
-		UUID id = UUID.fromString(jObj.get("id").getAsString());
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.getDefault());
+	    String type = null;
+	    String description = null;
+	    boolean done = false;
+	    UUID id = null;
+
+        try {
+            id = UUID.fromString(jObj.get("id").getAsString());
+        } catch (Exception e) {
+            id = UUID.randomUUID(); // generate new UUID instead of crashing
+        }
+
+        try {
+            done = jObj.get("done").getAsBoolean();
+        } catch (Exception e) {
+            done = false; // assume not done instead of crashing
+        }
+
+        try {
+            description = jObj.get("description").getAsString();
+        } catch (Exception e) {
+            description = ""; // empty description instead of crashing
+        }
+
+	    try {
+	        // type as in the variable, type in Task class
+	        type = jObj.get("type").getAsString();
+	    } catch (Exception e) {
+	        type = TaskType.DREAM.toString(); // assume Dream instead of crashing
+	    }
 
 		if (type.equals(TaskType.DREAM.toString())) {
 			return new Dream(description, done, id);
@@ -38,8 +62,7 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 
             try {
                 date = dateFormat.parse(jObj.get("date").getAsString());
-            } catch (ParseException e) {
-                // TODO Show warning that the file has been modified to an unrecognisable date format
+            } catch (Exception e) {
                 return new Dream(description, done, id);
             }
 
@@ -52,15 +75,15 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
             try {
                 startDate = dateFormat.parse(jObj.get("startDate").getAsString());
                 endDate = dateFormat.parse(jObj.get("endDate").getAsString());
-            } catch (ParseException e) {
-                // TODO Show warning that the file has been modified to an unrecognisable date format
+            } catch (Exception e) {
                 return new Dream(description, done, id);
             }
 
             return new Event(description, startDate, endDate, done, id);
+
+		} else {
+		    return new Dream(description, done, id); // if unrecognised, default to dream
 		}
-		// TODO Show warning that the file has been modified to an unrecognisable format
-		// skip adding this task instead of crashing
-		return null;
+
 	}
 }

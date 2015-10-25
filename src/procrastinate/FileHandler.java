@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import procrastinate.task.Task;
 import procrastinate.task.TaskDeserializer;
@@ -30,6 +31,7 @@ public class FileHandler {
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
     private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded %1$s task(s) from file";
     private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file";
+    private static final String DEBUG_FILE_PARSE_FAILURE = "Unrecognisable file format";
 
     private static final String DEFAULT_FILENAME = "storage";
     private static final String DEFAULT_FILE_EXTENSION = ".json";
@@ -138,6 +140,9 @@ public class FileHandler {
         } catch (FileNotFoundException e) {
             logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);
             throw e;
+        } catch (JsonParseException e) {
+            logger.log(Level.WARNING, DEBUG_FILE_PARSE_FAILURE);
+            return new TaskState();
         } finally {
             if (br != null) {
                 try {
