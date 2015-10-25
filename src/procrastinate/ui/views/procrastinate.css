@@ -94,10 +94,14 @@
  */
 .mainScreen {
     -fx-background-color: white;
+    -fx-padding: 10;
+    -fx-spacing: 5;
 }
 
-.mainScreen #mainVBox {
-    -fx-spacing: 5;
+#mainVBox {
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: stretch stretch;
 }
 
 /*
