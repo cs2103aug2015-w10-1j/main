@@ -1,11 +1,14 @@
 package procrastinate.ui;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 
 public class DialogPopupHandler {
 
@@ -74,5 +77,25 @@ public class DialogPopupHandler {
 
         dialog.getDialogPane().setExpandableContent(textArea);
         dialog.showAndWait();
+    }
+
+    protected boolean createErrorDialogPopupWithConfirmation(String message) {
+        Alert dialog = new Alert(Alert.AlertType.ERROR);
+        dialog.initOwner(primaryStage);
+
+        dialog.setTitle(MESSAGE_TITLE);
+        dialog.setHeaderText(MESSAGE_HEADER);
+        dialog.setContentText(message);
+
+        ButtonType okBtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getButtonTypes().setAll(okBtn, cancelBtn);
+
+        Optional<ButtonType> choice = dialog.showAndWait();
+        if (choice.get().equals(okBtn)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

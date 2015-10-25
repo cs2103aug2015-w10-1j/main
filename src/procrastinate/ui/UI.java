@@ -185,7 +185,7 @@ public class UI {
 
     /**
      * Used by Logic to create an Error Dialog with a given message in the popup body
-     * @param message
+     * @param message to be shown in popup body
      */
     public void createErrorDialog(String message) {
         dialogPopupHandler.createErrorDialogPopup(message);
@@ -193,9 +193,19 @@ public class UI {
 
     /**
      * Used by Logic to create an Error Dialog that displays the Exception message and its stack trace
-     * @param e
+     * @param e Exception whose trace should be shown
      */
     public void createErrorDialogWithTrace(Exception e) {
         dialogPopupHandler.createErrorDialogPopupWithTrace(e);
+    }
+
+    /**
+     * Used by Logic to create an Error Dialog with a given message and
+     * choice for confirmation: 'OK' or 'Cancel'
+     * @param message to be shown in popup body
+     * @return true if 'OK', false if 'Cancel'
+     */
+    public boolean createErrorDialogWithConfirmation(String message) {
+        return dialogPopupHandler.createErrorDialogPopupWithConfirmation(message);
     }
 }
