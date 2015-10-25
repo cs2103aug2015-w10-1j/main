@@ -23,7 +23,7 @@ public class Parser {
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
     private static final String MESSAGE_INVALID_EDIT_NO_NEW_DATA = "Please specify the new description or date(s)";
-    private static final String MESSAGE_INVALID_NO_PATH = "Please specify the path of your file";
+    private static final String MESSAGE_INVALID_NO_PATH = "Please specify the save directory path";
 
     private static final String COMMAND_ADD = "add";
     private static final String COMMAND_EDIT = "edit";
@@ -32,6 +32,7 @@ public class Parser {
     private static final String COMMAND_UNDO = "undo";
     private static final String COMMAND_SEARCH = "search";
     private static final String COMMAND_SHOW = "show";
+    private static final String COMMAND_SET_PATH = "set";
     private static final String COMMAND_HELP = "help";
     private static final String COMMAND_EXIT = "procrastinate";
 
@@ -41,7 +42,6 @@ public class Parser {
     private static final String COMMAND_SHORT_UNDO = "un";
     private static final String COMMAND_SHORT_SEARCH = "se";
     private static final String COMMAND_SHORT_SHOW = "sh";
-    private static final String COMMAND_SET_PATH = "set";
     private static final String COMMAND_SHORT_EXIT = "exit";
 
     private static final String KEYWORD_DEADLINE = "due";
