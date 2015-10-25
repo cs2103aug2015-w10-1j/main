@@ -1,5 +1,6 @@
 package procrastinate.task;
 
+import java.util.Date;
 import java.util.UUID;
 
 public abstract class Task implements Comparable<Task> {
@@ -49,6 +50,8 @@ public abstract class Task implements Comparable<Task> {
 	public boolean contains(String term) {
 	    return description.contains(term);
 	}
+
+	public abstract boolean isWithin(Date startDate, Date endDate);
 
 	// ================================================================================
     // Getter methods

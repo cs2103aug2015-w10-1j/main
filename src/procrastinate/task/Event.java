@@ -10,12 +10,14 @@ public class Event extends Task {
 
 	public Event(String description, Date startDate, Date endDate) {
 		super(TaskType.EVENT, description);
+        assert(endDate.compareTo(startDate) >= 0);
 		this.startDate = startDate;
 		this.endDate = endDate;
 	}
 
 	protected Event(String description, Date startDate, Date endDate, boolean done, UUID id) {
 		super(TaskType.EVENT, description, done, id);
+        assert(endDate.compareTo(startDate) >= 0);
 		this.startDate = startDate;
 		this.endDate = endDate;
 	}
@@ -27,6 +29,13 @@ public class Event extends Task {
 	public Date getEndDate() {
 		return endDate;
 	}
+
+    @Override
+    public boolean isWithin(Date startDate, Date endDate) {
+        assert (endDate.compareTo(startDate) >= 0);
+        return this.startDate.compareTo(startDate) >= 0 && this.startDate.compareTo(endDate) <= 0
+                || this.endDate.compareTo(startDate) >= 0 && this.endDate.compareTo(endDate) <= 0;
+    }
 
 	@Override
     public int compareTo(Task other) {

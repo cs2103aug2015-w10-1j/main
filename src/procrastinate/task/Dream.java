@@ -1,5 +1,6 @@
 package procrastinate.task;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class Dream extends Task {
@@ -11,6 +12,11 @@ public class Dream extends Task {
 	protected Dream(String description, boolean done, UUID id) {
 		super(TaskType.DREAM, description, done, id);
 	}
+
+    @Override
+    public boolean isWithin(Date startDate, Date endDate) {
+        return false;
+    }
 
     @Override
     public int compareTo(Task other) {
