@@ -31,9 +31,6 @@ public class Logic {
         SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SEARCH_RESULTS
     }
 
-    private static DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-    private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-
     // ================================================================================
     // Message strings
     // ================================================================================
@@ -63,11 +60,11 @@ public class Logic {
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
-    private static final String FEEDBACK_USE_DIFFERENT_PATH = "Please try setting a different save directory and try again";
+    private static final String FEEDBACK_TRY_AGAIN = "Please try setting a different save directory and try again";
 
     private static final String FEEDBACK_ERROR_SAVE = "Could not save changes to file!";
     private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not save changes! Your data will be lost! Continue?";
-    private static final String FEEDBACK_ERROR_SET_PATH = "Could set path to ";
+    private static final String FEEDBACK_ERROR_SET_PATH = "Could not set path to ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
@@ -84,7 +81,7 @@ public class Logic {
     private UI ui;
 
     private Command lastPreviewedCommand = null;
-    private ViewType currentView = ViewType.SHOW_OUTSTANDING; // default view
+    private ViewType currentView = ViewType.SHOW_OUTSTANDING; // initial view
     private String lastSearchTerm = null;
     private Date lastSearchStartDate = null;
     private Date lastSearchEndDate = null;
@@ -479,7 +476,7 @@ public class Logic {
                     if (!success) {
                         boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
                         if (!exitAnyway) {
-                            return FEEDBACK_USE_DIFFERENT_PATH;
+                            return FEEDBACK_TRY_AGAIN;
                         }
                     }
                     System.exit(0);
@@ -525,11 +522,11 @@ public class Logic {
     }
 
     private static String formatDateTime(Date date) {
-        return dateTimeFormat.format(date);
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date);
     }
 
     private static String formatDate(Date date) {
-        return dateFormat.format(date);
+        return DateFormat.getDateInstance(DateFormat.SHORT).format(date);
     }
 
     // ================================================================================
@@ -591,8 +588,6 @@ public class Logic {
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
             }
-
-
         };
     }
 

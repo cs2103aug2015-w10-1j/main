@@ -92,7 +92,7 @@ public class MainScreen extends CenterScreen {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
     private SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-    private Date today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));    // To get today's Date at 0000hrs
+    private Date today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday())); // To get today's Date at 0000hrs
     private Date endOfWeek = getEndOfWeekDate(today);
 
     private boolean isInitialise = true;
