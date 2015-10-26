@@ -34,6 +34,7 @@ public class MainScreen extends CenterScreen {
     private static final String CATEGORY_THIS_WEEK = "This Week";
     private static final String CATEGORY_FUTURE = "Future";
     private static final String CATEGORY_DREAMS = "Dreams";
+    private static final String CATEGORY_DONE = "Done";
 
     private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
 
@@ -64,6 +65,7 @@ public class MainScreen extends CenterScreen {
     private Node thisWeekNode;
     private Node futureNode;
     private Node dreamsNode;
+    private Node doneNode;
     private ArrayList<Node> nodeList = new ArrayList<>();
 
     // Used for determining insertion order when adding nodes back onto screen.
@@ -77,6 +79,7 @@ public class MainScreen extends CenterScreen {
     private VBox thisWeekTaskList;
     private VBox futureTaskList;
     private VBox dreamsTaskList;
+    private VBox doneTaskList;
 
     private IntegerProperty taskCount = new SimpleIntegerProperty(1);
     private StringProperty taskCountFormatted = new SimpleStringProperty();
@@ -153,7 +156,11 @@ public class MainScreen extends CenterScreen {
 
                 case DREAM: {
                     TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
-                    dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                    if (task.isDone()) {
+                        doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                    } else {
+                        dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                    }
                     break;
                 }
 
@@ -179,6 +186,7 @@ public class MainScreen extends CenterScreen {
             isInitialise = false;
         } else {
             SequentialTransition sequentialTransition = new SequentialTransition();
+            // Update the 4 usual categories onto screen
             for (Node node : nodeList) {
                 // Remove empty nodes if it is on screen, else add non-empty nodes back into screen.
                 if (((VBox) node.lookup(SELECTOR_CATEGORY_VBOX)).getChildren().isEmpty()) {
@@ -189,10 +197,25 @@ public class MainScreen extends CenterScreen {
                 } else {
                     if (!mainVBox.getChildren().contains(node)) {
                         FadeTransition fadeIn = generateFadeInTransition(node);
+                        addNodeBackToScreen(node);
                         sequentialTransition.getChildren().add(fadeIn);
                     }
                 }
             }
+            // 'Done' category requires special handling since it is not always shown, only when its list is full
+            if (doneTaskList.getChildren().isEmpty()) {
+                if (mainVBox.getChildren().contains(doneNode)) {
+                    FadeTransition fadeOut = generateFadeOutTransition(doneNode);
+                    sequentialTransition.getChildren().add(fadeOut);
+                }
+            } else {
+                if (!mainVBox.getChildren().contains(doneNode)) {
+                    FadeTransition fadeIn = generateFadeInTransition(doneNode);
+                    mainVBox.getChildren().add(doneNode);
+                    sequentialTransition.getChildren().add(fadeIn);
+                }
+            }
+
             sequentialTransition.setOnFinished(checkEmpty -> {
                 checkIfMainVBoxIsEmpty();
             });
@@ -210,7 +233,9 @@ public class MainScreen extends CenterScreen {
                             + TIME_SEPARATOR
                             + timeFormat.format(date);
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                if (date.before(currentDate)) {
+                if (task.isDone()) {
+                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
                     thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -237,7 +262,9 @@ public class MainScreen extends CenterScreen {
                                 + dateFormatWithYear.format(endDate);
                 }
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                if (date.before(currentDate)) {
+                if (task.isDone()) {
+                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
                     thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -261,7 +288,9 @@ public class MainScreen extends CenterScreen {
             case DEADLINE: {
                 dateString = dateFormatWithYear.format(date);
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                if (date.before(today)) {
+                if (task.isDone()) {
+                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (date.before(today)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -275,7 +304,9 @@ public class MainScreen extends CenterScreen {
                             + EVENT_DATE_SEPARATOR
                             + dateFormatWithYear.format(endDate);
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                if (date.before(today)) {
+                if (task.isDone()) {
+                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                } else if (date.before(today)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -329,7 +360,6 @@ public class MainScreen extends CenterScreen {
         transition.setFromValue(OPACITY_ZERO);
         transition.setToValue(OPACITY_FULL);
         transition.setInterpolator(Interpolator.EASE_IN);
-        addNodeBackToScreen(node);
         return transition;
     }
 
@@ -419,6 +449,7 @@ public class MainScreen extends CenterScreen {
         thisWeekTaskList.getChildren().clear();
         futureTaskList.getChildren().clear();
         dreamsTaskList.getChildren().clear();
+        doneTaskList.getChildren().clear();
     }
 
     private String determineNodeName(Node node) {
@@ -488,6 +519,7 @@ public class MainScreen extends CenterScreen {
         CategoryBox thisWeekBox = new CategoryBox(CATEGORY_THIS_WEEK);
         CategoryBox futureBox = new CategoryBox(CATEGORY_FUTURE);
         CategoryBox dreamsBox = new CategoryBox(CATEGORY_DREAMS);
+        CategoryBox doneBox = new CategoryBox(CATEGORY_DONE);
 
         this.overdueNode = overdueBox.getCategoryBox();
         this.overdueTaskList = overdueBox.getTaskListVBox();
@@ -504,6 +536,10 @@ public class MainScreen extends CenterScreen {
         this.dreamsNode = dreamsBox.getCategoryBox();
         this.dreamsTaskList = dreamsBox.getTaskListVBox();
         nodeList.add(dreamsNode);
+
+        // Since 'Done' tasks are not shown on start up, it is not added into the nodeList.
+        this.doneNode = doneBox.getCategoryBox();
+        this.doneTaskList = doneBox.getTaskListVBox();
     }
 
     /**
