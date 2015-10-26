@@ -35,7 +35,8 @@ public abstract class Task implements Comparable<Task> {
 	        }
 	        case EVENT: {
 	            Event other = (Event) task;
-                return new Event(other.getDescription(), other.getStartDate(), other.getEndDate(), other.isDone(), other.getId());
+                return new Event(other.getDescription(), other.getStartDate(), other.getEndDate(),
+                        other.isDone(), other.getId());
 	        }
 	        case DREAM: {
 	            Dream other = (Dream) task;
@@ -47,8 +48,8 @@ public abstract class Task implements Comparable<Task> {
 	    }
 	}
 
-	public boolean contains(String term) {
-	    return description.contains(term);
+	public boolean contains(String term) { // case insensitive
+	    return description.toLowerCase().contains(term.toLowerCase());
 	}
 
 	public abstract boolean isWithin(Date startDate, Date endDate);
