@@ -110,11 +110,10 @@ public class CenterPaneController {
             if (splashScreenTimeline.getCurrentTime().lessThan(interruptTime)) {
                 splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
             }
+            splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_FADE));
             // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
-
         } else {
             helpScreenFadeOut.playFromStart();
-            currentScreen = mainScreenNode;
         }
     }
 
@@ -139,6 +138,7 @@ public class CenterPaneController {
         KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
 
         splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
+        splashScreenTimeline.setOnFinished(e -> setScreen(mainScreenNode));
         splashScreenTimeline.play();
     }
 
@@ -186,7 +186,7 @@ public class CenterPaneController {
         // Help Screen setup
         screensList.add(createHelpScreen());
         helpScreenFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpScreenNode);
-
+        helpScreenFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
         return screensList;
     }
 

@@ -39,7 +39,7 @@ public class UITest {
     // ================================================================================
     // CenterPaneController Testing
     // ================================================================================
-    @Test
+//    @Test
     public void centerPaneController_InitTest() {
         // Test for initialise and non-null initial screen.
         StackPane sp = new StackPane();
@@ -49,7 +49,7 @@ public class UITest {
     }
 
     // Test screen switching
-    @Test
+//    @Test
     public void centerPaneController_testMainScreen() {
         StackPane sp = new StackPane();
         UITestHelper uiTestHelper = new UITestHelper();
@@ -58,7 +58,7 @@ public class UITest {
         assertTrue(uiTestHelper.getMainScreen().equals(uiTestHelper.getCPCCurrentScreen()));
     }
 
-    @Test
+//    @Test
     public void centerPaneController_testHelpScreen() {
         StackPane sp = new StackPane();
         UITestHelper uiTestHelper = new UITestHelper();
@@ -70,7 +70,7 @@ public class UITest {
     // ================================================================================
     // HelpScreen Testing
     // ================================================================================
-    @Test
+//    @Test
     public void HelpScreen_InitTest() {
         UITestHelper uiTestHelper = new UITestHelper();
         assertTrue(uiTestHelper.getNewHelpScreen() != null);
@@ -79,7 +79,7 @@ public class UITest {
     // ================================================================================
     // MainScreen Testing
     // ================================================================================
-    @Test
+//    @Test
     public void MainScreen_InitTest() {
         UITestHelper uiTestHelper = new UITestHelper();
         assertTrue(uiTestHelper.getNewMainScreen() != null);
@@ -89,7 +89,7 @@ public class UITest {
 
     }
 
-    @Test
+//    @Test
     public void MainScreen_UpdateTest() {
         UITestHelper uiTestHelper = new UITestHelper();
         uiTestHelper.getNewMainScreen();

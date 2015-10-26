@@ -40,7 +40,7 @@ public class MainScreen extends CenterScreen {
     private static final String MESSAGE_UNABLE_TO_DETERMINE_TYPE = "Unable to determine TaskType for adding.";
     private static final String MESSAGE_UNABLE_TO_RECOGNISE_NODE = "Unable to recognise Node.";
 
-    private static final String EVENT_DATE_SEPARATOR = " to ";
+    private static final String EVENT_DATE_SEPARATOR = "\nto ";
     private static final String SELECTOR_CATEGORY_VBOX = "#categoryVBox";
     private static final String TIME_SEPARATOR = " ";   // should we use 'on'?
     private static final String UI_NUMBER_SEPARATOR = ". ";
@@ -88,7 +88,7 @@ public class MainScreen extends CenterScreen {
     private StringProperty taskCountFormatted = new SimpleStringProperty();
     private StringProperty taskCountString = new SimpleStringProperty();
 
-    private SimpleDateFormat dateFormatWithYear = new SimpleDateFormat("d MMM yy h:mma");
+    private SimpleDateFormat dateFormatWithYear = new SimpleDateFormat("d MMMyy h:mma");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
     private SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");

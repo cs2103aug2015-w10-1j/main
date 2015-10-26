@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minHeight="-Infinity" styleClass="taskEntry" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
-   <left>
-      <Label fx:id="lineNum" text="Line Number" BorderPane.alignment="TOP_LEFT" />
-   </left>
-   <center>
-      <Label fx:id="description" text="Task Description" wrapText="true" BorderPane.alignment="TOP_LEFT" />
-   </center>
-   <right>
-      <Label fx:id="time" prefWidth="176.5" text="DateTime" wrapText="true" BorderPane.alignment="TOP_LEFT" />
-   </right>
-</BorderPane>
+<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="taskEntry" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
+      <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
+      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints vgrow="ALWAYS" />
+   </rowConstraints>
+   <children>
+      <Label fx:id="lineNum" text="Label" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
+      <Label fx:id="description" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
+      <Label fx:id="time" text="Label" textAlignment="RIGHT" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.valignment="TOP" />
+   </children>
+</GridPane>
