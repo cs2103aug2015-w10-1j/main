@@ -65,8 +65,8 @@ public class Logic {
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
     private static final String FEEDBACK_USE_DIFFERENT_PATH = "Please try setting a different save directory and try again";
 
-    private static final String FEEDBACK_ERROR_SAVE = "Could not write to file! Your changes were not saved.";
-    private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not write to file! Your changes will NOT be saved! Continue?";
+    private static final String FEEDBACK_ERROR_SAVE = "Could not save changes to file!";
+    private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not save changes! Your data will be lost! Continue?";
     private static final String FEEDBACK_ERROR_SET_PATH = "Could set path to ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
@@ -238,7 +238,8 @@ public class Logic {
                     newTask = new Deadline(oldDescription, newDate);
                 } else if (newStartDate != null) {
                     if (newEndDate.compareTo(newStartDate) < 0) {
-                        return String.format(FEEDBACK_INVALID_FROM_TO, formatDateTime(newStartDate), formatDateTime(newEndDate));
+                        return String.format(FEEDBACK_INVALID_FROM_TO,
+                                formatDateTime(newStartDate), formatDateTime(newEndDate));
                     }
                     newTask = new Event(oldDescription, newStartDate, newEndDate);
                 } else {
