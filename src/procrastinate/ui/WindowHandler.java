@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -35,7 +34,7 @@ public class WindowHandler {
 
     private static final String ICON_CLOSE = "\uf00d";
     private static final String ICON_MINIMISE = "\uf068";
-    private static final String SELECTOR_SCROLL_PANE = "#top";
+    //private static final String SELECTOR_SCROLL_PANE = "#top";
     private static final String SELECTOR_CENTER_SCREEN = "#centerScreen";
     private static final String STYLE_CLASS_MAIN_WINDOW = "mainWindow";
     private static final int WRAPPER_PREF_WIDTH = 800;
@@ -85,7 +84,7 @@ public class WindowHandler {
     /**
      * Removes all window decorations, replacing a custom title bar and allow dragging of window
      */
-    @SuppressWarnings("unused")
+    //@SuppressWarnings("unused")
     private void overwriteDecorations() {
         if (systemTrayHandler != null) {
             createTitleBar();

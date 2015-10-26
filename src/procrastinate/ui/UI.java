@@ -21,6 +21,8 @@ public class UI {
 
     private static final Logger logger = Logger.getLogger(UI.class.getName());
 
+    private static boolean showTray = true;
+
     // ================================================================================
     // Message strings
     // ================================================================================
@@ -86,7 +88,9 @@ public class UI {
     public void setUpStage(Stage primaryStage) {
         assert (primaryStage != null);
         this.primaryStage = primaryStage;
-//        initTray();
+        if (showTray) {
+            initTray();
+        }
         initWindow();
         initDialogPopupHandler();
         primaryStage.show();
