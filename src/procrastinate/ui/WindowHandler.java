@@ -65,7 +65,7 @@ public class WindowHandler {
     }
 
     protected void initialiseWindow() {
-//        overwriteDecorations();
+        overwriteDecorations();
         configurePrimaryStage();
     }
 
@@ -74,7 +74,7 @@ public class WindowHandler {
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
         primaryStage.getIcons().addAll(
-                new Image(getClass().getResourceAsStream(LOCATION_WINDOW_ICON))
+                new Image(WindowHandler.class.getResource(LOCATION_WINDOW_ICON).toExternalForm())
         );
         Scene primaryScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);  // This is the 'primary window' that consists of the user input field
         primaryScene.setFill(Color.TRANSPARENT);
@@ -109,8 +109,8 @@ public class WindowHandler {
         });
 
         // Since the CenterScreen is wrapped around another Pane, setting the mouse events on it is necessary as well.
-        ScrollPane scrollPane = (ScrollPane) root.lookup(SELECTOR_SCROLL_PANE);
-        StackPane centerPane = (StackPane) scrollPane.getContent().lookup(SELECTOR_CENTER_SCREEN);
+//        ScrollPane scrollPane = (ScrollPane) root.lookup(SELECTOR_SCROLL_PANE);
+        StackPane centerPane = (StackPane) root.lookup(SELECTOR_CENTER_SCREEN);
         centerPane.setOnMousePressed((mouseEvent) -> {
             xOffset = mouseEvent.getSceneX();
             yOffset = mouseEvent.getSceneY();

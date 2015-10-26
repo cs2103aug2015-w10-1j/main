@@ -29,6 +29,6 @@ public class HelpScreen extends CenterScreen {
     protected HelpScreen(String filePath) {
         super(filePath);
         subtitleLabel.setText(MESSAGE_WELCOME);
-        splashImageView.setImage(new Image(getClass().getResourceAsStream(LOCATION_SPLASH_IMAGE)));
+        splashImageView.setImage(new Image(HelpScreen.class.getResource(LOCATION_SPLASH_IMAGE).toExternalForm()));
     }
 }
