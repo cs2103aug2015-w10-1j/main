@@ -7,33 +7,33 @@
 	font-family: BebasNeue;
 	font-weight: 400;
 	font-style: normal;
-	src: url("../fonts/bebas/BebasNeue-Regular.otf");
+	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Regular.otf");
 }
 
 @font-face {
 	font-family: BebasNeue Bold;
 	font-weight: 700;
 	font-style: italic;
-	src: url("../fonts/bebas/BebasNeue-Bold.otf");
+	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Bold.otf");
 }
 
 @font-face {
 	font-family: Titillium;
 	font-style: normal;
-	src: url("../fonts/titillium/Titillium-Regular.otf");
+	src: url("/procrastinate/ui/fonts/titillium/Titillium-Regular.otf");
 }
 
 @font-face {
 	font-family: LiberationMono;
 	font-style: normal;
-	src: url("../fonts/liberation_mono/LiberationMono-Regular.ttf");
+	src: url("/procrastinate/ui/fonts/liberation_mono/LiberationMono-Regular.ttf");
 }
 
 @font-face {
 	font-family: FontAwesome;
 	font-weight: 400;
 	font-style: normal;
-	src: url("../fonts/FontAwesome.otf");
+	src: url("/procrastinate/ui/fonts/FontAwesome.otf");
 }
 
 /*
