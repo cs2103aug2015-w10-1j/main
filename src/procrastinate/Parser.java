@@ -102,7 +102,7 @@ public class Parser {
 
                 Command command;
 
-                if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+                if (commandInputType.equals(CommandStringType.DUE_DATE) || commandInputType.equals(CommandStringType.ON_DATE)) {
                     command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
                 } else if (commandInputType.equals(CommandStringType.NO_DATE)) {
                     command = new Command(CommandType.ADD_DREAM);
@@ -148,7 +148,7 @@ public class Parser {
 
                 Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
 
-                if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+                if (commandInputType.equals(CommandStringType.DUE_DATE) || commandInputType.equals(CommandStringType.ON_DATE)) {
                     command.addDate(getStartDate(dateArray));
                 } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
                     command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
@@ -232,12 +232,13 @@ public class Parser {
                 if (commandInputType.equals(CommandStringType.DUE_DATE)) {
                     command = new Command(CommandType.SEARCH_DUE);
                     command.addDate(DateUtils.truncate(getStartDate(dateArray), Calendar.DATE));
+
                 } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
                     Date startDate = DateUtils.truncate(getStartDate(dateArray), Calendar.DATE);
                     Date endDate = DateUtils.truncate(getEndDate(dateArray), Calendar.DATE);
                     command.addStartDate(startDate).addEndDate(endDate);
+
                 } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
-                    System.out.println("test");
                     command = new Command(CommandType.SEARCH_ON);
                     command.addDate(DateUtils.truncate(getStartDate(dateArray), Calendar.DATE));
                 }
