@@ -132,4 +132,18 @@ public class FileHandlerTest {
 
         Files.deleteIfExists(p);
     }
+
+    @Test
+    public void makeConfig_NoConfigFile_ShouldMakeFile() throws IOException {
+        new FileHandler();
+        BufferedReader reader = new BufferedReader(new FileReader(Paths.get("settings.config").toFile()));
+        String line;
+        if ((line = reader.readLine()) != null) {
+            assertEquals(defaultName, line);
+        } else {
+            fail();
+        }
+        reader.close();
+    }
+
 }
