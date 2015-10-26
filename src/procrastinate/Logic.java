@@ -15,6 +15,7 @@ import procrastinate.ui.UI;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -37,12 +38,12 @@ public class Logic {
 
     private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
 
-    private static final String FEEDBACK_ADD_DREAM = "Added dream: ";
-    private static final String FEEDBACK_ADD_DEADLINE = "Added deadline: %1$s due %2$s";
-    private static final String FEEDBACK_ADD_EVENT = "Added event: %1$s from %2$s to %3$s";
+    private static final String FEEDBACK_ADD_DREAM = "New dream: ";
+    private static final String FEEDBACK_ADD_DEADLINE = "New deadline: %1$s due %2$s";
+    private static final String FEEDBACK_ADD_EVENT = "New event: %1$s %2$s to %3$s";
     private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
     private static final String FEEDBACK_EDIT_DEADLINE = "Edited #%1$s: %2$s due %3$s";
-    private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s: %2$s from %3$s to %4$s";
+    private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s: %2$s %3$s to %4$s";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
     private static final String FEEDBACK_UNDONE = "Undone %1$s: %2$s";
@@ -71,7 +72,13 @@ public class Logic {
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
     private static final String STATUS_READY = "Ready!";
-    private static final String STATUS_PREVIEW_COMMAND = "Preview: ";
+    private static final String STATUS_PREVIEW_COMMAND = ">>";
+
+    private static final int MAX_LENGTH_DESCRIPTION = 30;
+    private static final int MAX_LENGTH_DESCRIPTION_SHORT = 20;
+
+    private static final DateFormat dateTimeFormatter = new SimpleDateFormat("d/MM/yy h:mma");
+    private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
 
     // ================================================================================
     // Class variables
@@ -210,10 +217,12 @@ public class Logic {
                     return FEEDBACK_ADD_DREAM + description;
 
                 } else if (commandType == CommandType.ADD_DEADLINE) {
-                    return String.format(FEEDBACK_ADD_DEADLINE, description, formatDateTime(date));
+                    return String.format(FEEDBACK_ADD_DEADLINE, shorten(description, MAX_LENGTH_DESCRIPTION),
+                            formatDateTime(date));
 
                 } else { // CommandType.ADD_DEADLINE
-                    return String.format(FEEDBACK_ADD_EVENT, description, formatDateTime(startDate), formatDateTime(endDate));
+                    return String.format(FEEDBACK_ADD_EVENT, shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
+                            formatDateTime(startDate), formatDateTime(endDate));
 
                 }
 
@@ -619,11 +628,19 @@ public class Logic {
     }
 
     private static String formatDateTime(Date date) {
-        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date);
+        return dateTimeFormatter.format(date);
     }
 
     private static String formatDate(Date date) {
-        return DateFormat.getDateInstance(DateFormat.SHORT).format(date);
+        return dateFormatter.format(date);
+    }
+
+    private static String shorten(String description, int maxLength) {
+        if (description.length() <= maxLength) {
+            return description;
+        } else {
+            return description.substring(0, maxLength - 1) + "...";
+        }
     }
 
 }
