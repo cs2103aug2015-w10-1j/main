@@ -36,6 +36,9 @@ public class MainScreen extends CenterScreen {
     private static final String CATEGORY_DREAMS = "Dreams";
     private static final String CATEGORY_DONE = "Done";
 
+    private static final String SUBCATEGORY_TODAY = "TODAY";
+    private static final String SUBCATEGORY_TOMORROW = "TOMORROW";
+
     private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
 
     private static final String MESSAGE_UNABLE_TO_DETERMINE_TYPE = "Unable to determine TaskType for adding.";
@@ -67,6 +70,7 @@ public class MainScreen extends CenterScreen {
     private Node dreamsNode;
     private Node doneNode;
     private ArrayList<Node> nodeList = new ArrayList<>();
+    private ArrayList<VBox> thisWeekSubcategories = new ArrayList<>();
 
     // Used for determining insertion order when adding nodes back onto screen.
     private DoubleProperty overdueNodeOpacity = new SimpleDoubleProperty(0);
@@ -236,7 +240,7 @@ public class MainScreen extends CenterScreen {
                 } else if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
-                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                    addThisWeekTask(taskEntry, date);
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
@@ -265,7 +269,7 @@ public class MainScreen extends CenterScreen {
                 } else if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
-                    thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                    addThisWeekTask(taskEntry, date);
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
@@ -318,17 +322,24 @@ public class MainScreen extends CenterScreen {
         }
     }
 
-    private void setMainVBoxBackgroundImage(String value) {
-        mainVBox.setStyle(value);
-    }
-
-    private void checkIfMainVBoxIsEmpty() {
-        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
-            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
+    private void addThisWeekTask(TaskEntry taskEntry, Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DATE, 1);
+        Date deadline = calendar.getTime();
+        boolean isAdded = false;
+        for (VBox vBox : thisWeekSubcategories) {
+            if (date.before(deadline)) {
+                vBox.getChildren().add(taskEntry.getEntryDisplay());
+                isAdded = true;
+                break;
+            } else {
+                calendar.add(Calendar.DATE, 1);
+                deadline = calendar.getTime();
+            }
         }
-        if (mainVBox.getChildren().isEmpty()) {
-            mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
+        if (!isAdded) {
+            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
         }
     }
 
@@ -436,6 +447,33 @@ public class MainScreen extends CenterScreen {
     private void clearTaskList() {
         resetTaskCount();
         resetTaskList();
+        generateThisWeekSubcategories();
+    }
+
+    /**
+     * Generates the relative date sub-headers for the remaining days of the week and places them
+     * in the task list for 'This Week'.
+     */
+    private void generateThisWeekSubcategories() {
+        LocalDateTime startingDateTime = getDateTimeStartOfToday();
+        ArrayList<Node> thisWeekDateBoxes = new ArrayList<>();
+        int count = 1;
+        while (!(getInstantFromLocalDateTime(startingDateTime)).equals(endOfWeek.toInstant())) {
+            DateBox newDateBox;
+            if (count == 1) {
+                newDateBox = new DateBox(SUBCATEGORY_TODAY);
+            } else if (count == 2) {
+                newDateBox = new DateBox(SUBCATEGORY_TOMORROW);
+            } else {
+                newDateBox = new DateBox(startingDateTime.getDayOfWeek().toString());
+            }
+            VBox newDateVBox = newDateBox.getTaskListVBox();
+            thisWeekSubcategories.add(newDateVBox);
+            thisWeekDateBoxes.add(newDateBox.getDateBox());
+            startingDateTime = startingDateTime.plusDays(1);
+            count++;
+        }
+        thisWeekTaskList.getChildren().addAll(thisWeekDateBoxes);
     }
 
     private void resetTaskCount() {
@@ -448,6 +486,8 @@ public class MainScreen extends CenterScreen {
         futureTaskList.getChildren().clear();
         dreamsTaskList.getChildren().clear();
         doneTaskList.getChildren().clear();
+
+        thisWeekSubcategories.clear();
     }
 
     private String determineNodeName(Node node) {
@@ -466,10 +506,6 @@ public class MainScreen extends CenterScreen {
         today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));    // To get today's Date at 0000hrs
         currentDate = new Date();
         endOfWeek = getEndOfWeekDate(today);
-    }
-
-    private boolean checkEventEndDateYear(Date date) {
-        return yearFormat.format(today).equals(yearFormat.format(date));
     }
 
     private LocalDateTime getDateTimeStartOfToday() {
@@ -500,6 +536,24 @@ public class MainScreen extends CenterScreen {
         return calendar.getTime();
     }
 
+    private boolean checkEventEndDateYear(Date date) {
+        return yearFormat.format(today).equals(yearFormat.format(date));
+    }
+
+    private void checkIfMainVBoxIsEmpty() {
+        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
+            String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
+            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
+        }
+        if (mainVBox.getChildren().isEmpty()) {
+            mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
+        }
+    }
+
+    private void setMainVBoxBackgroundImage(String value) {
+        mainVBox.setStyle(value);
+    }
+
     // ================================================================================
     // Init methods
     // ================================================================================
@@ -509,10 +563,6 @@ public class MainScreen extends CenterScreen {
      */
     private void createCategories() {
         // Create all the different categories(by time frame) for entries to go into
-        createCategoryBoxes();
-    }
-
-    private void createCategoryBoxes() {
         CategoryBox overdueBox = new CategoryBox(CATEGORY_OVERDUE);
         CategoryBox thisWeekBox = new CategoryBox(CATEGORY_THIS_WEEK);
         CategoryBox futureBox = new CategoryBox(CATEGORY_FUTURE);

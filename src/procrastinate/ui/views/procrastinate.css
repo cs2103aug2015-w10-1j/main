@@ -121,12 +121,27 @@
 .categoryBox #categoryLabel {
     -fx-font-family: Bebas;
 	-fx-font-weight: bold;
-	-fx-font-style: italic;
 	-fx-font-size: 20px;
 	-fx-text-fill: #365fac;
 }
 
 .categoryBox #categoryVBox {
+    -fx-padding: 0 0 0 20;
+}
+
+/*
+ * ================================================================
+ * DateBox Styling
+ * ================================================================
+ */
+.dateBox #dateLabel {
+    -fx-font-family: Bebas;
+	-fx-font-weight: bold;
+	-fx-font-size: 18px;
+	-fx-text-fill: #455A64;
+}
+
+.dateBox #dateVBox {
     -fx-padding: 0 0 0 20;
 }
 
