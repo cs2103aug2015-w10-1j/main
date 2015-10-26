@@ -160,50 +160,45 @@ public class Logic {
 
     private String runCommand(Command command, boolean execute) {
 
-        switch (command.getType()) {
+        CommandType commandType = command.getType();
 
-            case ADD_DREAM: {
-                String description = command.getDescription();
+        switch (commandType) {
 
-                if (execute) {
-                    boolean success = taskEngine.add(new Dream(description));
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
-                    }
-                    currentView = ViewType.SHOW_OUTSTANDING;
-                    updateUiTaskList();
-                }
-
-                return FEEDBACK_ADD_DREAM + description;
-            }
-
-            case ADD_DEADLINE: {
-                String description = command.getDescription();
-                Date date = command.getDate();
-
-                if (execute) {
-                    boolean success = taskEngine.add(new Deadline(description, date));
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
-                    }
-                    currentView = ViewType.SHOW_OUTSTANDING;
-                    updateUiTaskList();
-                }
-
-                return String.format(FEEDBACK_ADD_DEADLINE, description, formatDateTime(date));
-            }
-
+            case ADD_DREAM:
+            case ADD_DEADLINE:
             case ADD_EVENT: {
                 String description = command.getDescription();
-                Date startDate = command.getStartDate();
-                Date endDate = command.getEndDate();
+                assert(description != null);
 
-                if (endDate.compareTo(startDate) < 0) {
-                    return String.format(FEEDBACK_INVALID_FROM_TO, formatDateTime(startDate), formatDateTime(endDate));
+                Task newTask = null;
+                Date date = null;
+                Date startDate = null;
+                Date endDate = null;
+
+                if (commandType == CommandType.ADD_DREAM) {
+                    newTask = new Dream(description);
+
+                } else if (commandType == CommandType.ADD_DEADLINE) {
+                    date = command.getDate();
+                    assert(date != null);
+
+                    newTask = new Deadline(description, date);
+
+                } else { // CommandType.ADD_EVENT
+                    startDate = command.getStartDate();
+                    endDate = command.getEndDate();
+                    assert(startDate != null && endDate != null);
+
+                    if (endDate.compareTo(startDate) < 0) {
+                        return String.format(FEEDBACK_INVALID_FROM_TO, formatDateTime(startDate), formatDateTime(endDate));
+                    }
+
+                    newTask = new Event(description, startDate, endDate);
+
                 }
 
                 if (execute) {
-                    boolean success = taskEngine.add(new Event(description, startDate, endDate));
+                    boolean success = taskEngine.add(newTask);
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
                     }
@@ -211,7 +206,17 @@ public class Logic {
                     updateUiTaskList();
                 }
 
-                return String.format(FEEDBACK_ADD_EVENT, description, formatDateTime(startDate), formatDateTime(endDate));
+                if (commandType == CommandType.ADD_DREAM) {
+                    return FEEDBACK_ADD_DREAM + description;
+
+                } else if (commandType == CommandType.ADD_DEADLINE) {
+                    return String.format(FEEDBACK_ADD_DEADLINE, description, formatDateTime(date));
+
+                } else { // CommandType.ADD_DEADLINE
+                    return String.format(FEEDBACK_ADD_EVENT, description, formatDateTime(startDate), formatDateTime(endDate));
+
+                }
+
             }
 
             case EDIT: {
@@ -233,14 +238,19 @@ public class Logic {
 
                 if (newDate != null) {
                     newTask = new Deadline(oldDescription, newDate);
+
                 } else if (newStartDate != null) {
+                    assert(newEndDate != null);
                     if (newEndDate.compareTo(newStartDate) < 0) {
                         return String.format(FEEDBACK_INVALID_FROM_TO,
                                 formatDateTime(newStartDate), formatDateTime(newEndDate));
                     }
+
                     newTask = new Event(oldDescription, newStartDate, newEndDate);
+
                 } else {
                     newTask = Task.copy(oldTask);
+
                 }
 
                 if (newDescription != null) {
