@@ -4,6 +4,7 @@ import com.joestelmach.natty.DateGroup;
 
 import procrastinate.Command.CommandType;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -417,6 +418,28 @@ public class Parser {
             dateList.add(dateGroups.get(0).getDates().get(0));
             dateList.add(dateGroups.get(0).getDates().get(1));
         } catch (Exception e) {}
+
+        if (dateGroups.get(0).isTimeInferred()) {
+            Calendar date = Calendar.getInstance();
+            date.setTime(dateList.get(0));
+            date.set(Calendar.HOUR_OF_DAY, 23);
+            date.set(Calendar.MINUTE, 59);
+            date.set(Calendar.SECOND, 0);
+            date.set(Calendar.MILLISECOND, 0);
+            Date newDate = date.getTime();
+            dateList.remove(0);
+            dateList.add(0, newDate);
+            if (dateList.size() > 1) {
+                date.setTime(dateList.get(1));
+                date.set(Calendar.HOUR_OF_DAY, 23);
+                date.set(Calendar.MINUTE, 59);
+                date.set(Calendar.SECOND, 0);
+                date.set(Calendar.MILLISECOND, 0);
+                newDate = date.getTime();
+                dateList.remove(1);
+                dateList.add(1, newDate);
+            }
+        }
         return dateList;
     }
 
