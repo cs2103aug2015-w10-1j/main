@@ -399,7 +399,7 @@ public class Parser {
             keyword = KEYWORD_FROM_TO_DATE;
         }
 
-        String[] arguments = userCommand.split(keyword);
+        String[] arguments = userCommand.split(WHITESPACE + keyword + WHITESPACE);
         List<DateGroup> dateGroups = dateParser.parse(arguments[arguments.length - 1]);
         try {
             dateList.add(dateGroups.get(0).getDates().get(0));
@@ -420,7 +420,7 @@ public class Parser {
             keyword = KEYWORD_FROM_TO_DATE;
         }
 
-        int endIndex = userCommand.lastIndexOf(keyword);
+        int endIndex = getLastIndex(keyword, userCommand);
         if (endIndex == 0) {
             return null;
         } else {
