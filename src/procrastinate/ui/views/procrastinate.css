@@ -59,7 +59,7 @@
 
 .mainWindow #bottom {
     -fx-background-color: white;
-    -fx-padding: 0 10 0 10;
+    -fx-padding: 2 10 2 10;
     -fx-spacing: 2;
 }
 
