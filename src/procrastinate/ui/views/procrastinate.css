@@ -4,16 +4,15 @@
  * ================================================================
  */
 @font-face {
-	font-family: BebasNeue;
+	font-family: Bebas;
 	font-weight: 400;
 	font-style: normal;
 	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Regular.otf");
 }
 
 @font-face {
-	font-family: BebasNeue Bold;
-	font-weight: 700;
-	font-style: italic;
+	font-family: Bebas;
+	font-weight: bold;
 	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Bold.otf");
 }
 
@@ -120,8 +119,8 @@
  * ================================================================
  */
 .categoryBox #categoryLabel {
-    -fx-font-family: BebasNeue Bold;
-	-fx-font-weight: 700;
+    -fx-font-family: Bebas;
+	-fx-font-weight: bold;
 	-fx-font-style: italic;
 	-fx-font-size: 20px;
 	-fx-text-fill: #365fac;
