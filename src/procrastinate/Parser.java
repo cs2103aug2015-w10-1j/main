@@ -329,9 +329,9 @@ public class Parser {
     // ================================================================================
 
     private static CommandStringType getCommandStringType(String userCommand) {
-        int indexDue = userCommand.lastIndexOf(KEYWORD_DUE_DATE);
-        int indexFrom = userCommand.lastIndexOf(KEYWORD_FROM_TO_DATE);
-        int indexOn = userCommand.lastIndexOf(KEYWORD_ON_DATE);
+        int indexDue = getLastIndex(KEYWORD_DUE_DATE, userCommand);
+        int indexFrom = getLastIndex(KEYWORD_FROM_TO_DATE, userCommand);
+        int indexOn = getLastIndex(KEYWORD_ON_DATE, userCommand);
 
         if (isOnDate(indexDue, indexFrom, indexOn, userCommand)) {
             return CommandStringType.ON_DATE;
@@ -341,6 +341,15 @@ public class Parser {
             return CommandStringType.FROM_TO_DATE;
         } else {
             return CommandStringType.NO_DATE;
+        }
+    }
+
+    private static int getLastIndex(String keyword, String userCommand) {
+        int lastIndex = userCommand.lastIndexOf(WHITESPACE + keyword + WHITESPACE);
+        if(lastIndex == -1) {
+            return -1;
+        } else {
+            return lastIndex + 1;
         }
     }
 
