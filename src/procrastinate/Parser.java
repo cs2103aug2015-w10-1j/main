@@ -343,23 +343,21 @@ public class Parser {
 
     private static List<Date> getDates(String userCommand, CommandStringType commandInputType) {
         List<Date> dateList = new ArrayList<Date>();
-
+        String keyword = null;
         if (commandInputType.equals(CommandStringType.NO_DATE)) {
             return null;
         } else if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
-            String[] arguments = userCommand.split(KEYWORD_DEADLINE);
-            List<DateGroup> dateGroups = dateParser.parse(arguments[arguments.length - 1]);
-            dateList.add(dateGroups.get(0).getDates().get(0));
+            keyword = KEYWORD_DEADLINE;
         } else {
-            String[] arguments = userCommand.split(KEYWORD_EVENT);
-            String date = arguments[arguments.length - 1];
-            String[] dateArguments = date.split(" to ", 2);
-
-            List<DateGroup> dateGroups = dateParser.parse(dateArguments[0]);
-            dateList.add(dateGroups.get(0).getDates().get(0));
-            dateGroups = dateParser.parse(dateArguments[1]);
-            dateList.add(dateGroups.get(0).getDates().get(0));
+            keyword = KEYWORD_EVENT;
         }
+
+        String[] arguments = userCommand.split(keyword);
+        List<DateGroup> dateGroups = dateParser.parse(arguments[arguments.length - 1]);
+        try {
+            dateList.add(dateGroups.get(0).getDates().get(0));
+            dateList.add(dateGroups.get(0).getDates().get(1));
+        } catch (Exception e) {}
         return dateList;
     }
 
