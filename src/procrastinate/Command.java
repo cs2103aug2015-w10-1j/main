@@ -6,7 +6,7 @@ public class Command {
 
     public static enum CommandType {
         ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE,
-        SEARCH, SEARCH_ON, SEARCH_DUE, SEARCH_FROM_TO, SHOW_OUTSTANDING,
+        SEARCH, SEARCH_ON, SHOW_OUTSTANDING,
         SHOW_DONE, SHOW_ALL, SET_PATH, EXIT, HELP, INVALID;
     }
 
