@@ -47,8 +47,9 @@ public class Parser {
     private static final String COMMAND_SHORT_SHOW = "sh";
     private static final String COMMAND_SHORT_EXIT = "exit";
 
-    private static final String KEYWORD_DEADLINE = "due";
-    private static final String KEYWORD_EVENT = "from";
+    private static final String KEYWORD_DUE_DATE = "due";
+    private static final String KEYWORD_FROM_TO_DATE = "from";
+    private static final String KEYWORD_ON_DATE = "on";
 
     private static final String WHITESPACE = " ";
 
@@ -57,7 +58,7 @@ public class Parser {
     // ================================================================================
 
     private static enum CommandStringType {
-        NO_DATE, DEADLINE_DATE, EVENT_DATE
+        NO_DATE, ON_DATE, DUE_DATE, FROM_TO_DATE
     }
 
     // ================================================================================
@@ -101,7 +102,7 @@ public class Parser {
 
                 Command command;
 
-                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
+                if (commandInputType.equals(CommandStringType.DUE_DATE)) {
                     command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
                 } else if (commandInputType.equals(CommandStringType.NO_DATE)) {
                     command = new Command(CommandType.ADD_DREAM);
@@ -147,9 +148,9 @@ public class Parser {
 
                 Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
 
-                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
+                if (commandInputType.equals(CommandStringType.DUE_DATE)) {
                     command.addDate(getStartDate(dateArray));
-                } else if (commandInputType.equals(CommandStringType.EVENT_DATE)) {
+                } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
                     command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
                 }
 
@@ -223,16 +224,22 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
+                Command command = null;
                 String[] argument = userCommand.split(WHITESPACE, 2);
                 String searchDescription = argument[1];
 
-                Command command = new Command(CommandType.SEARCH);
-                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
+                command = new Command(CommandType.SEARCH);
+                if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+                    command = new Command(CommandType.SEARCH_DUE);
                     command.addDate(DateUtils.truncate(getStartDate(dateArray), Calendar.DATE));
-                } else if (commandInputType.equals(CommandStringType.EVENT_DATE)) {
+                } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
                     Date startDate = DateUtils.truncate(getStartDate(dateArray), Calendar.DATE);
                     Date endDate = DateUtils.truncate(getEndDate(dateArray), Calendar.DATE);
                     command.addStartDate(startDate).addEndDate(endDate);
+                } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
+                    System.out.println("test");
+                    command = new Command(CommandType.SEARCH_ON);
+                    command.addDate(DateUtils.truncate(getStartDate(dateArray), Calendar.DATE));
                 }
 
                 if (!searchDescription.isEmpty()) {
@@ -274,8 +281,8 @@ public class Parser {
             }
 
             case COMMAND_SET_PATH: {
-                if (commandInputType.equals(CommandStringType.DEADLINE_DATE)
-                        || commandInputType.equals(CommandStringType.EVENT_DATE)
+                if (commandInputType.equals(CommandStringType.DUE_DATE)
+                        || commandInputType.equals(CommandStringType.FROM_TO_DATE)
                         || userCommand.split(WHITESPACE).length > 2) {
                     // Have dates or have more than three words
                     // Inject add to the front of the command and recurse
@@ -318,26 +325,55 @@ public class Parser {
     // ================================================================================
 
     private static CommandStringType getCommandStringType(String userCommand) {
-        int indexDue = userCommand.lastIndexOf(KEYWORD_DEADLINE);
-        int indexFrom = userCommand.lastIndexOf(KEYWORD_EVENT);
-        if (indexDue > indexFrom) {
-            String dueSubString = userCommand.substring(indexDue, userCommand.length());
-            Date dueDate = getDate(dueSubString);
-            if (dueDate == null) {
-                return CommandStringType.NO_DATE;
-            } else {
-                return CommandStringType.DEADLINE_DATE;
-            }
-        } else if (indexFrom > indexDue) {
-            String fromSubString = userCommand.substring(indexFrom, userCommand.length());
-            List<DateGroup> dateGroups = dateParser.parse(fromSubString);
-            if (hasDates(dateGroups) && isEventDate(dateGroups)) {
-                return CommandStringType.EVENT_DATE;
-            } else {
-                return CommandStringType.NO_DATE;
-            }
+        int indexDue = userCommand.lastIndexOf(KEYWORD_DUE_DATE);
+        int indexFrom = userCommand.lastIndexOf(KEYWORD_FROM_TO_DATE);
+        int indexOn = userCommand.lastIndexOf(KEYWORD_ON_DATE);
+
+        if (isOnDate(indexDue, indexFrom, indexOn, userCommand)) {
+            System.out.println(KEYWORD_ON_DATE);
+            return CommandStringType.ON_DATE;
+        } else if (isDueDate(indexDue, indexFrom, indexOn, userCommand)) {
+            System.out.println(KEYWORD_DUE_DATE);
+            return CommandStringType.DUE_DATE;
+        } else if (isFromToDate(indexDue, indexFrom, indexOn, userCommand)) {
+            System.out.println(KEYWORD_FROM_TO_DATE);
+            return CommandStringType.FROM_TO_DATE;
         } else {
+            System.out.println("DREAM");
             return CommandStringType.NO_DATE;
+        }
+    }
+
+    private static boolean isOnDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
+        boolean isOnLast = indexOn > indexFrom && indexOn > indexDue;
+        if(!isOnLast) {
+            return false;
+        } else {
+            String onSubString = userCommand.substring(indexOn, userCommand.length());
+            List<DateGroup> dateGroups = dateParser.parse(onSubString);
+            return hasDates(dateGroups);
+        }
+    }
+
+    private static boolean isDueDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
+        boolean isDueLast = indexDue > indexFrom && indexDue > indexOn;
+        if(!isDueLast) {
+            return false;
+        } else {
+            String onSubString = userCommand.substring(indexDue, userCommand.length());
+            List<DateGroup> dateGroups = dateParser.parse(onSubString);
+            return hasDates(dateGroups);
+        }
+    }
+
+    private static boolean isFromToDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
+        boolean isFromToLast = indexFrom > indexOn && indexFrom > indexDue;
+        if(!isFromToLast) {
+            return false;
+        } else {
+            String onSubString = userCommand.substring(indexFrom, userCommand.length());
+            List<DateGroup> dateGroups = dateParser.parse(onSubString);
+            return hasDates(dateGroups) && isEventDate(dateGroups);
         }
     }
 
@@ -346,10 +382,12 @@ public class Parser {
         String keyword = null;
         if (commandInputType.equals(CommandStringType.NO_DATE)) {
             return null;
-        } else if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
-            keyword = KEYWORD_DEADLINE;
+        } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+            keyword = KEYWORD_DUE_DATE;
+        } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
+            keyword = KEYWORD_ON_DATE;
         } else {
-            keyword = KEYWORD_EVENT;
+            keyword = KEYWORD_FROM_TO_DATE;
         }
 
         String[] arguments = userCommand.split(keyword);
@@ -365,10 +403,12 @@ public class Parser {
         String keyword = null;
         if (commandInputType.equals(CommandStringType.NO_DATE)) {
             return userCommand;
-        } else if (commandInputType.equals(CommandStringType.DEADLINE_DATE)) {
-            keyword = KEYWORD_DEADLINE;
+        } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+            keyword = KEYWORD_DUE_DATE;
+        } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
+            keyword = KEYWORD_ON_DATE;
         } else {
-            keyword = KEYWORD_EVENT;
+            keyword = KEYWORD_FROM_TO_DATE;
         }
 
         int endIndex = userCommand.lastIndexOf(keyword);
@@ -377,20 +417,6 @@ public class Parser {
         } else {
             return userCommand.substring(0, endIndex);
             // NOT endIndex - 1; we need the trailing space! See long comment above
-        }
-    }
-
-    private static Date getDate(String userCommand) {
-        String[] arguments = userCommand.split(KEYWORD_DEADLINE);
-        if (arguments.length <= 1) {
-            return null;
-        }
-
-        List<DateGroup> dateGroups = dateParser.parse(arguments[arguments.length - 1]);
-        if (hasDates(dateGroups)) {
-            return dateGroups.get(0).getDates().get(0);
-        } else {
-            return null;
         }
     }
 
