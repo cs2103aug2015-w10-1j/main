@@ -216,9 +216,7 @@ public class MainScreen extends CenterScreen {
                 }
             }
 
-            sequentialTransition.setOnFinished(checkEmpty -> {
-                checkIfMainVBoxIsEmpty();
-            });
+            sequentialTransition.setOnFinished(checkEmpty -> checkIfMainVBoxIsEmpty());
             sequentialTransition.play();
         }
     }
