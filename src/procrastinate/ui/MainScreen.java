@@ -72,12 +72,6 @@ public class MainScreen extends CenterScreen {
     private DoubleProperty futureNodeOpacity = new SimpleDoubleProperty(0);
     private DoubleProperty dreamsNodeOpacity = new SimpleDoubleProperty(0);
 
-    // Each category box is saved here for easy referencing in case the box is extended next time
-    private CategoryBox overdueBox;
-    private CategoryBox thisWeekBox;
-    private CategoryBox futureBox;
-    private CategoryBox dreamsBox;
-
     // The main variables to call when adding tasks since they act as a task list for a TaskEntry to be displayed
     private VBox overdueTaskList;
     private VBox thisWeekTaskList;
@@ -92,8 +86,10 @@ public class MainScreen extends CenterScreen {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
     private SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-    private Date today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday())); // To get today's Date at 0000hrs
-    private Date endOfWeek = getEndOfWeekDate(today);
+
+    private Date today;
+    private Date currentDate;
+    private Date endOfWeek;
 
     private boolean isInitialise = true;
 
@@ -111,7 +107,6 @@ public class MainScreen extends CenterScreen {
         super(filePath);
         createCategories();
         setupBinding();
-        getEntriesBoxes();
     }
 
     /**
@@ -123,6 +118,7 @@ public class MainScreen extends CenterScreen {
      * @param taskList List of Tasks to be added onto the screen
      */
     protected void updateTaskList(List<Task> taskList) {
+        updateDates();
         clearTaskList();
 
         Date taskDate;
@@ -214,7 +210,7 @@ public class MainScreen extends CenterScreen {
                             + TIME_SEPARATOR
                             + timeFormat.format(date);
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                if (date.before(today)) {
+                if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
                     thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -241,7 +237,7 @@ public class MainScreen extends CenterScreen {
                                 + dateFormatWithYear.format(endDate);
                 }
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
-                if (date.before(today)) {
+                if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
                     thisWeekTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -300,7 +296,7 @@ public class MainScreen extends CenterScreen {
     private void checkIfMainVBoxIsEmpty() {
         if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
             String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
-           FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
+            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
         }
         if (mainVBox.getChildren().isEmpty()) {
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
@@ -425,6 +421,28 @@ public class MainScreen extends CenterScreen {
         dreamsTaskList.getChildren().clear();
     }
 
+    private String determineNodeName(Node node) {
+        if (node.equals(overdueNode)) {
+            return CATEGORY_OVERDUE;
+        } else if (node.equals(thisWeekNode)) {
+            return CATEGORY_THIS_WEEK;
+        } else if (node.equals(futureNode)) {
+            return CATEGORY_FUTURE;
+        } else {
+            return CATEGORY_DREAMS;
+        }
+    }
+
+    private void updateDates() {
+        today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));    // To get today's Date at 0000hrs
+        currentDate = new Date();
+        endOfWeek = getEndOfWeekDate(today);
+    }
+
+    private boolean checkEventEndDateYear(Date date) {
+        return yearFormat.format(today).equals(yearFormat.format(date));
+    }
+
     private LocalDateTime getDateTimeStartOfToday() {
         return LocalDate.now().atStartOfDay();
     }
@@ -453,22 +471,6 @@ public class MainScreen extends CenterScreen {
         return calendar.getTime();
     }
 
-    private boolean checkEventEndDateYear(Date date) {
-        return yearFormat.format(today).equals(yearFormat.format(date));
-    }
-
-    private String determineNodeName(Node node) {
-        if (node.equals(overdueNode)) {
-            return CATEGORY_OVERDUE;
-        } else if (node.equals(thisWeekNode)) {
-            return CATEGORY_THIS_WEEK;
-        } else if (node.equals(futureNode)) {
-            return CATEGORY_FUTURE;
-        } else {
-            return CATEGORY_DREAMS;
-        }
-    }
-
     // ================================================================================
     // Init methods
     // ================================================================================
@@ -478,32 +480,30 @@ public class MainScreen extends CenterScreen {
      */
     private void createCategories() {
         // Create all the different categories(by time frame) for entries to go into
-        this.overdueBox = new CategoryBox(CATEGORY_OVERDUE);
-        this.thisWeekBox = new CategoryBox(CATEGORY_THIS_WEEK);
-        this.futureBox = new CategoryBox(CATEGORY_FUTURE);
-        this.dreamsBox = new CategoryBox(CATEGORY_DREAMS);
+        createCategoryBoxes();
+    }
+
+    private void createCategoryBoxes() {
+        CategoryBox overdueBox = new CategoryBox(CATEGORY_OVERDUE);
+        CategoryBox thisWeekBox = new CategoryBox(CATEGORY_THIS_WEEK);
+        CategoryBox futureBox = new CategoryBox(CATEGORY_FUTURE);
+        CategoryBox dreamsBox = new CategoryBox(CATEGORY_DREAMS);
 
         this.overdueNode = overdueBox.getCategoryBox();
+        this.overdueTaskList = overdueBox.getTaskListVBox();
         nodeList.add(overdueNode);
 
         this.thisWeekNode = thisWeekBox.getCategoryBox();
+        this.thisWeekTaskList = thisWeekBox.getTaskListVBox();
         nodeList.add(thisWeekNode);
 
         this.futureNode = futureBox.getCategoryBox();
+        this.futureTaskList = futureBox.getTaskListVBox();
         nodeList.add(futureNode);
 
         this.dreamsNode = dreamsBox.getCategoryBox();
-        nodeList.add(dreamsNode);
-    }
-
-    /**
-     * Retrieves all the VBoxes for each TaskEntry to go into
-     */
-    private void getEntriesBoxes() {
-        this.overdueTaskList = overdueBox.getTaskListVBox();
-        this.thisWeekTaskList = thisWeekBox.getTaskListVBox();
-        this.futureTaskList = futureBox.getTaskListVBox();
         this.dreamsTaskList = dreamsBox.getTaskListVBox();
+        nodeList.add(dreamsNode);
     }
 
     /**
