@@ -520,26 +520,6 @@ public class Logic {
     }
 
     // ================================================================================
-    // Utility methods
-    // ================================================================================
-
-    private Task getTaskFromLineNumber(int lineNumber) {
-        return getCurrentTaskList().get(lineNumber - 1);
-    }
-
-    private List<Task> getCurrentTaskList() {
-        return taskEngine.getCurrentTaskList();
-    }
-
-    private static String formatDateTime(Date date) {
-        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date);
-    }
-
-    private static String formatDate(Date date) {
-        return DateFormat.getDateInstance(DateFormat.SHORT).format(date);
-    }
-
-    // ================================================================================
     // UI Interaction methods
     // ================================================================================
 
@@ -625,4 +605,25 @@ public class Logic {
             }
         });
     }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
+    private Task getTaskFromLineNumber(int lineNumber) {
+        return getCurrentTaskList().get(lineNumber - 1);
+    }
+
+    private List<Task> getCurrentTaskList() {
+        return taskEngine.getCurrentTaskList();
+    }
+
+    private static String formatDateTime(Date date) {
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date);
+    }
+
+    private static String formatDate(Date date) {
+        return DateFormat.getDateInstance(DateFormat.SHORT).format(date);
+    }
+
 }
