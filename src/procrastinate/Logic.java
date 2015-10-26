@@ -53,7 +53,7 @@ public class Logic {
     private static final String FEEDBACK_SEARCH_DUE = " due by %1$s";
     private static final String FEEDBACK_SEARCH_FROM_TO = " from %1$s to %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
-    private static final String FEEDBACK_INVALID_FROM_TO = "Invalid date range: %2$s is before %1$s";
+    private static final String FEEDBACK_INVALID_FROM_TO = "Invalid dates: %2$s is before %1$s";
     private static final String FEEDBACK_UNDO = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
     private static final String FEEDBACK_SET_PATH = "Set save directory to ";
@@ -74,8 +74,9 @@ public class Logic {
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = ">>";
 
-    private static final int MAX_LENGTH_DESCRIPTION = 30;
-    private static final int MAX_LENGTH_DESCRIPTION_SHORT = 20;
+    private static final int MAX_LENGTH_DESCRIPTION = 20;
+    private static final int MAX_LENGTH_DESCRIPTION_SHORT = 10;
+    private static final int MAX_LENGTH_DESCRIPTION_TINY = 7;
 
     private static final DateFormat dateTimeFormatter = new SimpleDateFormat("d/MM/yy h:mma");
     private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
@@ -274,14 +275,18 @@ public class Logic {
                     updateUiTaskList();
                 }
 
+                String description = newTask.getDescription();
+
                 switch (newTask.getType()) {
                     case DREAM:
-                        return String.format(FEEDBACK_EDIT_DREAM, lineNumber, newTask.getDescription());
+                        return String.format(FEEDBACK_EDIT_DREAM, lineNumber, description);
                     case DEADLINE:
-                        return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber, newTask.getDescription(),
+                        return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber,
+                                shorten(description, MAX_LENGTH_DESCRIPTION),
                                 formatDateTime(((Deadline) newTask).getDate()));
                     case EVENT:
-                        return String.format(FEEDBACK_EDIT_EVENT, lineNumber, newTask.getDescription(),
+                        return String.format(FEEDBACK_EDIT_EVENT, lineNumber,
+                                shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
                                 formatDateTime(((Event) newTask).getStartDate()),
                                 formatDateTime(((Event) newTask).getEndDate()));
                 }
