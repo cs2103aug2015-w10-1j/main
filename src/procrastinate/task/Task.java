@@ -93,6 +93,19 @@ public abstract class Task implements Comparable<Task> {
 	    done = false;
 	}
 
+    @Override
+    public int compareTo(Task other) {
+        if (this.isDone() == other.isDone()) {
+            return 0;
+        } else {
+            if (this.isDone()) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
+
 	/**
 	 * For two tasks to be indentical, they must be the same type
 	 * and have the same description and done status

@@ -73,6 +73,7 @@ public class LogicTest {
         execute("e");
         execute("done 3");
         execute("done 3");
+
         execute("show done");
         List<Task> expected = new ArrayList<Task>();
         expected.add(new Dream("c"));
@@ -92,11 +93,11 @@ public class LogicTest {
         expected.clear();
         expected.add(new Dream("a"));
         expected.add(new Dream("b"));
+        expected.add(new Dream("e"));
         expected.add(new Dream("c"));
         expected.add(new Dream("d"));
-        expected.add(new Dream("e"));
-        expected.get(2).setDone();
         expected.get(3).setDone();
+        expected.get(4).setDone();
         assertEquals(expected, getTaskList());
     }
 

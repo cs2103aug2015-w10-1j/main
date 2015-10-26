@@ -39,6 +39,10 @@ public class Event extends Task {
 
 	@Override
     public int compareTo(Task other) {
+        int superResult = super.compareTo(other);
+        if (superResult != 0) {
+            return superResult;
+        }
 	    if (other.getType() == TaskType.DREAM) {
 	        return -1;
 	    } else {
