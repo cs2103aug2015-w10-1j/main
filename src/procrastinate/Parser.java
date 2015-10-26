@@ -101,13 +101,20 @@ public class Parser {
 
                 Command command;
 
-                if (commandInputType.equals(CommandStringType.DUE_DATE) || commandInputType.equals(CommandStringType.ON_DATE)) {
-                    command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
-                } else if (commandInputType.equals(CommandStringType.NO_DATE)) {
-                    command = new Command(CommandType.ADD_DREAM);
-                } else {
-                    command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
-                            .addEndDate(getEndDate(dateArray));
+                switch (commandInputType) {
+                    case DUE_DATE:
+                    case ON_DATE:
+                        command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
+                        break;
+
+                    case NO_DATE:
+                        command = new Command(CommandType.ADD_DREAM);
+                        break;
+
+                    default:
+                        command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
+                        .addEndDate(getEndDate(dateArray));
+                        break;
                 }
 
                 command.addDescription(description);
@@ -147,10 +154,18 @@ public class Parser {
 
                 Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
 
-                if (commandInputType.equals(CommandStringType.DUE_DATE) || commandInputType.equals(CommandStringType.ON_DATE)) {
-                    command.addDate(getStartDate(dateArray));
-                } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
-                    command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+                switch (commandInputType) {
+                    case DUE_DATE:
+                    case ON_DATE:
+                        command.addDate(getStartDate(dateArray));
+                        break;
+
+                    case FROM_TO_DATE:
+                        command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+                        break;
+
+                    default:
+                        break;
                 }
 
                 if (!description.isEmpty()) {
