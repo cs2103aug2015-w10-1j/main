@@ -389,8 +389,8 @@ public class Logic {
                     assert(endDate != null);
 
                     // set time to 0000 hrs of the specified day
-                    startDate = DateUtils.truncate(date, Calendar.DATE);
-                    endDate = DateUtils.truncate(date, Calendar.DATE);
+                    startDate = DateUtils.truncate(startDate, Calendar.DATE);
+                    endDate = DateUtils.truncate(endDate, Calendar.DATE);
 
                     if (endDate.compareTo(startDate) < 0) {
                         return String.format(FEEDBACK_INVALID_FROM_TO, formatDate(startDate), formatDate(endDate));
@@ -399,7 +399,7 @@ public class Logic {
                     feedback += String.format(FEEDBACK_SEARCH_FROM_TO, formatDate(startDate), formatDate(endDate));
                     if (execute) {
                         lastSearchStartDate = startDate;
-                        lastSearchEndDate = endDate;
+                        lastSearchEndDate = DateUtils.addDays(endDate, 1);;
                     }
                 }
 
