@@ -50,6 +50,8 @@ public class Parser {
     private static final String KEYWORD_DUE_DATE = "due";
     private static final String KEYWORD_FROM_TO_DATE = "from";
     private static final String KEYWORD_ON_DATE = "on";
+    private static final String KEYWORD_ALL = "all";
+    private static final String KEYWORD_DONE = "done";
 
     private static final String WHITESPACE = " ";
 
@@ -68,7 +70,7 @@ public class Parser {
     public static Command parse(String userInput) {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
-        String userCommand = userInput.trim().replaceAll("\\s+", " "); // Trim whitespace
+        String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE); // Trim whitespace
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
         userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
@@ -236,6 +238,7 @@ public class Parser {
                 } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
                     Date startDate = DateUtils.truncate(getStartDate(dateArray), Calendar.DATE);
                     Date endDate = DateUtils.truncate(getEndDate(dateArray), Calendar.DATE);
+                    command = new Command(CommandType.SEARCH_FROM_TO);
                     command.addStartDate(startDate).addEndDate(endDate);
 
                 } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
@@ -258,10 +261,10 @@ public class Parser {
 
                 String argument = userCommand.substring(firstWord.length() + 1);
 
-                if (argument.equals("done")) {
+                if (argument.equals(KEYWORD_DONE)) {
                     return new Command(CommandType.SHOW_DONE);
 
-                } else if (argument.equals("all")) {
+                } else if (argument.equals(KEYWORD_ALL)) {
                     return new Command(CommandType.SHOW_ALL);
 
                 } else {
@@ -331,23 +334,19 @@ public class Parser {
         int indexOn = userCommand.lastIndexOf(KEYWORD_ON_DATE);
 
         if (isOnDate(indexDue, indexFrom, indexOn, userCommand)) {
-            System.out.println(KEYWORD_ON_DATE);
             return CommandStringType.ON_DATE;
         } else if (isDueDate(indexDue, indexFrom, indexOn, userCommand)) {
-            System.out.println(KEYWORD_DUE_DATE);
             return CommandStringType.DUE_DATE;
         } else if (isFromToDate(indexDue, indexFrom, indexOn, userCommand)) {
-            System.out.println(KEYWORD_FROM_TO_DATE);
             return CommandStringType.FROM_TO_DATE;
         } else {
-            System.out.println("DREAM");
             return CommandStringType.NO_DATE;
         }
     }
 
     private static boolean isOnDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
         boolean isOnLast = indexOn > indexFrom && indexOn > indexDue;
-        if(!isOnLast) {
+        if (!isOnLast) {
             return false;
         } else {
             String onSubString = userCommand.substring(indexOn, userCommand.length());
@@ -358,7 +357,7 @@ public class Parser {
 
     private static boolean isDueDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
         boolean isDueLast = indexDue > indexFrom && indexDue > indexOn;
-        if(!isDueLast) {
+        if (!isDueLast) {
             return false;
         } else {
             String onSubString = userCommand.substring(indexDue, userCommand.length());
@@ -369,7 +368,7 @@ public class Parser {
 
     private static boolean isFromToDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
         boolean isFromToLast = indexFrom > indexOn && indexFrom > indexDue;
-        if(!isFromToLast) {
+        if (!isFromToLast) {
             return false;
         } else {
             String onSubString = userCommand.substring(indexFrom, userCommand.length());
