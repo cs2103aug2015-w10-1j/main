@@ -34,7 +34,6 @@ public class WindowHandler {
 
     private static final String ICON_CLOSE = "\uf00d";
     private static final String ICON_MINIMISE = "\uf068";
-    //private static final String SELECTOR_SCROLL_PANE = "#top";
     private static final String SELECTOR_CENTER_SCREEN = "#centerScreen";
     private static final String STYLE_CLASS_MAIN_WINDOW = "mainWindow";
     private static final int WRAPPER_PREF_WIDTH = 800;
@@ -84,14 +83,11 @@ public class WindowHandler {
     /**
      * Removes all window decorations, replacing a custom title bar and allow dragging of window
      */
-    //@SuppressWarnings("unused")
     private void overwriteDecorations() {
-        if (systemTrayHandler != null) {
-            createTitleBar();
-            setStyleAndMouseEvents();
-        }
-
+        createTitleBar();
+        setStyleAndMouseEvents();
     }
+
     /**
      * Removes all window decorations sets mouse events to enable dragging of window
      */
@@ -108,7 +104,6 @@ public class WindowHandler {
         });
 
         // Since the CenterScreen is wrapped around another Pane, setting the mouse events on it is necessary as well.
-//        ScrollPane scrollPane = (ScrollPane) root.lookup(SELECTOR_SCROLL_PANE);
         StackPane centerPane = (StackPane) root.lookup(SELECTOR_CENTER_SCREEN);
         centerPane.setOnMousePressed((mouseEvent) -> {
             xOffset = mouseEvent.getSceneX();
@@ -135,10 +130,17 @@ public class WindowHandler {
         try {
             loader.setController(this);
             HBox titleBar = loader.load();
+
             close.setText(ICON_CLOSE);
             close.setOnMouseClicked(mouseEvent -> System.exit(0));
+
             minimise.setText(ICON_MINIMISE);
-            minimise.setOnMouseClicked(mouseEvent -> systemTrayHandler.windowHideOrShow());
+            if (systemTrayHandler != null) {
+                minimise.setOnMouseClicked(mouseEvent -> systemTrayHandler.windowHideOrShow());
+            } else {
+                minimise.setOnMouseClicked(mouseEvent -> primaryStage.setIconified(true));
+            }
+
             ((BorderPane)root).setTop(titleBar);
         } catch (IOException e) {
             e.printStackTrace();
