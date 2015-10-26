@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import procrastinate.Command.CommandType;
 import procrastinate.task.*;
 import procrastinate.test.UIStub;
 import procrastinate.ui.UI;
@@ -14,6 +15,7 @@ import procrastinate.ui.UI;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -49,7 +51,8 @@ public class Logic {
     private static final String FEEDBACK_UNDONE = "Undone %1$s: %2$s";
     private static final String FEEDBACK_SEARCH = "Searching for tasks";
     private static final String FEEDBACK_SEARCH_CONTAINING = " containing '%1$s'";
-    private static final String FEEDBACK_SEARCH_DUE = " due %1$s";
+    private static final String FEEDBACK_SEARCH_ON = " on %1$s";
+    private static final String FEEDBACK_SEARCH_DUE = " due by %1$s";
     private static final String FEEDBACK_SEARCH_FROM_TO = " from %1$s to %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
     private static final String FEEDBACK_INVALID_FROM_TO = "Invalid date range: %2$s is before %1$s";
@@ -340,7 +343,8 @@ public class Logic {
                 return FEEDBACK_UNDO;
             }
 
-            case SEARCH: {
+            case SEARCH:
+            case SEARCH_ON: {
                 String description = command.getDescription();
                 Date date = command.getDate();
                 Date startDate = command.getStartDate();
@@ -353,23 +357,45 @@ public class Logic {
                 }
 
                 String feedback = FEEDBACK_SEARCH;
+
                 if (description != null) {
                     feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
                     if (execute) {
                         lastSearchTerm = description;
                     }
                 }
+
                 if (date != null) {
-                    feedback += String.format(FEEDBACK_SEARCH_DUE, formatDate(date));
-                    if (execute) {
-                        lastSearchStartDate = date;
-                        lastSearchEndDate = DateUtils.addDays(date, 3);
+                    // set time to 0000 hrs of the specified day
+                    date = DateUtils.truncate(date, Calendar.DATE);
+
+                    if (command.getType() == CommandType.SEARCH_ON) {
+                        feedback += String.format(FEEDBACK_SEARCH_ON, formatDate(date));
+                        if (execute) {
+                            lastSearchStartDate = date;
+                            lastSearchEndDate = DateUtils.addDays(date, 3);
+                        }
+
+                    } else {
+                        feedback += String.format(FEEDBACK_SEARCH_DUE, formatDate(date));
+                        if (execute) {
+                            lastSearchStartDate = new Date(0); // beginning of time
+                            lastSearchEndDate = DateUtils.addDays(date, 1);
+                        }
+
                     }
+
                 } else if (startDate != null) {
                     assert(endDate != null);
+
+                    // set time to 0000 hrs of the specified day
+                    startDate = DateUtils.truncate(date, Calendar.DATE);
+                    endDate = DateUtils.truncate(date, Calendar.DATE);
+
                     if (endDate.compareTo(startDate) < 0) {
                         return String.format(FEEDBACK_INVALID_FROM_TO, formatDate(startDate), formatDate(endDate));
                     }
+
                     feedback += String.format(FEEDBACK_SEARCH_FROM_TO, formatDate(startDate), formatDate(endDate));
                     if (execute) {
                         lastSearchStartDate = startDate;
