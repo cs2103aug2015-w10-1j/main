@@ -5,21 +5,16 @@
   <version>0.0.1-SNAPSHOT</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>src</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
         <configuration>
-          <source/>
-          <target/>
+          <includes>
+            <include>**/*</include>
+          </includes>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
     </plugins>
@@ -33,7 +28,7 @@
   	<dependency>
   		<groupId>com.google.code.gson</groupId>
   		<artifactId>gson</artifactId>
-  		<version>2.3.1</version>
+  		<version>2.4</version>
   	</dependency>
   	<dependency>
   		<groupId>org.slf4j</groupId>
