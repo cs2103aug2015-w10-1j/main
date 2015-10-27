@@ -161,7 +161,6 @@ public class FileHandler {
                 fullFilename = line;
 
                 p = Paths.get(line);
-                System.out.println(p.toString());
                 saveFile = p.toFile();
             } else {
                 writer = new BufferedWriter(new FileWriter(configFile));
@@ -236,7 +235,10 @@ public class FileHandler {
      */
     private Path updateSaveFile(Path savePath) throws IOException {
         File oldSave = saveFile;
-        savePath.toFile().getParentFile().mkdirs();
+        File parentDir = savePath.toFile().getParentFile();
+        if (parentDir != null) {
+            parentDir.mkdirs();
+        }
 
         if (hasFileName(savePath)) {
             Files.move(oldSave.toPath(), savePath);
@@ -263,6 +265,10 @@ public class FileHandler {
             br = new BufferedReader(new FileReader(file));
             TaskState taskState = gson.fromJson(br, type);
 
+            if (taskState == null) {
+                taskState = new TaskState();
+            }
+
             logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.getTasks().size()));
             return taskState;
         } catch (FileNotFoundException e) {
@@ -287,7 +293,10 @@ public class FileHandler {
     // ================================================================================
 
     private void jsonToFile(String json) throws IOException {
-        saveFile.getParentFile().mkdirs();
+        File parentDir = saveFile.getAbsoluteFile().getParentFile();
+        if (parentDir != null) {
+            parentDir.mkdirs();
+        }
         saveFile.createNewFile();
         bw = new BufferedWriter(new FileWriter(saveFile));
         bw.write(json);
