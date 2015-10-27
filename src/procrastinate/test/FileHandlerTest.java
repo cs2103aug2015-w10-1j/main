@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import org.junit.Test;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import procrastinate.FileHandler;
+import procrastinate.task.DateAdapter;
 import procrastinate.task.Task;
 import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
@@ -103,6 +105,7 @@ public class FileHandlerTest {
         // mock a json file and load from it
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Task.class, new TaskDeserializer())
+                .registerTypeAdapter(Date.class, new DateAdapter())
                 .create();
 
         Type type = new TypeToken<TaskState>() {}.getType();
