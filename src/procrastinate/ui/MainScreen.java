@@ -20,10 +20,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainScreen extends CenterScreen {
 
@@ -37,8 +39,8 @@ public class MainScreen extends CenterScreen {
     private static final String CATEGORY_DREAMS = "Dreams";
     private static final String CATEGORY_DONE = "Done";
 
-    private static final String SUBCATEGORY_TODAY = "TODAY";
-    private static final String SUBCATEGORY_TOMORROW = "TOMORROW";
+    private static final String SUBCATEGORY_TODAY = "Today";
+    private static final String SUBCATEGORY_TOMORROW = "Tomorrow";
 
     private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
 
@@ -94,7 +96,7 @@ public class MainScreen extends CenterScreen {
     private StringProperty taskCountFormatted = new SimpleStringProperty();
     private StringProperty taskCountString = new SimpleStringProperty();
 
-    private SimpleDateFormat dateFormatWithYear = new SimpleDateFormat("d MMMyy h:mma");
+    private SimpleDateFormat dateFormatWithYear = new SimpleDateFormat("d MMM''yy h:mma");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
     private SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -549,7 +551,7 @@ public class MainScreen extends CenterScreen {
             } else if (count == 2) {
                 newDateBox = new DateBox(SUBCATEGORY_TOMORROW);
             } else {
-                newDateBox = new DateBox(startingDateTime.getDayOfWeek().toString());
+                newDateBox = new DateBox(startingDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
             }
             VBox newDateVBox = newDateBox.getTaskListVBox();
             thisWeekSubcategories.add(newDateVBox);
