@@ -4,17 +4,19 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
+
+import procrastinate.task.DateAdapter;
 import procrastinate.task.Task;
 import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
 
 import java.lang.reflect.Type;
-import java.text.DateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -139,7 +141,7 @@ public class FileHandler {
 
     private String jsonify(TaskState taskState) {
     	Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-    	        .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
+    	        .registerTypeAdapter(Date.class, new DateAdapter()).create();
     	String json = gson.toJson(taskState);
 
         return json;
@@ -156,7 +158,8 @@ public class FileHandler {
      */
     private TaskState loadTaskState(File file) throws FileNotFoundException {
         BufferedReader br = null;
-        Gson gson = new GsonBuilder().registerTypeAdapter(Task.class, new TaskDeserializer()).create();
+        Gson gson = new GsonBuilder().registerTypeAdapter(Task.class, new TaskDeserializer())
+                .registerTypeAdapter(Date.class, new DateAdapter()).create();
         Type type = new TypeToken<TaskState>() {}.getType();
 
         try {

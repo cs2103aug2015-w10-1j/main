@@ -4,14 +4,10 @@ import com.google.gson.*;
 import procrastinate.task.Task.TaskType;
 
 import java.lang.reflect.Type;
-import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 
 public class TaskDeserializer implements JsonDeserializer<Task> {
-
-    private static DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.getDefault());
 
 	/**
 	 * Task is abstract class so gson is unable to construct a list of Task
@@ -61,8 +57,9 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 	        Date date = null;
 
             try {
-                date = dateFormat.parse(jObj.get("date").getAsString());
+                date = context.deserialize(jObj.get("date"), Date.class);
             } catch (Exception e) {
+                e.printStackTrace();
                 return new Dream(description, done, id);
             }
 
@@ -73,13 +70,14 @@ public class TaskDeserializer implements JsonDeserializer<Task> {
 		    Date endDate = null;
 
             try {
-                startDate = dateFormat.parse(jObj.get("startDate").getAsString());
-                endDate = dateFormat.parse(jObj.get("endDate").getAsString());
+                startDate = context.deserialize(jObj.get("startDate"), Date.class);
+                endDate = context.deserialize(jObj.get("endDate"), Date.class);
 
                 if (endDate.compareTo(startDate) < 0) { // encountered invalid range
                     endDate = startDate; // use start date as both start and end date
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 return new Dream(description, done, id);
             }
 
