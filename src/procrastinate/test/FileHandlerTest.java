@@ -13,8 +13,8 @@ import java.nio.file.Paths;
 import java.util.Date;
 
 import org.junit.Test;
+import org.junit.After;
 import org.junit.Before;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -27,75 +27,71 @@ import procrastinate.task.TaskState;
 
 public class FileHandlerTest {
     String defaultName;
-    Path myRoot = Paths.get("");
+    FileHandler handler = null;
 
     @Before
     public void setup() {
         defaultName = "storage.json";
     }
 
+    @After
+    public void tearDown() {
+        File config = handler.getConfigFile();
+        File save = handler.getSaveFile();
+        try {
+            Files.deleteIfExists(config.toPath());
+            Files.deleteIfExists(save.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        handler = null;
+
+    }
+
     @Test
     public void fileHandler_DirNotGiven_ShouldMakeFileAtCurrLoc() throws IOException {
-        new FileHandler();
+        handler = new FileHandler();
         Path p = Paths.get(defaultName);
 
         assertTrue(Files.exists(p));
         assertTrue(Files.isRegularFile(p));
         assertTrue(Files.isWritable(p));
-
-        Files.deleteIfExists(p);
     }
 
     @Test
-    public void fileHandler_HasProperFilename_ShouldMakeNewFile() throws IOException {
-        String filename = "foo.json";
-        new FileHandler(filename);
-        Path p = Paths.get(filename);
+    public void setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc() throws IOException {
+        Path newPath = Paths.get("../setpathtest.json");
+        handler = new FileHandler();
 
-        assertTrue(Files.exists(p));
-        assertTrue(Files.isRegularFile(p));
-        assertTrue(Files.isWritable(p));
+        handler.setPath(newPath);
 
-        Files.deleteIfExists(p);
+        BufferedReader br = new BufferedReader(new FileReader(handler.getConfigFile()));
+        String content = br.readLine();
+        br.close();
+
+        assertTrue(newPath.equals(handler.getSaveFile().toPath()));
+        assertTrue(Files.isSameFile(newPath, handler.getSaveFile().toPath()));
+        assertEquals(newPath.toString(), content);
     }
 
     @Test
-    public void fileHandler_HasRelativeDirAndFilename_ShouldMakeNewFile() throws IOException {
-        String relativePath = "../" + defaultName;
-        new FileHandler(relativePath);
-        Path p = Paths.get(relativePath);
+    public void setPath_SameDirDiffName_ShouldRemoveOldFile() throws IOException {
+        Path newPath = Paths.get("setpathtest.json");
+        handler = new FileHandler();
 
-        assertTrue(Files.exists(p));
-        assertTrue(Files.isRegularFile(p));
-        assertTrue(Files.isWritable(p));
+        File oldSave = handler.getSaveFile();
+        System.out.println(oldSave.toString());
+        handler.setPath(newPath);
 
-        Files.deleteIfExists(p);
-    }
-
-    @Test
-    public void fileHandler_HasMultiLevelDir_ShouldMakeFileAtDir() throws IOException {
-        String relativePath = "./baz/boo/bou/";
-        new FileHandler(relativePath);
-        Path p = Paths.get(relativePath + defaultName);
-
-        assertTrue(Files.exists(p));
-        assertTrue(Files.isRegularFile(p));
-        assertTrue(Files.isWritable(p));
-
-        for (int i = 0; i < 4; ++i) {
-            Files.deleteIfExists(p);
-            p = p.getParent();
-        }
+        assertTrue(Files.notExists(oldSave.toPath()));;
     }
 
     @Test
     public void loadTaskState_HasStorageFile_ShouldLoadState() throws IOException {
-        FileHandler handler;
         BufferedReader br;
         TaskState loadedState;
-        Path p = Paths.get(defaultName);
 
-        handler = new FileHandler(defaultName);
+        handler = new FileHandler();
         // save stubstate to file
         handler.saveTaskState(new TaskStateStub());
 
@@ -113,29 +109,11 @@ public class FileHandlerTest {
         TaskState stub = gson.fromJson(br, type);
 
         assertEquals(stub, loadedState);
-
-        Files.deleteIfExists(p);
     }
 
     @Test
-    public void loadTaskState_NoStorageFile_ShouldInitAndLoad() throws IOException {
-        FileHandler handler;
-        TaskState loadedState;
-        Path p = Paths.get(defaultName);
-
+    public void loadConfig_NoConfigFile_ShouldMakeFile() throws IOException {
         handler = new FileHandler();
-
-        // load state from file
-        loadedState = handler.loadTaskState();
-
-        assertEquals(0, loadedState.getTasks().size());
-
-        Files.deleteIfExists(p);
-    }
-
-    @Test
-    public void makeConfig_NoConfigFile_ShouldMakeFile() throws IOException {
-        new FileHandler();
         BufferedReader reader = new BufferedReader(new FileReader(Paths.get("settings.config").toFile()));
         String line;
         if ((line = reader.readLine()) != null) {
@@ -146,4 +124,14 @@ public class FileHandlerTest {
         reader.close();
     }
 
+    @Test
+    public void loadTaskState_NoStorageFile_ShouldInitAndLoad() throws IOException {
+        TaskState loadedState;
+        handler = new FileHandler();
+
+        // load state from file
+        loadedState = handler.loadTaskState();
+
+        assertEquals(0, loadedState.getTasks().size());
+    }
 }
