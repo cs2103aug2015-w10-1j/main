@@ -3,6 +3,7 @@ package procrastinate.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -19,7 +20,7 @@ public class UIStub extends UI {
     public void initialize() {
     }
     @Override
-    public void setUpBinding(StringProperty userInput, StringProperty statusLabelText) {
+    public void setUpBinding(StringProperty userInput, StringProperty statusLabelText, BooleanProperty isExit) {
     }
     @Override
     public void setUpStage(Stage primaryStage) {

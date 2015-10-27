@@ -1,5 +1,7 @@
 package procrastinate;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
@@ -7,6 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import org.apache.commons.lang.time.DateUtils;
 import procrastinate.Command.CommandType;
 import procrastinate.task.*;
 import procrastinate.test.UIStub;
@@ -21,8 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.commons.lang.time.DateUtils;
 
 public class Logic {
 
@@ -94,6 +95,8 @@ public class Logic {
     private Date lastSearchStartDate = null;
     private Date lastSearchEndDate = null;
 
+    private BooleanProperty isExit = new SimpleBooleanProperty(false);
+
     private StringProperty userInput = new SimpleStringProperty();
     private StringProperty statusLabelText = new SimpleStringProperty();
 
@@ -142,7 +145,7 @@ public class Logic {
     public void initialiseWindow(Stage primaryStage) {
         assert(ui != null);
         ui.setUpStage(primaryStage);
-        ui.setUpBinding(userInput, statusLabelText);
+        ui.setUpBinding(userInput, statusLabelText, isExit);
         attachHandlersAndListeners();
         updateUiTaskList();
         setStatus(STATUS_READY);
@@ -616,6 +619,19 @@ public class Logic {
                 setStatus(STATUS_READY);
             } else {
                 setStatus(STATUS_PREVIEW_COMMAND + previewCommand(newValue));
+            }
+        });
+
+        isExit.addListener((observable, oldValue, newValue) -> {
+            if (newValue.booleanValue()) {
+                boolean success = taskEngine.save();
+                if (!success) {
+                    boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
+                    if (!exitAnyway) {
+                        setStatus(FEEDBACK_TRY_AGAIN);
+                    }
+                }
+                System.exit(0);
             }
         });
     }

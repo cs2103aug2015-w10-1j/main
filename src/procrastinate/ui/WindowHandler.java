@@ -1,5 +1,7 @@
 package procrastinate.ui;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -47,6 +49,8 @@ public class WindowHandler {
     private Parent root;
     private SystemTrayHandler systemTrayHandler;
 
+    private BooleanProperty exitIndicator = new SimpleBooleanProperty(false);
+
     private static double xOffset, yOffset;
 
     @FXML private Label close;
@@ -65,6 +69,10 @@ public class WindowHandler {
     protected void initialiseWindow() {
         overwriteDecorations();
         configurePrimaryStage();
+    }
+
+    protected void bindAsExitIndicator(BooleanProperty isExit) {
+        exitIndicator.bindBidirectional(isExit);
     }
 
     private void configurePrimaryStage() {
@@ -132,7 +140,7 @@ public class WindowHandler {
             HBox titleBar = loader.load();
 
             close.setText(ICON_CLOSE);
-            close.setOnMouseClicked(mouseEvent -> System.exit(0));
+            close.setOnMouseClicked(mouseEvent -> exitIndicator.set(true));
 
             minimise.setText(ICON_MINIMISE);
             if (systemTrayHandler != null) {

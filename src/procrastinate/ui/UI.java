@@ -1,5 +1,6 @@
 package procrastinate.ui;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -81,8 +82,9 @@ public class UI {
     }
 
     // Logic Handles
-    public void setUpBinding(StringProperty userInput, StringProperty statusLabelText) {
+    public void setUpBinding(StringProperty userInput, StringProperty statusLabelText, BooleanProperty isExit) {
         initBinding(userInput, statusLabelText);
+        windowHandler.bindAsExitIndicator(isExit);
     }
 
     public void setUpStage(Stage primaryStage) {
