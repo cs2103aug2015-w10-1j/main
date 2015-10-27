@@ -53,10 +53,10 @@ public class MainScreen extends CenterScreen {
     private static final String UI_NUMBER_SEPARATOR = ". ";
 
     // Time values used are in milliseconds
-    private static final int TIME_TRANSITION_CATEGORY_FADE_IN = 300;
-    private static final int TIME_TRANSITION_CATEGORY_FADE_OUT = 300;
+    private static final int TIME_TRANSITION_CATEGORY_FADE_IN = 250;
+    private static final int TIME_TRANSITION_CATEGORY_FADE_OUT = 200;
     private static final int TIME_TRANSITION_SUBCATEGORY_FADE_IN = 200;
-    private static final int TIME_TRANSITION_SUBCATEGORY_FADE_OUT = 200;
+    private static final int TIME_TRANSITION_SUBCATEGORY_FADE_OUT = 150;
 
     private static final double OPACITY_ZERO = 0;
     private static final double OPACITY_FULL = 1;
@@ -79,12 +79,6 @@ public class MainScreen extends CenterScreen {
 
     private ArrayList<Node> nodeList = new ArrayList<>();
     private ArrayList<VBox> thisWeekSubcategories = new ArrayList<>();
-
-    // Used for determining insertion order when adding nodes back onto screen.
-    private DoubleProperty overdueNodeOpacity = new SimpleDoubleProperty(0);
-    private DoubleProperty thisWeekNodeOpacity = new SimpleDoubleProperty(0);
-    private DoubleProperty futureNodeOpacity = new SimpleDoubleProperty(0);
-    private DoubleProperty dreamsNodeOpacity = new SimpleDoubleProperty(0);
 
     // The main variables to call when adding tasks since they act as a task list for a TaskEntry to be displayed
     private VBox overdueTaskList;
@@ -119,7 +113,6 @@ public class MainScreen extends CenterScreen {
     protected MainScreen(String filePath) {
         super(filePath);
         createCategories();
-        prepareForSubcategories();
         setupBinding();
     }
 
@@ -191,11 +184,7 @@ public class MainScreen extends CenterScreen {
      */
     private void updateDisplay() {
         setMainVBoxBackgroundImage(FX_BACKGROUND_IMAGE_NULL);
-        // 'Done' category requires special handling since it is not always shown, only when its list is not empty
-        // and it always appear at the bottom of the display.
-        checkAndRemoveDoneNodeIfInDisplay();
 
-        // Update the 4 usual categories onto screen
         SequentialTransition sequentialTransition = new SequentialTransition();
         for (Node node : nodeList) {
             // Remove empty nodes if it is on screen, else add non-empty nodes back into screen.
@@ -209,17 +198,14 @@ public class MainScreen extends CenterScreen {
                 }
                 // Next, to settle the main parent node for all the subcategories
                 addOrRemoveThisWeekNode(sequentialTransition, parallelTransition, totalTasksThisWeek);
-                // The next two clauses deal with the 'Overdue' and 'Future' categories.
+            // Next, settle all the other nodes
             } else if (((VBox) node.lookup(SELECTOR_CATEGORY_VBOX)).getChildren().isEmpty()) {
                 removeNodeIfEmptyAndInDisplay(sequentialTransition, node);
             } else {
                 addNodeIfNotEmptyAndNotInDisplay(sequentialTransition, node);
             }
         }
-        sequentialTransition.setOnFinished(checkEmpty -> {
-            addDoneNodeIfNotEmpty(); //Required to be placed here instead of after the entire method since the node might still be fading.
-            checkIfMainVBoxIsEmpty();
-        });
+        sequentialTransition.setOnFinished(checkEmpty -> checkIfMainVBoxIsEmpty());
         sequentialTransition.play();
     }
 
@@ -382,37 +368,44 @@ public class MainScreen extends CenterScreen {
             }
 
             case CATEGORY_THIS_WEEK: {
-                // Needs to check visibility of 'Overdue'
-                if (overdueNodeOpacity.get() == OPACITY_ZERO) {
-                    // If not visible, add to the top
-                    mainVBox.getChildren().add(0, node);
-                } else {
-                    // Else add it after
+                if (mainVBox.getChildren().contains(overdueNode)) {
+                    // Check if the 'Overdue' node is on screen or not and adds this node after it
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
+                } else {
+                    // Else this node would take precedence at the top.
+                    mainVBox.getChildren().add(0, node);
                 }
                 break;
             }
 
             case CATEGORY_FUTURE: {
-                // Most complicated and requires checking of multiple cases;
-                if (dreamsNodeOpacity.get() == OPACITY_ZERO) {
-                    // If 'Dream' is not visible, add to end
-                    mainVBox.getChildren().add(node);
-                } else if (thisWeekNodeOpacity.get() == OPACITY_FULL) {
-                    // 'This Week' is also visible, use its index to help in adding
+                if (mainVBox.getChildren().contains(overdueNode) && mainVBox.getChildren().contains(thisWeekNode)) {
+                    // Check if 'Overdue' and 'This Week' nodes are added before. This node takes position after them
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(thisWeekNode) + 1, node);
-                } else if (overdueNodeOpacity.get() == OPACITY_FULL) {
-                    // 'Overdue' is visible but 'This Week' is not visible
+                } else if (mainVBox.getChildren().contains(overdueNode) && !mainVBox.getChildren().contains(thisWeekNode)) {
+                    // Then check if either one is available
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
+                } else if (mainVBox.getChildren().contains(thisWeekNode)) {
+                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(thisWeekNode) + 1, node);
                 } else {
-                    // Only 'Dream' is visible, add it to the front
+                    // Else it will go to the top
                     mainVBox.getChildren().add(0, node);
                 }
                 break;
             }
 
             case CATEGORY_DREAMS: {
-                // Just need to add to the end
+                // Only needs to check if there is a lower node than it, where there is one 1 - doneNode.
+                if (mainVBox.getChildren().contains(doneNode)) {
+                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(doneNode), node);
+                } else {
+                    mainVBox.getChildren().add(node);
+                }
+                break;
+            }
+
+            case CATEGORY_DONE: {
+                // Takes position at the bottom of the list
                 mainVBox.getChildren().add(node);
                 break;
             }
@@ -428,14 +421,6 @@ public class MainScreen extends CenterScreen {
             FadeTransition fadeIn = generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_IN);
             addNodeBackToScreen(node);
             sequentialTransition.getChildren().add(fadeIn);
-        }
-    }
-
-    private void addDoneNodeIfNotEmpty() {
-        if (!doneTaskList.getChildren().isEmpty()) {
-            FadeTransition fadeIn = generateFadeInTransition(doneNode, TIME_TRANSITION_CATEGORY_FADE_IN);
-            mainVBox.getChildren().add(doneNode);
-            fadeIn.play();
         }
     }
 
@@ -488,14 +473,6 @@ public class MainScreen extends CenterScreen {
             FadeTransition fadeOut = generateFadeOutTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT);
             fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(node));
             sequentialTransition.getChildren().add(fadeOut);
-        }
-    }
-
-    private void checkAndRemoveDoneNodeIfInDisplay() {
-        if (mainVBox.getChildren().contains(doneNode)) {
-            FadeTransition fadeOut = generateFadeOutTransition(doneNode, TIME_TRANSITION_CATEGORY_FADE_OUT);
-            fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(doneNode));
-            fadeOut.play();
         }
     }
 
@@ -653,10 +630,7 @@ public class MainScreen extends CenterScreen {
         // Since 'Done' tasks are not shown on start up, it is not added into the nodeList.
         this.doneNode = doneBox.getCategoryBox();
         this.doneTaskList = doneBox.getTaskListVBox();
-    }
-
-    private void prepareForSubcategories() {
-//        subcategoryVisibilityTracker =
+        nodeList.add(doneNode);
     }
 
     /**
@@ -665,10 +639,5 @@ public class MainScreen extends CenterScreen {
     private void setupBinding() {
         taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
         taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
-
-        overdueNodeOpacity.bind(overdueNode.opacityProperty());
-        thisWeekNodeOpacity.bind(thisWeekNode.opacityProperty());
-        futureNodeOpacity.bind(futureNode.opacityProperty());
-        dreamsNodeOpacity.bind(dreamsNode.opacityProperty());
     }
 }
