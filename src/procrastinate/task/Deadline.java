@@ -28,7 +28,7 @@ public class Deadline extends Task {
     @Override
     public boolean isWithin(Date startDate, Date endDate) {
         assert (endDate.compareTo(startDate) >= 0);
-        return date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0;
+        return date.compareTo(startDate) >= 0 && date.compareTo(endDate) < 0;
     }
 
     @Override

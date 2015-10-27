@@ -33,8 +33,8 @@ public class Event extends Task {
     @Override
     public boolean isWithin(Date startDate, Date endDate) {
         assert (endDate.compareTo(startDate) >= 0);
-        return this.startDate.compareTo(startDate) >= 0 && this.startDate.compareTo(endDate) <= 0
-                || this.endDate.compareTo(startDate) >= 0 && this.endDate.compareTo(endDate) <= 0;
+        return this.startDate.compareTo(startDate) >= 0 && this.startDate.compareTo(endDate) < 0
+                || this.endDate.compareTo(startDate) >= 0 && this.endDate.compareTo(endDate) < 0;
     }
 
 	@Override
