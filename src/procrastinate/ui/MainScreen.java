@@ -2,6 +2,7 @@ package procrastinate.ui;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -70,6 +71,8 @@ public class MainScreen extends CenterScreen {
     private Node dreamsNode;
     private Node doneNode;
     private ArrayList<Node> nodeList = new ArrayList<>();
+
+    private int[] subcategoryVisibilityTracker; // used to determine if the subcategory is to be faded in or out.
     private ArrayList<VBox> thisWeekSubcategories = new ArrayList<>();
 
     // Used for determining insertion order when adding nodes back onto screen.
@@ -113,6 +116,7 @@ public class MainScreen extends CenterScreen {
     protected MainScreen(String filePath) {
         super(filePath);
         createCategories();
+        prepareForSubcategories();
         setupBinding();
     }
 
@@ -175,7 +179,7 @@ public class MainScreen extends CenterScreen {
         }
         updateDisplay();
     }
-
+    
     /**
      * Updates the display using fade transitions.
      * When the program is first initialised, all categories are faded in and shown.
@@ -193,9 +197,58 @@ public class MainScreen extends CenterScreen {
             // Update the 4 usual categories onto screen
             for (Node node : nodeList) {
                 // Remove empty nodes if it is on screen, else add non-empty nodes back into screen.
-                if (((VBox) node.lookup(SELECTOR_CATEGORY_VBOX)).getChildren().isEmpty()) {
+                if (node.equals(thisWeekNode)) {
+                    // Need to take care of special case with 'This Week' category
+                    ParallelTransition parallelTransition = new ParallelTransition();
+                    int totalTasksThisWeek = 0;
+                    for (int i=0; i<thisWeekSubcategories.size(); i++) {
+                        totalTasksThisWeek += thisWeekSubcategories.get(i).getChildren().size();
+                        // Each element of subcategoryVisibilityTracker corresponds to the subcategory at a particular
+                        // index, '0' indicates visible/faded in and '1' indicates it has been faded out previously.
+                        if (thisWeekSubcategories.get(i).getChildren().isEmpty()) {
+                            // 2 cases, either it has been faded in or not faded in previously.
+                            if (subcategoryVisibilityTracker[i] == 1) {
+                                // If faded out previously/not faded in yet, just remove away from the view
+                                thisWeekTaskList.getChildren().remove(thisWeekSubcategories.get(i).getParent());
+                            } else {
+                                // If faded in, set it up to fade out since it has been emptied.
+                                Node parentNode = thisWeekSubcategories.get(i).getParent();
+                                FadeTransition fadeOut = generateFadeOutTransition(parentNode);
+                                fadeOut.setOnFinished(done -> thisWeekTaskList.getChildren().remove(parentNode));
+                                parallelTransition.getChildren().add(fadeOut);
+                                subcategoryVisibilityTracker[i] = 1;
+                            }
+                        } else if (!(thisWeekSubcategories.get(i).getChildren().isEmpty()) && (subcategoryVisibilityTracker[i] == 1)) {
+                            // All non-empty and faded out should be faded back in.
+                            FadeTransition fadeIn = generateFadeInTransition(thisWeekSubcategories.get(i).getParent());
+                            parallelTransition.getChildren().add(fadeIn);
+                            subcategoryVisibilityTracker[i] = 0;
+                        } else {
+                            // Other cases can just ignore.
+                            continue;
+                        }
+                    }
+                    // Next, to settle the main parent node for all the subcategories
+                    if (totalTasksThisWeek == 0 && mainVBox.getChildren().contains(thisWeekNode)) {
+                        // If there are no tasks within all the subcategories, remove the node if it is contained in the mainVBox
+                        FadeTransition fadeOut = generateFadeOutTransition(thisWeekNode);
+                        fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(thisWeekNode));
+                        sequentialTransition.getChildren().add(parallelTransition);
+                        sequentialTransition.getChildren().add(fadeOut);
+                    } else if (totalTasksThisWeek != 0 && !mainVBox.getChildren().contains(thisWeekNode)){
+                        // Else if there are some tasks and yet it is not contained in the mainVBox, fade it in.
+                        FadeTransition fadeIn = generateFadeInTransition(thisWeekNode);
+                        addNodeBackToScreen(thisWeekNode);
+                        sequentialTransition.getChildren().add(fadeIn);
+                    } else {
+                        // Else just fade the subcategories
+                        sequentialTransition.getChildren().add(parallelTransition);
+                    }
+                // The next two clauses deal with the 'Overdue' and 'Future' categories.
+                } else if (((VBox) node.lookup(SELECTOR_CATEGORY_VBOX)).getChildren().isEmpty()) {
                     if (mainVBox.getChildren().contains(node)) {
                         FadeTransition fadeOut = generateFadeOutTransition(node);
+                        fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(node));
                         sequentialTransition.getChildren().add(fadeOut);
                     }
                 } else {
@@ -210,6 +263,7 @@ public class MainScreen extends CenterScreen {
             if (doneTaskList.getChildren().isEmpty()) {
                 if (mainVBox.getChildren().contains(doneNode)) {
                     FadeTransition fadeOut = generateFadeOutTransition(doneNode);
+                    fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(doneNode));
                     sequentialTransition.getChildren().add(fadeOut);
                 }
             } else {
@@ -377,7 +431,6 @@ public class MainScreen extends CenterScreen {
         transition.setFromValue(OPACITY_FULL);
         transition.setToValue(OPACITY_ZERO);
         transition.setInterpolator(Interpolator.EASE_IN);
-        transition.setOnFinished(done -> mainVBox.getChildren().remove(node));
         return transition;
     }
 
@@ -472,6 +525,9 @@ public class MainScreen extends CenterScreen {
             thisWeekDateBoxes.add(newDateBox.getDateBox());
             startingDateTime = startingDateTime.plusDays(1);
             count++;
+        }
+        if (subcategoryVisibilityTracker == null || (subcategoryVisibilityTracker.length != thisWeekDateBoxes.size())) {
+            subcategoryVisibilityTracker = new int[thisWeekDateBoxes.size()];
         }
         thisWeekTaskList.getChildren().addAll(thisWeekDateBoxes);
     }
@@ -588,6 +644,10 @@ public class MainScreen extends CenterScreen {
         // Since 'Done' tasks are not shown on start up, it is not added into the nodeList.
         this.doneNode = doneBox.getCategoryBox();
         this.doneTaskList = doneBox.getTaskListVBox();
+    }
+
+    private void prepareForSubcategories() {
+//        subcategoryVisibilityTracker =
     }
 
     /**
