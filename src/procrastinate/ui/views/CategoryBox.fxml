@@ -3,9 +3,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox styleClass="categoryBox" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="1.7976931348623157E308" minHeight="-Infinity" styleClass="categoryBox" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label fx:id="categoryLabel" text="Label" VBox.vgrow="ALWAYS" />
-      <VBox fx:id="categoryVBox" VBox.vgrow="ALWAYS" />
+      <VBox fx:id="categoryVBox" maxHeight="1.7976931348623157E308" minHeight="-Infinity" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>
