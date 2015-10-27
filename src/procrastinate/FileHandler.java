@@ -236,6 +236,7 @@ public class FileHandler {
      */
     private Path updateSaveFile(Path savePath) throws IOException {
         File oldSave = saveFile;
+        savePath.toFile().getParentFile().mkdirs();
 
         if (hasFileName(savePath)) {
             Files.move(oldSave.toPath(), savePath);
@@ -286,6 +287,7 @@ public class FileHandler {
     // ================================================================================
 
     private void jsonToFile(String json) throws IOException {
+        saveFile.getParentFile().mkdirs();
         saveFile.createNewFile();
         bw = new BufferedWriter(new FileWriter(saveFile));
         bw.write(json);
