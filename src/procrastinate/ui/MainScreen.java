@@ -49,9 +49,10 @@ public class MainScreen extends CenterScreen {
 
     private static final String EVENT_DATE_SEPARATOR_GENERAL = "\nto ";
     private static final String EVENT_DATE_SEPARATOR_SAME_DAY = " to ";
-    private static final String SELECTOR_CATEGORY_VBOX = "#categoryVBox";
     private static final String TIME_SEPARATOR = " ";
     private static final String UI_NUMBER_SEPARATOR = ". ";
+
+    private static final String SELECTOR_CATEGORY_VBOX = "#categoryVBox";
 
     // Time values used are in milliseconds
     private static final int TIME_TRANSITION_CATEGORY_FADE_IN = 250;
@@ -353,16 +354,35 @@ public class MainScreen extends CenterScreen {
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
                 String dateString;
-                if (checkIfStartAndEndSameDay(startDate, endDate)) {
-                    dateString = timeFormat.format(startDate)
-                            + EVENT_DATE_SEPARATOR_SAME_DAY
-                            + timeFormat.format(endDate);
-                } else {
-                    dateString = timeFormat.format(startDate)
-                            + EVENT_DATE_SEPARATOR_SAME_DAY
-                            + getDayOfWeek(endDate)
+                boolean isSameEndYear = checkIfEventEndSameYear(endDate);
+                if (isSameEndYear) {
+                    if (checkIfStartAndEndSameDay(startDate, endDate)) {
+                        dateString = timeFormat.format(startDate)
+                                + EVENT_DATE_SEPARATOR_SAME_DAY
+                                + timeFormat.format(endDate);
+                    } else if (endDate.before(endOfWeek)) {
+                    dateString = getFriendlyDayFormat(startDate)
+                            + TIME_SEPARATOR
+                            + timeFormat.format(startDate)
+                            + EVENT_DATE_SEPARATOR_GENERAL
+                            + getFriendlyDayFormat(endDate)
                             + TIME_SEPARATOR
                             + timeFormat.format(endDate);
+                    } else {
+                        dateString = getFriendlyDayFormat(startDate)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(startDate)
+                                + EVENT_DATE_SEPARATOR_GENERAL
+                                + dateFormat.format(endDate)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(endDate);
+                    }
+                } else {
+                    dateString = getFriendlyDayFormat(startDate)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(startDate)
+                                + EVENT_DATE_SEPARATOR_GENERAL
+                                + dateFormatWithYear.format(endDate);
                 }
                 TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
                 for (VBox vBox : thisWeekSubcategories) {
@@ -639,15 +659,26 @@ public class MainScreen extends CenterScreen {
     private boolean checkIfStartAndEndSameDay(Date firstDate, Date secondDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(firstDate);
-        int first = calendar.get(Calendar.DAY_OF_YEAR);
+        int firstDay = calendar.get(Calendar.DAY_OF_YEAR);
         calendar.setTime(secondDate);
-        int second = calendar.get(Calendar.DAY_OF_YEAR);
-        return first == second;
+        int secondDay = calendar.get(Calendar.DAY_OF_YEAR);
+        return firstDay == secondDay;
     }
 
     private String getDayOfWeek(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE");
         return dateFormat.format(date);
+    }
+
+    private String getFriendlyDayFormat(Date date) {
+        LocalDateTime startingDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().getDayOfMonth()) {
+            return SUBCATEGORY_TODAY;
+        } else if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().plusDays(1).getDayOfMonth()) {
+            return SUBCATEGORY_TOMORROW;
+        } else {
+            return getDayOfWeek(date);
+        }
     }
 
     private void checkIfMainVBoxIsEmpty() {
