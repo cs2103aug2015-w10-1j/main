@@ -449,7 +449,7 @@ public class Logic {
                 }
 
                 if (execute) {
-                    boolean success = taskEngine.set(path);
+                    boolean success = taskEngine.set(parsedPath);
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SET_PATH + parsedPath);
                     }
