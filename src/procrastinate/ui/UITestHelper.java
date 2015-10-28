@@ -44,15 +44,15 @@ public class UITestHelper {
     }
 
     public Node getHelpScreen() {
-        return centerPaneController.getHelpScreen();
+        return centerPaneController.getHelpOverlay();
     }
 
     // ================================================================================
     // HelpScreen methods
     // ================================================================================
 
-    public HelpScreen getNewHelpScreen() {
-        return new HelpScreen("views/HelpScreen.fxml");
+    public HelpOverlay getNewHelpScreen() {
+        return new HelpOverlay("views/HelpScreen.fxml");
     }
 
     // ================================================================================

@@ -27,7 +27,7 @@ public class CenterPaneController {
     // ================================================================================
 
     private static final String LOCATION_MAIN_SCREEN_LAYOUT = "views/MainScreen.fxml";
-    private static final String LOCATION_HELP_SCREEN_LAYOUT = "views/HelpScreen.fxml";
+    private static final String LOCATION_HELP_SCREEN_LAYOUT = "views/HelpOverlay.fxml";
 
     // ================================================================================
     // Animation time values
@@ -49,14 +49,14 @@ public class CenterPaneController {
 
     private HashMap<Integer, Node> controlledScreens;   // CHANGE TO SWITCH
 
-    private FadeTransition helpScreenFadeOut;
+    private FadeTransition helpOverlayFadeOut;
     private Timeline splashScreenTimeline;
 
     private Node mainScreenNode;
-    private Node helpScreenNode;
+    private Node helpOverlayNode;
 
     private MainScreen mainScreen;
-    private HelpScreen helpScreen;
+    private HelpOverlay helpOverlay;
 
     private StackPane centerStackPane;
     protected Node currentScreen;       // Changed to protected for testing purposes.
@@ -103,7 +103,7 @@ public class CenterPaneController {
      *      - helpScreen: Starts the fade out transition that lasts for 0.5 seconds
      */
     protected void hideScreenOverlay() {
-        if (currentScreen != helpScreenNode) {
+        if (currentScreen != helpOverlayNode) {
             Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
             // Only fast forward the timeline if the current time of the animation is smaller than the given
             // interrupt time. Else, just wait for the animation to end.
@@ -113,7 +113,7 @@ public class CenterPaneController {
             splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_FADE));
             // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
         } else {
-            helpScreenFadeOut.playFromStart();
+            helpOverlayFadeOut.playFromStart();
         }
     }
 
@@ -124,17 +124,17 @@ public class CenterPaneController {
      * hideScreenOverlay method.
      */
     protected void showSplashScreen() {
-        helpScreenNode.toFront();
-        helpScreenNode.setOpacity(OPACITY_FULL);
+        helpOverlayNode.toFront();
+        helpOverlayNode.setOpacity(OPACITY_FULL);
 
         // Set SplashScreen opacity at full for 2 seconds.
         Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
-        KeyValue fullOpacityKeyValue = new KeyValue(helpScreenNode.opacityProperty(), OPACITY_FULL);
+        KeyValue fullOpacityKeyValue = new KeyValue(helpOverlayNode.opacityProperty(), OPACITY_FULL);
         KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
 
         // Set SplashScreen to fade out completely at time = 3 seconds
         Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
-        KeyValue zeroOpacityKeyValue = new KeyValue(helpScreenNode.opacityProperty(), OPACITY_ZERO);
+        KeyValue zeroOpacityKeyValue = new KeyValue(helpOverlayNode.opacityProperty(), OPACITY_ZERO);
         KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
 
         splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
@@ -184,18 +184,18 @@ public class CenterPaneController {
         screensList.add(createMainScreen());
 
         // Help Screen setup
-        screensList.add(createHelpScreen());
-        helpScreenFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpScreenNode);
-        helpScreenFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
+        screensList.add(createHelpOverlay());
+        helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
+        helpOverlayFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
         return screensList;
     }
 
-    private Node createHelpScreen() {
-        this.helpScreen = new HelpScreen(LOCATION_HELP_SCREEN_LAYOUT);
-        this.helpScreenNode = helpScreen.getNode();
-        helpScreenNode.setOpacity(OPACITY_ZERO);
-        mapScreen(SCREEN_HELP, helpScreenNode);
-        return helpScreenNode;
+    private Node createHelpOverlay() {
+        this.helpOverlay = new HelpOverlay(LOCATION_HELP_SCREEN_LAYOUT);
+        this.helpOverlayNode = helpOverlay.getNode();
+        helpOverlayNode.setOpacity(OPACITY_ZERO);
+        mapScreen(SCREEN_HELP, helpOverlayNode);
+        return helpOverlayNode;
     }
 
     private Node createMainScreen() {
@@ -214,7 +214,7 @@ public class CenterPaneController {
         return mainScreenNode;
     }
 
-    protected Node getHelpScreen() {
-        return helpScreenNode;
+    protected Node getHelpOverlay() {
+        return helpOverlayNode;
     }
 }

@@ -620,6 +620,7 @@ public class Logic {
         isExit.addListener((observable, oldValue, newValue) -> {
             if (newValue.booleanValue()) {
                 if (!exit()) {
+                    isExit.set(false);
                     setStatus(FEEDBACK_TRY_AGAIN);
                 }
             }
