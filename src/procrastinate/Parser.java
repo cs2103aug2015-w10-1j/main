@@ -370,33 +370,45 @@ public class Parser {
         boolean isOnLast = indexOn > indexFrom && indexOn > indexDue;
         if (!isOnLast) {
             return false;
-        } else {
-            String onSubString = userCommand.substring(indexOn, userCommand.length());
-            List<DateGroup> dateGroups = dateParser.parse(onSubString);
-            return hasDates(dateGroups);
         }
+
+        String onSubString = userCommand.substring(indexOn, userCommand.length());
+        List<DateGroup> dateGroups = dateParser.parse(onSubString);
+        if (hasDates(dateGroups)) {
+            return dateGroups.get(0).getPosition() == 4;
+        }
+
+        return false;
     }
 
     private static boolean isDueDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
         boolean isDueLast = indexDue > indexFrom && indexDue > indexOn;
         if (!isDueLast) {
             return false;
-        } else {
-            String onSubString = userCommand.substring(indexDue, userCommand.length());
-            List<DateGroup> dateGroups = dateParser.parse(onSubString);
-            return hasDates(dateGroups);
         }
+
+        String dueSubString = userCommand.substring(indexDue, userCommand.length());
+        List<DateGroup> dateGroups = dateParser.parse(dueSubString);
+        if (hasDates(dateGroups)) {
+            return dateGroups.get(0).getPosition() == 5;
+        }
+
+        return false;
     }
 
     private static boolean isFromToDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
         boolean isFromToLast = indexFrom > indexOn && indexFrom > indexDue;
         if (!isFromToLast) {
             return false;
-        } else {
-            String onSubString = userCommand.substring(indexFrom, userCommand.length());
-            List<DateGroup> dateGroups = dateParser.parse(onSubString);
-            return hasDates(dateGroups) && isEventDate(dateGroups);
         }
+
+        String fromToSubString = userCommand.substring(indexFrom, userCommand.length());
+        List<DateGroup> dateGroups = dateParser.parse(fromToSubString);
+        if (hasDates(dateGroups) && isEventDate(dateGroups)) {
+            return dateGroups.get(0).getPosition() == 6;
+        }
+
+        return false;
     }
 
     private static List<Date> getDates(String userCommand, CommandStringType commandInputType) {
