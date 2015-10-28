@@ -499,14 +499,9 @@ public class Logic {
 
             case EXIT: {
                 if (execute) {
-                    boolean success = taskEngine.save();
-                    if (!success) {
-                        boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
-                        if (!exitAnyway) {
-                            return FEEDBACK_TRY_AGAIN;
-                        }
+                    if (!exit()) {
+                        return FEEDBACK_TRY_AGAIN;
                     }
-                    System.exit(0);
                 }
 
                 return PREVIEW_EXIT;
@@ -624,14 +619,10 @@ public class Logic {
 
         isExit.addListener((observable, oldValue, newValue) -> {
             if (newValue.booleanValue()) {
-                boolean success = taskEngine.save();
-                if (!success) {
-                    boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
-                    if (!exitAnyway) {
-                        setStatus(FEEDBACK_TRY_AGAIN);
-                    }
+                if (!exit()) {
+                    isExit.set(false);
+                    setStatus(FEEDBACK_TRY_AGAIN);
                 }
-                System.exit(0);
             }
         });
     }
@@ -639,6 +630,24 @@ public class Logic {
     // ================================================================================
     // Utility methods
     // ================================================================================
+
+    private boolean exit() {
+        if (!taskEngine.hasPreviousOperation()) {
+            System.exit(0);
+        }
+
+        boolean success = taskEngine.save();
+        if (success) {
+            System.exit(0);
+        }
+
+        boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
+        if (exitAnyway) {
+            System.exit(0);
+        }
+
+        return false;
+    }
 
     private Task getTaskFromLineNumber(int lineNumber) {
         return getCurrentTaskList().get(lineNumber - 1);

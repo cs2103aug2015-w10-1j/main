@@ -47,9 +47,10 @@ public class MainScreen extends CenterScreen {
     private static final String MESSAGE_UNABLE_TO_DETERMINE_TYPE = "Unable to determine TaskType for adding.";
     private static final String MESSAGE_UNABLE_TO_RECOGNISE_NODE = "Unable to recognise Node.";
 
-    private static final String EVENT_DATE_SEPARATOR = "\nto ";
+    private static final String EVENT_DATE_SEPARATOR_GENERAL = "\nto ";
+    private static final String EVENT_DATE_SEPARATOR_SAME_DAY = " to ";
     private static final String SELECTOR_CATEGORY_VBOX = "#categoryVBox";
-    private static final String TIME_SEPARATOR = " ";   // should we use 'on'?
+    private static final String TIME_SEPARATOR = " ";
     private static final String UI_NUMBER_SEPARATOR = ". ";
 
     // Time values used are in milliseconds
@@ -218,13 +219,14 @@ public class MainScreen extends CenterScreen {
                 dateString = dateFormat.format(date)
                             + TIME_SEPARATOR
                             + timeFormat.format(date);
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                String taskCount = taskCountFormatted.get();
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
-                    addThisWeekTask(taskEntry, date);
+                    addThisWeekTask(task, date, taskCount);
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
@@ -233,27 +235,36 @@ public class MainScreen extends CenterScreen {
 
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
-                boolean isSameEndYear = checkEventEndDateYear(endDate);
+                boolean isSameEndYear = checkIfEventEndSameYear(endDate);
                 if (isSameEndYear) {
-                    dateString = dateFormat.format(date)
+                    if (checkIfStartAndEndSameDay(date, endDate)) {
+                        dateString = dateFormat.format(date)
                                 + TIME_SEPARATOR
                                 + timeFormat.format(date)
-                                + EVENT_DATE_SEPARATOR
+                                + EVENT_DATE_SEPARATOR_SAME_DAY
+                                + timeFormat.format(endDate);
+                    } else {
+                        dateString = dateFormat.format(date)
+                                + TIME_SEPARATOR
+                                + timeFormat.format(date)
+                                + EVENT_DATE_SEPARATOR_GENERAL
                                 + dateFormat.format(endDate)
                                 + TIME_SEPARATOR
                                 + timeFormat.format(endDate);
+                    }
                 } else {
                     dateString = dateFormatWithYear.format(date)
-                                + EVENT_DATE_SEPARATOR
+                                + EVENT_DATE_SEPARATOR_GENERAL
                                 + dateFormatWithYear.format(endDate);
                 }
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                String taskCount = taskCountFormatted.get();
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(currentDate)) {
                     overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(endOfWeek)) {
-                    addThisWeekTask(taskEntry, date);
+                    addThisWeekTask(task, date, taskCount);
                 } else {
                     futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 }
@@ -287,7 +298,7 @@ public class MainScreen extends CenterScreen {
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
                 dateString = dateFormatWithYear.format(date)
-                            + EVENT_DATE_SEPARATOR
+                            + EVENT_DATE_SEPARATOR_GENERAL
                             + dateFormatWithYear.format(endDate);
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
                 if (task.isDone()) {
@@ -312,24 +323,67 @@ public class MainScreen extends CenterScreen {
      * @param taskEntry to be added
      * @param date of the task due
      */
-    private void addThisWeekTask(TaskEntry taskEntry, Date date) {
+    private void addThisWeekTask(Task task, Date startDate, String taskCount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
         calendar.add(Calendar.DATE, 1);
         Date deadline = calendar.getTime();
+
         boolean isAdded = false;
-        for (VBox vBox : thisWeekSubcategories) {
-            if (date.before(deadline)) {
-                vBox.getChildren().add(taskEntry.getEntryDisplay());
-                isAdded = true;
+        switch (task.getType()) {
+
+            case DEADLINE: {
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), timeFormat.format(startDate));
+                for (VBox vBox : thisWeekSubcategories) {
+                    if (startDate.before(deadline)) {
+                        vBox.getChildren().add(taskEntry.getEntryDisplay());
+                        isAdded = true;
+                        break;
+                    } else {
+                        calendar.add(Calendar.DATE, 1);
+                        deadline = calendar.getTime();
+                    }
+                }
+                if (!isAdded) {
+                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                }
                 break;
-            } else {
-                calendar.add(Calendar.DATE, 1);
-                deadline = calendar.getTime();
             }
-        }
-        if (!isAdded) {
-            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+
+            case EVENT: {
+                Date endDate = ((Event) task).getEndDate();
+                String dateString;
+                if (checkIfStartAndEndSameDay(startDate, endDate)) {
+                    dateString = timeFormat.format(startDate)
+                            + EVENT_DATE_SEPARATOR_SAME_DAY
+                            + timeFormat.format(endDate);
+                } else {
+                    dateString = timeFormat.format(startDate)
+                            + EVENT_DATE_SEPARATOR_SAME_DAY
+                            + getDayOfWeek(endDate)
+                            + TIME_SEPARATOR
+                            + timeFormat.format(endDate);
+                }
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
+                for (VBox vBox : thisWeekSubcategories) {
+                    if (startDate.before(deadline)) {
+                        vBox.getChildren().add(taskEntry.getEntryDisplay());
+                        isAdded = true;
+                        break;
+                    } else {
+                        calendar.add(Calendar.DATE, 1);
+                        deadline = calendar.getTime();
+                    }
+                }
+                if (!isAdded) {
+                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+                }
+                break;
+            }
+
+            default:
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
         }
     }
 
@@ -578,8 +632,22 @@ public class MainScreen extends CenterScreen {
         return calendar.getTime();
     }
 
-    private boolean checkEventEndDateYear(Date date) {
+    private boolean checkIfEventEndSameYear(Date date) {
         return yearFormat.format(today).equals(yearFormat.format(date));
+    }
+
+    private boolean checkIfStartAndEndSameDay(Date firstDate, Date secondDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(firstDate);
+        int first = calendar.get(Calendar.DAY_OF_YEAR);
+        calendar.setTime(secondDate);
+        int second = calendar.get(Calendar.DAY_OF_YEAR);
+        return first == second;
+    }
+
+    private String getDayOfWeek(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE");
+        return dateFormat.format(date);
     }
 
     private void checkIfMainVBoxIsEmpty() {
