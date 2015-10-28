@@ -170,7 +170,10 @@ public class SystemTrayHandler {
             public void mouseClicked(MouseEvent e) {
                 if (isWindowsOs() && isLeftClick(e)) {
                     // Windows check needed as MacOS doesn't differentiate buttons
-                    Platform.runLater(() -> primaryStage.requestFocus());
+                    Platform.runLater(() -> {
+                        primaryStage.requestFocus();
+                        primaryStage.toFront();
+                    });
                     windowHideOrShow();
                 }
             }
@@ -186,6 +189,12 @@ public class SystemTrayHandler {
 
             @Override
             public void mouseEntered(MouseEvent e) {
+                if (primaryStage.isShowing() && !primaryStage.isFocused()) {
+                    isMouse = true;
+                    Platform.runLater(() -> {
+                        primaryStage.toFront();
+                    });
+                }
             }
 
             @Override
