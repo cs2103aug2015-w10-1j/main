@@ -17,7 +17,7 @@
 </rowConstraints>
 <children>
    <Label fx:id="lineNum" text="Label" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
-   <Label fx:id="description" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.valignment="TOP" GridPane.halignment="LEFT" />
-   <Label fx:id="time" text="Label" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.valignment="TOP" />
+   <Label fx:id="description" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
+   <Label fx:id="time" text="Label" textAlignment="RIGHT" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.valignment="TOP" />
 </children>
 </GridPane>
