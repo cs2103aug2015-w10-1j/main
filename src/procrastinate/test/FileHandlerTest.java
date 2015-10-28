@@ -14,7 +14,10 @@ import java.util.Date;
 
 import org.junit.Test;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -26,8 +29,59 @@ import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
 
 public class FileHandlerTest {
-    String defaultName;
-    FileHandler handler = null;
+    private String defaultName;
+    private FileHandler handler = null;
+    private static Path originalSavePath;
+    private static Path originalSaveName;
+    private static Path tmpDir;
+    private static boolean hasCfg;
+    private static boolean hasSave;
+
+    // move config and save file to a tmp folder
+    @BeforeClass
+    public static void prep() {
+        Path cfg = Paths.get("settings.config");
+        hasCfg = Files.exists(cfg);
+
+        if (hasCfg) {
+            BufferedReader reader = null;
+            try {
+                tmpDir = Files.createTempDirectory(Paths.get(""), "testtmp");
+
+                reader = new BufferedReader(new FileReader(cfg.toFile()));
+                originalSavePath = Paths.get(reader.readLine());
+                System.out.println(originalSavePath);
+                hasSave = Files.exists(originalSavePath);
+
+                if (hasSave) {
+                    originalSaveName = originalSavePath.getFileName();
+
+                    Files.move(originalSavePath, tmpDir.resolve(originalSaveName));
+                }
+
+                Files.move(cfg, tmpDir.resolve(cfg));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // move config and save file back to original location
+    @AfterClass
+    public static void revert() {
+        try {
+            if (hasSave) {
+                Files.move(tmpDir.resolve(originalSaveName), originalSavePath);
+            }
+
+            if (hasCfg) {
+                Files.move(tmpDir.resolve("settings.config"), Paths.get("settings.config"));
+                Files.deleteIfExists(tmpDir);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Before
     public void setup() {
