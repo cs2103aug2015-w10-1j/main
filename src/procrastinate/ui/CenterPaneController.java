@@ -26,8 +26,8 @@ public class CenterPaneController {
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_MAIN_SCREEN_LAYOUT = "views/MainScreen.fxml";
-    private static final String LOCATION_HELP_SCREEN_LAYOUT = "views/HelpOverlay.fxml";
+    private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
+    private static final String LOCATION_HELP_OVERLAY_LAYOUT = "views/HelpOverlay.fxml";
 
     // ================================================================================
     // Animation time values
@@ -191,7 +191,7 @@ public class CenterPaneController {
     }
 
     private Node createHelpOverlay() {
-        this.helpOverlay = new HelpOverlay(LOCATION_HELP_SCREEN_LAYOUT);
+        this.helpOverlay = new HelpOverlay(LOCATION_HELP_OVERLAY_LAYOUT);
         this.helpOverlayNode = helpOverlay.getNode();
         helpOverlayNode.setOpacity(OPACITY_ZERO);
         mapScreen(SCREEN_HELP, helpOverlayNode);
@@ -199,7 +199,7 @@ public class CenterPaneController {
     }
 
     private Node createMainScreen() {
-        this.mainScreen = new MainScreen(LOCATION_MAIN_SCREEN_LAYOUT);
+        this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
         mainScreenNode.setOpacity(OPACITY_ZERO);
         mapScreen(SCREEN_MAIN, mainScreenNode);

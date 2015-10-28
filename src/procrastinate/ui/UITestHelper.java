@@ -52,7 +52,7 @@ public class UITestHelper {
     // ================================================================================
 
     public HelpOverlay getNewHelpScreen() {
-        return new HelpOverlay("views/HelpScreen.fxml");
+        return new HelpOverlay("views/HelpOverlay.fxml");
     }
 
     // ================================================================================
@@ -60,12 +60,12 @@ public class UITestHelper {
     // ================================================================================
 
     public MainScreen getNewMainScreen() {
-        mainScreen = new MainScreen("views/MainScreen.fxml");
+        mainScreen = new MainScreen("views/CenterScreen.fxml");
         return mainScreen;
     }
 
     public VBox getMainScreenVBox() {
-        return mainScreen.mainVBox;
+        return mainScreen.getMainVBox();
     }
 
     public void addDreamToMainScreen(Dream dream) {
@@ -76,7 +76,7 @@ public class UITestHelper {
 
     public VBox getDreamsTaskList() {
         // Dreams is the last category box added
-        return (VBox) mainScreen.mainVBox.getChildren().get(3);
+        return (VBox) mainScreen.getMainVBox().getChildren().get(3);
     }
 
     // ================================================================================
@@ -89,12 +89,12 @@ public class UITestHelper {
 
     public VBox getNewCategoryBoxVBox() {
         CategoryBox categoryBox = new CategoryBox("Test");
-        return categoryBox.categoryVBox;
+        return categoryBox.getTaskListVBox();
     }
 
     public Label getNewCategoryBoxLabel(String label) {
         CategoryBox categoryBox = new CategoryBox(label);
-        return categoryBox.categoryLabel;
+        return categoryBox.getCategoryLabel();
     }
 
     // ================================================================================
@@ -107,11 +107,11 @@ public class UITestHelper {
     }
 
     public Label getDreamTaskEntryLineNum() {
-        return dreamTask.lineNum;
+        return dreamTask.getLineNum();
     }
 
     public Label getDreamTaskEntryDescription() {
-        return dreamTask.description;
+        return dreamTask.getDescription();
     }
 
     public TaskEntry getNewOthersTaskEntry(String lineNum, String des, String time) {
@@ -120,14 +120,14 @@ public class UITestHelper {
     }
 
     public Label getOthersTaskEntryLineNum() {
-        return otherTask.lineNum;
+        return otherTask.getLineNum();
     }
 
     public Label getOthersTaskEntryDescription() {
-        return otherTask.description;
+        return otherTask.getDescription();
     }
 
     public Label getOthersTaskEntryTime() {
-        return otherTask.time;
+        return otherTask.getTime();
     }
 }

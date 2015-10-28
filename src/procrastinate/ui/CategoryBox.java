@@ -29,8 +29,8 @@ public class CategoryBox extends VBox {
     // FXML field variables
     // ================================================================================
 
-    @FXML Label categoryLabel;
-    @FXML VBox categoryVBox;
+    @FXML private Label categoryLabel;
+    @FXML private VBox categoryVBox;
 
     // ================================================================================
     // CategoryBox methods
@@ -66,5 +66,9 @@ public class CategoryBox extends VBox {
      */
     protected VBox getTaskListVBox() {
         return this.categoryVBox;
+    }
+
+    protected Label getCategoryLabel() {
+        return this.categoryLabel;
     }
 }

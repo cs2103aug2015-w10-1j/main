@@ -27,9 +27,9 @@ public class TaskEntry extends HBox{
     // FXML field variables
     // ================================================================================
 
-    @FXML Label lineNum;
-    @FXML Label description;
-    @FXML Label time;
+    @FXML private Label lineNum;
+    @FXML private Label description;
+    @FXML private Label time;
 
     // ================================================================================
     // TaskEntry methods
@@ -79,6 +79,18 @@ public class TaskEntry extends HBox{
 
     protected Node getEntryDisplay() {
         return this.taskEntry;
+    }
+
+    protected Label getLineNum() {
+        return lineNum;
+    }
+
+    protected Label getDescription() {
+        return description;
+    }
+
+    protected Label getTime() {
+        return time;
     }
 }
 

@@ -29,8 +29,8 @@ public class HelpOverlay {
     // FXML field variables
     // ================================================================================
 
-    @FXML Label subtitleLabel;
-    @FXML ImageView splashImageView;
+    @FXML private Label subtitleLabel;
+    @FXML private ImageView splashImageView;
 
     // ================================================================================
     // HelpScreen methods
