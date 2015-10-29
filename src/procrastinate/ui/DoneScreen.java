@@ -70,15 +70,15 @@ public class DoneScreen extends CenterScreen {
                 switch (task.getType()) {
 
                     case DEADLINE: {
-                        dateString = dateFormatWithYear.format(((Deadline) task).getDate());
+                        dateString = dateFormatWithFriendlyDayAndYear.format(((Deadline) task).getDate());
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
 
                     case EVENT: {
-                        dateString = dateFormatWithYear.format(((Event) task).getStartDate())
+                        dateString = dateFormatWithFriendlyDayAndYear.format(((Event) task).getStartDate())
                                     + EVENT_DATE_SEPARATOR_GENERAL
-                                    + dateFormatWithYear.format(((Event)task).getEndDate());
+                                    + dateFormatWithFriendlyDayAndYear.format(((Event)task).getEndDate());
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
@@ -119,6 +119,7 @@ public class DoneScreen extends CenterScreen {
         doneTaskList.getChildren().clear();
     }
 
+    @SuppressWarnings("unused")
     private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
         if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
             String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
