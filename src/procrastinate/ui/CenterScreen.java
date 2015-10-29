@@ -29,10 +29,9 @@ public abstract class CenterScreen extends VBox {
 
     protected static final String EVENT_DATE_SEPARATOR_GENERAL = "\nto ";
     protected static final String EVENT_DATE_SEPARATOR_SAME_DAY = " to ";
-    protected static final String TIME_SEPARATOR = " ";
+    protected static final String FRIENDLY_DATE_OR_TIME_SEPARATOR = " ";
 
     protected static final String SELECTOR_CATEGORY_VBOX = "#categoryVBox";
-
 
     protected static final String FX_BACKGROUND_IMAGE_NULL = "-fx-background-image: null;";
     protected static String FX_BACKGROUND_IMAGE_NO_TASKS; // will be initialised later on.
@@ -53,7 +52,7 @@ public abstract class CenterScreen extends VBox {
     protected StringProperty taskCountFormatted = new SimpleStringProperty();
     protected StringProperty taskCountString = new SimpleStringProperty();
 
-    protected SimpleDateFormat dateFormatWithYear = new SimpleDateFormat("d MMM''yy h:mma");
+    protected SimpleDateFormat dateFormatWithFriendlyDayAndYear = new SimpleDateFormat("EEE d MMM''yy h:mma");
     protected SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
     protected SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
     protected SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -166,7 +165,7 @@ public abstract class CenterScreen extends VBox {
         return firstDay == secondDay;
     }
 
-    protected String getFriendlyDayFormat(Date date) {
+    protected String getFriendlyDayFormatThisWeek(Date date) {
         LocalDateTime startingDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().getDayOfMonth()) {
             return DATE_TODAY;
@@ -177,7 +176,7 @@ public abstract class CenterScreen extends VBox {
         }
     }
 
-    private String getDayOfWeek(Date date) {
+    protected String getDayOfWeek(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE");
         return dateFormat.format(date);
     }
