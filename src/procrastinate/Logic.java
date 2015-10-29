@@ -439,17 +439,18 @@ public class Logic {
             case SET_PATH: {
                 String path = command.getDescription();
                 String parsedPath = null;
+                File targetFile = new File(path);
                 try {
-                    parsedPath = (new File(path)).getCanonicalPath();
+                    parsedPath = targetFile.getCanonicalPath();
                 } catch (IOException e) {
-                    parsedPath = (new File(path)).getAbsolutePath();
+                    parsedPath = targetFile.getAbsolutePath();
                 }
                 if (!parsedPath.endsWith(File.separator)) {
                     parsedPath += File.separator;
                 }
 
                 if (execute) {
-                    boolean success = taskEngine.set(parsedPath);
+                    boolean success = taskEngine.set(parsedPath, "");
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SET_PATH + parsedPath);
                     }

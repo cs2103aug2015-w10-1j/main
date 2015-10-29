@@ -114,10 +114,12 @@ public class FileHandlerTest {
 
     @Test
     public void setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc() throws IOException {
-        Path newPath = Paths.get("../setpathtest.json");
+        System.out.println("setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc");
         handler = new FileHandler();
-
-        handler.setPath(newPath);
+        String dir = "../";
+        String filename = "setpathtest";
+        Path newPath = Paths.get(dir+filename+".json");
+        handler.setPath(dir, filename);
 
         BufferedReader br = new BufferedReader(new FileReader(handler.getConfigFile()));
         String content = br.readLine();
@@ -125,19 +127,48 @@ public class FileHandlerTest {
 
         assertTrue(newPath.equals(handler.getSaveFile().toPath()));
         assertTrue(Files.isSameFile(newPath, handler.getSaveFile().toPath()));
-        assertEquals(newPath.toString(), content);
+        assertEquals(newPath.toAbsolutePath().normalize().toString().trim(), content.trim());
     }
 
     @Test
     public void setPath_SameDirDiffName_ShouldRemoveOldFile() throws IOException {
-        Path newPath = Paths.get("setpathtest.json");
+        System.out.println("setPath_SameDirDiffName_ShouldRemoveOldFile");
         handler = new FileHandler();
+
+        String dir = "./";
+        String filename = "setpathtest";
 
         File oldSave = handler.getSaveFile();
         System.out.println(oldSave.toString());
-        handler.setPath(newPath);
+        handler.setPath(dir, filename);
 
         assertTrue(Files.notExists(oldSave.toPath()));;
+    }
+
+    @Test
+    public void loadConfig_NoConfigFile_ShouldMakeFile() throws IOException {
+        System.out.println("loadConfig_NoConfigFile_ShouldMakeFile");
+        handler = new FileHandler();
+        System.out.println(handler.getSaveFile());
+        BufferedReader reader = new BufferedReader(new FileReader(Paths.get("settings.config").toFile()));
+        String line;
+        if ((line = reader.readLine()) != null) {
+            assertEquals(defaultName, line);
+        } else {
+            fail();
+        }
+        reader.close();
+    }
+
+    @Test
+    public void loadTaskState_NoStorageFile_ShouldInitAndLoad() throws IOException {
+        TaskState loadedState;
+        handler = new FileHandler();
+
+        // load state from file
+        loadedState = handler.loadTaskState();
+
+        assertEquals(0, loadedState.getTasks().size());
     }
 
     @Test
@@ -163,29 +194,5 @@ public class FileHandlerTest {
         TaskState stub = gson.fromJson(br, type);
 
         assertEquals(stub, loadedState);
-    }
-
-    @Test
-    public void loadConfig_NoConfigFile_ShouldMakeFile() throws IOException {
-        handler = new FileHandler();
-        BufferedReader reader = new BufferedReader(new FileReader(Paths.get("settings.config").toFile()));
-        String line;
-        if ((line = reader.readLine()) != null) {
-            assertEquals(defaultName, line);
-        } else {
-            fail();
-        }
-        reader.close();
-    }
-
-    @Test
-    public void loadTaskState_NoStorageFile_ShouldInitAndLoad() throws IOException {
-        TaskState loadedState;
-        handler = new FileHandler();
-
-        // load state from file
-        loadedState = handler.loadTaskState();
-
-        assertEquals(0, loadedState.getTasks().size());
     }
 }

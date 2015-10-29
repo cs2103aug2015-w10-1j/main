@@ -107,15 +107,29 @@ public class FileHandler {
     }
 
     /**
-     * Sets new path for save file. Given path must not be an existing file otherwise method fails
-     * @param newPath A non-existing path.
+     * Sets new path for save file.
+     * Will not overwrite a file, fails if the path already exists.
+     * On contrary, all non-existent directory and file will be created.
+     *
+     * @param dir must end with '/'. filename should not have file extension
      * @return true on success, false otherwise
      */
-    public boolean setPath(String newPath) {
+
+    public boolean setPath(String dir, String filename) {
+        assert dir.endsWith("/");
+
+        if (filename.isEmpty()) {
+            filename = DEFAULT_FULL_FILENAME;
+        } else {
+            filename = filename + DEFAULT_FILE_EXTENSION;
+        }
+
+        Path newPath = Paths.get(dir + filename);
+
         try {
-            Path p = updateSaveFile(updateConfig(newPath));
-            fullFilename = p.getFileName().toString();
-            saveFile = p.toFile();
+            saveFile = updateSaveFile(newPath).toFile();
+            updateConfig(newPath);
+            fullFilename = filename;
 
             logger.log(Level.INFO, String.format(DEBUG_SET_PATH_SUCCESS, newPath));
             return true;
@@ -123,10 +137,6 @@ public class FileHandler {
             logger.log(Level.SEVERE, String.format(DEBUG_SET_PATH_FAILURE, newPath));
             return false;
         }
-    }
-
-    public boolean setPath(Path newPath) {
-        return setPath(newPath.toString());
     }
 
     public String getFilename() {
@@ -189,28 +199,31 @@ public class FileHandler {
     }
 
     /**
-     * Writes new configuration to file
+     * Writes new configuration to file. Save path will be converted to absolute path
+     * to make it easier for advance users to edit
      *
-     * @param savePath
+     * @param savePath Must be an existing path
+     * @return
      */
-    private Path updateConfig(String savePath) throws IOException {
+    private boolean updateConfig(Path savePath) throws IOException {
+        assert Files.exists(savePath);
+        assert Files.isRegularFile(savePath);
+
+        String abPath = savePath.toAbsolutePath().normalize().toString();
         File oldFile = configFile;
         File tmp = null;
         BufferedWriter writer = null;
-        Path p = null;
-
-        if (!hasFileName(savePath)) {
-            savePath = savePath + fullFilename;
-        }
+        boolean success = false;
 
         // write to a tmp file then replace the old file with the new one
         try {
             tmp = Files.createTempFile(Paths.get(""), "tmp", "").toFile();
             writer = new BufferedWriter(new FileWriter(tmp));
-            writer.write(savePath);
+            writer.write(abPath);
             writer.flush();
             tmp.renameTo(oldFile);
-            p = Paths.get(savePath);
+
+            success = true;
         } catch (IOException e) {
             logger.log(Level.SEVERE, DEBUG_CONFIG_WRITE_FAILURE);
             throw e;
@@ -223,7 +236,7 @@ public class FileHandler {
                 e.printStackTrace();
             }
         }
-        return p;
+        return success;
     }
 
     /**
@@ -235,17 +248,13 @@ public class FileHandler {
      */
     private Path updateSaveFile(Path savePath) throws IOException {
         File oldSave = saveFile;
-        File parentDir = savePath.toFile().getParentFile();
+        Path parentDir = savePath.getParent();
+
         if (parentDir != null) {
-            parentDir.mkdirs();
+            Files.createDirectories(parentDir);
         }
 
-        if (hasFileName(savePath)) {
-            Files.move(oldSave.toPath(), savePath);
-        } else {
-            savePath = savePath.resolve(DEFAULT_FULL_FILENAME);
-            Files.move(oldSave.toPath(), savePath);
-        }
+        Files.move(oldSave.toPath(), savePath);
 
         return savePath;
     }

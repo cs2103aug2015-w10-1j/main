@@ -153,8 +153,8 @@ public class TaskEngine {
         return writeStateToFile();
     }
 
-    public boolean set(String path) {
-        return fileHandler.setPath(path);
+    public boolean set(String directory, String filename) {
+        return fileHandler.setPath(directory, filename);
     }
 
     public boolean hasPreviousOperation() {
