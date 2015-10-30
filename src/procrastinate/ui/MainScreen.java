@@ -367,22 +367,10 @@ public class MainScreen extends CenterScreen {
                 Date endDate = ((Event) task).getEndDate();
                 // if same day also should be in same line.
                 boolean isSameEndYear = checkIfEventEndSameYear(date, endDate);
-                if (isSameEndYear) {
-                    if (checkIfStartAndEndSameDay(date, endDate)) {
-                        dateString = dateFormatWithFriendlyDayAndYear.format(date)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(date)
-                                + EVENT_DATE_SEPARATOR_SAME_DAY
-                                + timeFormat.format(endDate);
-                    } else {
-                        dateString = dateFormatWithFriendlyDayAndYear.format(date)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(date)
-                                + EVENT_DATE_SEPARATOR_GENERAL
-                                + dateFormatWithFriendlyDayAndYear.format(endDate)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(endDate);
-                    }
+                if (isSameEndYear && checkIfStartAndEndSameDay(date, endDate)) {
+                    dateString = dateFormatWithFriendlyDayAndYear.format(date)
+                            + EVENT_DATE_SEPARATOR_SAME_DAY
+                            + timeFormat.format(endDate);
                 } else {
                     dateString = dateFormatWithFriendlyDayAndYear.format(date)
                                 + EVENT_DATE_SEPARATOR_GENERAL

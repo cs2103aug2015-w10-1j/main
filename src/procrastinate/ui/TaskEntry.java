@@ -15,6 +15,7 @@ public class TaskEntry extends HBox{
     // ================================================================================
 
     private static final String LOCATION_TASK_ENTRY_FXML = "views/TaskEntry.fxml";
+    private static final String LOCATION_TASK_ENTRY_DONE_FXML = "views/TaskEntryDone.fxml";
     private static final String EMPTY_STRING = "";
 
     // ================================================================================
@@ -73,6 +74,25 @@ public class TaskEntry extends HBox{
         }
     }
 
+    /**
+     * Constructor to be only used by DoneScreen to display completed tasks.
+     * @param lineNum
+     * @param description
+     */
+    protected TaskEntry(String lineNum, String description, String time, boolean isDone) {
+        if (isDone) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TASK_ENTRY_DONE_FXML));
+            loader.setController(this); // Required due to different package declaration from Main
+            try {
+                this.taskEntry = loader.load();
+                this.lineNum.setText(lineNum);
+                this.description.setText(description);
+                this.time.setText(time);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     // ================================================================================
     // Getter methods
     // ================================================================================

@@ -20,6 +20,10 @@ import java.util.logging.Logger;
 
 public class UI {
 
+    public static enum ScreenView {
+        SCREEN_DONE, SCREEN_MAIN, SCREEN_SEARCH
+    }
+
     private static final Logger logger = Logger.getLogger(UI.class.getName());
 
     private static boolean showTray = true;
@@ -103,6 +107,10 @@ public class UI {
     public void updateTaskList(List<Task> tasks) {
         // Pass the updates to the main screen
         centerPaneController.updateMainScreen(tasks);
+    }
+
+    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
+        centerPaneController.updateScreen(taskList, screenView);
     }
 
     // ================================================================================

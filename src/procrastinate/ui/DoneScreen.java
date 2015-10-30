@@ -100,9 +100,9 @@ public class DoneScreen extends CenterScreen {
     private void addDoneTask(String taskCount, Task task, String dateString) {
         TaskEntry taskEntry;
         if (dateString == null) {
-            taskEntry = new TaskEntry(taskCount, task.getDescription());
+            taskEntry = new TaskEntry(taskCount, task.getDescription(), "", true);
         } else {
-            taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
+            taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, true);
         }
         doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
     }
