@@ -102,7 +102,7 @@ public class UITestHelper {
     // ================================================================================
 
     public TaskEntry getNewDreamTaskEntry(String lineNum, String des) {
-        dreamTask = new TaskEntry(lineNum, des);
+        dreamTask = new TaskEntry(lineNum, des, false);
         return dreamTask;
     }
 
@@ -115,7 +115,7 @@ public class UITestHelper {
     }
 
     public TaskEntry getNewOthersTaskEntry(String lineNum, String des, String time) {
-        otherTask = new TaskEntry(lineNum, des, time);
+        otherTask = new TaskEntry(lineNum, des, time, false);
         return otherTask;
     }
 

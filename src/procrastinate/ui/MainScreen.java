@@ -220,7 +220,7 @@ public class MainScreen extends CenterScreen {
             }
 
             case DREAM: {
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription());
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), task.isDone());
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else {
@@ -281,7 +281,7 @@ public class MainScreen extends CenterScreen {
                             + FRIENDLY_DATE_OR_TIME_SEPARATOR
                             + timeFormat.format(date);
                 String taskCount = taskCountFormatted.get();
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(currentDate)) {
@@ -325,7 +325,7 @@ public class MainScreen extends CenterScreen {
                                 + dateFormatWithFriendlyDayAndYear.format(endDate);
                 }
                 String taskCount = taskCountFormatted.get();
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(currentDate)) {
@@ -352,7 +352,7 @@ public class MainScreen extends CenterScreen {
 
             case DEADLINE: {
                 dateString = dateFormatWithFriendlyDayAndYear.format(date);
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(today)) {
@@ -376,7 +376,7 @@ public class MainScreen extends CenterScreen {
                                 + EVENT_DATE_SEPARATOR_GENERAL
                                 + dateFormatWithFriendlyDayAndYear.format(endDate);
                 }
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
                 } else if (date.before(today)) {
@@ -412,7 +412,8 @@ public class MainScreen extends CenterScreen {
             case DEADLINE: {
                 TaskEntry taskEntry = new TaskEntry(taskCount,
                         task.getDescription(),
-                        timeFormat.format(startDate));
+                        timeFormat.format(startDate),
+                        task.isDone());
                 for (VBox vBox : thisWeekSubcategories) {
                     if (startDate.before(deadline)) {
                         vBox.getChildren().add(taskEntry.getEntryDisplay());
@@ -464,7 +465,7 @@ public class MainScreen extends CenterScreen {
                                 + EVENT_DATE_SEPARATOR_GENERAL
                                 + dateFormatWithFriendlyDayAndYear.format(endDate);
                 }
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString);
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
                 for (VBox vBox : thisWeekSubcategories) {
                     if (startDate.before(deadline)) {
                         vBox.getChildren().add(taskEntry.getEntryDisplay());

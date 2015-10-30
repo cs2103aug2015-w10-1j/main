@@ -14,7 +14,7 @@ public class DoneScreen extends CenterScreen {
     // Message strings
     // ================================================================================
 
-    private static final String CATEGORY_DONE = "Done";
+    private static final String CATEGORY_DONE = "Showing all completed tasks";
 
     private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
 
@@ -100,9 +100,9 @@ public class DoneScreen extends CenterScreen {
     private void addDoneTask(String taskCount, Task task, String dateString) {
         TaskEntry taskEntry;
         if (dateString == null) {
-            taskEntry = new TaskEntry(taskCount, task.getDescription(), "", true);
+            taskEntry = new TaskEntry(taskCount, task.getDescription(), task.isDone());
         } else {
-            taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, true);
+            taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
         }
         doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
     }
