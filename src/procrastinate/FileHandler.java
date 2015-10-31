@@ -116,7 +116,7 @@ public class FileHandler {
      */
 
     public boolean setPath(String dir, String filename) {
-        assert dir.endsWith("/");
+        assert dir.endsWith(File.separator);
 
         if (filename.isEmpty()) {
             filename = DEFAULT_FULL_FILENAME;
@@ -211,17 +211,13 @@ public class FileHandler {
 
         String abPath = savePath.toAbsolutePath().normalize().toString();
         File oldFile = configFile;
-        File tmp = null;
         BufferedWriter writer = null;
         boolean success = false;
 
-        // write to a tmp file then replace the old file with the new one
         try {
-            tmp = Files.createTempFile(Paths.get(""), "tmp", "").toFile();
-            writer = new BufferedWriter(new FileWriter(tmp));
+            writer = new BufferedWriter(new FileWriter(oldFile));
             writer.write(abPath);
             writer.flush();
-            tmp.renameTo(oldFile);
 
             success = true;
         } catch (IOException e) {
