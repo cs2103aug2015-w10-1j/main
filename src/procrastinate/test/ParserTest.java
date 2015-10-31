@@ -79,8 +79,8 @@ public class ParserTest {
 
         /* Edit with no description*/
         resultCommand = Parser.parse("edit 1");
-        assertEquals(CommandType.INVALID, resultCommand.getType());
-        assertEquals(MESSAGE_INVALID_EDIT_NO_NEW_DATA, resultCommand.getDescription());
+        assertEquals(CommandType.EDIT_PARTIAL, resultCommand.getType());
+        assertEquals(1, resultCommand.getLineNumber());
 
         /* Edit with no line number*/
         resultCommand = Parser.parse("edit");
