@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import procrastinate.task.Task;
+import procrastinate.ui.UI.ScreenView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,8 @@ public class CenterPaneController {
 
     private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
     private static final String LOCATION_HELP_OVERLAY_LAYOUT = "views/HelpOverlay.fxml";
+
+    private static final String MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE = "Unable to recognise ScreenType";
 
     // ================================================================================
     // Animation time values
@@ -53,25 +56,75 @@ public class CenterPaneController {
     private Timeline splashScreenTimeline;
 
     private Node mainScreenNode;
+    private Node doneScreenNode;
     private Node helpOverlayNode;
 
     private MainScreen mainScreen;
+    private DoneScreen doneScreen;
     private HelpOverlay helpOverlay;
 
     private StackPane centerStackPane;
     protected Node currentScreen;       // Changed to protected for testing purposes.
 
+    private static double xOffset, yOffset;
+
     // ================================================================================
     // CenterPaneController methods
     // ================================================================================
 
-    protected CenterPaneController(StackPane centerStackPane) {
-        this.controlledScreens = new HashMap<>();
-        this.centerStackPane = centerStackPane;
+//    protected CenterPaneController(StackPane centerStackPane) {
+//        this.controlledScreens = new HashMap<>();
+//        this.centerStackPane = centerStackPane;
+//
+//        initialiseScreens();
+//        currentScreen = mainScreenNode;
+//        mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
+//    }
 
-        initialiseScreens();
-        currentScreen = mainScreenNode;
-        mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
+    // New CenterPaneController should only contain one screen node at all times, excluding the overlay nodes.
+    protected CenterPaneController(StackPane centerStackPane) {
+        this.centerStackPane = centerStackPane;
+        resetCenterPane();
+        createScreens();
+        setSummaryScreen();
+        mainScreenNode.setOnMouseDragged(e -> System.out.println(e.getButton()));
+//    initialiseScreens();
+//    currentScreen = mainScreenNode;
+//    mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
+    }
+
+    protected void updateScreen(List<Task> taskList, ScreenView screenView) {
+        switch (screenView) {
+
+            case SCREEN_DONE: {
+                if (currentScreen.equals(doneScreenNode)) {
+                    doneScreen.updateTaskList(taskList);
+                } else {
+                    // fade out current screen
+                    // fade in new screen
+                    // update task list
+                }
+                break;
+            }
+
+            case SCREEN_MAIN: {
+                if (currentScreen.equals(mainScreenNode)) {
+                    mainScreen.updateTaskList(taskList);
+                } else {
+                    centerStackPane.getChildren().add(mainScreenNode);
+                }
+                break;
+            }
+
+
+            case SCREEN_SEARCH: {
+                break;
+            }
+
+            default:
+                System.out.println(MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE);
+                break;
+        }
     }
 
     // ================================================================================
@@ -94,6 +147,10 @@ public class CenterPaneController {
      */
     protected void updateMainScreen(List<Task> taskList) {
         mainScreen.updateTaskList(taskList);
+    }
+
+    protected void updateDoneScreen(List<Task> taskList) {
+        doneScreen.updateTaskList(taskList);
     }
 
     /**
@@ -187,6 +244,9 @@ public class CenterPaneController {
         screensList.add(createHelpOverlay());
         helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
         helpOverlayFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
+
+        // Done Screen setup
+        screensList.add(createDoneScreen());
         return screensList;
     }
 
@@ -194,7 +254,7 @@ public class CenterPaneController {
         this.helpOverlay = new HelpOverlay(LOCATION_HELP_OVERLAY_LAYOUT);
         this.helpOverlayNode = helpOverlay.getNode();
         helpOverlayNode.setOpacity(OPACITY_ZERO);
-        mapScreen(SCREEN_HELP, helpOverlayNode);
+//        mapScreen(SCREEN_HELP, helpOverlayNode);
         return helpOverlayNode;
     }
 
@@ -202,8 +262,27 @@ public class CenterPaneController {
         this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
         mainScreenNode.setOpacity(OPACITY_ZERO);
-        mapScreen(SCREEN_MAIN, mainScreenNode);
+//        mapScreen(SCREEN_MAIN, mainScreenNode);
         return mainScreenNode;
+    }
+
+    private Node createDoneScreen() {
+        this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.doneScreenNode = doneScreen.getNode();
+        doneScreenNode.setOpacity(OPACITY_ZERO);
+//        mapScreen(3, doneScreenNode);
+        return doneScreenNode;
+    }
+
+    private void setSummaryScreen() {
+        // update with summary and fade in instead of fade in den update.
+        centerStackPane.getChildren().add(mainScreenNode);
+        currentScreen = mainScreenNode;
+        mainScreenNode.setOpacity(OPACITY_FULL);
+    }
+
+    private void resetCenterPane() {
+        centerStackPane.getChildren().clear();
     }
 
     // ================================================================================
