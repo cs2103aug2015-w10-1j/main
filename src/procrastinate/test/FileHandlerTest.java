@@ -104,6 +104,7 @@ public class FileHandlerTest {
 
     @Test
     public void fileHandler_DirNotGiven_ShouldMakeFileAtCurrLoc() throws IOException {
+        System.out.println("fileHandler_DirNotGiven_ShouldMakeFileAtCurrLoc");
         handler = new FileHandler();
         Path p = Paths.get(defaultName);
 
@@ -162,6 +163,7 @@ public class FileHandlerTest {
 
     @Test
     public void loadTaskState_NoStorageFile_ShouldInitAndLoad() throws IOException {
+        System.out.println("loadTaskState_NoStorageFile_ShouldInitAndLoad");
         TaskState loadedState;
         handler = new FileHandler();
 
@@ -173,6 +175,7 @@ public class FileHandlerTest {
 
     @Test
     public void loadTaskState_HasStorageFile_ShouldLoadState() throws IOException {
+        System.out.println("loadTaskState_HasStorageFile_ShouldLoadState");
         BufferedReader br;
         TaskState loadedState;
 
@@ -180,7 +183,7 @@ public class FileHandlerTest {
         // save stubstate to file
         handler.saveTaskState(new TaskStateStub());
 
-        // laod state from file
+        // load state from file
         loadedState = handler.loadTaskState();
 
         // mock a json file and load from it
