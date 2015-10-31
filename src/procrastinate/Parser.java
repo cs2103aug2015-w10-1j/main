@@ -107,13 +107,13 @@ public class Parser {
                         command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
                         break;
 
-                    case NO_DATE:
-                        command = new Command(CommandType.ADD_DREAM);
-                        break;
-
-                    default:
+                    case FROM_TO_DATE:
                         command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
                         .addEndDate(getEndDate(dateArray));
+                        break;
+
+                    default: // NO_DATE
+                        command = new Command(CommandType.ADD_DREAM);
                         break;
                 }
 
@@ -163,11 +163,14 @@ public class Parser {
                         command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
                         break;
 
-                    default:
+                    default: // NO_DATE
+                        if (description.equals("eventually")) {
+                            command = new Command(CommandType.EDIT_TO_DREAM).addLineNumber(lineNumber);
+                        }
                         break;
                 }
 
-                if (!description.isEmpty()) {
+                if (!description.isEmpty() && !description.equals("eventually")) {
                     command.addDescription(description);
                 }
 
@@ -418,7 +421,7 @@ public class Parser {
             keyword = KEYWORD_DUE_DATE;
         } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
             keyword = KEYWORD_ON_DATE;
-        } else {
+        } else { //FROM_TO_DATE
             keyword = KEYWORD_FROM_TO_DATE;
         }
 
@@ -461,7 +464,7 @@ public class Parser {
             keyword = KEYWORD_DUE_DATE;
         } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
             keyword = KEYWORD_ON_DATE;
-        } else {
+        } else { // FROM_TO_DATE
             keyword = KEYWORD_FROM_TO_DATE;
         }
 

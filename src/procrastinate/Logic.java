@@ -233,7 +233,8 @@ public class Logic {
 
             }
 
-            case EDIT: {
+            case EDIT:
+            case EDIT_TO_DREAM: {
                 int lineNumber = command.getLineNumber();
 
                 if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
@@ -261,6 +262,9 @@ public class Logic {
                     }
 
                     newTask = new Event(oldDescription, newStartDate, newEndDate);
+
+                } else if (commandType == CommandType.EDIT_TO_DREAM) {
+                    newTask = new Dream(oldDescription);
 
                 } else {
                     newTask = Task.copy(oldTask);
@@ -405,7 +409,7 @@ public class Logic {
                     // set time to 0000 hrs of the specified day
                     date = DateUtils.truncate(date, Calendar.DATE);
 
-                    if (command.getType() == CommandType.SEARCH_ON) {
+                    if (commandType == CommandType.SEARCH_ON) {
                         feedback += String.format(FEEDBACK_SEARCH_ON, formatDate(date));
                         if (execute) {
                             lastSearchStartDate = date;
