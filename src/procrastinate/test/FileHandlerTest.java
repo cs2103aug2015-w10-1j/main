@@ -195,6 +195,7 @@ public class FileHandlerTest {
         Type type = new TypeToken<TaskState>() {}.getType();
         br = new BufferedReader(new FileReader(new File(defaultName)));
         TaskState stub = gson.fromJson(br, type);
+        br.close();
 
         assertEquals(stub, loadedState);
     }
