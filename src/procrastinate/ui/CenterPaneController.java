@@ -5,6 +5,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import procrastinate.task.Task;
@@ -84,10 +85,8 @@ public class CenterPaneController {
     // New CenterPaneController should only contain one screen node at all times, excluding the overlay nodes.
     protected CenterPaneController(StackPane centerStackPane) {
         this.centerStackPane = centerStackPane;
-        resetCenterPane();
         createScreens();
         setSummaryScreen();
-        mainScreenNode.setOnMouseDragged(e -> System.out.println(e.getButton()));
 //    initialiseScreens();
 //    currentScreen = mainScreenNode;
 //    mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
@@ -253,7 +252,7 @@ public class CenterPaneController {
     private Node createHelpOverlay() {
         this.helpOverlay = new HelpOverlay(LOCATION_HELP_OVERLAY_LAYOUT);
         this.helpOverlayNode = helpOverlay.getNode();
-        helpOverlayNode.setOpacity(OPACITY_ZERO);
+//        helpOverlayNode.setOpacity(OPACITY_ZERO);
 //        mapScreen(SCREEN_HELP, helpOverlayNode);
         return helpOverlayNode;
     }
@@ -261,7 +260,8 @@ public class CenterPaneController {
     private Node createMainScreen() {
         this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
-        mainScreenNode.setOpacity(OPACITY_ZERO);
+        addMouseDragListeners();
+//        mainScreenNode.setOpacity(OPACITY_ZERO);
 //        mapScreen(SCREEN_MAIN, mainScreenNode);
         return mainScreenNode;
     }
@@ -269,7 +269,7 @@ public class CenterPaneController {
     private Node createDoneScreen() {
         this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.doneScreenNode = doneScreen.getNode();
-        doneScreenNode.setOpacity(OPACITY_ZERO);
+//        doneScreenNode.setOpacity(OPACITY_ZERO);
 //        mapScreen(3, doneScreenNode);
         return doneScreenNode;
     }
@@ -281,8 +281,17 @@ public class CenterPaneController {
         mainScreenNode.setOpacity(OPACITY_FULL);
     }
 
-    private void resetCenterPane() {
-        centerStackPane.getChildren().clear();
+    // Required since each screen node is wrapped inside a scrollPane.
+    private void addMouseDragListeners() {
+        Node scrollPaneNode = ((ScrollPane)mainScreenNode.lookup("#scrollPane")).getContent();
+        scrollPaneNode.setOnMousePressed((mouseEvent) -> {
+            xOffset = mouseEvent.getSceneX();
+            yOffset = mouseEvent.getSceneY();
+        });
+        scrollPaneNode.setOnMouseDragged((mouseEvent) -> {
+            centerStackPane.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
+            centerStackPane.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+        });
     }
 
     // ================================================================================
