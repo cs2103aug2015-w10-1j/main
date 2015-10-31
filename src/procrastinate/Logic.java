@@ -14,6 +14,7 @@ import procrastinate.Command.CommandType;
 import procrastinate.task.*;
 import procrastinate.test.UIStub;
 import procrastinate.ui.UI;
+import procrastinate.ui.UI.ScreenView;
 
 import java.io.File;
 import java.io.IOException;
@@ -553,22 +554,22 @@ public class Logic {
     private void updateUiTaskList() {
         switch (currentView) {
             case SHOW_OUTSTANDING:
-                updateUiTaskList(taskEngine.getOutstandingTasks());
+                updateUiTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_DONE:
-                updateUiTaskList(taskEngine.getCompletedTasks());
+                updateUiTaskList(taskEngine.getCompletedTasks(), ScreenView.SCREEN_DONE);
                 break;
             case SHOW_ALL:
-                updateUiTaskList(taskEngine.getAllTasks());
+                updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_SEARCH_RESULTS:
-                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate));
+                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate), ScreenView.SCREEN_MAIN);
                 break;
         }
     }
 
-    private void updateUiTaskList(List<Task> taskList) {
-        ui.updateTaskList(taskList);
+    private void updateUiTaskList(List<Task> taskList, ScreenView screenView) {
+        ui.updateTaskList(taskList, screenView);
     }
 
     // Retrieves the current user input from the TextField.

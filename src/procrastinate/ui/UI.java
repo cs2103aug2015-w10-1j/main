@@ -68,11 +68,6 @@ public class UI {
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
-    public void updateTaskList(List<Task> tasks) {
-        // Pass the updates to the main screen
-        centerPaneController.updateMainScreen(tasks);
-    }
-
     public void updateTaskList(List<Task> taskList, ScreenView screenView) {
         centerPaneController.updateScreen(taskList, screenView);
     }
@@ -130,15 +125,15 @@ public class UI {
      */
     public void showHelp() {
         if (!isScreenOverlayed) {
-            centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+//            centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
             isScreenOverlayed = true;
         }
     }
 
-    private void showSplashScreen() {
-        centerPaneController.showSplashScreen();
-        isScreenOverlayed = true;
-    }
+//    private void showSplashScreen() {
+//        centerPaneController.showSplashScreen();
+//        isScreenOverlayed = true;
+//    }
 
     // ================================================================================
     // DialogPopupHandler methods

@@ -141,6 +141,7 @@ public class MainScreen extends CenterScreen {
      * addTask methods depending on their (start) dates.
      * @param taskList List of Tasks to be added onto the screen
      */
+    @Override
     protected void updateTaskList(List<Task> taskList) {
         getUpdatedDates();
         clearTaskList();
@@ -152,6 +153,26 @@ public class MainScreen extends CenterScreen {
         }
         updateDisplay();
         setupSummaryViewIfRequested(taskList);
+    }
+
+    @Override
+    protected SequentialTransition getScreenSwitchOutSequence() {
+        SequentialTransition sequentialTransition = new SequentialTransition();
+        for (Node node : nodeList) {
+            if (mainVBox.getChildren().contains(node)) {
+                sequentialTransition.getChildren().add(0, generateFadeOutTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT));
+            }
+        }
+        return sequentialTransition;
+    }
+
+    @Override
+    protected SequentialTransition getScreenSwitchInSequence() {
+        SequentialTransition sequentialTransition = new SequentialTransition();
+        for (Node node : nodeList) {
+            node.setOpacity(OPACITY_FULL);
+        }
+        return sequentialTransition;
     }
 
     /**
@@ -181,8 +202,8 @@ public class MainScreen extends CenterScreen {
                     summaryCount[i+1] = summaryCount[i+1] + summaryCount[i];
                 }
             }
-            isShowSummaryView = false;
         }
+        isShowSummaryView = false;
     }
 
     private HBox buildEllipsis(int numTaskLeft) {
@@ -199,7 +220,7 @@ public class MainScreen extends CenterScreen {
 
             case DEADLINE: {
                 taskDate = ((Deadline) task).getDate();
-                isSameYear = yearFormat.format(today).equals(yearFormat.format(taskDate));
+                isSameYear = checkIfEventEndSameYear(today, taskDate);
                 if (isSameYear) {
                     addTaskWithSameYear(task, taskDate);
                 } else {
@@ -275,11 +296,7 @@ public class MainScreen extends CenterScreen {
         switch (task.getType()) {
 
             case DEADLINE: {
-                dateString = getDayOfWeek(date)
-                            + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                            + dateFormat.format(date)
-                            + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                            + timeFormat.format(date);
+                dateString = getSameYearDeadlineDateFormat(date);
                 String taskCount = taskCountFormatted.get();
                 TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
                 if (task.isDone()) {
@@ -299,30 +316,12 @@ public class MainScreen extends CenterScreen {
                 boolean isSameEndYear = checkIfEventEndSameYear(endDate, today);
                 if (isSameEndYear) {
                     if (checkIfStartAndEndSameDay(date, endDate)) {
-                        dateString = getDayOfWeek(date)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + dateFormat.format(date)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(date)
-                                + EVENT_DATE_SEPARATOR_SAME_DAY
-                                + timeFormat.format(endDate);
+                        dateString = getSameYearSameDayEventDateFormat(date, endDate);
                     } else {
-                        dateString = getDayOfWeek(date)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + dateFormat.format(date)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(date)
-                                + EVENT_DATE_SEPARATOR_GENERAL
-                                + getDayOfWeek(endDate)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + dateFormat.format(endDate)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(endDate);
+                        dateString = getSameYearDifferentDayEventDateFormat(date, endDate);
                     }
                 } else {
-                    dateString = dateFormatWithFriendlyDayAndYear.format(date)
-                                + EVENT_DATE_SEPARATOR_GENERAL
-                                + dateFormatWithFriendlyDayAndYear.format(endDate);
+                    dateString = getDifferentYearEventDateFormat(date, endDate);
                 }
                 String taskCount = taskCountFormatted.get();
                 TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
@@ -351,7 +350,7 @@ public class MainScreen extends CenterScreen {
         switch (task.getType()) {
 
             case DEADLINE: {
-                dateString = dateFormatWithFriendlyDayAndYear.format(date);
+                dateString = getDifferentYearDeadlineDateFormat(date);
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
                 if (task.isDone()) {
                     doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
@@ -368,13 +367,9 @@ public class MainScreen extends CenterScreen {
                 // if same day also should be in same line.
                 boolean isSameEndYear = checkIfEventEndSameYear(date, endDate);
                 if (isSameEndYear && checkIfStartAndEndSameDay(date, endDate)) {
-                    dateString = dateFormatWithFriendlyDayAndYear.format(date)
-                            + EVENT_DATE_SEPARATOR_SAME_DAY
-                            + timeFormat.format(endDate);
+                    dateString = getDifferentYearSameDayEventDateFormat(date, endDate);
                 } else {
-                    dateString = dateFormatWithFriendlyDayAndYear.format(date)
-                                + EVENT_DATE_SEPARATOR_GENERAL
-                                + dateFormatWithFriendlyDayAndYear.format(endDate);
+                    dateString = getDifferentYearEventDateFormat(date, endDate);
                 }
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
                 if (task.isDone()) {
@@ -436,34 +431,14 @@ public class MainScreen extends CenterScreen {
                 boolean isSameEndYear = checkIfEventEndSameYear(endDate, today);
                 if (isSameEndYear) {
                     if (checkIfStartAndEndSameDay(startDate, endDate)) {
-                        dateString = timeFormat.format(startDate)
-                                + EVENT_DATE_SEPARATOR_SAME_DAY
-                                + timeFormat.format(endDate);
+                        dateString = getThisWeekSameDayEventDateFormat(startDate, endDate);
                     } else if (endDate.before(endOfWeek)) {
-                    dateString = getFriendlyDayFormatThisWeek(startDate)
-                            + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                            + timeFormat.format(startDate)
-                            + EVENT_DATE_SEPARATOR_GENERAL
-                            + getFriendlyDayFormatThisWeek(endDate)
-                            + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                            + timeFormat.format(endDate);
+                    dateString = getThisWeekEndDifferentDayEventDateFormat(startDate, endDate);
                     } else {
-                        dateString = getFriendlyDayFormatThisWeek(startDate)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(startDate)
-                                + EVENT_DATE_SEPARATOR_GENERAL
-                                + getDayOfWeek(endDate)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + dateFormat.format(endDate)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(endDate);
+                        dateString = getThisWeekEndDifferentWeekEventDateFormat(startDate, endDate);
                     }
                 } else {
-                    dateString = getFriendlyDayFormatThisWeek(startDate)
-                                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                                + timeFormat.format(startDate)
-                                + EVENT_DATE_SEPARATOR_GENERAL
-                                + dateFormatWithFriendlyDayAndYear.format(endDate);
+                    dateString = getThisWeekEndDifferentYearDateFormat(startDate, endDate);
                 }
                 TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
                 for (VBox vBox : thisWeekSubcategories) {

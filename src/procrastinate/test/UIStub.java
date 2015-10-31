@@ -19,10 +19,6 @@ public class UIStub extends UI {
     public void setUpBinding(StringProperty userInput, StringProperty statusLabelText, BooleanProperty isExit) {
     }
     @Override
-    public void updateTaskList(List<Task> tasks) {
-        taskList = tasks;
-    }
-    @Override
     public TextField getUserInputField() {
         return new TextField();
     }

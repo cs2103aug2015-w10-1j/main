@@ -2,6 +2,7 @@ package procrastinate.ui;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
+import javafx.animation.SequentialTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -13,6 +14,8 @@ import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.util.converter.NumberStringConverter;
+import procrastinate.task.Task;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -21,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public abstract class CenterScreen extends VBox {
 
@@ -36,10 +40,10 @@ public abstract class CenterScreen extends VBox {
     protected static final String FX_BACKGROUND_IMAGE_NULL = "-fx-background-image: null;";
     protected static String FX_BACKGROUND_IMAGE_NO_TASKS; // will be initialised later on.
 
-    private static final String UI_NUMBER_SEPARATOR = ". ";
+    protected static final double OPACITY_ZERO = 0;
+    protected static final double OPACITY_FULL = 1;
 
-    private static final double OPACITY_ZERO = 0;
-    private static final double OPACITY_FULL = 1;
+    private static final String UI_NUMBER_SEPARATOR = ". ";
 
     private static final String DATE_TODAY = "Today";
     private static final String DATE_TOMORROW = "Tomorrow";
@@ -86,6 +90,9 @@ public abstract class CenterScreen extends VBox {
      * Setup the various categories that tasks can fall under
      */
     protected abstract void createCategories();
+    protected abstract void updateTaskList(List<Task> taskList);
+    protected abstract SequentialTransition getScreenSwitchOutSequence();
+    protected abstract SequentialTransition getScreenSwitchInSequence();
 
     private void loadLayout(String filePath) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(filePath));
@@ -126,6 +133,94 @@ public abstract class CenterScreen extends VBox {
     }
 
     // ================================================================================
+    // Date Format methods
+    // ================================================================================
+
+    protected String getDifferentYearDeadlineDateFormat(Date date) {
+        return dateFormatWithFriendlyDayAndYear.format(date);
+    }
+
+    protected String getDifferentYearSameDayEventDateFormat(Date date, Date endDate) {
+        return dateFormatWithFriendlyDayAndYear.format(date)
+                + EVENT_DATE_SEPARATOR_SAME_DAY
+                + timeFormat.format(endDate);
+    }
+
+    protected String getDifferentYearEventDateFormat(Date date, Date endDate) {
+        return dateFormatWithFriendlyDayAndYear.format(date)
+                    + EVENT_DATE_SEPARATOR_GENERAL
+                    + dateFormatWithFriendlyDayAndYear.format(endDate);
+    }
+
+    protected String getSameYearDeadlineDateFormat(Date date) {
+        return getDayOfWeek(date)
+                    + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                    + dateFormat.format(date)
+                    + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                    + timeFormat.format(date);
+    }
+
+    protected String getSameYearSameDayEventDateFormat(Date date, Date endDate) {
+        return getDayOfWeek(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(date)
+                + EVENT_DATE_SEPARATOR_SAME_DAY
+                + timeFormat.format(endDate);
+    }
+
+    protected String getSameYearDifferentDayEventDateFormat(Date date, Date endDate) {
+        return getDayOfWeek(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(date)
+                + EVENT_DATE_SEPARATOR_GENERAL
+                + getDayOfWeek(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(endDate);
+    }
+
+    protected String getThisWeekSameDayEventDateFormat(Date startDate, Date endDate) {
+        return timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_SAME_DAY
+                + timeFormat.format(endDate);
+    }
+
+    protected String getThisWeekEndDifferentDayEventDateFormat(Date startDate, Date endDate) {
+        return getFriendlyDayFormatThisWeek(startDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_GENERAL
+                + getFriendlyDayFormatThisWeek(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(endDate);
+    }
+
+    protected String getThisWeekEndDifferentWeekEventDateFormat(Date startDate, Date endDate) {
+        return getFriendlyDayFormatThisWeek(startDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_GENERAL
+                + getDayOfWeek(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(endDate);
+    }
+
+    protected String getThisWeekEndDifferentYearDateFormat(Date startDate, Date endDate) {
+        return getFriendlyDayFormatThisWeek(startDate)
+                    + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                    + timeFormat.format(startDate)
+                    + EVENT_DATE_SEPARATOR_GENERAL
+                    + dateFormatWithFriendlyDayAndYear.format(endDate);
+    }
+
+    // ================================================================================
     // Utility methods
     // ================================================================================
 
@@ -152,8 +247,8 @@ public abstract class CenterScreen extends VBox {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
     }
 
-    protected boolean checkIfEventEndSameYear(Date date, Date today) {
-        return yearFormat.format(today).equals(yearFormat.format(date));
+    protected boolean checkIfEventEndSameYear(Date date1, Date date2) {
+        return yearFormat.format(date1).equals(yearFormat.format(date2));
     }
 
     protected boolean checkIfStartAndEndSameDay(Date firstDate, Date secondDate) {

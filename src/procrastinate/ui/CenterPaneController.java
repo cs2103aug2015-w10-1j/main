@@ -3,6 +3,7 @@ package procrastinate.ui;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -12,17 +13,9 @@ import procrastinate.task.Task;
 import procrastinate.ui.UI.ScreenView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class CenterPaneController {
-
-    // ================================================================================
-    // Screen change keys
-    // ================================================================================
-
-    protected static final int SCREEN_MAIN = 1;
-    protected static final int SCREEN_HELP = 2;  // Maybe should use arraylist of these integers/string to reference the integers?
 
     // ================================================================================
     // Message strings
@@ -51,7 +44,10 @@ public class CenterPaneController {
     // Class variables
     // ================================================================================
 
-    private HashMap<Integer, Node> controlledScreens;   // CHANGE TO SWITCH
+    protected Node currentScreen;       // Changed to protected for testing purposes.
+    protected CenterScreen currentScreenView;
+
+    private static double xOffset, yOffset;
 
     private FadeTransition helpOverlayFadeOut;
     private Timeline splashScreenTimeline;
@@ -60,59 +56,44 @@ public class CenterPaneController {
     private Node doneScreenNode;
     private Node helpOverlayNode;
 
-    private MainScreen mainScreen;
     private DoneScreen doneScreen;
     private HelpOverlay helpOverlay;
+    private MainScreen mainScreen;
 
     private StackPane centerStackPane;
-    protected Node currentScreen;       // Changed to protected for testing purposes.
-
-    private static double xOffset, yOffset;
 
     // ================================================================================
     // CenterPaneController methods
     // ================================================================================
-
-//    protected CenterPaneController(StackPane centerStackPane) {
-//        this.controlledScreens = new HashMap<>();
-//        this.centerStackPane = centerStackPane;
-//
-//        initialiseScreens();
-//        currentScreen = mainScreenNode;
-//        mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
-//    }
 
     // New CenterPaneController should only contain one screen node at all times, excluding the overlay nodes.
     protected CenterPaneController(StackPane centerStackPane) {
         this.centerStackPane = centerStackPane;
         createScreens();
         setSummaryScreen();
-//    initialiseScreens();
-//    currentScreen = mainScreenNode;
-//    mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
     }
 
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
         switch (screenView) {
 
             case SCREEN_DONE: {
-                if (currentScreen.equals(doneScreenNode)) {
+                if (currentScreenView == doneScreen) {
                     doneScreen.updateTaskList(taskList);
+                    break;
                 } else {
-                    // fade out current screen
-                    // fade in new screen
-                    // update task list
+                    startScreenSwitchSequence(taskList, doneScreenNode, doneScreen);
+                    break;
                 }
-                break;
             }
 
             case SCREEN_MAIN: {
-                if (currentScreen.equals(mainScreenNode)) {
+                if (currentScreenView == mainScreen) {
                     mainScreen.updateTaskList(taskList);
+                    break;
                 } else {
-                    centerStackPane.getChildren().add(mainScreenNode);
+                    startScreenSwitchSequence(taskList, mainScreenNode, mainScreen);
+                    break;
                 }
-                break;
             }
 
 
@@ -126,31 +107,22 @@ public class CenterPaneController {
         }
     }
 
+    private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
+        SequentialTransition screenSwitchSequence;
+        screenSwitchSequence = currentScreenView.getScreenSwitchOutSequence();
+        screenSwitchSequence.setOnFinished(e -> {
+            centerStackPane.getChildren().clear();
+            centerStackPane.getChildren().add(nodeToSwitchIn);
+            screenToSwitchIn.getScreenSwitchInSequence().play();
+            screenToSwitchIn.updateTaskList(taskList);
+            currentScreenView = screenToSwitchIn;
+        });
+        screenSwitchSequence.play();
+    }
+
     // ================================================================================
     // Utility methods
     // ================================================================================
-
-    /**
-     * Each screen is mapped to a key for use in UI/Logic for screen changing
-     * @param screenKey
-     */
-    protected void changeScreen(int screenKey) {
-        Node screen = controlledScreens.get(screenKey);
-        currentScreen = screen;
-        setScreen(screen);
-    }
-
-    /**
-     * Updates the given task list onto the MainScreen view
-     * @param taskList
-     */
-    protected void updateMainScreen(List<Task> taskList) {
-        mainScreen.updateTaskList(taskList);
-    }
-
-    protected void updateDoneScreen(List<Task> taskList) {
-        doneScreen.updateTaskList(taskList);
-    }
 
     /**
      * Hides the current screen overlay for:
@@ -220,70 +192,55 @@ public class CenterPaneController {
     // Init methods
     // ================================================================================
 
-    private void initialiseScreens() {
-        ArrayList<Node> screensList = createScreens();
-        centerStackPane.getChildren().addAll(screensList);
-    }
-
-    private void mapScreen(int screenKey, Node newScreen) {
-        controlledScreens.put(screenKey, newScreen);
-    }
-
     /**
      * This creates and holds a list of the screens that can be easily added onto the center pane
      * @return list of screens
      */
-    private ArrayList<Node> createScreens() {
+    private void createScreens() {
+        // HelpOverlay setup
+        createHelpOverlay();
+        helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
+        helpOverlayFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
+
         ArrayList<Node> screensList = new ArrayList<>();
 
         // Main Screen setup
         screensList.add(createMainScreen());
 
-        // Help Screen setup
-        screensList.add(createHelpOverlay());
-        helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
-        helpOverlayFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
-
         // Done Screen setup
         screensList.add(createDoneScreen());
-        return screensList;
     }
 
     private Node createHelpOverlay() {
         this.helpOverlay = new HelpOverlay(LOCATION_HELP_OVERLAY_LAYOUT);
         this.helpOverlayNode = helpOverlay.getNode();
-//        helpOverlayNode.setOpacity(OPACITY_ZERO);
-//        mapScreen(SCREEN_HELP, helpOverlayNode);
         return helpOverlayNode;
     }
 
     private Node createMainScreen() {
         this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
-        addMouseDragListeners();
-//        mainScreenNode.setOpacity(OPACITY_ZERO);
-//        mapScreen(SCREEN_MAIN, mainScreenNode);
+        addMouseDragListeners(mainScreenNode);
         return mainScreenNode;
     }
 
     private Node createDoneScreen() {
         this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.doneScreenNode = doneScreen.getNode();
-//        doneScreenNode.setOpacity(OPACITY_ZERO);
-//        mapScreen(3, doneScreenNode);
+        addMouseDragListeners(doneScreenNode);
         return doneScreenNode;
     }
 
     private void setSummaryScreen() {
         // update with summary and fade in instead of fade in den update.
         centerStackPane.getChildren().add(mainScreenNode);
-        currentScreen = mainScreenNode;
+        currentScreenView = mainScreen;
         mainScreenNode.setOpacity(OPACITY_FULL);
     }
 
     // Required since each screen node is wrapped inside a scrollPane.
-    private void addMouseDragListeners() {
-        Node scrollPaneNode = ((ScrollPane)mainScreenNode.lookup("#scrollPane")).getContent();
+    private void addMouseDragListeners(Node screenNode) {
+        Node scrollPaneNode = ((ScrollPane)screenNode.lookup("#scrollPane")).getContent();
         scrollPaneNode.setOnMousePressed((mouseEvent) -> {
             xOffset = mouseEvent.getSceneX();
             yOffset = mouseEvent.getSceneY();

@@ -32,7 +32,7 @@ public class UITestHelper {
     }
 
     public void switchToMain() {
-        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
+//        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
     }
 
     public Node getMainScreen() {
@@ -40,7 +40,7 @@ public class UITestHelper {
     }
 
     public void switchToHelp() {
-        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+//        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
     }
 
     public Node getHelpScreen() {
