@@ -23,7 +23,6 @@ public class Parser {
 
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
-    private static final String MESSAGE_INVALID_EDIT_NO_NEW_DATA = "Please specify the new description or date(s)";
     private static final String MESSAGE_INVALID_NO_PATH = "Please specify the save directory path";
 
     private static final String COMMAND_ADD = "add";
@@ -143,9 +142,8 @@ public class Parser {
                 }
 
                 if (argument.length <= 2 && commandInputType == CommandStringType.NO_DATE) { // Too few arguments
-                    // Treat "edit 1" as an invalid command
-                    // Display a helpful message (no description or date(s) given)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_EDIT_NO_NEW_DATA);
+                    // Treat "edit 1" as a partial edit command
+                    return new Command(CommandType.EDIT_PARTIAL).addLineNumber(lineNumber);
                 }
 
                 String description = "";

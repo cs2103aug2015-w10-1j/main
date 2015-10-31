@@ -69,6 +69,7 @@ public class Logic {
     private static final String FEEDBACK_ERROR_SET_PATH = "Could not set path to ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
+    private static final String PREVIEW_PARTIAL_EDIT = "Please specify the new description/date(s) or press tab";
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
@@ -294,6 +295,16 @@ public class Logic {
                                 formatDateTime(((Event) newTask).getEndDate()));
                 }
 
+            }
+
+            case EDIT_PARTIAL: {
+                int lineNumber = command.getLineNumber();
+
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
+                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+                }
+
+                return PREVIEW_PARTIAL_EDIT;
             }
 
             case DELETE: {
@@ -562,6 +573,11 @@ public class Logic {
         return userInput.get();
     }
 
+    private void setInput(String input) {
+        userInput.set(input);
+        ui.getUserInputField().end();
+    }
+
     private void clearInput() {
         ui.getUserInputField().clear();
     }
@@ -590,6 +606,24 @@ public class Logic {
             }
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelp();
+            }
+            if (keyEvent.getCode().equals(KeyCode.TAB)) {
+                if (!hasLastPreviewedCommand()) {
+                    return;
+                }
+
+                Command command = lastPreviewedCommand;
+                if (command.getType() != CommandType.EDIT_PARTIAL) {
+                    return;
+                }
+
+                int lineNumber = lastPreviewedCommand.getLineNumber();
+
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
+                    return;
+                }
+
+                setInput(getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
             }
         };
     }
