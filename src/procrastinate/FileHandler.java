@@ -210,12 +210,11 @@ public class FileHandler {
         assert Files.isRegularFile(savePath);
 
         String abPath = savePath.toAbsolutePath().normalize().toString();
-        File oldFile = configFile;
         BufferedWriter writer = null;
         boolean success = false;
 
         try {
-            writer = new BufferedWriter(new FileWriter(oldFile));
+            writer = new BufferedWriter(new FileWriter(configFile));
             writer.write(abPath);
             writer.flush();
 
