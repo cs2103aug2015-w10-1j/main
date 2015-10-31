@@ -50,6 +50,7 @@ public class FileHandlerTest {
 
                 reader = new BufferedReader(new FileReader(cfg.toFile()));
                 originalSavePath = Paths.get(reader.readLine());
+                reader.close();
                 System.out.println(originalSavePath);
                 hasSave = Files.exists(originalSavePath);
 
@@ -152,13 +153,9 @@ public class FileHandlerTest {
         handler = new FileHandler();
         System.out.println(handler.getSaveFile());
         BufferedReader reader = new BufferedReader(new FileReader(Paths.get("settings.config").toFile()));
-        String line;
-        if ((line = reader.readLine()) != null) {
-            assertEquals(defaultName, line);
-        } else {
-            fail();
-        }
+        String line = reader.readLine();
         reader.close();
+        assertEquals(defaultName, line);
     }
 
     @Test
