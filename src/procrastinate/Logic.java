@@ -87,6 +87,7 @@ public class Logic {
     // Class variables
     // ================================================================================
 
+    private static Stage stage;
     private TaskEngine taskEngine;
     private UI ui;
 
@@ -131,8 +132,9 @@ public class Logic {
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
-    public static Logic getInstance() {
+    public static Logic getInstance(Stage primaryStage) {
         if (logic == null) {
+            stage = primaryStage;
             logic = new Logic();
         }
         return logic;
@@ -143,13 +145,13 @@ public class Logic {
     }
 
     // Main handle
-    public void initialiseWindow(Stage primaryStage) {
+    public void initialiseWindow() {
         assert(ui != null);
-        ui.setUpStage(primaryStage);
         ui.setUpBinding(userInput, statusLabelText, isExit);
         attachHandlersAndListeners();
         updateUiTaskList();
         setStatus(STATUS_READY);
+        ui.setUpAndShowStage();
     }
 
     // ================================================================================
@@ -532,7 +534,8 @@ public class Logic {
     // ================================================================================
 
     private void initUi() {
-        ui = new UI();
+//        ui = new UI();
+        ui = new UI(stage);
     }
 
     private void initTaskEngine() throws IOException {
