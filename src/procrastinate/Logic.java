@@ -459,33 +459,32 @@ public class Logic {
                 String parsedPathDirectory = null;
                 String pathFilename = command.getPathFilename();
                 File targetDirectory = new File(pathDirectory);
+
                 try {
                     parsedPathDirectory = targetDirectory.getCanonicalPath();
                 } catch (IOException e) {
                     parsedPathDirectory = targetDirectory.getAbsolutePath();
                 }
+
                 if (!parsedPathDirectory.endsWith(File.separator)) {
                     parsedPathDirectory += File.separator;
+                }
+
+                if (pathFilename == null) {
+                    pathFilename = FileHandler.DEFAULT_FULL_FILENAME;
                 }
 
                 if (execute) {
                     boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
                     if (!success) {
                         String errorFeedback = FEEDBACK_ERROR_SET_LOCATION + parsedPathDirectory;
-                        if (pathFilename != null) {
-                            errorFeedback += pathFilename + FileHandler.DEFAULT_FILE_EXTENSION;
-                        }
+                        errorFeedback += pathFilename;
                         ui.createErrorDialog(errorFeedback);
                     }
                 }
 
                 String feedback = FEEDBACK_SET_LOCATION + parsedPathDirectory;
-
-                if (pathFilename != null) {
-                    feedback += pathFilename + FileHandler.DEFAULT_FILE_EXTENSION;
-                } else {
-                    feedback += FileHandler.DEFAULT_FULL_FILENAME;
-                }
+                feedback += pathFilename;
 
                 return feedback;
             }

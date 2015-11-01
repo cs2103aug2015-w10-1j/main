@@ -43,9 +43,7 @@ public class FileHandler {
     // Defaults
     // ================================================================================
 
-    private static final String DEFAULT_FILENAME = "storage";
-    public static final String DEFAULT_FILE_EXTENSION = ".json";
-    public static final String DEFAULT_FULL_FILENAME = DEFAULT_FILENAME + DEFAULT_FILE_EXTENSION;
+    public static final String DEFAULT_FULL_FILENAME = "storage.json";
     private static final String CONFIG_PATH = "settings.config";
 
     // ================================================================================
@@ -120,8 +118,6 @@ public class FileHandler {
 
         if (filename == null || filename.isEmpty()) {
             filename = DEFAULT_FULL_FILENAME;
-        } else {
-            filename = filename + DEFAULT_FILE_EXTENSION;
         }
 
         Path newPath = Paths.get(dir + filename);
