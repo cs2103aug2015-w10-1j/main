@@ -316,8 +316,9 @@ public class Parser {
             case COMMAND_SET_PATH: {
                 if (commandInputType.equals(CommandStringType.DUE_DATE)
                         || commandInputType.equals(CommandStringType.FROM_TO_DATE)
-                        || userCommand.split(WHITESPACE).length > 2) {
-                    // Have dates or have more than three words
+                        || userCommand.split(WHITESPACE).length > 3
+                        || userCommand.split(WHITESPACE).length == 2) {
+                    // Have dates or have more than four words or only two words
                     // Inject add to the front of the command and recurse
                     return Parser.parse(putAddInFront(userInput));
                 }
@@ -328,10 +329,11 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_PATH);
                 }
 
-                String[] argument = userCommand.split(WHITESPACE, 2);
-                String pathDescription = argument[1];
+                String[] argument = userCommand.split(WHITESPACE, 3);
+                String pathDirectory = argument[1];
+                String fileName = argument[2];
 
-                return new Command(CommandType.SET_PATH).addDescription(pathDescription);
+                return new Command(CommandType.SET_PATH).addPathDirectory(pathDirectory).addFileName(fileName);
             }
 
             case COMMAND_EXIT:
