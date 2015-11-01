@@ -38,8 +38,7 @@ public class MainScreen extends CenterScreen {
     private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
 
     private static final String ELLIPSIS_STRING = "... ";
-    private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " tasks hidden ...";
-    private static final String ELLIPSIS_MESSAGE_TASK_HIDDEN = " task hidden ...";
+    private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " Task(s) Hidden ...";
 
     // Time values used are in milliseconds
     private static final int TIME_TRANSITION_CATEGORY_FADE_IN = 250;
@@ -187,15 +186,9 @@ public class MainScreen extends CenterScreen {
     }
 
     private HBox buildEllipsis(int numTaskLeft) {
-        String message = ELLIPSIS_STRING + numTaskLeft;
-        if (numTaskLeft > 1) {
-            message += ELLIPSIS_MESSAGE_TASKS_HIDDEN;
-        } else {
-            message += ELLIPSIS_MESSAGE_TASK_HIDDEN;
-        }
-        Label ellipsisMessage = new Label(message);
-        HBox ellipsisBox = new HBox(ellipsisMessage);
-        ellipsisBox.setAlignment(Pos.CENTER);
+        Label ellipsisMessage = new Label(ELLIPSIS_STRING + numTaskLeft + ELLIPSIS_MESSAGE_TASKS_HIDDEN);
+           HBox ellipsisBox = new HBox(ellipsisMessage);
+           ellipsisBox.setAlignment(Pos.CENTER);
         return ellipsisBox;
     }
 
