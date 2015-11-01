@@ -213,6 +213,7 @@ public class FileHandler {
         BufferedWriter writer = null;
         boolean success = false;
 
+        // overwrite the contents of the file.
         try {
             writer = new BufferedWriter(new FileWriter(configFile));
             writer.write(abPath);

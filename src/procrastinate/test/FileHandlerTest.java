@@ -118,7 +118,7 @@ public class FileHandlerTest {
     public void setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc() throws IOException {
         System.out.println("setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc");
         handler = new FileHandler();
-        String dir = "../";
+        String dir = ".." + File.separator;
         String filename = "setpathtest";
         Path newPath = Paths.get(dir+filename+".json");
         handler.setPath(dir, filename);
@@ -127,8 +127,8 @@ public class FileHandlerTest {
         String content = br.readLine();
         br.close();
 
-        assertTrue(newPath.equals(handler.getSaveFile().toPath()));
-        assertTrue(Files.isSameFile(newPath, handler.getSaveFile().toPath()));
+        assertEquals(newPath, handler.getSaveFile().toPath());
+        assertEquals(newPath.toFile(), handler.getSaveFile());
         assertEquals(newPath.toAbsolutePath().normalize().toString().trim(), content.trim());
     }
 
@@ -137,7 +137,7 @@ public class FileHandlerTest {
         System.out.println("setPath_SameDirDiffName_ShouldRemoveOldFile");
         handler = new FileHandler();
 
-        String dir = "./";
+        String dir = "." + File.separator;
         String filename = "setpathtest";
 
         File oldSave = handler.getSaveFile();
