@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
@@ -8,19 +9,36 @@
 
 <HBox styleClass="titleBar" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
-         <image>
-            <Image url="/procrastinate/ui/images/icon.png" />
-         </image></ImageView>
-      <Label fx:id="title" alignment="TOP_LEFT" focusTraversable="false" text="Procrastinate" textAlignment="CENTER" HBox.hgrow="ALWAYS" />
-      <Region HBox.hgrow="ALWAYS" />
-      <Label fx:id="minimise" focusTraversable="false" text="Minimise">
-         <cursor>
-            <Cursor fx:constant="HAND" />
-         </cursor></Label>
-      <Label fx:id="close" focusTraversable="false" text="Close">
-         <cursor>
-            <Cursor fx:constant="HAND" />
-         </cursor></Label>
+      <HBox HBox.hgrow="ALWAYS">
+         <children>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="/procrastinate/ui/images/icon.png" />
+               </image>
+            </ImageView>
+         </children>
+      </HBox>
+      <HBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+         <children>
+            <Label fx:id="title" alignment="TOP_CENTER" focusTraversable="false" text="Procrastinate" />
+         </children>
+         <HBox.margin>
+            <Insets left="25.0" />
+         </HBox.margin>
+      </HBox>
+      <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS">
+         <children>
+            <Label fx:id="minimise" focusTraversable="false" text="Minimise">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Label>
+            <Label fx:id="close" focusTraversable="false" text="Close">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Label>
+         </children>
+      </HBox>
    </children>
 </HBox>
