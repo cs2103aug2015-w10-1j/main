@@ -19,6 +19,8 @@ public class Command {
     private Date startDate;
     private Date endDate;
     private int lineNumber;
+    private String pathDirectory;
+    private String fileName;
 
     public Command(CommandType type) {
         this.type = type;
@@ -53,6 +55,16 @@ public class Command {
         return this;
     }
 
+    public Command addPathDirectory(String pathDirectory) {
+        this.pathDirectory = pathDirectory;
+        return this;
+    }
+
+    public Command addFileName(String fileName) {
+        this.fileName = fileName;
+        return this;
+    }
+
     // ================================================================================
     // Getter methods
     // ================================================================================
@@ -79,6 +91,14 @@ public class Command {
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    public String getPathDirectory() {
+        return pathDirectory;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
 }
