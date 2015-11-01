@@ -192,7 +192,7 @@ public class MainScreen extends CenterScreen {
                 if (currNode.equals(overdueNode) && overdueTaskList.getChildren().size() < currentMax) {
                     // For 'Overdue' category, a change to the roll over is done since it will
                     // cause more subcategories to be shown under the 'Upcoming' category
-                    summaryCount[i+1] = summaryCount[i+1] + ((summaryCount[i] - overdueTaskList.getChildren().size())/2);
+//                    summaryCount[i+1] = summaryCount[i+1] + ((summaryCount[i] - overdueTaskList.getChildren().size())/2);
                     continue;
                 } else if (mainVBox.getChildren().contains(currNode)) {
                     VBox currentTaskList = ((VBox) currNode.lookup(SELECTOR_CATEGORY_VBOX));
@@ -227,7 +227,7 @@ public class MainScreen extends CenterScreen {
                             }
                         }
                         // In the case that 'Overdue' has no tasks, another subcategory will be shown but with 2 tasks only
-                        if (upcomingMax > 0 && tasksAdded < 4) {
+                        if (upcomingMax > 0 && tasksAdded < 3) {
                             for (int j=endSubcategoryAt+1; j<upcomingSubcategories.size(); j++) {
                                 VBox currSubcategory = upcomingSubcategories.get(j);
                                 if (currSubcategory.getChildren().size() > 0) {
