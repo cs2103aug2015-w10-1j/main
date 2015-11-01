@@ -3,6 +3,7 @@ package procrastinate;
 import com.joestelmach.natty.DateGroup;
 
 import procrastinate.Command.CommandType;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -49,6 +50,19 @@ public class Parser {
     private static final String KEYWORD_ON_DATE = "on";
     private static final String KEYWORD_ALL = "all";
     private static final String KEYWORD_DONE = "done";
+
+    //These are the problematic times that are unable to be handled correctly by Natty
+    private static final String KEYWORD_THIS_MORNING = "this morning";
+    private static final String KEYWORD_THIS_AFTERNOON = "this afternoon";
+    private static final String KEYWORD_THIS_EVENING = "this evening";
+    private static final String KEYWORD_THIS_NIGHT = "this night";
+    private static final String KEYWORD_TONIGHT = "tonight";
+
+    private static final String KEYWORD_THIS_MORNING_FIX = "today morning";
+    private static final String KEYWORD_THIS_AFTERNOON_FIX = "today afternoon";
+    private static final String KEYWORD_THIS_EVENING_FIX = "today evening";
+    private static final String KEYWORD_THIS_NIGHT_FIX = "today night";
+    private static final String KEYWORD_TONIGHT_FIX = "today tonight";
 
     private static final String WHITESPACE = " ";
 
@@ -426,7 +440,9 @@ public class Parser {
         }
 
         String[] arguments = userCommand.split(WHITESPACE + keyword + WHITESPACE);
-        List<DateGroup> dateGroups = dateParser.parse(arguments[arguments.length - 1]);
+        String dateArguments = arguments[arguments.length - 1];
+        dateArguments = replaceRelativeDates(dateArguments);
+        List<DateGroup> dateGroups = dateParser.parse(dateArguments);
         try {
             dateList.add(dateGroups.get(0).getDates().get(0));
             dateList.add(dateGroups.get(0).getDates().get(1));
@@ -475,6 +491,15 @@ public class Parser {
             return userCommand.substring(0, endIndex);
             // NOT endIndex - 1; we need the trailing space! See long comment above
         }
+    }
+
+    private static String replaceRelativeDates(String dateArguments) {
+        dateArguments = dateArguments.replace(KEYWORD_THIS_MORNING, KEYWORD_THIS_MORNING_FIX);
+        dateArguments = dateArguments.replace(KEYWORD_THIS_AFTERNOON, KEYWORD_THIS_AFTERNOON_FIX);
+        dateArguments = dateArguments.replace(KEYWORD_THIS_EVENING, KEYWORD_THIS_EVENING_FIX);
+        dateArguments = dateArguments.replace(KEYWORD_THIS_NIGHT, KEYWORD_THIS_NIGHT_FIX);
+        dateArguments = dateArguments.replace(KEYWORD_TONIGHT, KEYWORD_TONIGHT_FIX);
+        return dateArguments;
     }
 
     private static boolean isCommandEmpty(String userCommand) {
