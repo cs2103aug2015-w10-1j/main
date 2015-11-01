@@ -50,6 +50,7 @@ public class Parser {
     private static final String KEYWORD_ON_DATE = "on";
     private static final String KEYWORD_ALL = "all";
     private static final String KEYWORD_DONE = "done";
+    private static final String KEYWORD_EVENTUALLY = "eventually";
 
     //These are the problematic times that are unable to be handled correctly by Natty
     private static final String KEYWORD_THIS_MORNING = "this morning";
@@ -178,13 +179,13 @@ public class Parser {
                         break;
 
                     default: // NO_DATE
-                        if (description.equals("eventually")) {
-                            command = new Command(CommandType.EDIT_TO_DREAM).addLineNumber(lineNumber);
+                        if (description.equals(KEYWORD_EVENTUALLY)) {
+                            return new Command(CommandType.EDIT_TO_DREAM).addLineNumber(lineNumber);
                         }
                         break;
                 }
 
-                if (!description.isEmpty() && !description.equals("eventually")) {
+                if (!description.isEmpty()) {
                     command.addDescription(description);
                 }
 
