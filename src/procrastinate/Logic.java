@@ -456,8 +456,9 @@ public class Logic {
 
             case SET_PATH: {
                 String pathDirectory = command.getPathDirectory();
-                String parsedPathDirectory = null;
                 String pathFilename = command.getPathFilename();
+
+                String parsedPathDirectory = null;
                 File targetDirectory = new File(pathDirectory);
 
                 try {
@@ -477,16 +478,11 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
                     if (!success) {
-                        String errorFeedback = FEEDBACK_ERROR_SET_LOCATION + parsedPathDirectory;
-                        errorFeedback += pathFilename;
-                        ui.createErrorDialog(errorFeedback);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SET_LOCATION + parsedPathDirectory + pathFilename);
                     }
                 }
 
-                String feedback = FEEDBACK_SET_LOCATION + parsedPathDirectory;
-                feedback += pathFilename;
-
-                return feedback;
+                return FEEDBACK_SET_LOCATION + parsedPathDirectory + pathFilename;
             }
 
             case SHOW_OUTSTANDING: {
