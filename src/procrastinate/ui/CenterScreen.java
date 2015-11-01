@@ -38,7 +38,6 @@ public abstract class CenterScreen extends VBox {
     protected static final String SELECTOR_CATEGORY_VBOX = "#categoryVBox";
 
     protected static final String FX_BACKGROUND_IMAGE_NULL = "-fx-background-image: null;";
-    protected static String FX_BACKGROUND_IMAGE_NO_TASKS; // will be initialised later on.
 
     protected static final double OPACITY_ZERO = 0;
     protected static final double OPACITY_FULL = 1;

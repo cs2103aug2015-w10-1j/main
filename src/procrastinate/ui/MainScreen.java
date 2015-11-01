@@ -47,6 +47,8 @@ public class MainScreen extends CenterScreen {
     private static final int TIME_TRANSITION_SUBCATEGORY_FADE_IN = 200;
     private static final int TIME_TRANSITION_SUBCATEGORY_FADE_OUT = 150;
 
+    private static String FX_BACKGROUND_IMAGE_NO_TASKS; // will be initialised later on.
+
     // ================================================================================
     // Class variables
     // ================================================================================

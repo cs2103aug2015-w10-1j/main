@@ -21,6 +21,8 @@ public class DoneScreen extends CenterScreen {
 
     private static final int TIME_TRANSITION_FADE = 250;
 
+    private static String FX_BACKGROUND_IMAGE_NO_DONE_TASKS; // will be initialised later on.
+
     // ================================================================================
     // Class variables
     // ================================================================================
@@ -96,6 +98,8 @@ public class DoneScreen extends CenterScreen {
                 }
             }
         }
+
+        checkIfMainVBoxIsEmpty(this.mainVBox);
     }
 
     @Override
@@ -135,14 +139,14 @@ public class DoneScreen extends CenterScreen {
         doneTaskList.getChildren().clear();
     }
 
-    @SuppressWarnings("unused")
     private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
-        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
-            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
+        if (FX_BACKGROUND_IMAGE_NO_DONE_TASKS == null) {
+            String image = DoneScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
+            FX_BACKGROUND_IMAGE_NO_DONE_TASKS = "-fx-background-image: url('" + image + "');";
         }
-        if (mainVBox.getChildren().isEmpty()) {
-            mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
+        if (doneTaskList.getChildren().isEmpty()) {
+            mainVBox.getChildren().remove(doneNode);
+            mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_DONE_TASKS);
         }
     }
 }
