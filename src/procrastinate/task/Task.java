@@ -56,7 +56,7 @@ public abstract class Task implements Comparable<Task> {
 	 */
 	public boolean contains(String term) {
 	    term = "\\b" + term + "\\b";                // wrapped by word boundary
-	    Pattern pattern = Pattern.compile(term, 1); // case insensitive
+	    Pattern pattern = Pattern.compile(term, Pattern.CASE_INSENSITIVE); // case insensitive
 	    return pattern.matcher(description).find();
 	}
 
