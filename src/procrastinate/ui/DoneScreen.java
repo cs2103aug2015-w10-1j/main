@@ -20,7 +20,7 @@ public class DoneScreen extends CenterScreen {
 
     private static final String LOCATION_EMPTY_VIEW = "images/no-done-tasks.png";
 
-    private static final int TIME_TRANSITION_FADE = 250;
+//    private static final int TIME_TRANSITION_FADE = 250;
 
     private static String FX_BACKGROUND_IMAGE_NO_DONE_TASKS; // will be initialised later on.
 
