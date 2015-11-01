@@ -42,7 +42,7 @@ public class UI {
     // UI methods
     // ================================================================================
 
-    public UI(boolean isUnderTest) {
+    public UI() {
     }
 
     public UI(Stage stage) {

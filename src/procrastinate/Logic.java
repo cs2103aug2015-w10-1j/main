@@ -46,6 +46,7 @@ public class Logic {
     private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
     private static final String FEEDBACK_EDIT_DEADLINE = "Edited #%1$s: %2$s due %3$s";
     private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s: %2$s %3$s to %4$s";
+    private static final String FEEDBACK_EDIT_PARTIAL = "Please specify the new description/date(s) or press tab";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
     private static final String FEEDBACK_UNDONE = "Undone %1$s: %2$s";
@@ -55,7 +56,7 @@ public class Logic {
     private static final String FEEDBACK_SEARCH_DUE = " due by %1$s";
     private static final String FEEDBACK_SEARCH_FROM_TO = " from %1$s to %2$s";
     private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
-    private static final String FEEDBACK_INVALID_FROM_TO = "Invalid dates: %2$s is before %1$s";
+    private static final String FEEDBACK_INVALID_RANGE = "Invalid dates: %2$s is before %1$s";
     private static final String FEEDBACK_UNDO = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
     private static final String FEEDBACK_SET_PATH = "Set save directory to ";
@@ -70,7 +71,6 @@ public class Logic {
     private static final String FEEDBACK_ERROR_SET_PATH = "Could not set path to ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
-    private static final String PREVIEW_PARTIAL_EDIT = "Please specify the new description/date(s) or press tab";
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
@@ -205,7 +205,7 @@ public class Logic {
                     assert(startDate != null && endDate != null);
 
                     if (endDate.compareTo(startDate) < 0) {
-                        return String.format(FEEDBACK_INVALID_FROM_TO, formatDateTime(startDate), formatDateTime(endDate));
+                        return String.format(FEEDBACK_INVALID_RANGE, formatDateTime(startDate), formatDateTime(endDate));
                     }
 
                     newTask = new Event(description, startDate, endDate);
@@ -260,7 +260,7 @@ public class Logic {
                 } else if (newStartDate != null) {
                     assert(newEndDate != null);
                     if (newEndDate.compareTo(newStartDate) < 0) {
-                        return String.format(FEEDBACK_INVALID_FROM_TO,
+                        return String.format(FEEDBACK_INVALID_RANGE,
                                 formatDateTime(newStartDate), formatDateTime(newEndDate));
                     }
 
@@ -311,7 +311,7 @@ public class Logic {
                     return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
                 }
 
-                return PREVIEW_PARTIAL_EDIT;
+                return FEEDBACK_EDIT_PARTIAL;
             }
 
             case DELETE: {
@@ -436,7 +436,7 @@ public class Logic {
                     endDate = DateUtils.truncate(endDate, Calendar.DATE);
 
                     if (endDate.compareTo(startDate) < 0) {
-                        return String.format(FEEDBACK_INVALID_FROM_TO, formatDate(startDate), formatDate(endDate));
+                        return String.format(FEEDBACK_INVALID_RANGE, formatDate(startDate), formatDate(endDate));
                     }
 
                     feedback += String.format(FEEDBACK_SEARCH_FROM_TO, formatDate(startDate), formatDate(endDate));
@@ -567,7 +567,8 @@ public class Logic {
                 updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_SEARCH_RESULTS:
-                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate), ScreenView.SCREEN_MAIN);
+                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate),
+                        ScreenView.SCREEN_MAIN);
                 break;
         }
     }
