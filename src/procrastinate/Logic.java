@@ -93,10 +93,13 @@ public class Logic {
     private UI ui;
 
     private Command lastPreviewedCommand = null;
+
     private ViewType currentView = ViewType.SHOW_OUTSTANDING; // initial view
-    private String lastSearchTerm = null;
-    private Date lastSearchStartDate = null;
-    private Date lastSearchEndDate = null;
+
+    private String searchTerm = null;
+    private Date searchStartDate = null;
+    private Date searchEndDate = null;
+    private boolean searchShowDone = true;
 
     private BooleanProperty isExit = new SimpleBooleanProperty(false);
 
@@ -394,9 +397,10 @@ public class Logic {
                 Date endDate = command.getEndDate();
 
                 if (execute) {
-                    lastSearchTerm = null;
-                    lastSearchStartDate = null;
-                    lastSearchEndDate = null;
+                    searchTerm = null;
+                    searchStartDate = null;
+                    searchEndDate = null;
+                    searchShowDone = true;
                 }
 
                 String feedback = FEEDBACK_SEARCH;
@@ -404,26 +408,28 @@ public class Logic {
                 if (description != null) {
                     feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
                     if (execute) {
-                        lastSearchTerm = description;
+                        searchTerm = description;
                     }
                 }
 
                 if (date != null) {
+                    searchShowDone = false;
+
                     // set time to 0000 hrs of the specified day
                     date = DateUtils.truncate(date, Calendar.DATE);
 
                     if (commandType == CommandType.SEARCH_ON) {
                         feedback += String.format(FEEDBACK_SEARCH_ON, formatDate(date));
                         if (execute) {
-                            lastSearchStartDate = date;
-                            lastSearchEndDate = DateUtils.addDays(date, 3);
+                            searchStartDate = date;
+                            searchEndDate = DateUtils.addDays(date, 3);
                         }
 
                     } else {
                         feedback += String.format(FEEDBACK_SEARCH_DUE, formatDate(date));
                         if (execute) {
-                            lastSearchStartDate = new Date(0); // beginning of time
-                            lastSearchEndDate = DateUtils.addDays(date, 1);
+                            searchStartDate = new Date(0); // beginning of time
+                            searchEndDate = DateUtils.addDays(date, 3);
                         }
 
                     }
@@ -441,8 +447,8 @@ public class Logic {
 
                     feedback += String.format(FEEDBACK_SEARCH_FROM_TO, formatDate(startDate), formatDate(endDate));
                     if (execute) {
-                        lastSearchStartDate = startDate;
-                        lastSearchEndDate = DateUtils.addDays(endDate, 1);;
+                        searchStartDate = startDate;
+                        searchEndDate = DateUtils.addDays(endDate, 1);;
                     }
                 }
 
@@ -575,7 +581,7 @@ public class Logic {
                 updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_SEARCH_RESULTS:
-                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate),
+                updateUiTaskList(taskEngine.search(searchTerm, searchStartDate, searchEndDate, searchShowDone),
                         ScreenView.SCREEN_MAIN);
                 break;
         }

@@ -158,7 +158,7 @@ public class TaskEngine {
         return previousState != null;
     }
 
-    public List<Task> getTasksContaining(String description, Date startDate, Date endDate) {
+    public List<Task> search(String description, Date startDate, Date endDate, boolean showDone) {
         assert(description != null || startDate != null && endDate != null);
         List<Task> results = getTasks();
         if (description != null) {
@@ -169,6 +169,11 @@ public class TaskEngine {
         if (startDate != null) {
             results = results.stream()
                     .filter(task -> task.isWithin(startDate, endDate))
+                    .collect(Collectors.toList());
+        }
+        if (!showDone) {
+            results = results.stream()
+                    .filter(task -> !task.isDone())
                     .collect(Collectors.toList());
         }
         currentView = new TaskState(results);
