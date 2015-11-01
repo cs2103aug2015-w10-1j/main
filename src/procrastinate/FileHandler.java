@@ -335,17 +335,8 @@ public class FileHandler {
     private File makeNewFile(Path target) throws IOException {
         assert Files.notExists(target);
 
-        File file = null;
-
-        if (hasFileName(target)) {
-            Files.createDirectories(target.toAbsolutePath().getParent().normalize());
-            file = Files.createFile(target).toFile();
-        } else {
-            Files.createDirectories(target.toAbsolutePath());
-            file = Files.createFile(target.resolve(Paths.get(fullFilename))).toFile();
-        }
-
-        return file;
+        Files.createDirectories(target.toAbsolutePath().getParent().normalize());
+        return Files.createFile(target).toFile();
     }
 
     /**
@@ -355,15 +346,4 @@ public class FileHandler {
     private void makeEmptyState() throws IOException {
         saveTaskState(new TaskState());
     }
-
-    // uses file extension to check for filename within a path
-    private boolean hasFileName(String directoryPath) {
-        String pattern = ".*\\" + DEFAULT_FILE_EXTENSION;
-        return directoryPath.matches(pattern);
-    }
-
-    private boolean hasFileName(Path directoryPath) {
-        return hasFileName(directoryPath.toString());
-    }
-
 }
