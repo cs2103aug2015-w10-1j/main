@@ -12,7 +12,6 @@ import javafx.util.Duration;
 import procrastinate.task.Task;
 import procrastinate.ui.UI.ScreenView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CenterPaneController {
@@ -44,7 +43,7 @@ public class CenterPaneController {
     // Class variables
     // ================================================================================
 
-    protected Node currentScreen;       // Changed to protected for testing purposes.
+    protected Node currentOverlayNode;       // Changed to protected for testing purposes.
     protected CenterScreen currentScreenView;
 
     private static double xOffset, yOffset;
@@ -96,7 +95,6 @@ public class CenterPaneController {
                 }
             }
 
-
             case SCREEN_SEARCH: {
                 break;
             }
@@ -107,23 +105,6 @@ public class CenterPaneController {
         }
     }
 
-    private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
-        SequentialTransition screenSwitchSequence;
-        screenSwitchSequence = currentScreenView.getScreenSwitchOutSequence();
-        screenSwitchSequence.setOnFinished(e -> {
-            centerStackPane.getChildren().clear();
-            centerStackPane.getChildren().add(nodeToSwitchIn);
-            screenToSwitchIn.getScreenSwitchInSequence().play();
-            screenToSwitchIn.updateTaskList(taskList);
-            currentScreenView = screenToSwitchIn;
-        });
-        screenSwitchSequence.play();
-    }
-
-    // ================================================================================
-    // Utility methods
-    // ================================================================================
-
     /**
      * Hides the current screen overlay for:
      *      - splashScreen: Fast-forwards the fade animation if user starts typing, and builds the actual helpScreen
@@ -131,7 +112,7 @@ public class CenterPaneController {
      *      - helpScreen: Starts the fade out transition that lasts for 0.5 seconds
      */
     protected void hideScreenOverlay() {
-        if (currentScreen != helpOverlayNode) {
+        if (currentOverlayNode != helpOverlayNode) {
             Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
             // Only fast forward the timeline if the current time of the animation is smaller than the given
             // interrupt time. Else, just wait for the animation to end.
@@ -152,8 +133,7 @@ public class CenterPaneController {
      * hideScreenOverlay method.
      */
     protected void showSplashScreen() {
-        helpOverlayNode.toFront();
-        helpOverlayNode.setOpacity(OPACITY_FULL);
+        centerStackPane.getChildren().add(helpOverlayNode);
 
         // Set SplashScreen opacity at full for 2 seconds.
         Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
@@ -166,8 +146,34 @@ public class CenterPaneController {
         KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
 
         splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
-        splashScreenTimeline.setOnFinished(e -> setScreen(mainScreenNode));
+        splashScreenTimeline.setOnFinished(e -> {
+            centerStackPane.getChildren().remove(helpOverlayNode);
+            helpOverlayNode.setOpacity(OPACITY_FULL);
+            currentOverlayNode = helpOverlayNode;
+        });
         splashScreenTimeline.play();
+    }
+
+    protected void showHelpOverlay() {
+        centerStackPane.getChildren().add(helpOverlayNode);
+        helpOverlayNode.setOpacity(OPACITY_FULL);
+    }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
+    private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
+        SequentialTransition screenSwitchSequence;
+        screenSwitchSequence = currentScreenView.getScreenSwitchOutSequence();
+        screenSwitchSequence.setOnFinished(e -> {
+            centerStackPane.getChildren().clear();
+            centerStackPane.getChildren().add(nodeToSwitchIn);
+            screenToSwitchIn.getScreenSwitchInSequence().play();
+            screenToSwitchIn.updateTaskList(taskList);
+            currentScreenView = screenToSwitchIn;
+        });
+        screenSwitchSequence.play();
     }
 
     private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
@@ -175,17 +181,6 @@ public class CenterPaneController {
         fadeTransition.setFromValue(OPACITY_FULL);
         fadeTransition.setToValue(OPACITY_ZERO);
         return fadeTransition;
-    }
-
-    /**
-     * Changes the top most screen to the screen specified
-     * @param screen
-     */
-    private void setScreen(Node screen) {
-        currentScreen.setOpacity(OPACITY_ZERO);
-        screen.toFront();
-        screen.setOpacity(OPACITY_FULL);
-        currentScreen = screen;
     }
 
     // ================================================================================
@@ -200,15 +195,15 @@ public class CenterPaneController {
         // HelpOverlay setup
         createHelpOverlay();
         helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
-        helpOverlayFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
-
-        ArrayList<Node> screensList = new ArrayList<>();
+        helpOverlayFadeOut.setOnFinished(e -> {
+            centerStackPane.getChildren().remove(helpOverlayNode);
+        });
 
         // Main Screen setup
-        screensList.add(createMainScreen());
+        createMainScreen();
 
         // Done Screen setup
-        screensList.add(createDoneScreen());
+        createDoneScreen();
     }
 
     private Node createHelpOverlay() {

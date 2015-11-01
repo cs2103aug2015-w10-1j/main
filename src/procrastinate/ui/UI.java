@@ -64,7 +64,7 @@ public class UI {
     public void setUpAndShowStage() {
         assert(primaryStage != null);
         primaryStage.show();
-//        showSplashScreen();
+        showSplashScreen();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
@@ -125,15 +125,15 @@ public class UI {
      */
     public void showHelp() {
         if (!isScreenOverlayed) {
-//            centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+            centerPaneController.showHelpOverlay();
             isScreenOverlayed = true;
         }
     }
 
-//    private void showSplashScreen() {
-//        centerPaneController.showSplashScreen();
-//        isScreenOverlayed = true;
-//    }
+    private void showSplashScreen() {
+        centerPaneController.showSplashScreen();
+        isScreenOverlayed = true;
+    }
 
     // ================================================================================
     // DialogPopupHandler methods
