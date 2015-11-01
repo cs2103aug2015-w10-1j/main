@@ -9,7 +9,6 @@ import procrastinate.Parser;
 import procrastinate.Command;
 
 public class ParserTest {
-    private static final String MESSAGE_INVALID_EDIT_NO_NEW_DATA = "Please specify the new description or date(s)";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
 

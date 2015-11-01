@@ -494,6 +494,7 @@ public class Parser {
     }
 
     private static String replaceRelativeDates(String dateArguments) {
+        dateArguments = dateArguments.toLowerCase();
         dateArguments = dateArguments.replace(KEYWORD_THIS_MORNING, KEYWORD_THIS_MORNING_FIX);
         dateArguments = dateArguments.replace(KEYWORD_THIS_AFTERNOON, KEYWORD_THIS_AFTERNOON_FIX);
         dateArguments = dateArguments.replace(KEYWORD_THIS_EVENING, KEYWORD_THIS_EVENING_FIX);
