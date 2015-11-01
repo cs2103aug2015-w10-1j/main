@@ -98,8 +98,13 @@
 }
 
 .helpScreen #titleLabel {
+    -fx-font-family: Bebas;
     -fx-font-weight: bold;
     -fx-font-size: 24px;
+}
+
+.helpScreen #subtitleLabel {
+    -fx-font-family: Titillium;
 }
 
 /*
