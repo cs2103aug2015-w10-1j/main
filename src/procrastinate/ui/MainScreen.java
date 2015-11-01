@@ -27,7 +27,7 @@ public class MainScreen extends CenterScreen {
     // ================================================================================
 
     private static final String CATEGORY_OVERDUE = "Overdue";
-    private static final String CATEGORY_THIS_WEEK = "This Week";
+    private static final String CATEGORY_UPCOMING = "Upcoming";
     private static final String CATEGORY_FUTURE = "Future";
     private static final String CATEGORY_DREAMS = "Dreams";
     private static final String CATEGORY_DONE = "Done";
@@ -102,7 +102,7 @@ public class MainScreen extends CenterScreen {
     protected void createCategories() {
         // Create all the different categories(by time frame) for entries to go into
         CategoryBox overdueBox = new CategoryBox(CATEGORY_OVERDUE);
-        CategoryBox thisWeekBox = new CategoryBox(CATEGORY_THIS_WEEK);
+        CategoryBox thisWeekBox = new CategoryBox(CATEGORY_UPCOMING);
         CategoryBox futureBox = new CategoryBox(CATEGORY_FUTURE);
         CategoryBox dreamsBox = new CategoryBox(CATEGORY_DREAMS);
         CategoryBox doneBox = new CategoryBox(CATEGORY_DONE);
@@ -486,7 +486,7 @@ public class MainScreen extends CenterScreen {
                 break;
             }
 
-            case CATEGORY_THIS_WEEK: {
+            case CATEGORY_UPCOMING: {
                 if (mainVBox.getChildren().contains(overdueNode)) {
                     // Check if the 'Overdue' node is on screen or not and adds this node after it
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
@@ -650,7 +650,7 @@ public class MainScreen extends CenterScreen {
         if (node.equals(overdueNode)) {
             return CATEGORY_OVERDUE;
         } else if (node.equals(thisWeekNode)) {
-            return CATEGORY_THIS_WEEK;
+            return CATEGORY_UPCOMING;
         } else if (node.equals(futureNode)) {
             return CATEGORY_FUTURE;
         } else {

@@ -284,9 +284,7 @@ public abstract class CenterScreen extends VBox {
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.setTime(today);
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-        calendar.add(Calendar.DAY_OF_WEEK, 1);
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        calendar.add(Calendar.DAY_OF_WEEK, 8);
         return calendar.getTime();
     }
 
