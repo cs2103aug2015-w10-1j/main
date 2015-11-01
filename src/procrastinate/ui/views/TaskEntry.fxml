@@ -8,7 +8,7 @@
 
 <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="taskEntry" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
 <columnConstraints>
-   <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
+   <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="50" />
    <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
    <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
 </columnConstraints>

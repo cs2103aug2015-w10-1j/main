@@ -4,16 +4,22 @@
  * ================================================================
  */
 @font-face {
-	font-family: Bebas;
+	font-family: "Bebas Neue";
 	font-weight: 400;
 	font-style: normal;
 	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Regular.otf");
 }
 
 @font-face {
-	font-family: Bebas;
+	font-family: "Bebas Neue";
 	font-weight: bold;
 	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Bold.otf");
+}
+
+@font-face {
+	font-family: "Helvetica Neue";
+	font-style: bold;
+	src: url("/procrastinate/ui/fonts/helvetica-neue-bold.ttf");
 }
 
 @font-face {
@@ -26,12 +32,6 @@
 	font-family: Titillium;
 	font-weight: bold;
 	src: url("/procrastinate/ui/fonts/titillium/Titillium-Bold.otf");
-}
-
-@font-face {
-	font-family: LiberationMono;
-	font-style: normal;
-	src: url("/procrastinate/ui/fonts/liberation_mono/LiberationMono-Regular.ttf");
 }
 
 @font-face {
@@ -98,7 +98,7 @@
 }
 
 .helpScreen #titleLabel {
-    -fx-font-family: Bebas;
+    -fx-font-family: "Bebas Neue";
     -fx-font-weight: bold;
     -fx-font-size: 24px;
 }
@@ -130,7 +130,7 @@
  * ================================================================
  */
 .categoryBox #categoryLabel {
-    -fx-font-family: Bebas;
+    -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 20px;
 	-fx-text-fill: #365fac;
@@ -146,7 +146,7 @@
  * ================================================================
  */
 .dateBox #dateLabel {
-    -fx-font-family: Bebas;
+    -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 16px;
 	-fx-text-fill: #455A64;
@@ -167,7 +167,7 @@
 }
 
 .taskEntry #lineNum {
-    -fx-font-family: LiberationMono;
+    -fx-font-family: "Helvetica Neue";
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 0 5 0 15;
@@ -178,7 +178,7 @@
 }
 
 .taskEntry #time {
-    -fx-font-family: LiberationMono;
+    -fx-font-family: "Helvetica Neue";
     -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-padding: 0 0 0 25;
@@ -197,7 +197,7 @@
 }
 
 .titleBar #title {
-	-fx-font-family: Bebas;
+	-fx-font-family: "Bebas Neue";
 	-fx-font-size: 14px;
 	-fx-font-weight: bold;
 }
