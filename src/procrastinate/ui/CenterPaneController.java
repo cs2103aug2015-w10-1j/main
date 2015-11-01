@@ -5,9 +5,13 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import procrastinate.task.Task;
 import procrastinate.ui.UI.ScreenView;
@@ -22,6 +26,7 @@ public class CenterPaneController {
 
     private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
     private static final String LOCATION_HELP_OVERLAY_LAYOUT = "views/HelpOverlay.fxml";
+    private static final String LOCATION_REFERENCE_SHEET = "images/referencesheet.png";
 
     private static final String MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE = "Unable to recognise ScreenType";
 
@@ -120,7 +125,6 @@ public class CenterPaneController {
                 splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
             }
             splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_FADE));
-            // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
         } else {
             helpOverlayFadeOut.playFromStart();
         }
@@ -148,6 +152,7 @@ public class CenterPaneController {
         splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
         splashScreenTimeline.setOnFinished(e -> {
             centerStackPane.getChildren().remove(helpOverlayNode);
+            convertSplashScreen();
             helpOverlayNode.setOpacity(OPACITY_FULL);
             currentOverlayNode = helpOverlayNode;
         });
@@ -174,6 +179,23 @@ public class CenterPaneController {
             currentScreenView = screenToSwitchIn;
         });
         screenSwitchSequence.play();
+    }
+
+    private void convertSplashScreen() {
+        // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
+        VBox helpOverlayBody = helpOverlay.getContainer();
+        helpOverlayBody.setStyle("-fx-padding: 0 30 0 30;");
+
+        ImageView imageView = helpOverlay.getImageView();
+        imageView.setImage(new Image(CenterPaneController.class.getResource(LOCATION_REFERENCE_SHEET).toExternalForm()));
+        VBox wrapper = new VBox(imageView);
+        wrapper.setAlignment(Pos.TOP_CENTER);
+        wrapper.setPrefSize(400, 430);
+        wrapper.setStyle("-fx-background-color: RGB(145, 189, 229, 0.9);"
+                + "-fx-background-radius: 20;");
+
+        helpOverlayBody.getChildren().clear();
+        helpOverlayBody.getChildren().add(wrapper);
     }
 
     private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
