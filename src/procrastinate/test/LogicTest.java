@@ -102,6 +102,20 @@ public class LogicTest {
     }
 
     @Test
+    public void search_DescriptionCaseInsensitive_ShouldReturnHit() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("foo");
+        execute("FOO");
+
+        execute("search fOo");
+
+        expected.add(new Dream("FOO"));
+        expected.add(new Dream("foo"));
+
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
     public void search_DescriptionByWordDifferentTaskTypes_ShouldReturnHits() throws ParseException {
         List<Task> expected = new ArrayList<Task>();
         execute("foo 1");
