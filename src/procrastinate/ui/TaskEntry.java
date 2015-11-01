@@ -3,8 +3,9 @@ package procrastinate.ui;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
@@ -19,9 +20,9 @@ public class TaskEntry extends HBox{
     private static final String EMPTY_STRING = "";
 
     private static final String LOCATION_TASK_ENTRY_FXML = "views/TaskEntry.fxml";
+    private static final String LOCATION_TICK_IMAGE = "images/tick.png";
 
-    private static final String STYLE_CHECKBOX_PADDING = "-fx-padding: 5 0 0 0;";
-    private static final String STYLE_CHECKBOX_SIZE = "-fx-font-size: 7.5px;";
+    private static final String STYLE_TICK_CENTERING_PADDING = "-fx-padding: 5 0 0 0;";
     private static final String STYLE_REMOVE_PADDING = "-fx-padding: 0;";
 
     // ================================================================================
@@ -50,7 +51,7 @@ public class TaskEntry extends HBox{
     protected TaskEntry(String lineNum, String description, boolean isDone) {
         loadLayout();
         if (isDone) {
-            addCheckBoxBeforeLineNumber();
+            addTickBeforeLineNumber();
         }
         setLabels(lineNum, description, EMPTY_STRING);
     }
@@ -63,7 +64,7 @@ public class TaskEntry extends HBox{
     protected TaskEntry(String lineNum, String description, String time, boolean isDone) {
         loadLayout();
         if (isDone) {
-            addCheckBoxBeforeLineNumber();
+            addTickBeforeLineNumber();
         }
         setLabels(lineNum, description, time);
     }
@@ -88,30 +89,32 @@ public class TaskEntry extends HBox{
         }
     }
 
-    private void addCheckBoxBeforeLineNumber() {
+    private void addTickBeforeLineNumber() {
         HBox lineNumberWrapper = getLabelWrapper();
-        HBox checkBoxWrapper = getCheckBoxWrapper();
-        addCheckBoxAndLabelToTaskEntry(lineNumberWrapper, checkBoxWrapper);
+        HBox tickWrapper = getTickWrapper();
+        addTickAndLabelToTaskEntry(lineNumberWrapper, tickWrapper);
     }
 
-    private void addCheckBoxAndLabelToTaskEntry(HBox lineNumberWrapper, HBox checkBoxWrapper) {
+    private void addTickAndLabelToTaskEntry(HBox lineNumberWrapper, HBox checkBoxWrapper) {
         HBox combinedWrapper = new HBox(checkBoxWrapper, lineNumberWrapper);
         ((GridPane)taskEntry).add(combinedWrapper, 0, 0);
     }
 
-    private CheckBox createNewCheckBox() {
-        CheckBox checkBox = new CheckBox();
-        checkBox.setDisable(true);
-        checkBox.setSelected(true);
-        checkBox.setStyle(STYLE_CHECKBOX_SIZE);
-        return checkBox;
+    private ImageView createNewTick() {
+        ImageView tickImage = new ImageView();
+        tickImage.setImage(new Image(TaskEntry.class.getResource(LOCATION_TICK_IMAGE).toExternalForm()));
+        tickImage.setFocusTraversable(false);
+        tickImage.setSmooth(true);
+        tickImage.setFitHeight(10);
+        tickImage.setFitWidth(10);
+        return tickImage;
     }
 
-    private HBox createCheckBoxWrapper(CheckBox checkBox) {
-        HBox checkBoxWrapper = new HBox(checkBox);
-        checkBoxWrapper.setSpacing(0);
-        checkBoxWrapper.setStyle(STYLE_CHECKBOX_PADDING);
-        return checkBoxWrapper;
+    private HBox createTickWrapper(ImageView tick) {
+        HBox tickWrapper = new HBox(tick);
+        tickWrapper.setSpacing(0);
+        tickWrapper.setStyle(STYLE_TICK_CENTERING_PADDING);
+        return tickWrapper;
     }
 
     private HBox createLabelWrapper(Label lineNumberLabel) {
@@ -120,9 +123,9 @@ public class TaskEntry extends HBox{
         return lineNumberWrapper;
     }
 
-    private HBox getCheckBoxWrapper() {
-        CheckBox checkBox = createNewCheckBox();
-        return createCheckBoxWrapper(checkBox);
+    private HBox getTickWrapper() {
+        ImageView tick = createNewTick();
+        return createTickWrapper(tick);
     }
 
     private HBox getLabelWrapper() {
