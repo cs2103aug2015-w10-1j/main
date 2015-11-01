@@ -118,7 +118,7 @@
 }
 
 .categoryBox #categoryVBox {
-    -fx-padding: 0 0 0 10;
+    -fx-padding: 0 0 0 5;
 }
 
 /*
@@ -145,6 +145,7 @@
 .taskEntry {
     -fx-font-family: Titillium;
     -fx-font-size: 16px;
+    -fx-padding: 0 0 5 0;
 }
 
 .taskEntry #lineNum {
@@ -179,7 +180,7 @@
 
 .titleBar #title {
 	-fx-font-family: "Helvetic Neue";
-	-fx-font-size: 14px;
+	-fx-font-size: 16px;
 	-fx-font-weight: bold;
 }
 
