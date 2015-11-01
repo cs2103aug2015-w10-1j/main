@@ -192,11 +192,16 @@
  */
 
 .titleBar {
-    -fx-spacing: 10;
     -fx-background-color: white;
     -fx-font: 16px FontAwesome;
 }
 
+.titleBar #title {
+	-fx-font-family: Bebas;
+	-fx-font-size: 14px;
+	-fx-font-weight: bold;
+}
+
 .titleBar #close {
-    -fx-label-padding: 0 0 0 0;
+    -fx-label-padding: 0 0 0 10;
 }
