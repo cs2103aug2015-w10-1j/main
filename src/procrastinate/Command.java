@@ -20,7 +20,7 @@ public class Command {
     private Date endDate;
     private int lineNumber;
     private String pathDirectory;
-    private String fileName;
+    private String pathFilename;
 
     public Command(CommandType type) {
         this.type = type;
@@ -60,8 +60,8 @@ public class Command {
         return this;
     }
 
-    public Command addFileName(String fileName) {
-        this.fileName = fileName;
+    public Command addPathFilename(String fileName) {
+        this.pathFilename = fileName;
         return this;
     }
 
@@ -97,8 +97,8 @@ public class Command {
         return pathDirectory;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getPathFilename() {
+        return pathFilename;
     }
 
 }

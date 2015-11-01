@@ -59,16 +59,16 @@ public class Logic {
     private static final String FEEDBACK_INVALID_RANGE = "Invalid dates: %2$s is before %1$s";
     private static final String FEEDBACK_UNDO = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
-    private static final String FEEDBACK_SET_PATH = "Set save directory to ";
+    private static final String FEEDBACK_SET_LOCATION = "Set save location to ";
     private static final String FEEDBACK_HELP = "Showing help screen";
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
-    private static final String FEEDBACK_TRY_AGAIN = "Please try setting a different save directory and try again";
+    private static final String FEEDBACK_TRY_AGAIN = "Please try setting a different save location and try again";
 
     private static final String FEEDBACK_ERROR_SAVE = "Could not save changes to file!";
     private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not save changes! Your data will be lost! Continue?";
-    private static final String FEEDBACK_ERROR_SET_PATH = "Could not set path to ";
+    private static final String FEEDBACK_ERROR_SET_LOCATION = "Could not set save location to ";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
@@ -455,26 +455,39 @@ public class Logic {
             }
 
             case SET_PATH: {
-                String path = command.getDescription();
-                String parsedPath = null;
-                File targetFile = new File(path);
+                String pathDirectory = command.getPathDirectory();
+                String parsedPathDirectory = null;
+                String pathFilename = command.getPathFilename();
+                File targetDirectory = new File(pathDirectory);
                 try {
-                    parsedPath = targetFile.getCanonicalPath();
+                    parsedPathDirectory = targetDirectory.getCanonicalPath();
                 } catch (IOException e) {
-                    parsedPath = targetFile.getAbsolutePath();
+                    parsedPathDirectory = targetDirectory.getAbsolutePath();
                 }
-                if (!parsedPath.endsWith(File.separator)) {
-                    parsedPath += File.separator;
+                if (!parsedPathDirectory.endsWith(File.separator)) {
+                    parsedPathDirectory += File.separator;
                 }
 
                 if (execute) {
-                    boolean success = taskEngine.set(parsedPath, "");
+                    boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SET_PATH + parsedPath);
+                        String errorFeedback = FEEDBACK_ERROR_SET_LOCATION + parsedPathDirectory;
+                        if (pathFilename != null) {
+                            errorFeedback += pathFilename + FileHandler.DEFAULT_FILE_EXTENSION;
+                        }
+                        ui.createErrorDialog(errorFeedback);
                     }
                 }
 
-                return FEEDBACK_SET_PATH + parsedPath;
+                String feedback = FEEDBACK_SET_LOCATION + parsedPathDirectory;
+
+                if (pathFilename != null) {
+                    feedback += pathFilename + FileHandler.DEFAULT_FILE_EXTENSION;
+                } else {
+                    feedback += FileHandler.DEFAULT_FULL_FILENAME;
+                }
+
+                return feedback;
             }
 
             case SHOW_OUTSTANDING: {
