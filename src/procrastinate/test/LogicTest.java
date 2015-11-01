@@ -18,7 +18,7 @@ import procrastinate.task.Event;
 import procrastinate.task.Task;
 
 public class LogicTest {
-
+    // assumes 12:00am when time not given
     private static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 
     private Logic logic;
@@ -98,6 +98,110 @@ public class LogicTest {
         expected.add(new Dream("d"));
         expected.get(3).setDone(); // done c
         expected.get(4).setDone(); // done d
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
+    public void search_DescriptionByWordDifferentTaskTypes_ShouldReturnHits() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("foo 1");
+        execute("foo 2 due 1/2/14 12:00am");
+        execute("foo 3 from 1/2/14 to 2/2/2014 12:00am");
+
+        execute("search foo");
+
+        expected.add(new Deadline("foo 2", sdf.parse("1/2/14")));
+        expected.add(new Event("foo 3", sdf.parse("1/2/14"), sdf.parse("2/2/14")));
+        expected.add(new Dream("foo 1"));
+
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
+    public void search_DescriptionByWord_ShouldShowHits() {
+        List<Task> expected = new ArrayList<Task>();
+        execute("foo has bar");
+        execute("foo has baz");
+        execute("foo is not bar");
+
+        execute("search foo");
+
+        expected.add(new Dream("foo has bar"));
+        expected.add(new Dream("foo has baz"));
+        expected.add(new Dream("foo is not bar"));
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
+    public void search_DescriptionBySubString_ShouldShowNone() {
+        List<Task> expected = new ArrayList<Task>();
+        execute("foo");
+        execute("search oo");
+
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
+    public void search_DescriptionAcrossWords_ShouldShowNone() {
+        List<Task> expected = new ArrayList<Task>();
+        execute("foo bar");
+        execute("search oo b");
+
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
+    public void searchDue_ByDate_ShouldShowTasksTillDate() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("a due 1/2/14 12:00am");
+        execute("b due 1/3/14 12:00am");
+        execute("c due 10/1/14 12:00am");
+        execute("d due 10/1/15 12:00am");
+
+        execute("search due 10/1/2014");
+
+        expected.add(new Deadline("a", sdf.parse("1/2/14")));
+        expected.add(new Deadline("b", sdf.parse("1/3/14")));
+        expected.add(new Deadline("c", sdf.parse("10/1/14")));
+
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
+    // start or end dates are not distinct
+    public void searchDue_ByDateDiffTaskTypes_ShouldShowTasksWithGivenDates() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("a due 1/2/14 12:00am");
+        execute("a from 1/2/14 to 1/3/14 12:00am");
+        execute("a from 1/3/14 to 1/4/14 12:00am");
+        execute("a due 10/1/14 12:00am");
+
+        execute("search due 1/2/2014 12:00am");
+
+        expected.add(new Deadline("a", sdf.parse("1/2/14")));
+        expected.add(new Event("a", sdf.parse("1/2/14"), sdf.parse("1/3/14")));
+
+        assertEquals(expected, getTaskList());
+
+        execute("search due 1/3/14 12:00am");
+
+        expected.add(new Event("a", sdf.parse("1/3/14"), sdf.parse("1/4/14")));
+
+        assertEquals(expected, getTaskList());
+    }
+
+    @Test
+    public void searchOn_ByDate_ShouldShowTasksOnDate() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("a due 1/1/14 12:00am");
+        execute("b due 1/2/14 12:00am");
+        execute("c due 2/1/14 12:00am");
+        execute("d due 1/1/15 12:00am");
+
+        execute("search on 2/1/2014");
+
+        expected.add(new Deadline("c", sdf.parse("2/1/14")));
+
         assertEquals(expected, getTaskList());
     }
 

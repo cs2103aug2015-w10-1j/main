@@ -2,6 +2,7 @@ package procrastinate.task;
 
 import java.util.Date;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public abstract class Task implements Comparable<Task> {
 
@@ -48,8 +49,15 @@ public abstract class Task implements Comparable<Task> {
 	    }
 	}
 
-	public boolean contains(String term) { // case insensitive
-	    return description.toLowerCase().contains(term.toLowerCase());
+	/**
+	 * Checks if description contains a term within its description
+	 * @param term is a case-insensitive word
+	 * @return true if it exists else false
+	 */
+	public boolean contains(String term) {
+	    term = "\\b" + term + "\\b";                // wrapped by word boundary
+	    Pattern pattern = Pattern.compile(term, 1); // case insensitive
+	    return pattern.matcher(description).find();
 	}
 
 	public abstract boolean isWithin(Date startDate, Date endDate);
@@ -108,7 +116,7 @@ public abstract class Task implements Comparable<Task> {
     }
 
 	/**
-	 * For two tasks to be indentical, they must be the same type
+	 * For two tasks to be identical, they must be the same type
 	 * and have the same description and done status
 	 */
 	@Override
