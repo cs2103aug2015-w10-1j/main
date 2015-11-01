@@ -3,7 +3,6 @@ package procrastinate.task;
 import procrastinate.FileHandler;
 import procrastinate.test.FileHandlerStub;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -28,8 +27,6 @@ public class TaskEngine {
     private static final String DEBUG_DONE_TASK = "Done %1$s: %2$s";
     private static final String DEBUG_UNDONE_TASK = "Undone %1$s: %2$s";
     private static final String DEBUG_UNDONE = "Last task operation undone";
-    private static final String DEBUG_FILE_NOT_FOUND = "No data file found; creating...";
-    private static final String DEBUG_INIT_TASK_FAILURE = "Could not create storage file";
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
@@ -212,18 +209,9 @@ public class TaskEngine {
     }
 
     private void initTasks() {
-        try {
-            loadState(fileHandler.loadTaskState());
-        } catch (FileNotFoundException e) {
-            loadState(new TaskState());
-            logger.log(Level.INFO, DEBUG_FILE_NOT_FOUND);
-            boolean success = writeStateToFile();
-            if (!success) {
-                logger.log(Level.SEVERE, DEBUG_INIT_TASK_FAILURE);
-            }
-        } finally {
-            currentView = currentState;
-        }
+        loadState(fileHandler.loadTaskState());
+        currentView = currentState;
+        Collections.sort(getTasks());
     }
 
     // ================================================================================

@@ -1,6 +1,5 @@
 package procrastinate.test;
 
-import java.io.FileNotFoundException;
 import procrastinate.FileHandler;
 import procrastinate.task.TaskState;
 
@@ -16,7 +15,7 @@ public class FileHandlerStub extends FileHandler {
         return true;
     }
     @Override
-    public TaskState loadTaskState() throws FileNotFoundException {
+    public TaskState loadTaskState() {
         return new TaskState();
     }
 }

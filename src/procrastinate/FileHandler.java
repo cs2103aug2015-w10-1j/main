@@ -33,7 +33,7 @@ public class FileHandler {
     private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
     private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded %1$s task(s) from file";
-    private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file";
+    private static final String DEBUG_FILE_LOAD_NOT_FOUND = "File not found; creating new file";
     private static final String DEBUG_FILE_PARSE_FAILURE = "Unrecognisable file format";
     private static final String DEBUG_CONFIG_WRITE_FAILURE = "Could not write to configuration file";
     private static final String DEBUG_SET_PATH_FAILURE = "Could not set to new path %1$s";
@@ -102,7 +102,7 @@ public class FileHandler {
      * Loads TaskState from a json file
      * @return TaskState
      */
-    public TaskState loadTaskState() throws FileNotFoundException {
+    public TaskState loadTaskState() {
         return loadTaskState(saveFile);
     }
 
@@ -258,9 +258,9 @@ public class FileHandler {
     /**
      * Loads TaskState from json formatted file
      *
-     * @return TaskState that was saved when the application last closed.
+     * @return TaskState parsed from file, or an empty TaskState if the file is not found or invalid
      */
-    private TaskState loadTaskState(File file) throws FileNotFoundException {
+    private TaskState loadTaskState(File file) {
         BufferedReader br = null;
         Gson gson = new GsonBuilder().registerTypeAdapter(Task.class, new TaskDeserializer())
                 .registerTypeAdapter(Date.class, new DateAdapter()).create();
@@ -277,8 +277,8 @@ public class FileHandler {
             logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.getTasks().size()));
             return taskState;
         } catch (FileNotFoundException e) {
-            logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);
-            throw e;
+            logger.log(Level.WARNING, DEBUG_FILE_LOAD_NOT_FOUND);
+            return new TaskState();
         } catch (JsonParseException e) {
             logger.log(Level.WARNING, DEBUG_FILE_PARSE_FAILURE);
             return new TaskState();
