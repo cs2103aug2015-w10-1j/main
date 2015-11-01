@@ -15,7 +15,6 @@ import java.util.Date;
 import org.junit.Test;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.google.gson.Gson;
@@ -29,8 +28,9 @@ import procrastinate.task.TaskDeserializer;
 import procrastinate.task.TaskState;
 
 public class FileHandlerTest {
-    private String defaultName;
     private FileHandler handler = null;
+    private static final String defaultName = "storage.json";
+    private static final String testDir = "testfolder";
     private static Path originalSavePath;
     private static Path originalSaveName;
     private static Path tmpDir;
@@ -51,7 +51,6 @@ public class FileHandlerTest {
                 reader = new BufferedReader(new FileReader(cfg.toFile()));
                 originalSavePath = Paths.get(reader.readLine());
                 reader.close();
-                System.out.println(originalSavePath);
                 hasSave = Files.exists(originalSavePath);
 
                 if (hasSave) {
@@ -79,14 +78,10 @@ public class FileHandlerTest {
                 Files.move(tmpDir.resolve("settings.config"), Paths.get("settings.config"));
                 Files.deleteIfExists(tmpDir);
             }
+            Files.deleteIfExists(Paths.get(testDir));
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Before
-    public void setup() {
-        defaultName = "storage.json";
     }
 
     @After
@@ -100,7 +95,6 @@ public class FileHandlerTest {
             e.printStackTrace();
         }
         handler = null;
-
     }
 
     @Test
@@ -118,15 +112,15 @@ public class FileHandlerTest {
     public void setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc() throws IOException {
         System.out.println("setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc");
         handler = new FileHandler();
-        String dir = ".." + File.separator;
+        String dir = "." + File.separator + testDir + File.separator;
         String filename = "setpathtest";
-        Path newPath = Paths.get(dir+filename+".json");
         handler.setPath(dir, filename);
 
         BufferedReader br = new BufferedReader(new FileReader(handler.getConfigFile()));
         String content = br.readLine();
         br.close();
 
+        Path newPath = Paths.get(dir+filename+".json");
         assertEquals(newPath, handler.getSaveFile().toPath());
         assertEquals(newPath.toFile(), handler.getSaveFile());
         assertEquals(newPath.toAbsolutePath().normalize().toString().trim(), content.trim());
@@ -141,7 +135,6 @@ public class FileHandlerTest {
         String filename = "setpathtest";
 
         File oldSave = handler.getSaveFile();
-        System.out.println(oldSave.toString());
         handler.setPath(dir, filename);
 
         assertTrue(Files.notExists(oldSave.toPath()));;
@@ -151,10 +144,10 @@ public class FileHandlerTest {
     public void loadConfig_NoConfigFile_ShouldMakeFile() throws IOException {
         System.out.println("loadConfig_NoConfigFile_ShouldMakeFile");
         handler = new FileHandler();
-        System.out.println(handler.getSaveFile());
         BufferedReader reader = new BufferedReader(new FileReader(Paths.get("settings.config").toFile()));
         String line = reader.readLine();
         reader.close();
+
         assertEquals(defaultName, line);
     }
 
