@@ -4,19 +4,6 @@
  * ================================================================
  */
 @font-face {
-	font-family: "Bebas Neue";
-	font-weight: 400;
-	font-style: normal;
-	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Regular.otf");
-}
-
-@font-face {
-	font-family: "Bebas Neue";
-	font-weight: bold;
-	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Bold.otf");
-}
-
-@font-face {
 	font-family: "Helvetica Neue";
 	font-style: bold;
 	src: url("/procrastinate/ui/fonts/helvetica-neue-bold.ttf");
@@ -26,12 +13,6 @@
 	font-family: Titillium;
 	font-style: normal;
 	src: url("/procrastinate/ui/fonts/titillium/Titillium-Regular.otf");
-}
-
-@font-face {
-	font-family: Titillium;
-	font-weight: bold;
-	src: url("/procrastinate/ui/fonts/titillium/Titillium-Bold.otf");
 }
 
 @font-face {
@@ -98,7 +79,7 @@
 }
 
 .helpScreen #titleLabel {
-    -fx-font-family: "Bebas Neue";
+    -fx-font-family: "Helvetica Neue";
     -fx-font-weight: bold;
     -fx-font-size: 24px;
 }
@@ -197,7 +178,7 @@
 }
 
 .titleBar #title {
-	-fx-font-family: "Bebas Neue";
+	-fx-font-family: "Helvetic Neue";
 	-fx-font-size: 14px;
 	-fx-font-weight: bold;
 }
