@@ -2,6 +2,7 @@ package procrastinate.ui;
 
 import java.util.List;
 
+import javafx.animation.SequentialTransition;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Deadline;
@@ -14,9 +15,11 @@ public class DoneScreen extends CenterScreen {
     // Message strings
     // ================================================================================
 
-    private static final String CATEGORY_DONE = "Showing all completed tasks";
+    private static final String CATEGORY_DONE = "Your completed tasks";
 
-    private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
+    private static final String LOCATION_EMPTY_VIEW = "images/no-done-tasks.png";
+
+    private static final int TIME_TRANSITION_FADE = 250;
 
     // ================================================================================
     // Class variables
@@ -56,6 +59,7 @@ public class DoneScreen extends CenterScreen {
     // Display methods
     // ================================================================================
 
+    @Override
     protected void updateTaskList(List<Task> taskList) {
         clearTaskList();
         mainVBox.getChildren().add(doneNode);
@@ -63,22 +67,19 @@ public class DoneScreen extends CenterScreen {
         String dateString;
 
         for (Task task : taskList) {
-            System.out.println(task);
             if (task.isDone()) {
                 taskCount.set(taskCount.get() + 1);
 
                 switch (task.getType()) {
 
                     case DEADLINE: {
-                        dateString = dateFormatWithFriendlyDayAndYear.format(((Deadline) task).getDate());
+                        dateString = getDifferentYearDeadlineDateFormat(((Deadline) task).getDate());
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
 
                     case EVENT: {
-                        dateString = dateFormatWithFriendlyDayAndYear.format(((Event) task).getStartDate())
-                                    + EVENT_DATE_SEPARATOR_GENERAL
-                                    + dateFormatWithFriendlyDayAndYear.format(((Event)task).getEndDate());
+                        dateString = getDifferentYearEventDateFormat((((Event) task).getStartDate()), (((Event)task).getEndDate()));
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
@@ -95,6 +96,20 @@ public class DoneScreen extends CenterScreen {
                 }
             }
         }
+    }
+
+    @Override
+    protected SequentialTransition getScreenSwitchOutSequence() {
+        SequentialTransition sequentialTransition = new SequentialTransition();
+        sequentialTransition.getChildren().add(generateFadeOutTransition(doneNode, TIME_TRANSITION_FADE));
+        return sequentialTransition;
+    }
+
+    @Override
+    protected SequentialTransition getScreenSwitchInSequence() {
+        SequentialTransition sequentialTransition = new SequentialTransition();
+        sequentialTransition.getChildren().add(generateFadeInTransition(doneNode, TIME_TRANSITION_FADE));
+        return sequentialTransition;
     }
 
     private void addDoneTask(String taskCount, Task task, String dateString) {
@@ -116,6 +131,7 @@ public class DoneScreen extends CenterScreen {
      */
     private void clearTaskList() {
         taskCount.set(0);
+        mainVBox.getChildren().clear();
         doneTaskList.getChildren().clear();
     }
 

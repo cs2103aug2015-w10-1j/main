@@ -1,6 +1,8 @@
 package procrastinate.ui;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -34,6 +36,7 @@ public class SystemTrayHandler {
     // ================================================================================
 
     private boolean shownMinimiseMessage = false;
+    private BooleanProperty exitIndicator = new SimpleBooleanProperty(false);
 
     private Stage primaryStage;
     private SystemTray sysTray;
@@ -55,6 +58,10 @@ public class SystemTrayHandler {
         configureSysTray(primaryStage);
         createSysTray();
         return sysTray;
+    }
+
+    protected void bindExitIndicator(BooleanProperty isExit) {
+        exitIndicator.bindBidirectional(isExit);
     }
 
     private void configureSysTray(Stage primaryStage) {
@@ -89,7 +96,7 @@ public class SystemTrayHandler {
         PopupMenu menu = new PopupMenu();
 
         MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
-        menuExit.addActionListener(actionEvent -> System.exit(0));
+        menuExit.addActionListener(actionEvent -> exitIndicator.set(true));
 
         MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
         menuShow.addActionListener(actionEvent -> windowHideOrShow());

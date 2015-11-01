@@ -14,6 +14,7 @@ import procrastinate.Command.CommandType;
 import procrastinate.task.*;
 import procrastinate.test.UIStub;
 import procrastinate.ui.UI;
+import procrastinate.ui.UI.ScreenView;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,6 +88,7 @@ public class Logic {
     // Class variables
     // ================================================================================
 
+    private static Stage stage;
     private TaskEngine taskEngine;
     private UI ui;
 
@@ -131,8 +133,9 @@ public class Logic {
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
-    public static Logic getInstance() {
+    public static Logic getInstance(Stage primaryStage) {
         if (logic == null) {
+            stage = primaryStage;
             logic = new Logic();
         }
         return logic;
@@ -143,13 +146,13 @@ public class Logic {
     }
 
     // Main handle
-    public void initialiseWindow(Stage primaryStage) {
+    public void initialiseWindow() {
         assert(ui != null);
-        ui.setUpStage(primaryStage);
         ui.setUpBinding(userInput, statusLabelText, isExit);
         attachHandlersAndListeners();
         updateUiTaskList();
         setStatus(STATUS_READY);
+        ui.setUpAndShowStage();
     }
 
     // ================================================================================
@@ -536,7 +539,8 @@ public class Logic {
     // ================================================================================
 
     private void initUi() {
-        ui = new UI();
+//        ui = new UI();
+        ui = new UI(stage);
     }
 
     private void initTaskEngine() throws IOException {
@@ -554,22 +558,22 @@ public class Logic {
     private void updateUiTaskList() {
         switch (currentView) {
             case SHOW_OUTSTANDING:
-                updateUiTaskList(taskEngine.getOutstandingTasks());
+                updateUiTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_DONE:
-                updateUiTaskList(taskEngine.getCompletedTasks());
+                updateUiTaskList(taskEngine.getCompletedTasks(), ScreenView.SCREEN_DONE);
                 break;
             case SHOW_ALL:
-                updateUiTaskList(taskEngine.getAllTasks());
+                updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_SEARCH_RESULTS:
-                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate));
+                updateUiTaskList(taskEngine.getTasksContaining(lastSearchTerm, lastSearchStartDate, lastSearchEndDate), ScreenView.SCREEN_MAIN);
                 break;
         }
     }
 
-    private void updateUiTaskList(List<Task> taskList) {
-        ui.updateTaskList(taskList);
+    private void updateUiTaskList(List<Task> taskList, ScreenView screenView) {
+        ui.updateTaskList(taskList, screenView);
     }
 
     // Retrieves the current user input from the TextField.

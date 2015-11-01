@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -16,6 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.awt.SystemTray;
 import java.io.IOException;
 
 public class WindowHandler {
@@ -25,6 +27,7 @@ public class WindowHandler {
     // ================================================================================
 
     private static final String LOCATION_CSS_STYLESHEET = "views/procrastinate.css";
+    private static final String LOCATION_MAIN_WINDOW_LAYOUT = "views/MainWindowLayout.fxml";
     private static final String LOCATION_TITLE_BAR_FXML = "views/TitleBar.fxml";
     private static final String LOCATION_WINDOW_ICON = "images/icon.png";
 
@@ -47,32 +50,54 @@ public class WindowHandler {
 
     private Stage primaryStage;
     private Parent root;
+    private SystemTray systemTray;
     private SystemTrayHandler systemTrayHandler;
 
     private BooleanProperty exitIndicator = new SimpleBooleanProperty(false);
 
     private static double xOffset, yOffset;
 
+    // ================================================================================
+    // FXML field variables
+    // ================================================================================
+
+    @FXML private BorderPane mainBorderPane;
     @FXML private Label close;
     @FXML private Label minimise;
+    @FXML private Label statusLabel;
+    @FXML private StackPane centerScreen;
+    @FXML private TextField userInputField;
 
     // ================================================================================
     // WindowHandler methods
     // ================================================================================
 
-    protected WindowHandler(Stage primaryStage,Parent root, SystemTrayHandler systemTrayHandler) {
-        this.primaryStage = primaryStage;
-        this.root = root;
-        this.systemTrayHandler = systemTrayHandler;
+    protected WindowHandler(Stage stage) {
+        this.primaryStage = stage;
     }
 
-    protected void initialiseWindow() {
+    protected void loadWindowConfigurations(boolean showTray) {
+        loadMainWindowLayout();
+        if (showTray) {
+            initTray();
+        }
         overwriteDecorations();
         configurePrimaryStage();
     }
 
     protected void bindAsExitIndicator(BooleanProperty isExit) {
         exitIndicator.bindBidirectional(isExit);
+        systemTrayHandler.bindExitIndicator(isExit);
+    }
+
+    private void loadMainWindowLayout() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_MAIN_WINDOW_LAYOUT));
+        loader.setController(this); // Required due to different package declaration from Main
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void configurePrimaryStage() {
@@ -86,6 +111,15 @@ public class WindowHandler {
         primaryScene.setFill(Color.TRANSPARENT);
         primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
         primaryStage.setScene(primaryScene);
+    }
+
+    private void initTray() {
+        if (isSysTraySupported()) {
+            systemTrayHandler = new SystemTrayHandler(primaryStage, userInputField);
+            // userInputField is passed to SystemTrayHandler to request for focus whenever the window is shown
+            systemTray = systemTrayHandler.initialiseTray();
+            assert (systemTray != null);
+        }
     }
 
     /**
@@ -122,12 +156,13 @@ public class WindowHandler {
             centerPane.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
         });
 
+
         // Wraps the current root in an AnchorPane to provide drop shadow styling
-        AnchorPane ap = new AnchorPane(root);
-        ap.setPrefSize(WRAPPER_PREF_WIDTH, WRAPPER_PREF_HEIGHT);
-        ap.getStyleClass().add(STYLE_CLASS_MAIN_WINDOW);
-        ap.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
-        root = ap;
+        AnchorPane wrapperPane = new AnchorPane(root);
+        wrapperPane.setPrefSize(WRAPPER_PREF_WIDTH, WRAPPER_PREF_HEIGHT);
+        wrapperPane.getStyleClass().add(STYLE_CLASS_MAIN_WINDOW);
+        wrapperPane.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
+        root = wrapperPane;
     }
 
     /**
@@ -154,4 +189,21 @@ public class WindowHandler {
             e.printStackTrace();
         }
     }
+
+    private boolean isSysTraySupported() {
+        return  SystemTray.isSupported();
+    }
+
+    protected Label getStatusLabel() {
+        return statusLabel;
+    }
+
+    protected StackPane getCenterScreen() {
+        return centerScreen;
+    }
+
+    protected TextField getUserInputField() {
+        return userInputField;
+    }
+
 }

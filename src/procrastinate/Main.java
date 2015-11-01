@@ -13,8 +13,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        logic = Logic.getInstance();
+        logic = Logic.getInstance(primaryStage);
         assert (logic != null);
-        logic.initialiseWindow(primaryStage);
+        logic.initialiseWindow();
     }
 }

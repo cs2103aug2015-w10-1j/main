@@ -9,8 +9,8 @@
       <Region fx:id="overlay" />
       <VBox fx:id="container" >
           <children>
-            <ImageView fx:id="splashImageView" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
-            <Label fx:id="titleLabel" alignment="CENTER" text="Welcome to Procrastinate!" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
+            <ImageView fx:id="imageView" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
+            <Label fx:id="titleLabel" alignment="CENTER" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
             <Label fx:id="subtitleLabel" VBox.vgrow="ALWAYS" />
           </children>
       </VBox>

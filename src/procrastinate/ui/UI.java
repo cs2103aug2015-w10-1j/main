@@ -2,18 +2,10 @@ package procrastinate.ui;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import procrastinate.task.Task;
 
-import java.awt.*;
-import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,78 +27,45 @@ public class UI {
     private static final String DEBUG_UI_INIT = "UI initialised.";
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
 
-    private static final String LOCATION_MAIN_WINDOW_LAYOUT = "views/MainWindowLayout.fxml";
-
     // ================================================================================
     // Class variables
     // ================================================================================
 
+    private Stage primaryStage;
     private boolean isScreenOverlayed;
     private CenterPaneController centerPaneController;
 
-    private Parent root;
-
-    private Stage primaryStage;
-
     private DialogPopupHandler dialogPopupHandler;
-    private SystemTrayHandler sysTrayHandler;
-    private SystemTray sysTray;
     private WindowHandler windowHandler;
-
-    // ================================================================================
-    // FXML field variables
-    // ================================================================================
-
-    @FXML private BorderPane mainBorderPane;
-    @FXML private Label statusLabel;
-    @FXML private StackPane centerScreen;
-    @FXML private TextField userInputField;
 
     // ================================================================================
     // UI methods
     // ================================================================================
 
-    public UI() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_MAIN_WINDOW_LAYOUT));
-        loader.setController(this); // Required due to different package declaration from Main
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.log(Level.INFO, DEBUG_UI_INIT);
-    }
-
     public UI(boolean isUnderTest) {
     }
 
-    // This gets called automatically from the UI constructor when load is executed.
-    public void initialize() {
+    public UI(Stage stage) {
+        assert(stage != null);
+        primaryStage = stage;
+        initWindow(stage);
+        initDialogPopupHandler(stage);
         initTaskDisplay();
+        logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
     // Logic Handles
     public void setUpBinding(StringProperty userInput, StringProperty statusLabelText, BooleanProperty isExit) {
         initBinding(userInput, statusLabelText);
+        assert(windowHandler != null);
         windowHandler.bindAsExitIndicator(isExit);
     }
 
-    public void setUpStage(Stage primaryStage) {
-        assert (primaryStage != null);
-        this.primaryStage = primaryStage;
-        if (showTray) {
-            initTray();
-        }
-        initWindow();
-        initDialogPopupHandler();
+    public void setUpAndShowStage() {
+        assert(primaryStage != null);
         primaryStage.show();
         showSplashScreen();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
-    }
-
-    public void updateTaskList(List<Task> tasks) {
-        // Pass the updates to the main screen
-        centerPaneController.updateMainScreen(tasks);
     }
 
     public void updateTaskList(List<Task> taskList, ScreenView screenView) {
@@ -119,41 +78,24 @@ public class UI {
 
     private void initBinding(StringProperty userInput, StringProperty statusLabelText) {
         // Binds the input and status text to the StringProperty in Logic.
-        userInput.bindBidirectional(userInputField.textProperty());
-        statusLabelText.bindBidirectional(statusLabel.textProperty());
+        userInput.bindBidirectional(windowHandler.getUserInputField().textProperty());
+        statusLabelText.bindBidirectional(windowHandler.getStatusLabel().textProperty());
+    }
+
+    private void initDialogPopupHandler(Stage stage) {
+        dialogPopupHandler = new DialogPopupHandler(stage);
     }
 
     /**
      * Sets up controller for center pane and overlays a splash screen on top of the main screen display.
      */
     private void initTaskDisplay() {
-        this.centerPaneController = new CenterPaneController(centerScreen);
+        this.centerPaneController = new CenterPaneController(windowHandler.getCenterScreen());
     }
 
-    private void initTray() {
-        if (isSysTraySupported()) {
-            sysTrayHandler = new SystemTrayHandler(primaryStage, userInputField);
-            // userInputField is passed to SystemTrayHandler to request for focus whenever the window is shown
-            sysTray = sysTrayHandler.initialiseTray();
-            assert (sysTray != null);
-        }
-    }
-
-    private void initWindow() {
-        windowHandler = new WindowHandler(primaryStage, root, sysTrayHandler);
-        windowHandler.initialiseWindow();
-    }
-
-    private void initDialogPopupHandler() {
-        dialogPopupHandler = new DialogPopupHandler(primaryStage);
-    }
-
-    // ================================================================================
-    // Utility methods
-    // ================================================================================
-
-    private boolean isSysTraySupported() {
-        return  SystemTray.isSupported();
+    private void initWindow(Stage stage) {
+        windowHandler = new WindowHandler(stage);
+        windowHandler.loadWindowConfigurations(showTray);
     }
 
     // ================================================================================
@@ -161,7 +103,7 @@ public class UI {
     // ================================================================================
 
     public TextField getUserInputField() {
-        return userInputField;
+        return windowHandler.getUserInputField();
     }
 
     // ================================================================================
@@ -183,7 +125,7 @@ public class UI {
      */
     public void showHelp() {
         if (!isScreenOverlayed) {
-            centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+            centerPaneController.showHelpOverlay();
             isScreenOverlayed = true;
         }
     }
