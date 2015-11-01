@@ -246,7 +246,7 @@ public abstract class CenterScreen extends VBox {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
     }
 
-    protected boolean checkIfEventEndSameYear(Date date1, Date date2) {
+    protected boolean checkIfTwoDatesOfSameYear(Date date1, Date date2) {
         return yearFormat.format(date1).equals(yearFormat.format(date2));
     }
 

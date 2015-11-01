@@ -294,7 +294,7 @@ public class MainScreen extends CenterScreen {
 
             case DEADLINE: {
                 taskDate = ((Deadline) task).getDate();
-                isSameYear = checkIfEventEndSameYear(today, taskDate);
+                isSameYear = checkIfTwoDatesOfSameYear(today, taskDate);
                 if (isSameYear) {
                     addTaskWithSameYear(task, taskDate);
                 } else {
@@ -305,7 +305,7 @@ public class MainScreen extends CenterScreen {
 
             case EVENT: {
                 taskDate = ((Event) task).getStartDate();
-                isSameYear = checkIfEventEndSameYear(today, taskDate);
+                isSameYear = checkIfTwoDatesOfSameYear(today, taskDate);
                 if (isSameYear) {
                     addTaskWithSameYear(task, taskDate);
                 } else {
@@ -387,7 +387,7 @@ public class MainScreen extends CenterScreen {
 
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
-                boolean isSameEndYear = checkIfEventEndSameYear(endDate, today);
+                boolean isSameEndYear = checkIfTwoDatesOfSameYear(endDate, today);
                 if (isSameEndYear) {
                     if (checkIfStartAndEndSameDay(date, endDate)) {
                         dateString = getSameYearSameDayEventDateFormat(date, endDate);
@@ -439,7 +439,7 @@ public class MainScreen extends CenterScreen {
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
                 // if same day also should be in same line.
-                boolean isSameEndYear = checkIfEventEndSameYear(date, endDate);
+                boolean isSameEndYear = checkIfTwoDatesOfSameYear(date, endDate);
                 if (isSameEndYear && checkIfStartAndEndSameDay(date, endDate)) {
                     dateString = getDifferentYearSameDayEventDateFormat(date, endDate);
                 } else {
@@ -502,7 +502,7 @@ public class MainScreen extends CenterScreen {
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
                 String dateString;
-                boolean isSameEndYear = checkIfEventEndSameYear(endDate, today);
+                boolean isSameEndYear = checkIfTwoDatesOfSameYear(endDate, today);
                 if (isSameEndYear) {
                     if (checkIfStartAndEndSameDay(startDate, endDate)) {
                         dateString = getThisWeekSameDayEventDateFormat(startDate, endDate);

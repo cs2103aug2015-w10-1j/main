@@ -1,5 +1,6 @@
 package procrastinate.ui;
 
+import java.util.Date;
 import java.util.List;
 
 import javafx.animation.SequentialTransition;
@@ -32,6 +33,8 @@ public class DoneScreen extends CenterScreen {
 
     private VBox mainVBox;
 
+    private Date today;
+
     // ================================================================================
     // DoneScreen Constructor
     // ================================================================================
@@ -63,6 +66,7 @@ public class DoneScreen extends CenterScreen {
 
     @Override
     protected void updateTaskList(List<Task> taskList) {
+        getUpdatedDates();
         clearTaskList();
         mainVBox.getChildren().add(doneNode);
 
@@ -75,13 +79,30 @@ public class DoneScreen extends CenterScreen {
                 switch (task.getType()) {
 
                     case DEADLINE: {
-                        dateString = getDifferentYearDeadlineDateFormat(((Deadline) task).getDate());
+                        Date date =((Deadline) task).getDate();
+                        boolean isSameYear = checkIfTwoDatesOfSameYear(date, today);
+                        if (isSameYear) {
+                            dateString = getSameYearDeadlineDateFormat(date);
+                        } else {
+                            dateString = getDifferentYearDeadlineDateFormat(date);
+                        }
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
 
                     case EVENT: {
-                        dateString = getDifferentYearEventDateFormat((((Event) task).getStartDate()), (((Event)task).getEndDate()));
+                        Date startDate = ((Event) task).getStartDate();
+                        Date endDate = ((Event) task).getEndDate();
+                        boolean isStartSameYear = checkIfTwoDatesOfSameYear(startDate, today);
+                        if (isStartSameYear) {
+                            if (checkIfStartAndEndSameDay(startDate, endDate)) {
+                                dateString = getSameYearSameDayEventDateFormat(startDate, endDate);
+                            } else {
+                                dateString = getSameYearDifferentDayEventDateFormat(startDate, endDate);
+                            }
+                        } else {
+                            dateString = getDifferentYearEventDateFormat(startDate, endDate);
+                        }
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
@@ -105,14 +126,14 @@ public class DoneScreen extends CenterScreen {
     @Override
     protected SequentialTransition getScreenSwitchOutSequence() {
         SequentialTransition sequentialTransition = new SequentialTransition();
-        sequentialTransition.getChildren().add(generateFadeOutTransition(doneNode, TIME_TRANSITION_FADE));
+//        sequentialTransition.getChildren().add(generateFadeOutTransition(doneNode, TIME_TRANSITION_FADE));
         return sequentialTransition;
     }
 
     @Override
     protected SequentialTransition getScreenSwitchInSequence() {
         SequentialTransition sequentialTransition = new SequentialTransition();
-        sequentialTransition.getChildren().add(generateFadeInTransition(doneNode, TIME_TRANSITION_FADE));
+//        sequentialTransition.getChildren().add(generateFadeInTransition(doneNode, TIME_TRANSITION_FADE));
         return sequentialTransition;
     }
 
@@ -137,6 +158,11 @@ public class DoneScreen extends CenterScreen {
         taskCount.set(0);
         mainVBox.getChildren().clear();
         doneTaskList.getChildren().clear();
+    }
+
+    private void getUpdatedDates() {
+        updateDates();
+        today = getToday();
     }
 
     private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
