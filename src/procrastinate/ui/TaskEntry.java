@@ -22,7 +22,7 @@ public class TaskEntry extends HBox{
     private static final String LOCATION_TASK_ENTRY_FXML = "views/TaskEntry.fxml";
     private static final String LOCATION_TICK_IMAGE = "images/tick.png";
 
-    private static final String STYLE_TICK_CENTERING_PADDING = "-fx-padding: 5 0 0 0;";
+    private static final String STYLE_TICK_CENTERING_PADDING = "-fx-padding: 4 5 0 0;";
     private static final String STYLE_REMOVE_PADDING = "-fx-padding: 0;";
 
     // ================================================================================
