@@ -33,6 +33,8 @@ public class UI {
     private static final String DEBUG_UI_INIT = "UI initialised.";
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
 
+    private static final String KEYWORD_HELP = "help";
+
     // ================================================================================
     // Class variables
     // ================================================================================
@@ -199,8 +201,10 @@ public class UI {
     private EventHandler<KeyEvent> createKeyPressHandler() {
         return (keyEvent) -> {
             // To remove the help overlay only when the user presses 'Enter' or 'Esc'
-            if (keyEvent.getCode().equals(KeyCode.ENTER)
-                    || keyEvent.getCode().equals(KeyCode.ESCAPE)) {
+            // And checks also if the user command is 'help' only (follows case-insensitivity)
+            if ((keyEvent.getCode().equals(KeyCode.ENTER)
+                    || keyEvent.getCode().equals(KeyCode.ESCAPE))
+                    && !(getUserInputField().getText().trim().equalsIgnoreCase(KEYWORD_HELP))) {
                 hideHelpOverlay();
             }
             hideSplashOverlay();

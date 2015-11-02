@@ -1,6 +1,7 @@
 package procrastinate.ui;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.SequentialTransition;
@@ -32,7 +33,8 @@ public class CenterPaneController {
     private static final double OPACITY_ZERO = 0;
 
     // Time values are in milliseconds
-    private static final double TIME_HELP_SCREEN_FADEOUT = 300;
+    private static final double TIME_HELP_SCREEN_FADEIN = 150;
+    private static final double TIME_HELP_SCREEN_FADEOUT = 200;
 
     private static final double TIME_SPLASH_SCREEN_FADE = 3000;
     private static final double TIME_SPLASH_SCREEN_FULL_OPACITY = 2000;
@@ -48,7 +50,6 @@ public class CenterPaneController {
 
     private static double xOffset, yOffset;
 
-    private FadeTransition helpOverlayFadeOut;
     private Timeline splashScreenTimeline;
 
     private Node mainScreenNode;
@@ -116,12 +117,15 @@ public class CenterPaneController {
      * and it is the current overlay screen.
      */
     protected void hideHelpOverlay() {
-        helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
+        if (currentOverlay != helpOverlay || !centerStackPane.getChildren().contains(helpOverlayNode)) {
+            return;
+        }
+        FadeTransition helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
         helpOverlayFadeOut.setOnFinished(e -> {
             centerStackPane.getChildren().remove(helpOverlayNode);
+            currentOverlay = null;
         });
-
-        helpOverlayFadeOut.playFromStart();
+        helpOverlayFadeOut.play();
     }
 
     /**
@@ -155,9 +159,15 @@ public class CenterPaneController {
     }
 
     protected void showHelpOverlay() {
+        if (currentOverlay == helpOverlay || centerStackPane.getChildren().contains(helpOverlay)) {
+            return;
+        }
         currentOverlay = helpOverlay;
         centerStackPane.getChildren().add(helpOverlayNode);
         helpOverlayNode.toFront();
+
+        FadeTransition helpOverlayFadeIn = getFadeInTransition(TIME_HELP_SCREEN_FADEIN, helpOverlayNode);
+        helpOverlayFadeIn.play();
     }
 
     // ================================================================================
@@ -181,6 +191,15 @@ public class CenterPaneController {
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
         fadeTransition.setFromValue(OPACITY_FULL);
         fadeTransition.setToValue(OPACITY_ZERO);
+        fadeTransition.setInterpolator(Interpolator.EASE_OUT);
+        return fadeTransition;
+    }
+
+    private FadeTransition getFadeInTransition(double timeInMs, Node transitingNode) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
+        fadeTransition.setFromValue(OPACITY_ZERO);
+        fadeTransition.setToValue(OPACITY_FULL);
+        fadeTransition.setInterpolator(Interpolator.EASE_IN);
         return fadeTransition;
     }
 
