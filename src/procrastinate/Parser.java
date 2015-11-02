@@ -50,6 +50,7 @@ public class Parser {
     private static final String KEYWORD_ON_DATE = "on";
     private static final String KEYWORD_ALL = "all";
     private static final String KEYWORD_DONE = "done";
+    private static final String KEYWORD_MORE = "more";
     private static final String KEYWORD_EVENTUALLY = "eventually";
 
     //These are the problematic times that are unable to be handled correctly by Natty
@@ -306,13 +307,16 @@ public class Parser {
             }
 
             case COMMAND_HELP: {
-                if (!userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
-                    // Treat "help something" as an add command
-                    // Inject add to the front of command and recurse
+                if (userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
+                    return new Command(CommandType.HELP);
+                }
+                String argument = userCommand.substring(firstWord.length() + 1);
+
+                if (argument.equals(KEYWORD_MORE)) {
+                    return new Command(CommandType.HELP_MORE);
+                } else {
                     return Parser.parse(putAddInFront(userInput));
                 }
-
-                return new Command(CommandType.HELP);
             }
 
             case COMMAND_SET_PATH: {
