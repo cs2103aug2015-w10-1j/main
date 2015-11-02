@@ -3,6 +3,7 @@ package procrastinate.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
@@ -35,11 +36,12 @@ public class UIStub extends UI {
         this.taskList = taskList;
     }
     @Override
-    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
-            ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
+    public BooleanProperty getIsExit() {
+        return null;
     }
     @Override
-    public void hideOverlays() {
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
+            ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override
     public void showHelpOverlay() {
