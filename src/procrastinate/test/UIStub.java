@@ -39,9 +39,6 @@ public class UIStub extends UI {
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override
-    public void hideOverlays() {
-    }
-    @Override
     public void showHelpOverlay() {
     }
     @Override

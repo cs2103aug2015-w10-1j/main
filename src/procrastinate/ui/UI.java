@@ -115,8 +115,12 @@ public class UI {
         centerPaneController.showSplashScreen();
     }
 
-    private void hideOverlays() {
-        centerPaneController.hideScreenOverlay();
+    private void hideHelpOverlay() {
+        centerPaneController.hideHelpOverlay();
+    }
+
+    private void hideSplashOverlay() {
+        centerPaneController.hideSplashOverlay();
     }
 
     // ================================================================================
@@ -197,8 +201,9 @@ public class UI {
             // To remove the help overlay only when the user presses 'Enter' or 'Esc'
             if (keyEvent.getCode().equals(KeyCode.ENTER)
                     || keyEvent.getCode().equals(KeyCode.ESCAPE)) {
-                hideOverlays();
+                hideHelpOverlay();
             }
+            hideSplashOverlay();
         };
     }
 }

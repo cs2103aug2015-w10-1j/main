@@ -27,8 +27,8 @@ public class UITestHelper {
         return  centerPaneController;
     }
 
-    public Node getCPCCurrentScreen() {
-        return centerPaneController.currentOverlayNode;
+    public ImageOverlay getCPCCurrentScreen() {
+        return centerPaneController.currentOverlay;
     }
 
     public void switchToMain() {

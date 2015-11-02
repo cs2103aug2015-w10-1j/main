@@ -5,13 +5,9 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import procrastinate.task.Task;
 import procrastinate.ui.UI.ScreenView;
@@ -25,7 +21,6 @@ public class CenterPaneController {
     // ================================================================================
 
     private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
-    private static final String LOCATION_REFERENCE_SHEET = "images/referencesheet.png";
 
     private static final String MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE = "Unable to recognise ScreenType";
 
@@ -47,8 +42,9 @@ public class CenterPaneController {
     // Class variables
     // ================================================================================
 
-    protected Node currentOverlayNode;       // Changed to protected for testing purposes.
+ // Changed to protected for testing purposes.
     protected CenterScreen currentScreenView;
+    protected ImageOverlay currentOverlay;
 
     private static double xOffset, yOffset;
 
@@ -116,13 +112,24 @@ public class CenterPaneController {
     }
 
     /**
-     * Hides the current screen overlay for:
-     *      - splashScreen: Fast-forwards the fade animation if user starts typing, and builds the actual helpScreen
-     *                      once the animation is terminated
-     *      - helpScreen: Starts the fade out transition that lasts for 0.5 seconds
+     * Starts the fade out transition that lasts for 0.5 seconds if the stack contains it
+     * and it is the current overlay screen.
      */
-    protected void hideScreenOverlay() {
-        if (currentOverlayNode != helpOverlayNode) {
+    protected void hideHelpOverlay() {
+        helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
+        helpOverlayFadeOut.setOnFinished(e -> {
+            centerStackPane.getChildren().remove(helpOverlayNode);
+        });
+
+        helpOverlayFadeOut.playFromStart();
+    }
+
+    /**
+     * Fast-forwards the fade animation if user starts typing, which will remove the entire
+     * node from the stack once it has finished fading.
+     */
+    protected void hideSplashOverlay() {
+        if (currentOverlay == splashOverlay && centerStackPane.getChildren().contains(splashOverlayNode)) {
             Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
             // Only fast forward the timeline if the current time of the animation is smaller than the given
             // interrupt time. Else, just wait for the animation to end.
@@ -130,8 +137,6 @@ public class CenterPaneController {
                 splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
             }
             splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_FADE));
-        } else {
-            helpOverlayFadeOut.playFromStart();
         }
     }
 
@@ -142,31 +147,17 @@ public class CenterPaneController {
      * hideScreenOverlay method.
      */
     protected void showSplashScreen() {
+        currentOverlay = splashOverlay;
         centerStackPane.getChildren().add(splashOverlayNode);
 
-        // Set SplashScreen opacity at full for 2 seconds.
-        Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
-        KeyValue fullOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_FULL);
-        KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
-
-        // Set SplashScreen to fade out completely at time = 3 seconds
-        Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
-        KeyValue zeroOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_ZERO);
-        KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
-
-        splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
-        splashScreenTimeline.setOnFinished(e -> {
-            centerStackPane.getChildren().remove(splashOverlayNode);
-            convertSplashScreen();
-            splashOverlayNode.setOpacity(OPACITY_FULL);
-            currentOverlayNode = splashOverlayNode;
-        });
+        buildSplashScreenAnimation();
         splashScreenTimeline.play();
     }
 
     protected void showHelpOverlay() {
+        currentOverlay = helpOverlay;
         centerStackPane.getChildren().add(helpOverlayNode);
-        helpOverlayNode.setOpacity(OPACITY_FULL);
+        helpOverlayNode.toFront();
     }
 
     // ================================================================================
@@ -186,29 +177,29 @@ public class CenterPaneController {
         screenSwitchSequence.play();
     }
 
-    private void convertSplashScreen() {
-        // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
-        VBox helpOverlayBody = helpOverlay.getContainer();
-        helpOverlayBody.setStyle("-fx-padding: 0 30 0 30;");
-
-        ImageView imageView = helpOverlay.getImageView();
-        imageView.setImage(new Image(CenterPaneController.class.getResource(LOCATION_REFERENCE_SHEET).toExternalForm()));
-
-        VBox wrapper = new VBox(imageView);
-        wrapper.setAlignment(Pos.TOP_CENTER);
-        wrapper.setPrefSize(400, 430);
-        wrapper.setStyle("-fx-background-color: #365fac;"
-                + "-fx-background-radius: 20;");
-
-        helpOverlayBody.getChildren().clear();
-        helpOverlayBody.getChildren().add(wrapper);
-    }
-
     private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
         fadeTransition.setFromValue(OPACITY_FULL);
         fadeTransition.setToValue(OPACITY_ZERO);
         return fadeTransition;
+    }
+
+    private void buildSplashScreenAnimation() {
+        // Set SplashScreen opacity at full for 2 seconds.
+        Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
+        KeyValue fullOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_FULL);
+        KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
+
+        // Set SplashScreen to fade out completely at time = 3 seconds
+        Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
+        KeyValue zeroOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_ZERO);
+        KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
+
+        splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
+        splashScreenTimeline.setOnFinished(e -> {
+            centerStackPane.getChildren().remove(splashOverlayNode);
+            currentOverlay = null;
+        });
     }
 
     // ================================================================================
@@ -217,11 +208,6 @@ public class CenterPaneController {
 
     private void createOverlays() {
         createHelpOverlay();
-        helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
-        helpOverlayFadeOut.setOnFinished(e -> {
-            centerStackPane.getChildren().remove(helpOverlayNode);
-        });
-
         createSplashOverlay();
     }
 
@@ -257,7 +243,6 @@ public class CenterPaneController {
     }
 
     private void setToMainScreen() {
-        // update with summary and fade in instead of fade in den update.
         centerStackPane.getChildren().add(mainScreenNode);
         currentScreenView = mainScreen;
         mainScreenNode.setOpacity(OPACITY_FULL);
