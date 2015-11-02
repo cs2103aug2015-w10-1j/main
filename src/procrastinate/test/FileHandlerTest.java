@@ -120,7 +120,7 @@ public class FileHandlerTest {
         String content = br.readLine();
         br.close();
 
-        Path newPath = Paths.get(dir+filename+".json");
+        Path newPath = Paths.get(dir+filename);
         assertEquals(newPath, handler.getSaveFile().toPath());
         assertEquals(newPath.toFile(), handler.getSaveFile());
         assertEquals(newPath.toAbsolutePath().normalize().toString().trim(), content.trim());
