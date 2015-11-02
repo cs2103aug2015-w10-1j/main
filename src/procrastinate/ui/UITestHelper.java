@@ -51,8 +51,8 @@ public class UITestHelper {
     // HelpScreen methods
     // ================================================================================
 
-    public HelpOverlay getNewHelpScreen() {
-        return new HelpOverlay("views/HelpOverlay.fxml");
+    public ImageOverlay getNewHelpScreen() {
+        return new HelpOverlay();
     }
 
     // ================================================================================

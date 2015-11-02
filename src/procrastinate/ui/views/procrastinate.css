@@ -64,27 +64,27 @@
 
 /*
  * ================================================================
- * HelpScreen Styling
+ * ImageOverlay Styling
  * ================================================================
  */
-.helpScreen #container {
+.imageOverlay #container {
     -fx-alignment: center;
     -fx-padding: 10 0 0 0;
     -fx-spacing: 10;
 }
 
-.helpScreen #overlay {
+.imageOverlay #overlay {
     -fx-background-color: white;
     -fx-opacity: 0.5;
 }
 
-.helpScreen #titleLabel {
+.imageOverlay #titleLabel {
     -fx-font-family: "Helvetica Neue";
     -fx-font-weight: bold;
     -fx-font-size: 24px;
 }
 
-.helpScreen #subtitleLabel {
+.imageOverlay #subtitleLabel {
     -fx-font-family: Titillium;
 }
 

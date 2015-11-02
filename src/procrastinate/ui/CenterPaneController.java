@@ -25,7 +25,6 @@ public class CenterPaneController {
     // ================================================================================
 
     private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
-    private static final String LOCATION_HELP_OVERLAY_LAYOUT = "views/HelpOverlay.fxml";
     private static final String LOCATION_REFERENCE_SHEET = "images/referencesheet.png";
 
     private static final String MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE = "Unable to recognise ScreenType";
@@ -58,11 +57,16 @@ public class CenterPaneController {
 
     private Node mainScreenNode;
     private Node doneScreenNode;
+
     private Node helpOverlayNode;
+    private Node splashOverlayNode;
+
+    private ImageOverlay helpOverlay;
+    private ImageOverlay splashOverlay;
+
+    private MultiCategoryScreen mainScreen;
 
     private SingleCategoryScreen doneScreen;
-    private HelpOverlay helpOverlay;
-    private MultiCategoryScreen mainScreen;
 
     private StackPane centerStackPane;
 
@@ -74,6 +78,7 @@ public class CenterPaneController {
     protected CenterPaneController(StackPane centerStackPane) {
         this.centerStackPane = centerStackPane;
         createScreens();
+        createOverlays();
         setToMainScreen();
     }
 
@@ -137,24 +142,24 @@ public class CenterPaneController {
      * hideScreenOverlay method.
      */
     protected void showSplashScreen() {
-        centerStackPane.getChildren().add(helpOverlayNode);
+        centerStackPane.getChildren().add(splashOverlayNode);
 
         // Set SplashScreen opacity at full for 2 seconds.
         Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
-        KeyValue fullOpacityKeyValue = new KeyValue(helpOverlayNode.opacityProperty(), OPACITY_FULL);
+        KeyValue fullOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_FULL);
         KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
 
         // Set SplashScreen to fade out completely at time = 3 seconds
         Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
-        KeyValue zeroOpacityKeyValue = new KeyValue(helpOverlayNode.opacityProperty(), OPACITY_ZERO);
+        KeyValue zeroOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_ZERO);
         KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
 
         splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
         splashScreenTimeline.setOnFinished(e -> {
-            centerStackPane.getChildren().remove(helpOverlayNode);
+            centerStackPane.getChildren().remove(splashOverlayNode);
             convertSplashScreen();
-            helpOverlayNode.setOpacity(OPACITY_FULL);
-            currentOverlayNode = helpOverlayNode;
+            splashOverlayNode.setOpacity(OPACITY_FULL);
+            currentOverlayNode = splashOverlayNode;
         });
         splashScreenTimeline.play();
     }
@@ -210,43 +215,45 @@ public class CenterPaneController {
     // Init methods
     // ================================================================================
 
-    /**
-     * This creates and holds a list of the screens that can be easily added onto the center pane
-     * @return list of screens
-     */
-    private void createScreens() {
-        // HelpOverlay setup
+    private void createOverlays() {
         createHelpOverlay();
         helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
         helpOverlayFadeOut.setOnFinished(e -> {
             centerStackPane.getChildren().remove(helpOverlayNode);
         });
 
-        // Main Screen setup
-        createMainScreen();
+        createSplashOverlay();
+    }
 
-        // Done Screen setup
+    /**
+     * This creates and holds a list of the screens that can be easily added onto the center pane
+     * @return list of screens
+     */
+    private void createScreens() {
+        createMainScreen();
         createDoneScreen();
     }
 
-    private Node createHelpOverlay() {
-        this.helpOverlay = new HelpOverlay(LOCATION_HELP_OVERLAY_LAYOUT);
+    private void createHelpOverlay() {
+        this.helpOverlay = new HelpOverlay();
         this.helpOverlayNode = helpOverlay.getNode();
-        return helpOverlayNode;
     }
 
-    private Node createMainScreen() {
+    private void createSplashOverlay() {
+        this.splashOverlay = new SplashOverlay();
+        this.splashOverlayNode = splashOverlay.getNode();
+    }
+
+    private void createMainScreen() {
         this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
         addMouseDragListeners(mainScreenNode);
-        return mainScreenNode;
     }
 
-    private Node createDoneScreen() {
+    private void createDoneScreen() {
         this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.doneScreenNode = doneScreen.getNode();
         addMouseDragListeners(doneScreenNode);
-        return doneScreenNode;
     }
 
     private void setToMainScreen() {

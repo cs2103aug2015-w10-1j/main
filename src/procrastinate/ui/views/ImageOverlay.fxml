@@ -4,14 +4,12 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<StackPane styleClass="helpScreen" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane styleClass="imageOverlay" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Region fx:id="overlay" />
       <VBox fx:id="container" >
           <children>
             <ImageView fx:id="imageView" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
-            <Label fx:id="titleLabel" alignment="CENTER" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
-            <Label fx:id="subtitleLabel" VBox.vgrow="ALWAYS" />
           </children>
       </VBox>
    </children>

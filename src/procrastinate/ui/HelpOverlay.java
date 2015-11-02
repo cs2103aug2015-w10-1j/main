@@ -1,75 +1,54 @@
 package procrastinate.ui;
 
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-
-public class HelpOverlay {
+public class HelpOverlay extends ImageOverlay {
 
     // ================================================================================
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_SPLASH_IMAGE = "images/icon.png";
-
-    private static final String MESSAGE_SUBTITLE = "What would you like to Procrastinate today?";
-    private static final String MESSAGE_WELCOME = "Welcome to Procrastinate!";
+    private static final String LOCATION_REFERENCE_SHEET = "images/referencesheet.png";
 
     // ================================================================================
     // Class variables
     // ================================================================================
 
-    private Node node;
-
     // ================================================================================
-    // FXML field variables
+    // HelpOverlay Constructor
     // ================================================================================
 
-    @FXML private ImageView imageView;
-    @FXML private Label subtitleLabel;
-    @FXML private Label titleLabel;
-    @FXML private VBox container;
+    protected HelpOverlay() {
+        setImage();
+        adjustStylesAndAddWrapper();
+    }
 
     // ================================================================================
-    // HelpScreen methods
+    // HelpOverlay methods
     // ================================================================================
 
-    protected HelpOverlay(String filePath) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(filePath));
-        loader.setController(this); // Required due to different package declaration from Main
-        try {
-            node = loader.load();
-            imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_SPLASH_IMAGE).toExternalForm()));
-            titleLabel.setText(MESSAGE_WELCOME);
-            subtitleLabel.setText(MESSAGE_SUBTITLE);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    protected void setImage() {
+        // Set to first page of Help sheet
+        imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_REFERENCE_SHEET).toExternalForm()));
     }
 
-    protected Node getNode() {
-        return this.node;
+    // TODO: Two more methods here to set between page 1 and 2
+
+    private void adjustStylesAndAddWrapper() {
+        container.setStyle("-fx-padding: 0 30 0 30;");
+        container.getChildren().clear();
+        container.getChildren().add(createWrapper());
     }
 
-    protected ImageView getImageView() {
-        return imageView;
-    }
-
-    protected Label getSubtitleLabel() {
-        return subtitleLabel;
-    }
-
-    protected Label getTitleLabel() {
-        return titleLabel;
-    }
-
-    protected VBox getContainer() {
-        return container;
+    private VBox createWrapper() {
+        VBox wrapper = new VBox(imageView);
+        wrapper.setAlignment(Pos.TOP_CENTER);
+        wrapper.setPrefSize(400, 430);
+        wrapper.setStyle("-fx-background-color: #365fac;"
+                + "-fx-background-radius: 20;");
+        return wrapper;
     }
 }
