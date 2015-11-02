@@ -12,7 +12,6 @@ import javafx.stage.Stage;
 import org.apache.commons.lang.time.DateUtils;
 import procrastinate.Command.CommandType;
 import procrastinate.task.*;
-import procrastinate.test.UIStub;
 import procrastinate.ui.UI;
 import procrastinate.ui.UI.ScreenView;
 
@@ -88,9 +87,9 @@ public class Logic {
     // Class variables
     // ================================================================================
 
-    private static Stage stage;
-    private TaskEngine taskEngine;
-    private UI ui;
+    private Stage stage;
+    protected TaskEngine taskEngine;
+    protected UI ui;
 
     private Command lastPreviewedCommand = null;
 
@@ -112,50 +111,21 @@ public class Logic {
 
     private static Logic logic;
 
-    private Logic() {
-        this(false, null);
-    }
-
-    private Logic(boolean isUnderTest, UIStub uiStub) {
-        if (isUnderTest) {
-            ui = uiStub;
-            try {
-                taskEngine = new TaskEngine(true);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            initUi();
-            try {
-                initTaskEngine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    protected Logic() {
+        try {
+            initTaskEngine();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         initParser();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
 
-    public static Logic getInstance(Stage primaryStage) {
+    public static Logic getInstance() {
         if (logic == null) {
-            stage = primaryStage;
             logic = new Logic();
         }
         return logic;
-    }
-
-    public static Logic getTestInstance(UIStub uiStub) {
-        return new Logic(true, uiStub);
-    }
-
-    // Main handle
-    public void initialiseWindow() {
-        assert(ui != null);
-        ui.setUpBinding(userInput, statusLabelText, isExit);
-        attachHandlersAndListeners();
-        updateUiTaskList();
-        setStatus(STATUS_READY);
-        ui.setUpAndShowStage();
     }
 
     // ================================================================================
@@ -552,12 +522,18 @@ public class Logic {
     // Init methods
     // ================================================================================
 
-    private void initUi() {
-//        ui = new UI();
+    // Main handle
+    public void initUi(Stage stage) {
+        this.stage = stage;
         ui = new UI(stage);
+        ui.setUpBinding(userInput, statusLabelText, isExit);
+        attachHandlersAndListeners();
+        updateUiTaskList();
+        setStatus(STATUS_READY);
+        ui.setUpAndShowStage();
     }
 
-    private void initTaskEngine() throws IOException {
+    protected void initTaskEngine() throws IOException {
 		taskEngine = new TaskEngine();
     }
 
@@ -692,16 +668,19 @@ public class Logic {
 
     private boolean exit() {
         if (!taskEngine.hasPreviousOperation()) {
+            stage.hide();
             System.exit(0);
         }
 
         boolean success = taskEngine.save();
         if (success) {
+            stage.hide();
             System.exit(0);
         }
 
         boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
         if (exitAnyway) {
+            stage.hide();
             System.exit(0);
         }
 

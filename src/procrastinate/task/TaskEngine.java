@@ -1,8 +1,6 @@
 package procrastinate.task;
 
 import procrastinate.FileHandler;
-import procrastinate.test.FileHandlerStub;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -38,18 +36,10 @@ public class TaskEngine {
     private TaskState currentState = null;
     private TaskState currentView = null;
 
-    private FileHandler fileHandler;
+    protected FileHandler fileHandler;
 
     public TaskEngine() throws IOException {
-        this(false);
-    }
-
-    public TaskEngine(boolean isUnderTest) throws IOException {
-        if (isUnderTest) {
-            fileHandler = new FileHandlerStub();
-        } else {
-            initFileHandler();
-        }
+        initFileHandler();
         initTasks();
         logger.log(Level.INFO, DEBUG_TASK_ENGINE_INIT);
     }
@@ -204,7 +194,7 @@ public class TaskEngine {
     // Init methods
     // ================================================================================
 
-    private void initFileHandler() throws IOException {
+    protected void initFileHandler() throws IOException {
         fileHandler = new FileHandler();
     }
 

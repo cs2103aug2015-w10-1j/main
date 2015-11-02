@@ -28,7 +28,8 @@ public class LogicTest {
     public void setUp() throws Exception {
         System.out.println("Setting up test...");
         uiStub = new UIStub();
-        logic = Logic.getTestInstance(uiStub);
+        logic = new LogicUnit(uiStub);
+        logic.initUi(null);
     }
 
     @After
@@ -155,15 +156,16 @@ public class LogicTest {
         List<Task> expected = new ArrayList<Task>();
         execute("a due 1/2/14 12:00am");
         execute("a from 1/2/14 to 1/3/14 12:00am");
-        execute("a from 1/3/14 to 1/4/14 12:00am");
+        execute("a from 1/5/14 to 1/6/14 12:00am");
         execute("a due 10/1/14 12:00am");
 
-        execute("search due 1/2/2014 12:00am");
-
+        execute("search due 1/2/14 12:00am");
         expected.add(new Deadline("a", sdf.parse("1/2/14")));
         expected.add(new Event("a", sdf.parse("1/2/14"), sdf.parse("1/3/14")));
-        expected.add(new Event("a", sdf.parse("1/3/14"), sdf.parse("1/4/14")));
+        assertEquals(expected, getTaskList());
 
+        execute("search due 1/3/14 12:00am");
+        expected.add(new Event("a", sdf.parse("1/5/14"), sdf.parse("1/6/14")));
         assertEquals(expected, getTaskList());
     }
 
