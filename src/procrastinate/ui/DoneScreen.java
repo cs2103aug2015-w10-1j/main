@@ -68,6 +68,7 @@ public class DoneScreen extends CenterScreen {
     protected void updateTaskList(List<Task> taskList) {
         getUpdatedDates();
         clearTaskList();
+        setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
         mainVBox.getChildren().add(doneNode);
 
         String dateString;
