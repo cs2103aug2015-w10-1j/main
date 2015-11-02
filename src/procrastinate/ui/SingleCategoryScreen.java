@@ -45,17 +45,4 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     private void retrieveFxmlElements() {
         this.mainVBox = getMainVBox();
     }
-
-    // ================================================================================
-    // Getters
-    // ================================================================================
-
-    protected Node getThisCategoryNode() {
-        return thisCategoryNode;
-    }
-
-    protected VBox getThisCategoryTaskList() {
-        return thisCategoryTaskList;
-    }
-
 }

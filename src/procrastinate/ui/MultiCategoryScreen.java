@@ -122,6 +122,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // Methods to be overridden by Child
     // ================================================================================
 
+    protected abstract void checkIfMainVBoxIsEmpty(VBox mainVBox);
+
     /**
      * The list of tasks displayed is updated by removing all previously added tasks and re-adding them back to allow
      * the line number to be sorted by category and not insertion time.
@@ -133,10 +135,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     @Override
     protected abstract void updateTaskList(List<Task> taskList);
 
-    protected abstract void checkIfMainVBoxIsEmpty(VBox mainVBox);
-
     // ================================================================================
-    // Display methods
+    // Screen Transition methods
     // ================================================================================
 
     @Override
@@ -542,6 +542,34 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // ================================================================================
 
     /**
+     * Used when updating the task list, removes all tasks and resets the task counter
+     */
+    protected void clearTaskList() {
+        resetTaskCount();
+        resetTaskList();
+        generateThisWeekSubcategories();
+    }
+
+    protected void getUpdatedDates() {
+        updateDates();
+        today = getToday();
+        endOfWeek = getEndOfWeek();
+        currentDate = getCurrentDate();
+    }
+
+    private String determineNodeName(Node node) {
+        if (node.equals(overdueNode)) {
+            return CATEGORY_OVERDUE;
+        } else if (node.equals(upcomingNode)) {
+            return CATEGORY_UPCOMING;
+        } else if (node.equals(futureNode)) {
+            return CATEGORY_FUTURE;
+        } else {
+            return CATEGORY_DREAMS;
+        }
+    }
+
+    /**
      * Generates the relative date sub-headers for the remaining days of the week and places them
      * in the task list for 'This Week'.
      */
@@ -568,34 +596,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             subcategoryVisibilityTracker = new int[thisWeekDateBoxes.size()];
         }
         upcomingTaskList.getChildren().addAll(thisWeekDateBoxes);
-    }
-
-    protected void getUpdatedDates() {
-        updateDates();
-        today = getToday();
-        endOfWeek = getEndOfWeek();
-        currentDate = getCurrentDate();
-    }
-
-    private String determineNodeName(Node node) {
-        if (node.equals(overdueNode)) {
-            return CATEGORY_OVERDUE;
-        } else if (node.equals(upcomingNode)) {
-            return CATEGORY_UPCOMING;
-        } else if (node.equals(futureNode)) {
-            return CATEGORY_FUTURE;
-        } else {
-            return CATEGORY_DREAMS;
-        }
-    }
-
-    /**
-     * Used when updating the task list, removes all tasks and resets the task counter
-     */
-    protected void clearTaskList() {
-        resetTaskCount();
-        resetTaskList();
-        generateThisWeekSubcategories();
     }
 
     private void resetTaskCount() {
