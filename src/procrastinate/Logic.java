@@ -481,7 +481,7 @@ public class Logic {
 
             case HELP: {
                 if (execute) {
-                    ui.showHelp();
+                    ui.showHelpOverlay();
                 }
 
                 return FEEDBACK_HELP;
@@ -573,7 +573,7 @@ public class Logic {
                 }
             }
             if (keyEvent.getCode().equals(KeyCode.F1)) {
-                ui.showHelp();
+                ui.showHelpOverlay();
             }
             if (keyEvent.getCode().equals(KeyCode.TAB)) {
                 if (!hasLastPreviewedCommand()) {

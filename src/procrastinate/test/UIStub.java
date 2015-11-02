@@ -39,10 +39,10 @@ public class UIStub extends UI {
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override
-    public void checkForScreenOverlay() {
+    public void hideOverlays() {
     }
     @Override
-    public void showHelp() {
+    public void showHelpOverlay() {
     }
     @Override
     public void createErrorDialog(String message) {

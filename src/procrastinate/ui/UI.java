@@ -38,9 +38,8 @@ public class UI {
     // ================================================================================
 
     private Stage primaryStage;
-    private boolean isScreenOverlayed;
-    private CenterPaneController centerPaneController;
 
+    private CenterPaneController centerPaneController;
     private DialogPopupHandler dialogPopupHandler;
     private WindowHandler windowHandler;
 
@@ -59,8 +58,8 @@ public class UI {
     public UI(Stage stage) {
         assert(stage != null);
         primaryStage = stage;
-        initWindow(stage);
-        initDialogPopupHandler(stage);
+        initWindow();
+        initDialogPopupHandler();
         initTaskDisplay();
         setupBinding();
         setupAndShowStage();
@@ -105,27 +104,19 @@ public class UI {
     }
 
     // ================================================================================
-    // Center screen methods
+    // CenterPaneController methods
     // ================================================================================
 
-    /**
-     * Used by Logic to remove the Help Screen overlay once the user starts typing.
-     */
-    public void checkForScreenOverlay() {
-        if (isScreenOverlayed) {
-            centerPaneController.hideScreenOverlay();
-            isScreenOverlayed = false;
-        }
+    public void showHelpOverlay() {
+        centerPaneController.showHelpOverlay();
     }
 
-    /**
-     * Overlays the current screen with the Help screen.
-     */
-    public void showHelp() {
-        if (!isScreenOverlayed) {
-            centerPaneController.showHelpOverlay();
-            isScreenOverlayed = true;
-        }
+    private void showSplashScreenOverlay() {
+        centerPaneController.showSplashScreen();
+    }
+
+    private void hideOverlays() {
+        centerPaneController.hideScreenOverlay();
     }
 
     // ================================================================================
@@ -162,13 +153,13 @@ public class UI {
     // Init methods
     // ================================================================================
 
-    private void initWindow(Stage stage) {
-        windowHandler = new WindowHandler(stage);
+    private void initWindow() {
+        windowHandler = new WindowHandler(primaryStage);
         windowHandler.loadWindowConfigurations(showTray);
     }
 
-    private void initDialogPopupHandler(Stage stage) {
-        dialogPopupHandler = new DialogPopupHandler(stage);
+    private void initDialogPopupHandler() {
+        dialogPopupHandler = new DialogPopupHandler(primaryStage);
     }
 
     /**
@@ -178,29 +169,24 @@ public class UI {
         this.centerPaneController = new CenterPaneController(windowHandler.getCenterScreen());
     }
 
-    // ================================================================================
-    // Utility methods
-    // ================================================================================
-
-    // Logic Handles
     private void setupBinding() {
-        initBinding(userInput, statusLabelText);
         assert(windowHandler != null);
         windowHandler.bindAsExitIndicator(isExit);
+
+        userInput.bindBidirectional(windowHandler.getUserInputField().textProperty());
+        statusLabelText.bindBidirectional(windowHandler.getStatusLabel().textProperty());
     }
 
     private void setupAndShowStage() {
         assert(primaryStage != null);
         primaryStage.show();
-        showSplashScreen();
+        showSplashScreenOverlay();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
-    private void initBinding(StringProperty userInput, StringProperty statusLabelText) {
-        // Binds the input and status text to the StringProperty in Logic.
-        userInput.bindBidirectional(windowHandler.getUserInputField().textProperty());
-        statusLabelText.bindBidirectional(windowHandler.getStatusLabel().textProperty());
-    }
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
 
     private TextField getUserInputField() {
         return windowHandler.getUserInputField();
@@ -211,13 +197,8 @@ public class UI {
             // To remove the help overlay only when the user presses 'Enter' or 'Esc'
             if (keyEvent.getCode().equals(KeyCode.ENTER)
                     || keyEvent.getCode().equals(KeyCode.ESCAPE)) {
-                checkForScreenOverlay();
+                hideOverlays();
             }
         };
-    }
-
-    private void showSplashScreen() {
-        centerPaneController.showSplashScreen();
-        isScreenOverlayed = true;
     }
 }
