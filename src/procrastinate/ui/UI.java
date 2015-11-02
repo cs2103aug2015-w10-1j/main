@@ -7,6 +7,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import procrastinate.task.Task;
@@ -94,11 +95,11 @@ public class UI {
     }
 
     // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
-    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,EventHandler<KeyEvent> keyPressHandler,
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
         TextField userInputField = getUserInputField();
         userInputField.setOnKeyReleased(keyReleaseHandler);
-        userInputField.setOnKeyPressed(keyPressHandler);
+        userInputField.setOnKeyPressed(createKeyPressHandler());
         userInputField.textProperty().addListener(userInputListener);
         isExit.addListener(isExitListener);
     }
@@ -203,6 +204,16 @@ public class UI {
 
     private TextField getUserInputField() {
         return windowHandler.getUserInputField();
+    }
+
+    private EventHandler<KeyEvent> createKeyPressHandler() {
+        return (keyEvent) -> {
+            // To remove the help overlay only when the user presses 'Enter' or 'Esc'
+            if (keyEvent.getCode().equals(KeyCode.ENTER)
+                    || keyEvent.getCode().equals(KeyCode.ESCAPE)) {
+                checkForScreenOverlay();
+            }
+        };
     }
 
     private void showSplashScreen() {

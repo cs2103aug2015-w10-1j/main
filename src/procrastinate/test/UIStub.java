@@ -35,7 +35,7 @@ public class UIStub extends UI {
         this.taskList = taskList;
     }
     @Override
-    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,EventHandler<KeyEvent> keyPressHandler,
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override

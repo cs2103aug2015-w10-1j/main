@@ -516,8 +516,7 @@ public class Logic {
     // Main handle
     public void initUi(Stage stage) {
         ui = new UI(stage);
-        ui.attachHandlersAndListeners(createKeyReleaseHandler(), createKeyPressHandler(),
-                createUserInputListener(), createIsExitListener());
+        ui.attachHandlersAndListeners(createKeyReleaseHandler(), createUserInputListener(), createIsExitListener());
         ui.setStatus(STATUS_READY);
         updateUiTaskList();
     }
@@ -593,16 +592,6 @@ public class Logic {
                 }
 
                 ui.setInput(ui.getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
-            }
-        };
-    }
-
-    private EventHandler<KeyEvent> createKeyPressHandler() {
-        return (keyEvent) -> {
-            // To remove the help overlay only when the user presses 'Enter' or 'Esc'
-            if (keyEvent.getCode().equals(KeyCode.ENTER)
-                    || keyEvent.getCode().equals(KeyCode.ESCAPE)) {
-                ui.checkForScreenOverlay();
             }
         };
     }
