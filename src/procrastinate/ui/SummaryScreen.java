@@ -54,9 +54,20 @@ public class SummaryScreen extends MultiCategoryScreen {
             addTaskByType(task);
         }
         updateDisplay();
-        setupSummaryViewIfRequested(taskList);
+        setupSummaryView(taskList);
     }
 
+    @Override
+    protected void checkIfMainVBoxIsEmpty(VBox mainVBox) {
+        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
+            String image = SummaryScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
+            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
+        }
+        if (mainVBox.getChildren().isEmpty()) {
+            mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
+        }
+
+    }
 
     /**
      * Shows the summary view that limits the number of tasks in each category, with the limits being
@@ -64,7 +75,7 @@ public class SummaryScreen extends MultiCategoryScreen {
      * additional limit to the next category to optimise the space usage.
      * @param taskList to build the summary view from
      */
-    protected void setupSummaryViewIfRequested(List<Task> taskList) {
+    private void setupSummaryView(List<Task> taskList) {
         if (isShowSummaryView && taskList.size() > 15) {
             for (int i = 0; i < summaryCount.length-1; i++) {
                 int currentMax = summaryCount[i];
@@ -165,17 +176,5 @@ public class SummaryScreen extends MultiCategoryScreen {
         HBox ellipsisBox = new HBox(ellipsisMessage);
         ellipsisBox.setAlignment(Pos.CENTER);
         return ellipsisBox;
-    }
-
-    @Override
-    protected void checkIfMainVBoxIsEmpty(VBox mainVBox) {
-        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = MultiCategoryScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
-            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
-        }
-        if (mainVBox.getChildren().isEmpty()) {
-            mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
-        }
-
     }
 }

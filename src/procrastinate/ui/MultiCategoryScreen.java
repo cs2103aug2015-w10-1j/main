@@ -5,7 +5,6 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import javafx.animation.FadeTransition;
@@ -32,6 +31,9 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     private static final String SUBCATEGORY_TODAY = "Today";
     private static final String SUBCATEGORY_TOMORROW = "Tomorrow";
 
+    // ================================================================================
+    // Animation Values
+    // ================================================================================
     // Time values used are in milliseconds
     private static final int TIME_TRANSITION_CATEGORY_FADE_IN = 250;
     private static final int TIME_TRANSITION_CATEGORY_FADE_OUT = 200;
@@ -124,17 +126,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     protected abstract void checkIfMainVBoxIsEmpty(VBox mainVBox);
 
-    /**
-     * The list of tasks displayed is updated by removing all previously added tasks and re-adding them back to allow
-     * the line number to be sorted by category and not insertion time.
-     *
-     * Dreams are directly added via this method but Deadlines and Events are passed to two different
-     * addTask methods depending on their (start) dates.
-     * @param taskList List of Tasks to be added onto the screen
-     */
-    @Override
-    protected abstract void updateTaskList(List<Task> taskList);
-
     // ================================================================================
     // Screen Transition methods
     // ================================================================================
@@ -165,38 +156,23 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     protected void addTaskByType(Task task) {
         Date taskDate;
-        boolean isSameYear;
         switch (task.getType()) {
 
             case DEADLINE: {
                 taskDate = ((Deadline) task).getDate();
-                isSameYear = checkIfTwoDatesOfSameYear(today, taskDate);
-                if (isSameYear) {
-                    addTaskWithSameYear(task, taskDate);
-                } else {
-                    addTaskWithDifferentYear(task, taskDate);
-                }
+                addDeadlineOrEvent(task, taskDate);
                 break;
             }
 
             case EVENT: {
                 taskDate = ((Event) task).getStartDate();
-                isSameYear = checkIfTwoDatesOfSameYear(today, taskDate);
-                if (isSameYear) {
-                    addTaskWithSameYear(task, taskDate);
-                } else {
-                    addTaskWithDifferentYear(task, taskDate);
-                }
+                addDeadlineOrEvent(task, taskDate);
                 break;
             }
 
             case DREAM: {
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), task.isDone());
-                if (task.isDone()) {
-                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else {
-                    dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                }
+                addDream(task, taskEntry);
                 break;
             }
 
@@ -204,6 +180,202 @@ public abstract class MultiCategoryScreen extends CenterScreen {
                 System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
                 break;
             }
+        }
+    }
+
+    protected void addDeadlineOrEvent(Task task, Date taskDate) {
+        boolean isSameYear;
+        isSameYear = checkIfTwoDatesOfSameYear(today, taskDate);
+        if (isSameYear) {
+            addTaskWithSameYear(task, taskDate);
+        } else {
+            addTaskWithDifferentYear(task, taskDate);
+        }
+    }
+
+    protected void addDream(Task task, TaskEntry taskEntry) {
+        if (task.isDone()) {
+            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        } else {
+            dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        }
+    }
+
+    private void addTaskWithSameYear(Task task, Date date) {
+        String dateString;
+
+        switch (task.getType()) {
+
+            case DEADLINE: {
+                dateString = getSameYearDeadlineDateFormat(date);
+                String taskCount = taskCountFormatted.get();
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
+                addTaskWithSameYearToTaskList(task, date, taskCount, taskEntry);
+                break;
+            }
+
+            case EVENT: {
+                Date endDate = ((Event) task).getEndDate();
+                boolean isSameEndYear = checkIfTwoDatesOfSameYear(endDate, today);
+                dateString = getDateFormatForEventWithSameStartYear(date, endDate, isSameEndYear);
+                String taskCount = taskCountFormatted.get();
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
+                addTaskWithSameYearToTaskList(task, date, taskCount, taskEntry);
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
+            }
+        }
+    }
+
+    protected void addTaskWithSameYearToTaskList(Task task, Date date, String taskCount, TaskEntry taskEntry) {
+        if (task.isDone()) {
+            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        } else if (date.before(currentDate)) {
+            overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        } else if (date.before(endOfWeek)) {
+            addThisWeekTask(task, date, taskCount);
+        } else {
+            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        }
+    }
+
+    private void addTaskWithDifferentYear(Task task, Date date) {
+        String dateString;
+
+        switch (task.getType()) {
+
+            case DEADLINE: {
+                dateString = getDifferentYearDeadlineDateFormat(date);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
+                addTaskWithDifferentYearToTaskList(task, date, taskEntry);
+                break;
+            }
+
+            case EVENT: {
+                Date endDate = ((Event) task).getEndDate();
+                // if same day also should be in same line.
+                boolean isSameEndYear = checkIfTwoDatesOfSameYear(date, endDate);
+                dateString = getDateFormatForEventWithDifferentStartYear(date, endDate, isSameEndYear);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
+                addTaskWithDifferentYearToTaskList(task, date, taskEntry);
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
+            }
+        }
+    }
+
+    protected String getDateFormatForEventWithSameStartYear(Date date, Date endDate, boolean isSameEndYear) {
+        String dateString;
+        if (isSameEndYear) {
+            if (checkIfStartAndEndSameDay(date, endDate)) {
+                dateString = getSameYearSameDayEventDateFormat(date, endDate);
+            } else {
+                dateString = getSameYearDifferentDayEventDateFormat(date, endDate);
+            }
+        } else {
+            dateString = getDifferentYearEventDateFormat(date, endDate);
+        }
+        return dateString;
+    }
+
+    protected String getDateFormatForEventWithDifferentStartYear(Date date, Date endDate, boolean isSameEndYear) {
+        String dateString;
+        if (isSameEndYear && checkIfStartAndEndSameDay(date, endDate)) {
+            dateString = getDifferentYearSameDayEventDateFormat(date, endDate);
+        } else {
+            dateString = getDifferentYearEventDateFormat(date, endDate);
+        }
+        return dateString;
+    }
+
+    protected void addTaskWithDifferentYearToTaskList(Task task, Date date, TaskEntry taskEntry) {
+        if (task.isDone()) {
+            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        } else if (date.before(today)) {
+            overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        } else {
+            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        }
+    }
+
+    /**
+     * Iterates through the list of subcategories and find the corresponding date of the task to go into.
+     * If it is unable to find one, it will add the task into the 'Future' category instead.
+     * @param taskEntry to be added
+     * @param date of the task due
+     */
+    private void addThisWeekTask(Task task, Date startDate, String taskCount) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DATE, 1);
+        Date deadline = calendar.getTime();
+
+        boolean isAdded = false;
+        switch (task.getType()) {
+
+            case DEADLINE: {
+                TaskEntry taskEntry = new TaskEntry(taskCount,
+                        task.getDescription(),
+                        timeFormat.format(startDate),
+                        task.isDone());
+                addThisWeekTaskToTaskList(startDate, calendar, deadline, isAdded, taskEntry);
+                break;
+            }
+
+            case EVENT: {
+                Date endDate = ((Event) task).getEndDate();
+                String dateString;
+                boolean isSameEndYear = checkIfTwoDatesOfSameYear(endDate, today);
+                dateString = getDateFormatForEventThisWeek(startDate, endDate, isSameEndYear);
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
+                addThisWeekTaskToTaskList(startDate, calendar, deadline, isAdded, taskEntry);
+                break;
+            }
+
+            default:
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
+        }
+    }
+
+    protected String getDateFormatForEventThisWeek(Date startDate, Date endDate, boolean isSameEndYear) {
+        String dateString;
+        if (isSameEndYear) {
+            if (checkIfStartAndEndSameDay(startDate, endDate)) {
+                dateString = getThisWeekSameDayEventDateFormat(startDate, endDate);
+            } else if (endDate.before(endOfWeek)) {
+            dateString = getThisWeekEndDifferentDayEventDateFormat(startDate, endDate);
+            } else {
+                dateString = getThisWeekEndDifferentWeekEventDateFormat(startDate, endDate);
+            }
+        } else {
+            dateString = getThisWeekEndDifferentYearDateFormat(startDate, endDate);
+        }
+        return dateString;
+    }
+
+    protected void addThisWeekTaskToTaskList(Date startDate, Calendar calendar, Date deadline, boolean isAdded,
+            TaskEntry taskEntry) {
+        for (VBox vBox : upcomingSubcategories) {
+            if (startDate.before(deadline)) {
+                vBox.getChildren().add(taskEntry.getEntryDisplay());
+                isAdded = true;
+                break;
+            } else {
+                calendar.add(Calendar.DATE, 1);
+                deadline = calendar.getTime();
+            }
+        }
+        if (!isAdded) {
+            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
         }
     }
 
@@ -238,179 +410,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         }
         sequentialTransition.setOnFinished(checkEmpty -> checkIfMainVBoxIsEmpty(mainVBox));
         sequentialTransition.play();
-    }
-
-    private void addTaskWithSameYear(Task task, Date date) {
-        String dateString;
-
-        switch (task.getType()) {
-
-            case DEADLINE: {
-                dateString = getSameYearDeadlineDateFormat(date);
-                String taskCount = taskCountFormatted.get();
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
-                if (task.isDone()) {
-                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(currentDate)) {
-                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(endOfWeek)) {
-                    addThisWeekTask(task, date, taskCount);
-                } else {
-                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                }
-                break;
-            }
-
-            case EVENT: {
-                Date endDate = ((Event) task).getEndDate();
-                boolean isSameEndYear = checkIfTwoDatesOfSameYear(endDate, today);
-                if (isSameEndYear) {
-                    if (checkIfStartAndEndSameDay(date, endDate)) {
-                        dateString = getSameYearSameDayEventDateFormat(date, endDate);
-                    } else {
-                        dateString = getSameYearDifferentDayEventDateFormat(date, endDate);
-                    }
-                } else {
-                    dateString = getDifferentYearEventDateFormat(date, endDate);
-                }
-                String taskCount = taskCountFormatted.get();
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
-                if (task.isDone()) {
-                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(currentDate)) {
-                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(endOfWeek)) {
-                    addThisWeekTask(task, date, taskCount);
-                } else {
-                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                }
-                break;
-            }
-
-            default: {
-                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
-                break;
-            }
-        }
-    }
-
-    private void addTaskWithDifferentYear(Task task, Date date) {
-        String dateString;
-
-        switch (task.getType()) {
-
-            case DEADLINE: {
-                dateString = getDifferentYearDeadlineDateFormat(date);
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
-                if (task.isDone()) {
-                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(today)) {
-                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else {
-                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                }
-                break;
-            }
-
-            case EVENT: {
-                Date endDate = ((Event) task).getEndDate();
-                // if same day also should be in same line.
-                boolean isSameEndYear = checkIfTwoDatesOfSameYear(date, endDate);
-                if (isSameEndYear && checkIfStartAndEndSameDay(date, endDate)) {
-                    dateString = getDifferentYearSameDayEventDateFormat(date, endDate);
-                } else {
-                    dateString = getDifferentYearEventDateFormat(date, endDate);
-                }
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
-                if (task.isDone()) {
-                    doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else if (date.before(today)) {
-                    overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                } else {
-                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                }
-                break;
-            }
-
-            default: {
-                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
-                break;
-            }
-        }
-    }
-
-    /**
-     * Iterates through the list of subcategories and find the corresponding date of the task to go into.
-     * If it is unable to find one, it will add the task into the 'Future' category instead.
-     * @param taskEntry to be added
-     * @param date of the task due
-     */
-    private void addThisWeekTask(Task task, Date startDate, String taskCount) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-        calendar.add(Calendar.DATE, 1);
-        Date deadline = calendar.getTime();
-
-        boolean isAdded = false;
-        switch (task.getType()) {
-
-            case DEADLINE: {
-                TaskEntry taskEntry = new TaskEntry(taskCount,
-                        task.getDescription(),
-                        timeFormat.format(startDate),
-                        task.isDone());
-                for (VBox vBox : upcomingSubcategories) {
-                    if (startDate.before(deadline)) {
-                        vBox.getChildren().add(taskEntry.getEntryDisplay());
-                        isAdded = true;
-                        break;
-                    } else {
-                        calendar.add(Calendar.DATE, 1);
-                        deadline = calendar.getTime();
-                    }
-                }
-                if (!isAdded) {
-                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                }
-                break;
-            }
-
-            case EVENT: {
-                Date endDate = ((Event) task).getEndDate();
-                String dateString;
-                boolean isSameEndYear = checkIfTwoDatesOfSameYear(endDate, today);
-                if (isSameEndYear) {
-                    if (checkIfStartAndEndSameDay(startDate, endDate)) {
-                        dateString = getThisWeekSameDayEventDateFormat(startDate, endDate);
-                    } else if (endDate.before(endOfWeek)) {
-                    dateString = getThisWeekEndDifferentDayEventDateFormat(startDate, endDate);
-                    } else {
-                        dateString = getThisWeekEndDifferentWeekEventDateFormat(startDate, endDate);
-                    }
-                } else {
-                    dateString = getThisWeekEndDifferentYearDateFormat(startDate, endDate);
-                }
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
-                for (VBox vBox : upcomingSubcategories) {
-                    if (startDate.before(deadline)) {
-                        vBox.getChildren().add(taskEntry.getEntryDisplay());
-                        isAdded = true;
-                        break;
-                    } else {
-                        calendar.add(Calendar.DATE, 1);
-                        deadline = calendar.getTime();
-                    }
-                }
-                if (!isAdded) {
-                    futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-                }
-                break;
-            }
-
-            default:
-                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
-                break;
-        }
     }
 
     /**

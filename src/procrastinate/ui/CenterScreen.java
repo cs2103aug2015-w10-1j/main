@@ -89,6 +89,15 @@ public abstract class CenterScreen extends VBox {
      * Setup the various categories that tasks can fall under
      */
     protected abstract void createCategories();
+
+    /**
+     * The list of tasks displayed is updated by removing all previously added tasks and re-adding them back to allow
+     * the line number to be sorted by category and not insertion time.
+     *
+     * Dreams are directly added via this method but Deadlines and Events are passed to two different
+     * addTask methods depending on their (start) dates.
+     * @param taskList List of Tasks to be added onto the screen
+     */
     protected abstract void updateTaskList(List<Task> taskList);
     protected abstract SequentialTransition getScreenSwitchOutSequence();
     protected abstract SequentialTransition getScreenSwitchInSequence();

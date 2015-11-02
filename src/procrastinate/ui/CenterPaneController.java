@@ -243,7 +243,7 @@ public class CenterPaneController {
     }
 
     private Node createDoneScreen() {
-        this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT, "Your completed tasks");
+        this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.doneScreenNode = doneScreen.getNode();
         addMouseDragListeners(doneScreenNode);
         return doneScreenNode;

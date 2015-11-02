@@ -43,7 +43,7 @@ public class MainScreen extends MultiCategoryScreen {
     @Override
     protected void checkIfMainVBoxIsEmpty(VBox mainVBox) {
         if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = MultiCategoryScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
+            String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
             FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
         }
         if (mainVBox.getChildren().isEmpty()) {
