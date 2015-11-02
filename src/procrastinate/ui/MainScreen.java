@@ -11,9 +11,7 @@ public class MainScreen extends MultiCategoryScreen {
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
-
-    private static String FX_BACKGROUND_IMAGE_NO_TASKS; // will be initialised later on.
+    private static final String FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('/procrastinate/ui/images/no-tasks.png')";
 
     // ================================================================================
     // MainScreen Constructor
@@ -41,11 +39,7 @@ public class MainScreen extends MultiCategoryScreen {
     }
 
     @Override
-    protected void checkIfMainVBoxIsEmpty(VBox mainVBox) {
-        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
-            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
-        }
+    protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
         if (mainVBox.getChildren().isEmpty()) {
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
         }

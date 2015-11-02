@@ -124,7 +124,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // Methods to be overridden by Child
     // ================================================================================
 
-    protected abstract void checkIfMainVBoxIsEmpty(VBox mainVBox);
+    protected abstract void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox);
 
     // ================================================================================
     // Screen Transition methods
@@ -386,6 +386,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
      * non-empty categories are faded in.
      */
     protected void updateDisplay() {
+        // Background image will be reset back to null after each update and changed to the
+        // corresponding image set in the Child class after checking that there are no tasks left on screen.
         setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
 
         SequentialTransition sequentialTransition = new SequentialTransition();
@@ -408,7 +410,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
                 addNodeIfNotEmptyAndNotInDisplay(sequentialTransition, node);
             }
         }
-        sequentialTransition.setOnFinished(checkEmpty -> checkIfMainVBoxIsEmpty(mainVBox));
+        sequentialTransition.setOnFinished(checkEmpty -> setBackgroundImageIfMainVBoxIsEmpty(mainVBox));
         sequentialTransition.play();
     }
 

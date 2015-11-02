@@ -15,13 +15,11 @@ public class SummaryScreen extends MultiCategoryScreen {
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
-
     private static final String ELLIPSIS_STRING = "... ";
     private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " tasks hidden ...";
     private static final String ELLIPSIS_MESSAGE_TASK_HIDDEN = " task hidden ...";
 
-    private static String FX_BACKGROUND_IMAGE_NO_TASKS; // will be initialised later on.
+    private static final String FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('/procrastinate/ui/images/no-tasks.png')";
 
     // ================================================================================
     // Class variables
@@ -58,15 +56,10 @@ public class SummaryScreen extends MultiCategoryScreen {
     }
 
     @Override
-    protected void checkIfMainVBoxIsEmpty(VBox mainVBox) {
-        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = SummaryScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
-            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
-        }
+    protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
         if (mainVBox.getChildren().isEmpty()) {
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
         }
-
     }
 
     /**
