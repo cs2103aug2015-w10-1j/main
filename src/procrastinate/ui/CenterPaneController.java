@@ -60,9 +60,9 @@ public class CenterPaneController {
     private Node doneScreenNode;
     private Node helpOverlayNode;
 
-    private DoneScreen doneScreen;
+    private SingleCategoryScreen doneScreen;
     private HelpOverlay helpOverlay;
-    private MainScreen mainScreen;
+    private MultiCategoryScreen mainScreen;
 
     private StackPane centerStackPane;
 
@@ -74,7 +74,7 @@ public class CenterPaneController {
     protected CenterPaneController(StackPane centerStackPane) {
         this.centerStackPane = centerStackPane;
         createScreens();
-        setSummaryScreen();
+        setToMainScreen();
     }
 
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
@@ -188,10 +188,11 @@ public class CenterPaneController {
 
         ImageView imageView = helpOverlay.getImageView();
         imageView.setImage(new Image(CenterPaneController.class.getResource(LOCATION_REFERENCE_SHEET).toExternalForm()));
+
         VBox wrapper = new VBox(imageView);
         wrapper.setAlignment(Pos.TOP_CENTER);
         wrapper.setPrefSize(400, 430);
-        wrapper.setStyle("-fx-background-color: #365fac;" ///RGB(145, 189, 229, 0.9);"
+        wrapper.setStyle("-fx-background-color: #365fac;"
                 + "-fx-background-radius: 20;");
 
         helpOverlayBody.getChildren().clear();
@@ -235,20 +236,20 @@ public class CenterPaneController {
     }
 
     private Node createMainScreen() {
-        this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.mainScreen = new MultiCategoryScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
         addMouseDragListeners(mainScreenNode);
         return mainScreenNode;
     }
 
     private Node createDoneScreen() {
-        this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT, "Your completed tasks");
         this.doneScreenNode = doneScreen.getNode();
         addMouseDragListeners(doneScreenNode);
         return doneScreenNode;
     }
 
-    private void setSummaryScreen() {
+    private void setToMainScreen() {
         // update with summary and fade in instead of fade in den update.
         centerStackPane.getChildren().add(mainScreenNode);
         currentScreenView = mainScreen;

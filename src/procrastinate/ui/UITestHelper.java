@@ -14,7 +14,7 @@ public class UITestHelper {
 
     // Some test variables that are utilised multiple times in a test body
     public CenterPaneController centerPaneController;
-    public MainScreen mainScreen;
+    public MultiCategoryScreen mainScreen;
     public TaskEntry dreamTask;
     public TaskEntry otherTask;
 
@@ -59,8 +59,8 @@ public class UITestHelper {
     // MainScreen methods
     // ================================================================================
 
-    public MainScreen getNewMainScreen() {
-        mainScreen = new MainScreen("views/CenterScreen.fxml");
+    public MultiCategoryScreen getNewMainScreen() {
+        mainScreen = new MultiCategoryScreen("views/CenterScreen.fxml");
         return mainScreen;
     }
 

@@ -10,13 +10,11 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
-public class DoneScreen extends CenterScreen {
+public class DoneScreen extends SingleCategoryScreen {
 
     // ================================================================================
     // Message strings
     // ================================================================================
-
-    private static final String CATEGORY_DONE = "Your completed tasks";
 
     private static final String LOCATION_EMPTY_VIEW = "images/no-done-tasks.png";
 
@@ -28,8 +26,8 @@ public class DoneScreen extends CenterScreen {
     // Class variables
     // ================================================================================
 
-    private Node doneNode;
-    private VBox doneTaskList;
+    private Node thisCategoryNode;
+    private VBox thisCategoryTaskList;
 
     private VBox mainVBox;
 
@@ -39,24 +37,18 @@ public class DoneScreen extends CenterScreen {
     // DoneScreen Constructor
     // ================================================================================
 
-    protected DoneScreen(String filePath) {
-        super(filePath);
-        createCategories();
-        retrieveFxmlElements();
+    protected DoneScreen(String filePath, String headerName) {
+        super(filePath, headerName);
+        getClassVariables();
     }
 
     // ================================================================================
     // Init methods
     // ================================================================================
 
-    @Override
-    protected void createCategories() {
-        CategoryBox doneBox = new CategoryBox(CATEGORY_DONE);
-        this.doneNode = doneBox.getCategoryBox();
-        this.doneTaskList = doneBox.getTaskListVBox();
-    }
-
-    private void retrieveFxmlElements() {
+    private void getClassVariables() {
+        this.thisCategoryNode = getThisCategoryNode();
+        this.thisCategoryTaskList = getThisCategoryTaskList();
         this.mainVBox = getMainVBox();
     }
 
@@ -68,8 +60,7 @@ public class DoneScreen extends CenterScreen {
     protected void updateTaskList(List<Task> taskList) {
         getUpdatedDates();
         clearTaskList();
-        setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
-        mainVBox.getChildren().add(doneNode);
+        mainVBox.getChildren().add(thisCategoryNode);
 
         String dateString;
 
@@ -145,7 +136,7 @@ public class DoneScreen extends CenterScreen {
         } else {
             taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
         }
-        doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        thisCategoryTaskList.getChildren().add(taskEntry.getEntryDisplay());
     }
 
     // ================================================================================
@@ -158,7 +149,7 @@ public class DoneScreen extends CenterScreen {
     private void clearTaskList() {
         taskCount.set(0);
         mainVBox.getChildren().clear();
-        doneTaskList.getChildren().clear();
+        thisCategoryTaskList.getChildren().clear();
     }
 
     private void getUpdatedDates() {
@@ -168,12 +159,14 @@ public class DoneScreen extends CenterScreen {
 
     private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
         if (FX_BACKGROUND_IMAGE_NO_DONE_TASKS == null) {
-            String image = DoneScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
+            String image = SingleCategoryScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
             FX_BACKGROUND_IMAGE_NO_DONE_TASKS = "-fx-background-image: url('" + image + "');";
         }
-        if (doneTaskList.getChildren().isEmpty()) {
-            mainVBox.getChildren().remove(doneNode);
+        if (thisCategoryTaskList.getChildren().isEmpty()) {
+            mainVBox.getChildren().remove(thisCategoryNode);
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_DONE_TASKS);
+        } else {
+            setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
         }
     }
 }

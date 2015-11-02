@@ -20,7 +20,7 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
-public class MainScreen extends CenterScreen {
+public class MultiCategoryScreen extends CenterScreen {
 
     // ================================================================================
     // Message strings
@@ -82,10 +82,10 @@ public class MainScreen extends CenterScreen {
     private VBox mainVBox;
 
     // ================================================================================
-    // MainScreen Constructor
+    // MultiCategoryScreen Constructor
     // ================================================================================
 
-    protected MainScreen(String filePath) {
+    protected MultiCategoryScreen(String filePath) {
         super(filePath);
         createCategories();
         retrieveFxmlElements();
@@ -696,7 +696,7 @@ public class MainScreen extends CenterScreen {
 
     private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
         if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = MainScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
+            String image = MultiCategoryScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
             FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
         }
         if (mainVBox.getChildren().isEmpty()) {
