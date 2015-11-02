@@ -162,11 +162,6 @@ public class LogicTest {
 
         expected.add(new Deadline("a", sdf.parse("1/2/14")));
         expected.add(new Event("a", sdf.parse("1/2/14"), sdf.parse("1/3/14")));
-
-        assertEquals(expected, getTaskList());
-
-        execute("search due 1/3/14 12:00am");
-
         expected.add(new Event("a", sdf.parse("1/3/14"), sdf.parse("1/4/14")));
 
         assertEquals(expected, getTaskList());
