@@ -108,7 +108,7 @@ public class Parser {
 
                 String[] argument = userCommand.split(WHITESPACE, 2);
                 String description = argument[1];
-
+                description = removeEscapeCharacters(description);
                 if (description.isEmpty()) {
                     // Display a helpful message (no description)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
@@ -186,6 +186,7 @@ public class Parser {
                 }
 
                 if (!description.isEmpty()) {
+                    description = removeEscapeCharacters(description);
                     command.addDescription(description);
                 }
 
@@ -276,6 +277,7 @@ public class Parser {
                 }
 
                 if (!searchDescription.isEmpty()) {
+                    searchDescription = removeEscapeCharacters(searchDescription);
                     command.addDescription(searchDescription);
                 }
 
@@ -377,6 +379,21 @@ public class Parser {
         } else {
             return CommandStringType.NO_DATE;
         }
+    }
+
+    private static String removeEscapeCharacters(String userCommand) {
+        String removedString = "";
+        boolean isPreviousEscapeChar = false;
+        for (int i = 0; i < userCommand.length(); i ++) {
+            String currentChar = String.valueOf(userCommand.charAt(i));
+            if(!isPreviousEscapeChar && currentChar.equals("\\")) {
+                isPreviousEscapeChar = true;
+            } else {
+                removedString += currentChar;
+                isPreviousEscapeChar = false;
+            }
+        }
+        return removedString;
     }
 
     private static int getLastIndex(String keyword, String userCommand) {
