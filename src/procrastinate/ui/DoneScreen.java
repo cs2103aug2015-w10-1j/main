@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import javafx.animation.SequentialTransition;
-import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Deadline;
 import procrastinate.task.Event;
@@ -26,11 +25,6 @@ public class DoneScreen extends SingleCategoryScreen {
     // Class variables
     // ================================================================================
 
-    private Node thisCategoryNode;
-    private VBox thisCategoryTaskList;
-
-    private VBox mainVBox;
-
     private Date today;
 
     // ================================================================================
@@ -39,17 +33,6 @@ public class DoneScreen extends SingleCategoryScreen {
 
     protected DoneScreen(String filePath, String headerName) {
         super(filePath, headerName);
-        getClassVariables();
-    }
-
-    // ================================================================================
-    // Init methods
-    // ================================================================================
-
-    private void getClassVariables() {
-        this.thisCategoryNode = getThisCategoryNode();
-        this.thisCategoryTaskList = getThisCategoryTaskList();
-        this.mainVBox = getMainVBox();
     }
 
     // ================================================================================

@@ -11,16 +11,13 @@ import java.util.Locale;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
-public class MultiCategoryScreen extends CenterScreen {
+public abstract class MultiCategoryScreen extends CenterScreen {
 
     // ================================================================================
     // Message strings
@@ -35,51 +32,40 @@ public class MultiCategoryScreen extends CenterScreen {
     private static final String SUBCATEGORY_TODAY = "Today";
     private static final String SUBCATEGORY_TOMORROW = "Tomorrow";
 
-    private static final String LOCATION_EMPTY_VIEW = "images/no-tasks.png";
-
-    private static final String ELLIPSIS_STRING = "... ";
-    private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " tasks hidden ...";
-    private static final String ELLIPSIS_MESSAGE_TASK_HIDDEN = " task hidden ...";
-
     // Time values used are in milliseconds
     private static final int TIME_TRANSITION_CATEGORY_FADE_IN = 250;
     private static final int TIME_TRANSITION_CATEGORY_FADE_OUT = 200;
     private static final int TIME_TRANSITION_SUBCATEGORY_FADE_IN = 200;
     private static final int TIME_TRANSITION_SUBCATEGORY_FADE_OUT = 150;
 
-    private static String FX_BACKGROUND_IMAGE_NO_TASKS; // will be initialised later on.
-
     // ================================================================================
     // Class variables
     // ================================================================================
 
     // Nodes are used to add them onto the screen
-    private Node overdueNode;
-    private Node upcomingNode;
-    private Node futureNode;
-    private Node dreamsNode;
-    private Node doneNode;
+    protected Node overdueNode;
+    protected Node upcomingNode;
+    protected Node futureNode;
+    protected Node dreamsNode;
+    protected Node doneNode;
 
-    private ArrayList<Node> nodeList = new ArrayList<>();
-    private ArrayList<VBox> upcomingSubcategories = new ArrayList<>();
+    protected ArrayList<Node> nodeList = new ArrayList<>();
+    protected ArrayList<VBox> upcomingSubcategories = new ArrayList<>();
 
-    private boolean isShowSummaryView = true;
-
-    private int[] summaryCount = {3,2,2,2,0};   // last '0' used as placeholder
-    private int[] subcategoryVisibilityTracker; // used to determine if the subcategory is to be faded in or out.
+    protected int[] subcategoryVisibilityTracker; // used to determine if the subcategory is to be faded in or out.
 
     // The main variables to call when adding tasks since they act as a task list for a TaskEntry to be displayed
-    private VBox overdueTaskList;
-    private VBox upcomingTaskList;
-    private VBox futureTaskList;
-    private VBox dreamsTaskList;
-    private VBox doneTaskList;
+    protected VBox overdueTaskList;
+    protected VBox upcomingTaskList;
+    protected VBox futureTaskList;
+    protected VBox dreamsTaskList;
+    protected VBox doneTaskList;
 
-    private Date today;
-    private Date currentDate;
-    private Date endOfWeek;
+    protected Date today;
+    protected Date currentDate;
+    protected Date endOfWeek;
 
-    private VBox mainVBox;
+    protected VBox mainVBox;
 
     // ================================================================================
     // MultiCategoryScreen Constructor
@@ -133,7 +119,7 @@ public class MultiCategoryScreen extends CenterScreen {
     }
 
     // ================================================================================
-    // Display methods
+    // Methods to be overridden by Child
     // ================================================================================
 
     /**
@@ -145,18 +131,13 @@ public class MultiCategoryScreen extends CenterScreen {
      * @param taskList List of Tasks to be added onto the screen
      */
     @Override
-    protected void updateTaskList(List<Task> taskList) {
-        getUpdatedDates();
-        clearTaskList();
+    protected abstract void updateTaskList(List<Task> taskList);
 
-        for (Task task : taskList) {
-            taskCount.set(taskCount.get() + 1);
+    protected abstract void checkIfMainVBoxIsEmpty(VBox mainVBox);
 
-            addTaskByType(task);
-        }
-        updateDisplay();
-        setupSummaryViewIfRequested(taskList);
-    }
+    // ================================================================================
+    // Display methods
+    // ================================================================================
 
     @Override
     protected SequentialTransition getScreenSwitchOutSequence() {
@@ -178,116 +159,11 @@ public class MultiCategoryScreen extends CenterScreen {
         return sequentialTransition;
     }
 
-    /**
-     * Shows the summary view that limits the number of tasks in each category, with the limits being
-     * declared in an int array 'summaryCount'. Each category that does not use up its limit will roll over the
-     * additional limit to the next category to optimise the space usage.
-     * @param taskList to build the summary view from
-     */
-    private void setupSummaryViewIfRequested(List<Task> taskList) {
-        if (isShowSummaryView && taskList.size() > 15) {
-            for (int i = 0; i < summaryCount.length-1; i++) {
-                int currentMax = summaryCount[i];
-                Node currNode = nodeList.get(i);
-                if (currNode.equals(overdueNode) && overdueTaskList.getChildren().size() < currentMax) {
-                    // For 'Overdue' category, a change to the roll over is done since it will
-                    // cause more subcategories to be shown under the 'Upcoming' category
-//                    summaryCount[i+1] = summaryCount[i+1] + ((summaryCount[i] - overdueTaskList.getChildren().size())/2);
-                    continue;
-                } else if (mainVBox.getChildren().contains(currNode)) {
-                    VBox currentTaskList = ((VBox) currNode.lookup(SELECTOR_CATEGORY_VBOX));
-                    if (currNode.equals(upcomingNode)) {
-                        int upcomingMax = currentMax * 3;   // multiplication to create buffer for upcoming tasks
-                        // For the 'Upcoming' category, each subcategory header is taken as having two tasks.
-                        // Each subcategory will be limited to at most 4 for now as well.
-                        int numSubcategory = 0;
-                        int endSubcategoryAt = 0;
-                        int numTaskLeft = 0;
-                        int tasksAdded = 0;
-                        boolean ellipsisAdded = false;
-                        // There will always be at least 2 subcategories shown, and the tasks will only be
-                        // hidden if they have more than 3 tasks in each
-                        for (VBox vBox : upcomingSubcategories) {
-                            if (numSubcategory == summaryCount[i]) {
-                                break;
-                            } else {
-                                if (vBox.getChildren().size() > 0) {
-                                    numSubcategory++;
-                                    if (vBox.getChildren().size() > 3) {
-                                      numTaskLeft = vBox.getChildren().size() - 3;
-                                      vBox.getChildren().subList(3, vBox.getChildren().size()).clear();
-                                      HBox ellipsis = buildEllipsis(numTaskLeft);
-                                      vBox.getChildren().add(ellipsis);
-                                      ellipsisAdded = true;
-                                    }
-                                    upcomingMax -= vBox.getChildren().size();
-                                    tasksAdded += vBox.getChildren().size();
-                                }
-                                endSubcategoryAt++;
-                            }
-                        }
-                        // In the case that 'Overdue' has no tasks, another subcategory will be shown but with 2 tasks only
-                        if (upcomingMax > 0 && tasksAdded < 3) {
-                            for (int j=endSubcategoryAt+1; j<upcomingSubcategories.size(); j++) {
-                                VBox currSubcategory = upcomingSubcategories.get(j);
-                                if (currSubcategory.getChildren().size() > 0) {
-                                    endSubcategoryAt = j;
-                                    if (currSubcategory.getChildren().size() > 2) {
-                                        numTaskLeft = currSubcategory.getChildren().size() - 2;
-                                        currSubcategory.getChildren().subList(2, currSubcategory.getChildren().size()).clear();
-                                        HBox ellipsis = buildEllipsis(numTaskLeft);
-                                        currSubcategory.getChildren().add(ellipsis);
-                                        ellipsisAdded = true;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                        // Remove the last ellipsis added.
-                        VBox prevSubcategory = upcomingSubcategories.get(endSubcategoryAt);
-                        if (ellipsisAdded) {
-                            prevSubcategory.getChildren().remove(prevSubcategory.getChildren().size()-1);
-                        }
-                        for (int k=endSubcategoryAt+1; k<upcomingSubcategories.size(); k++) {
-                            VBox remainingSubcategory = upcomingSubcategories.get(k);
-                            numTaskLeft += remainingSubcategory.getChildren().size();
-                        }
-                        // Add a new ellipsis that has the number of tasks remaining for the entire category
-                        HBox ellipsis = buildEllipsis(numTaskLeft);
-                        // Remove the remaining subcategories
-                        upcomingTaskList.getChildren().remove(endSubcategoryAt-1, upcomingTaskList.getChildren().size());
-                        upcomingTaskList.getChildren().add(ellipsis);
-                    }
-                    else if ((currentTaskList.getChildren().size()) > currentMax) {
-                       int numTaskLeft = currentTaskList.getChildren().size() - currentMax;
-                       currentTaskList.getChildren().subList(currentMax, currentTaskList.getChildren().size()).clear();
-                       HBox ellipsis = buildEllipsis(numTaskLeft);
-                       currentTaskList.getChildren().add(ellipsis);
-                    } else {
-                        summaryCount[i+1] = summaryCount[i+1] + summaryCount[i] - currentTaskList.getChildren().size();
-                    }
-                } else {
-                    summaryCount[i+1] = summaryCount[i+1] + summaryCount[i];
-                }
-            }
-        }
-        isShowSummaryView = false;
-    }
+    // ================================================================================
+    // TaskDisplay methods
+    // ================================================================================
 
-    private HBox buildEllipsis(int numTaskLeft) {
-        String message = ELLIPSIS_STRING + numTaskLeft;
-        if (numTaskLeft > 1) {
-            message += ELLIPSIS_MESSAGE_TASKS_HIDDEN;
-        } else {
-            message += ELLIPSIS_MESSAGE_TASK_HIDDEN;
-        }
-        Label ellipsisMessage = new Label(message);
-        HBox ellipsisBox = new HBox(ellipsisMessage);
-        ellipsisBox.setAlignment(Pos.CENTER);
-        return ellipsisBox;
-    }
-
-    private void addTaskByType(Task task) {
+    protected void addTaskByType(Task task) {
         Date taskDate;
         boolean isSameYear;
         switch (task.getType()) {
@@ -337,7 +213,7 @@ public class MultiCategoryScreen extends CenterScreen {
      * After the user executes a command, empty categories are faded out and
      * non-empty categories are faded in.
      */
-    private void updateDisplay() {
+    protected void updateDisplay() {
         setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
 
         SequentialTransition sequentialTransition = new SequentialTransition();
@@ -694,17 +570,7 @@ public class MultiCategoryScreen extends CenterScreen {
         upcomingTaskList.getChildren().addAll(thisWeekDateBoxes);
     }
 
-    private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
-        if (FX_BACKGROUND_IMAGE_NO_TASKS == null) {
-            String image = MultiCategoryScreen.class.getResource(LOCATION_EMPTY_VIEW).toExternalForm();
-            FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('" + image + "');";
-        }
-        if (mainVBox.getChildren().isEmpty()) {
-            mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_TASKS);
-        }
-    }
-
-    private void getUpdatedDates() {
+    protected void getUpdatedDates() {
         updateDates();
         today = getToday();
         endOfWeek = getEndOfWeek();
@@ -726,7 +592,7 @@ public class MultiCategoryScreen extends CenterScreen {
     /**
      * Used when updating the task list, removes all tasks and resets the task counter
      */
-    private void clearTaskList() {
+    protected void clearTaskList() {
         resetTaskCount();
         resetTaskList();
         generateThisWeekSubcategories();

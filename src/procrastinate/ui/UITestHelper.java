@@ -60,7 +60,7 @@ public class UITestHelper {
     // ================================================================================
 
     public MultiCategoryScreen getNewMainScreen() {
-        mainScreen = new MultiCategoryScreen("views/CenterScreen.fxml");
+        mainScreen = new MainScreen("views/CenterScreen.fxml");
         return mainScreen;
     }
 

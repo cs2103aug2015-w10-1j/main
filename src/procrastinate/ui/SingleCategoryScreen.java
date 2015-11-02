@@ -9,8 +9,10 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     // Class variables
     // ================================================================================
 
-    private Node thisCategoryNode;
-    private VBox thisCategoryTaskList;
+    protected Node thisCategoryNode;
+    protected VBox thisCategoryTaskList;
+
+    protected VBox mainVBox;
 
     private String headerName;
 
@@ -21,6 +23,7 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     protected SingleCategoryScreen(String filePath, String headerName) {
         super(filePath);
         createCategories(headerName);
+        retrieveFxmlElements();
     }
 
     // ================================================================================
@@ -38,6 +41,14 @@ public abstract class SingleCategoryScreen extends CenterScreen {
         this.headerName = headerName;
         createCategories();
     }
+
+    private void retrieveFxmlElements() {
+        this.mainVBox = getMainVBox();
+    }
+
+    // ================================================================================
+    // Getters
+    // ================================================================================
 
     protected Node getThisCategoryNode() {
         return thisCategoryNode;

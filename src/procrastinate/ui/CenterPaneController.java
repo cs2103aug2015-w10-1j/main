@@ -236,7 +236,7 @@ public class CenterPaneController {
     }
 
     private Node createMainScreen() {
-        this.mainScreen = new MultiCategoryScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
         addMouseDragListeners(mainScreenNode);
         return mainScreenNode;
