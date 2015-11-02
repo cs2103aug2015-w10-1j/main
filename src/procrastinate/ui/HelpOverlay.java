@@ -10,7 +10,14 @@ public class HelpOverlay extends ImageOverlay {
     // Message strings
     // ================================================================================
 
+    private static final int WRAPPER_PREF_HEIGHT = 430;
+    private static final int WRAPPER_PREF_WIDTH = 400;
+
     private static final String LOCATION_REFERENCE_SHEET = "images/referencesheet.png";
+
+    private static final String STYLE_CONTAINER_PADDING = "-fx-padding: 0 30 0 30;";
+    private static final String STYLE_WRAPPER_BACKGROUND_RADIUS = "-fx-background-radius: 20;";
+    private static final String STYLE_WRAPPER_BACKGROUND_COLOR = "-fx-background-color: #365fac;";
 
     // ================================================================================
     // Class variables
@@ -38,7 +45,7 @@ public class HelpOverlay extends ImageOverlay {
     // TODO: Two more methods here to set between page 1 and 2
 
     private void adjustStylesAndAddWrapper() {
-        container.setStyle("-fx-padding: 0 30 0 30;");
+        container.setStyle(STYLE_CONTAINER_PADDING);
         container.getChildren().clear();
         container.getChildren().add(createWrapper());
     }
@@ -46,9 +53,9 @@ public class HelpOverlay extends ImageOverlay {
     private VBox createWrapper() {
         VBox wrapper = new VBox(imageView);
         wrapper.setAlignment(Pos.TOP_CENTER);
-        wrapper.setPrefSize(400, 430);
-        wrapper.setStyle("-fx-background-color: #365fac;"
-                + "-fx-background-radius: 20;");
+        wrapper.setPrefSize(WRAPPER_PREF_WIDTH, WRAPPER_PREF_HEIGHT);
+        wrapper.setStyle(STYLE_WRAPPER_BACKGROUND_COLOR
+                + STYLE_WRAPPER_BACKGROUND_RADIUS);
         return wrapper;
     }
 }
