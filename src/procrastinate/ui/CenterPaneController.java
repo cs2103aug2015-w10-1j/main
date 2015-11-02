@@ -191,7 +191,7 @@ public class CenterPaneController {
         VBox wrapper = new VBox(imageView);
         wrapper.setAlignment(Pos.TOP_CENTER);
         wrapper.setPrefSize(400, 430);
-        wrapper.setStyle("-fx-background-color: RGB(145, 189, 229, 0.9);"
+        wrapper.setStyle("-fx-background-color: #365fac;" ///RGB(145, 189, 229, 0.9);"
                 + "-fx-background-radius: 20;");
 
         helpOverlayBody.getChildren().clear();
