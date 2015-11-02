@@ -18,7 +18,7 @@ import procrastinate.task.Event;
 import procrastinate.task.Task;
 
 public class LogicTest {
-    // assumes 12:00am when time not given
+
     private static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 
     private Logic logic;
