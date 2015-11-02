@@ -1,8 +1,14 @@
 package procrastinate.ui;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import procrastinate.task.Task;
 
@@ -38,11 +44,16 @@ public class UI {
     private DialogPopupHandler dialogPopupHandler;
     private WindowHandler windowHandler;
 
+    private BooleanProperty isExit = new SimpleBooleanProperty(false);
+
+    private StringProperty userInput = new SimpleStringProperty();
+    private StringProperty statusLabelText = new SimpleStringProperty();
+
     // ================================================================================
     // UI methods
     // ================================================================================
 
-    public UI() {
+    protected UI() {
     }
 
     public UI(Stage stage) {
@@ -51,59 +62,46 @@ public class UI {
         initWindow(stage);
         initDialogPopupHandler(stage);
         initTaskDisplay();
+        setupBinding();
+        setupAndShowStage();
         logger.log(Level.INFO, DEBUG_UI_INIT);
     }
 
-    // Logic Handles
-    public void setUpBinding(StringProperty userInput, StringProperty statusLabelText, BooleanProperty isExit) {
-        initBinding(userInput, statusLabelText);
-        assert(windowHandler != null);
-        windowHandler.bindAsExitIndicator(isExit);
+    // Retrieves the current user input from the TextField.
+    public String getInput() {
+        return userInput.get();
     }
 
-    public void setUpAndShowStage() {
-        assert(primaryStage != null);
-        primaryStage.show();
-        showSplashScreen();
-        logger.log(Level.INFO, DEBUG_UI_LOAD);
+    public void setInput(String input) {
+        userInput.set(input);
+        getUserInputField().end();
+    }
+
+    public void clearInput() {
+        getUserInputField().clear();
+    }
+
+    // Sets the text of the 'Status' Label directly.
+    public void setStatus(String status) {
+        statusLabelText.set(status);
     }
 
     public void updateTaskList(List<Task> taskList, ScreenView screenView) {
         centerPaneController.updateScreen(taskList, screenView);
     }
 
-    // ================================================================================
-    // Init methods
-    // ================================================================================
-
-    private void initBinding(StringProperty userInput, StringProperty statusLabelText) {
-        // Binds the input and status text to the StringProperty in Logic.
-        userInput.bindBidirectional(windowHandler.getUserInputField().textProperty());
-        statusLabelText.bindBidirectional(windowHandler.getStatusLabel().textProperty());
+    public BooleanProperty getIsExit() {
+        return isExit;
     }
 
-    private void initDialogPopupHandler(Stage stage) {
-        dialogPopupHandler = new DialogPopupHandler(stage);
-    }
-
-    /**
-     * Sets up controller for center pane and overlays a splash screen on top of the main screen display.
-     */
-    private void initTaskDisplay() {
-        this.centerPaneController = new CenterPaneController(windowHandler.getCenterScreen());
-    }
-
-    private void initWindow(Stage stage) {
-        windowHandler = new WindowHandler(stage);
-        windowHandler.loadWindowConfigurations(showTray);
-    }
-
-    // ================================================================================
-    // Getter methods
-    // ================================================================================
-
-    public TextField getUserInputField() {
-        return windowHandler.getUserInputField();
+    // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
+            ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
+        TextField userInputField = getUserInputField();
+        userInputField.setOnKeyReleased(keyReleaseHandler);
+        userInputField.setOnKeyPressed(createKeyPressHandler());
+        userInputField.textProperty().addListener(userInputListener);
+        isExit.addListener(isExitListener);
     }
 
     // ================================================================================
@@ -128,11 +126,6 @@ public class UI {
             centerPaneController.showHelpOverlay();
             isScreenOverlayed = true;
         }
-    }
-
-    private void showSplashScreen() {
-        centerPaneController.showSplashScreen();
-        isScreenOverlayed = true;
     }
 
     // ================================================================================
@@ -163,5 +156,68 @@ public class UI {
      */
     public boolean createErrorDialogWithConfirmation(String message) {
         return dialogPopupHandler.createErrorDialogPopupWithConfirmation(message);
+    }
+
+    // ================================================================================
+    // Init methods
+    // ================================================================================
+
+    private void initWindow(Stage stage) {
+        windowHandler = new WindowHandler(stage);
+        windowHandler.loadWindowConfigurations(showTray);
+    }
+
+    private void initDialogPopupHandler(Stage stage) {
+        dialogPopupHandler = new DialogPopupHandler(stage);
+    }
+
+    /**
+     * Sets up controller for center pane and overlays a splash screen on top of the main screen display.
+     */
+    private void initTaskDisplay() {
+        this.centerPaneController = new CenterPaneController(windowHandler.getCenterScreen());
+    }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
+    // Logic Handles
+    private void setupBinding() {
+        initBinding(userInput, statusLabelText);
+        assert(windowHandler != null);
+        windowHandler.bindAsExitIndicator(isExit);
+    }
+
+    private void setupAndShowStage() {
+        assert(primaryStage != null);
+        primaryStage.show();
+        showSplashScreen();
+        logger.log(Level.INFO, DEBUG_UI_LOAD);
+    }
+
+    private void initBinding(StringProperty userInput, StringProperty statusLabelText) {
+        // Binds the input and status text to the StringProperty in Logic.
+        userInput.bindBidirectional(windowHandler.getUserInputField().textProperty());
+        statusLabelText.bindBidirectional(windowHandler.getStatusLabel().textProperty());
+    }
+
+    private TextField getUserInputField() {
+        return windowHandler.getUserInputField();
+    }
+
+    private EventHandler<KeyEvent> createKeyPressHandler() {
+        return (keyEvent) -> {
+            // To remove the help overlay only when the user presses 'Enter' or 'Esc'
+            if (keyEvent.getCode().equals(KeyCode.ENTER)
+                    || keyEvent.getCode().equals(KeyCode.ESCAPE)) {
+                checkForScreenOverlay();
+            }
+        };
+    }
+
+    private void showSplashScreen() {
+        centerPaneController.showSplashScreen();
+        isScreenOverlayed = true;
     }
 }

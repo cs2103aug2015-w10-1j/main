@@ -3,9 +3,10 @@ package procrastinate.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.TextField;
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
 import procrastinate.task.Task;
 import procrastinate.ui.UI;
 
@@ -14,19 +15,28 @@ public class UIStub extends UI {
     public UIStub() {
         taskList = new ArrayList<Task>();
     }
-    @Override
-    public void setUpBinding(StringProperty userInput, StringProperty statusLabelText, BooleanProperty isExit) {
+    public UIStub(Stage stage) {
     }
     @Override
-    public void setUpAndShowStage() {
+    public String getInput() {
+        return null;
+    }
+    @Override
+    public void setInput(String input) {
+    }
+    @Override
+    public void clearInput() {
+    }
+    @Override
+    public void setStatus(String status) {
     }
     @Override
     public void updateTaskList(List<Task> taskList, ScreenView screenView) {
         this.taskList = taskList;
     }
     @Override
-    public TextField getUserInputField() {
-        return new TextField();
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
+            ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override
     public void checkForScreenOverlay() {

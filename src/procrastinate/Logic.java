@@ -1,15 +1,12 @@
 package procrastinate;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.apache.commons.lang.time.DateUtils;
+
 import procrastinate.Command.CommandType;
 import procrastinate.task.*;
 import procrastinate.ui.UI;
@@ -38,6 +35,9 @@ public class Logic {
     // ================================================================================
 
     private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
+
+    private static final String STATUS_READY = "Ready!";
+    private static final String STATUS_PREVIEW_COMMAND = ">>";
 
     private static final String FEEDBACK_ADD_DREAM = "New dream: ";
     private static final String FEEDBACK_ADD_DEADLINE = "New deadline: %1$s due %2$s";
@@ -73,9 +73,6 @@ public class Logic {
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
-    private static final String STATUS_READY = "Ready!";
-    private static final String STATUS_PREVIEW_COMMAND = ">>";
-
     private static final int MAX_LENGTH_DESCRIPTION = 20;
     private static final int MAX_LENGTH_DESCRIPTION_SHORT = 10;
     private static final int MAX_LENGTH_DESCRIPTION_TINY = 7;
@@ -87,7 +84,6 @@ public class Logic {
     // Class variables
     // ================================================================================
 
-    private Stage stage;
     protected TaskEngine taskEngine;
     protected UI ui;
 
@@ -99,11 +95,6 @@ public class Logic {
     private Date searchStartDate = null;
     private Date searchEndDate = null;
     private boolean searchShowDone = true;
-
-    private BooleanProperty isExit = new SimpleBooleanProperty(false);
-
-    private StringProperty userInput = new SimpleStringProperty();
-    private StringProperty statusLabelText = new SimpleStringProperty();
 
     // ================================================================================
     // Singleton pattern
@@ -524,13 +515,10 @@ public class Logic {
 
     // Main handle
     public void initUi(Stage stage) {
-        this.stage = stage;
         ui = new UI(stage);
-        ui.setUpBinding(userInput, statusLabelText, isExit);
-        attachHandlersAndListeners();
+        ui.attachHandlersAndListeners(createKeyReleaseHandler(), createUserInputListener(), createIsExitListener());
+        ui.setStatus(STATUS_READY);
         updateUiTaskList();
-        setStatus(STATUS_READY);
-        ui.setUpAndShowStage();
     }
 
     protected void initTaskEngine() throws IOException {
@@ -567,40 +555,21 @@ public class Logic {
         ui.updateTaskList(taskList, screenView);
     }
 
-    // Retrieves the current user input from the TextField.
-    private String getInput() {
-        return userInput.get();
-    }
-
-    private void setInput(String input) {
-        userInput.set(input);
-        ui.getUserInputField().end();
-    }
-
-    private void clearInput() {
-        ui.getUserInputField().clear();
-    }
-
-    // Sets the text of the 'Status' Label directly.
-    private void setStatus(String status) {
-        statusLabelText.set(status);
-    }
-
     // Handles KeyEvents upon key release by the user.
     // Key release is used to enable user to see the response first before the event executes.
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (keyEvent) -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                String input = getInput();
-                clearInput(); // Must come before setStatus as key release handler resets status.
+                String input = ui.getInput();
+                ui.clearInput(); // Must come before setStatus as key release handler resets status.
                 if (!input.trim().isEmpty()) {
                     if (!hasLastPreviewedCommand()) {
                         previewCommand(input);
                     }
                     String feedback = executeLastPreviewedCommand();
-                    setStatus(feedback);
+                    ui.setStatus(feedback);
                 } else {
-                    setStatus(STATUS_READY);
+                    ui.setStatus(STATUS_READY);
                 }
             }
             if (keyEvent.getCode().equals(KeyCode.F1)) {
@@ -622,44 +591,32 @@ public class Logic {
                     return;
                 }
 
-                setInput(getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
+                ui.setInput(ui.getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
             }
         };
     }
 
-    private EventHandler<KeyEvent> createKeyPressHandler() {
-        return (keyEvent) -> {
-            // To remove the help overlay only when the user presses 'Enter' or 'Esc'
-            if (keyEvent.getCode().equals(KeyCode.ENTER)
-                    || keyEvent.getCode().equals(KeyCode.ESCAPE)) {
-                ui.checkForScreenOverlay();
-            }
-        };
-    }
-
-    // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
-    private void attachHandlersAndListeners() {
-        TextField userInputField = ui.getUserInputField();
-        userInputField.setOnKeyReleased(createKeyReleaseHandler());
-        userInputField.setOnKeyPressed(createKeyPressHandler());
-        userInputField.textProperty().addListener((observable, oldValue, newValue) -> {
+    private ChangeListener<String> createUserInputListener() {
+        return (observable, oldValue, newValue) -> {
             // A ChangeListener is added and the arguments are sent to its 'changed' method,
             // which is overwritten below:
             if (newValue.trim().isEmpty()) {
-                setStatus(STATUS_READY);
+                ui.setStatus(STATUS_READY);
             } else {
-                setStatus(STATUS_PREVIEW_COMMAND + previewCommand(newValue));
+                ui.setStatus(STATUS_PREVIEW_COMMAND + previewCommand(newValue));
             }
-        });
+        };
+    }
 
-        isExit.addListener((observable, oldValue, newValue) -> {
+    private ChangeListener<Boolean> createIsExitListener() {
+        return (observable, oldValue, newValue) -> {
             if (newValue.booleanValue()) {
                 if (!exit()) {
-                    isExit.set(false);
-                    setStatus(FEEDBACK_TRY_AGAIN);
+                    ui.getIsExit().set(false);
+                    ui.setStatus(FEEDBACK_TRY_AGAIN);
                 }
             }
-        });
+        };
     }
 
     // ================================================================================
@@ -668,19 +625,16 @@ public class Logic {
 
     private boolean exit() {
         if (!taskEngine.hasPreviousOperation()) {
-            stage.hide();
             System.exit(0);
         }
 
         boolean success = taskEngine.save();
         if (success) {
-            stage.hide();
             System.exit(0);
         }
 
         boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
         if (exitAnyway) {
-            stage.hide();
             System.exit(0);
         }
 
