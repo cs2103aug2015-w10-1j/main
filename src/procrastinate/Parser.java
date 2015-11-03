@@ -524,10 +524,6 @@ public class Parser {
         return !groups.isEmpty();
     }
 
-    private static boolean isEventDate(List<DateGroup> groups) {
-        return groups.get(0).getDates().size() == 2;
-    }
-
     private static Date getStartDate(List<Date> dateArray) {
         return dateArray.get(0);
     }
