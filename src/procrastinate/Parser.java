@@ -408,6 +408,10 @@ public class Parser {
     }
 
     private static boolean isKeywordDate(String userCommand, String keyword) {
+        if(!userCommand.contains(WHITESPACE + keyword + WHITESPACE)) {
+            return false;
+        }
+
         String[] arguments = userCommand.split(WHITESPACE + keyword + WHITESPACE);
         String lastArgument = arguments[arguments.length - 1];
         List<DateGroup> dateGroups = dateParser.parse(lastArgument);
