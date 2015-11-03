@@ -545,8 +545,9 @@ public class Logic {
                 updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_SEARCH_RESULTS:
+                ui.passSearchTermToSearchScreen(searchTerm);
                 updateUiTaskList(taskEngine.search(searchTerm, searchStartDate, searchEndDate, searchShowDone),
-                        ScreenView.SCREEN_MAIN);
+                        ScreenView.SCREEN_SEARCH);
                 break;
         }
     }

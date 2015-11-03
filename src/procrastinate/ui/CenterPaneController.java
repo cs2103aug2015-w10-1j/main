@@ -54,6 +54,7 @@ public class CenterPaneController {
 
     private Node mainScreenNode;
     private Node doneScreenNode;
+    private Node searchScreenNode;
 
     private Node helpOverlayNode;
     private Node splashOverlayNode;
@@ -61,11 +62,13 @@ public class CenterPaneController {
     private ImageOverlay helpOverlay;
     private ImageOverlay splashOverlay;
 
-    private MultiCategoryScreen mainScreen;
+    private MainScreen mainScreen;
+    private SearchScreen searchScreen;
 
-    private SingleCategoryScreen doneScreen;
+    private DoneScreen doneScreen;
 
     private StackPane centerStackPane;
+
 
     // ================================================================================
     // CenterPaneController methods
@@ -103,7 +106,13 @@ public class CenterPaneController {
             }
 
             case SCREEN_SEARCH: {
-                break;
+                if (currentScreenView == searchScreen) {
+                    searchScreen.updateTaskList(taskList);
+                    break;
+                } else {
+                    startScreenSwitchSequence(taskList, searchScreenNode, searchScreen);
+                    break;
+                }
             }
 
             default:
@@ -174,6 +183,10 @@ public class CenterPaneController {
     // Utility methods
     // ================================================================================
 
+    protected void receiveSearchTermAndPassToSearchScreen(String searchTerm) {
+        searchScreen.updateSearchTermLabel(searchTerm);
+    }
+
     private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
         SequentialTransition screenSwitchSequence;
         screenSwitchSequence = currentScreenView.getScreenSwitchOutSequence();
@@ -237,6 +250,7 @@ public class CenterPaneController {
     private void createScreens() {
         createMainScreen();
         createDoneScreen();
+        createSearchScreen();
     }
 
     private void createHelpOverlay() {
@@ -259,6 +273,12 @@ public class CenterPaneController {
         this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.doneScreenNode = doneScreen.getNode();
         addMouseDragListeners(doneScreenNode);
+    }
+
+    private void createSearchScreen() {
+        this.searchScreen = new SearchScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.searchScreenNode = searchScreen.getNode();
+        addMouseDragListeners(searchScreenNode);
     }
 
     private void setToMainScreen() {
