@@ -88,6 +88,7 @@ public class CenterPaneController {
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
         if (isInitial) {
             summaryScreen.updateTaskList(taskList);
+            mainScreen.updateTaskList(taskList);
             isInitial = false;
             return;
         }
@@ -107,6 +108,9 @@ public class CenterPaneController {
             case SCREEN_MAIN: {
                 if (currentScreenView == mainScreen) {
                     mainScreen.updateTaskList(taskList);
+                    break;
+                } else if (currentScreenView == summaryScreen) {
+                    removeSummaryScreen(taskList);
                     break;
                 } else {
                     startScreenSwitchSequence(taskList, mainScreenNode, mainScreen);
@@ -295,10 +299,21 @@ public class CenterPaneController {
         addMouseDragListeners(summaryScreenNode);
     }
 
+    /**
+     * Hide the MainScreen below the SummaryScreen since it'll take some time to start up later on.
+     */
     private void setToSummaryScreen() {
+        centerStackPane.getChildren().add(mainScreenNode);
         centerStackPane.getChildren().add(summaryScreenNode);
         currentScreenView = summaryScreen;
+        summaryScreenNode.toFront();
         summaryScreenNode.setOpacity(OPACITY_FULL);
+    }
+
+    private void removeSummaryScreen(List<Task> taskList) {
+        centerStackPane.getChildren().remove(summaryScreenNode);
+        mainScreen.updateTaskList(taskList);
+        currentScreenView = mainScreen;
     }
 
     // Required since each screen node is wrapped inside a scrollPane.

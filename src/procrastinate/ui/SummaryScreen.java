@@ -15,12 +15,12 @@ public class SummaryScreen extends MultiCategoryScreen {
     // Message strings
     // ================================================================================
 
-    private static final int CATEGORY_MAX_CHILD_DREAMS = 1;
+    private static final int CATEGORY_MAX_CHILD_DREAMS = 2;
     private static final int CATEGORY_MAX_CHILD_FUTURE = 2;
-    private static final int CATEGORY_MAX_CHILD_OVERDUE = 2;
+    private static final int CATEGORY_MAX_CHILD_OVERDUE = 3;
     private static final int CATEGORY_MAX_CHILD_UPCOMING = 2;
 
-    private static final int UPCOMING_SUBCATEGORY_ONE_MAX_CHILD = 2;
+    private static final int UPCOMING_SUBCATEGORY_ONE_MAX_CHILD = 3;
     private static final int UPCOMING_SUBCATEGORY_TWO_MAX_CHILD = 2;
 
     private static final int MAX_SUMMARY_COUNT = 21;
@@ -35,7 +35,7 @@ public class SummaryScreen extends MultiCategoryScreen {
     private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " tasks hidden ...";
     private static final String ELLIPSIS_MESSAGE_TASK_HIDDEN = " task hidden ...";
 
-    private static final String FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('/procrastinate/ui/images/no-tasks.png')";
+    private static final String FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('/procrastinate/ui/images/no-summary.png')";
 
     private static final String LINE_BREAK = "\n";
     // ================================================================================
@@ -145,10 +145,9 @@ public class SummaryScreen extends MultiCategoryScreen {
         int totalSubcategoryDisplayed = 0;
         int totalTasksInSubcategories = 0;
         checkUpcomingSubcategoriesAndTasks(totalSubcategoryDisplayed, totalTasksInSubcategories);
-
-        if (summaryCount < 0) {
+        if (summaryCount < -3) {
             // Only summarise the view in this category if the number is less
-            // than 0. Else it should still fit on screen.
+            // than -3. Else it should still fit on screen.
             int subcategoryCount = 0;
             int numTaskLeft = 0;
             int indexToRemoveFrom = -1;
