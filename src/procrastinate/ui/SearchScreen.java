@@ -33,7 +33,6 @@ public class SearchScreen extends MultiCategoryScreen {
 
     protected SearchScreen(String filePath) {
         super(filePath);
-        addSearchHeaderLabel();
         adjustStyles();
     }
 
@@ -43,6 +42,7 @@ public class SearchScreen extends MultiCategoryScreen {
 
     @Override
     protected void updateTaskList(List<Task> taskList) {
+        removeSearchHeaderLabel();
         getUpdatedDates();
         clearTaskList();
 
@@ -52,6 +52,7 @@ public class SearchScreen extends MultiCategoryScreen {
             addTaskByType(task);
         }
         updateDisplay();
+        addSearchHeaderLabel();
     }
 
     @Override
@@ -63,6 +64,12 @@ public class SearchScreen extends MultiCategoryScreen {
 
     protected void updateSearchTermLabel(String searchTerm) {
         searchHeader.setText(SEARCH_HEADER_FRONT + searchTerm + SEARCH_HEADER_END);
+    }
+
+    private void removeSearchHeaderLabel() {
+        if (mainVBox.getChildren().contains(searchHeader)) {
+            mainVBox.getChildren().remove(searchHeader);
+        }
     }
 
     private void addSearchHeaderLabel() {

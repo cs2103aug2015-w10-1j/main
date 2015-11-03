@@ -44,6 +44,9 @@ public class UIStub extends UI {
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override
+    public void passSearchTermToSearchScreen(String searchTerm) {
+    }
+    @Override
     public void showHelpOverlay() {
     }
     @Override

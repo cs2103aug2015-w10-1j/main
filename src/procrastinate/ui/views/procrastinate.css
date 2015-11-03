@@ -90,10 +90,10 @@
 
 /*
  * ================================================================
- * MainScreen Styling
+ * CenterScreen Styling
  * ================================================================
  */
-.mainScreen {
+.centerScreen {
     -fx-background-color: white;
     -fx-padding: 10;
     -fx-spacing: 5;

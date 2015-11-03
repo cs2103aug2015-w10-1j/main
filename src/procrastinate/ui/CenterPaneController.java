@@ -44,17 +44,18 @@ public class CenterPaneController {
     // Class variables
     // ================================================================================
 
+    private static double xOffset, yOffset;
+
  // Changed to protected for testing purposes.
     protected CenterScreen currentScreenView;
     protected ImageOverlay currentOverlay;
-
-    private static double xOffset, yOffset;
 
     private Timeline splashScreenTimeline;
 
     private Node mainScreenNode;
     private Node doneScreenNode;
     private Node searchScreenNode;
+    private Node summaryScreenNode;
 
     private Node helpOverlayNode;
     private Node splashOverlayNode;
@@ -64,11 +65,13 @@ public class CenterPaneController {
 
     private MainScreen mainScreen;
     private SearchScreen searchScreen;
+    private SummaryScreen summaryScreen;
 
     private DoneScreen doneScreen;
 
     private StackPane centerStackPane;
 
+    private boolean isInitial = true;
 
     // ================================================================================
     // CenterPaneController methods
@@ -79,10 +82,16 @@ public class CenterPaneController {
         this.centerStackPane = centerStackPane;
         createScreens();
         createOverlays();
-        setToMainScreen();
+        setToSummaryScreen();
     }
 
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
+        if (isInitial) {
+            summaryScreen.updateTaskList(taskList);
+            isInitial = false;
+            return;
+        }
+
         switch (screenView) {
 
             case SCREEN_DONE: {
@@ -156,8 +165,6 @@ public class CenterPaneController {
     /**
      * Creates a splash screen that maintains full opacity for 2 seconds before completely fading out in 1 second
      * or until the user starts to type.
-     * currentScreen variable is not updated to helpScreen to differentiate splashScreen from helpScreen in the
-     * hideScreenOverlay method.
      */
     protected void showSplashScreen() {
         currentOverlay = splashOverlay;
@@ -251,6 +258,7 @@ public class CenterPaneController {
         createMainScreen();
         createDoneScreen();
         createSearchScreen();
+        createSummaryScreen();
     }
 
     private void createHelpOverlay() {
@@ -281,10 +289,16 @@ public class CenterPaneController {
         addMouseDragListeners(searchScreenNode);
     }
 
-    private void setToMainScreen() {
-        centerStackPane.getChildren().add(mainScreenNode);
-        currentScreenView = mainScreen;
-        mainScreenNode.setOpacity(OPACITY_FULL);
+    private void createSummaryScreen() {
+        this.summaryScreen = new SummaryScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.summaryScreenNode = summaryScreen.getNode();
+        addMouseDragListeners(summaryScreenNode);
+    }
+
+    private void setToSummaryScreen() {
+        centerStackPane.getChildren().add(summaryScreenNode);
+        currentScreenView = summaryScreen;
+        summaryScreenNode.setOpacity(OPACITY_FULL);
     }
 
     // Required since each screen node is wrapped inside a scrollPane.
