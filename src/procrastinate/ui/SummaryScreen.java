@@ -3,7 +3,6 @@ package procrastinate.ui;
 import java.util.List;
 
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -15,6 +14,15 @@ public class SummaryScreen extends MultiCategoryScreen {
     // Message strings
     // ================================================================================
 
+    private static final int CATEGORY_MAX_CHILD_DREAMS = 2;
+    private static final int CATEGORY_MAX_CHILD_FUTURE = 2;
+    private static final int CATEGORY_MAX_CHILD_OVERDUE = 3;
+    private static final int CATEGORY_MAX_CHILD_UPCOMING = 2;
+
+    private static final int MAX_SUMMARY_COUNT = 21;
+    private static final int SUMMARY_HEADER_SIZE_COUNT = 2;
+    private static final int SUMMARY_NORMAL_SIZE_COUNT = 1;
+
     private static final String ELLIPSIS_STRING = "... ";
     private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " tasks hidden ...";
     private static final String ELLIPSIS_MESSAGE_TASK_HIDDEN = " task hidden ...";
@@ -25,9 +33,7 @@ public class SummaryScreen extends MultiCategoryScreen {
     // Class variables
     // ================================================================================
 
-    private boolean isShowSummaryView = true;
-
-    private int[] summaryCount = {3,2,2,2,0};   // last '0' used as placeholder
+    private int summaryCount;
 
     // ================================================================================
     // SummaryScreen Constructor
@@ -63,99 +69,92 @@ public class SummaryScreen extends MultiCategoryScreen {
     }
 
     /**
-     * Shows the summary view that limits the number of tasks in each category, with the limits being
-     * declared in an int array 'summaryCount'. Each category that does not use up its limit will roll over the
-     * additional limit to the next category to optimise the space usage.
-     * @param taskList to build the summary view from
+     * Shows the summary view that limits the number of tasks in each category,
+     * with the limits being declared in an int array 'summaryCount'. Each
+     * category that does not use up its limit will roll over the additional
+     * limit to the next category to optimise the space usage.
+     *
+     * @param taskList
+     *            to build the summary view from
      */
     private void setupSummaryView(List<Task> taskList) {
-        if (isShowSummaryView && taskList.size() > 15) {
-            for (int i = 0; i < summaryCount.length-1; i++) {
-                int currentMax = summaryCount[i];
-                Node currNode = nodeList.get(i);
-                if (currNode.equals(overdueNode) && overdueTaskList.getChildren().size() < currentMax) {
-                    // For 'Overdue' category, a change to the roll over is done since it will
-                    // cause more subcategories to be shown under the 'Upcoming' category
-//                    summaryCount[i+1] = summaryCount[i+1] + ((summaryCount[i] - overdueTaskList.getChildren().size())/2);
+        // need to reset summary count;
+        summaryCount = MAX_SUMMARY_COUNT;
+
+        if (mainVBox.getChildren().contains(overdueNode)) {
+            adjustMaxChildInCategory(overdueTaskList, CATEGORY_MAX_CHILD_OVERDUE);
+        }
+
+        if (mainVBox.getChildren().contains(futureNode)) {
+            adjustMaxChildInCategory(futureTaskList, CATEGORY_MAX_CHILD_FUTURE);
+        }
+
+        if (mainVBox.getChildren().contains(dreamsNode)) {
+            adjustMaxChildInCategory(dreamsTaskList, CATEGORY_MAX_CHILD_DREAMS);
+        }
+
+        if (mainVBox.getChildren().contains(upcomingNode)) {
+            adjustUpcomingCategoryChildren();
+        }
+    }
+
+    private void adjustUpcomingCategoryChildren() {
+        int totalSubcategoryDisplayed = 0;
+        int totalTasksInSubcategories = 0;
+        checkUpcomingSubcategoriesAndTasks(totalSubcategoryDisplayed, totalTasksInSubcategories);
+
+        if (summaryCount < 0) {
+            int subcategoryCount = 0;
+            int numTaskLeft = 0;
+            int removeIndex = -1;
+
+            for (int i = 0; i < upcomingSubcategories.size(); i++) {
+                VBox currSubcategory = upcomingSubcategories.get(i);
+                if ((subcategoryCount == CATEGORY_MAX_CHILD_UPCOMING) && (currSubcategory.getChildren().size() > 0)) {
+                    numTaskLeft += currSubcategory.getChildren().size();
+                    if (removeIndex == -1) {
+                        removeIndex = i;
+                    }
                     continue;
-                } else if (mainVBox.getChildren().contains(currNode)) {
-                    VBox currentTaskList = ((VBox) currNode.lookup(SELECTOR_CATEGORY_VBOX));
-                    if (currNode.equals(upcomingNode)) {
-                        int upcomingMax = currentMax * 3;   // multiplication to create buffer for upcoming tasks
-                        // For the 'Upcoming' category, each subcategory header is taken as having two tasks.
-                        // Each subcategory will be limited to at most 4 for now as well.
-                        int numSubcategory = 0;
-                        int endSubcategoryAt = 0;
-                        int numTaskLeft = 0;
-                        int tasksAdded = 0;
-                        boolean ellipsisAdded = false;
-                        // There will always be at least 2 subcategories shown, and the tasks will only be
-                        // hidden if they have more than 3 tasks in each
-                        for (VBox vBox : upcomingSubcategories) {
-                            if (numSubcategory == summaryCount[i]) {
-                                break;
-                            } else {
-                                if (vBox.getChildren().size() > 0) {
-                                    numSubcategory++;
-                                    if (vBox.getChildren().size() > 3) {
-                                      numTaskLeft = vBox.getChildren().size() - 3;
-                                      vBox.getChildren().subList(3, vBox.getChildren().size()).clear();
-                                      HBox ellipsis = buildEllipsis(numTaskLeft);
-                                      vBox.getChildren().add(ellipsis);
-                                      ellipsisAdded = true;
-                                    }
-                                    upcomingMax -= vBox.getChildren().size();
-                                    tasksAdded += vBox.getChildren().size();
-                                }
-                                endSubcategoryAt++;
-                            }
-                        }
-                        // In the case that 'Overdue' has no tasks, another subcategory will be shown but with 2 tasks only
-                        if (upcomingMax > 0 && tasksAdded < 3) {
-                            for (int j=endSubcategoryAt+1; j<upcomingSubcategories.size(); j++) {
-                                VBox currSubcategory = upcomingSubcategories.get(j);
-                                if (currSubcategory.getChildren().size() > 0) {
-                                    endSubcategoryAt = j;
-                                    if (currSubcategory.getChildren().size() > 2) {
-                                        numTaskLeft = currSubcategory.getChildren().size() - 2;
-                                        currSubcategory.getChildren().subList(2, currSubcategory.getChildren().size()).clear();
-                                        HBox ellipsis = buildEllipsis(numTaskLeft);
-                                        currSubcategory.getChildren().add(ellipsis);
-                                        ellipsisAdded = true;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                        // Remove the last ellipsis added.
-                        VBox prevSubcategory = upcomingSubcategories.get(endSubcategoryAt);
-                        if (ellipsisAdded) {
-                            prevSubcategory.getChildren().remove(prevSubcategory.getChildren().size()-1);
-                        }
-                        for (int k=endSubcategoryAt+1; k<upcomingSubcategories.size(); k++) {
-                            VBox remainingSubcategory = upcomingSubcategories.get(k);
-                            numTaskLeft += remainingSubcategory.getChildren().size();
-                        }
-                        // Add a new ellipsis that has the number of tasks remaining for the entire category
-                        HBox ellipsis = buildEllipsis(numTaskLeft);
-                        // Remove the remaining subcategories
-                        upcomingTaskList.getChildren().remove(endSubcategoryAt-1, upcomingTaskList.getChildren().size());
-                        upcomingTaskList.getChildren().add(ellipsis);
-                    }
-                    else if ((currentTaskList.getChildren().size()) > currentMax) {
-                       int numTaskLeft = currentTaskList.getChildren().size() - currentMax;
-                       currentTaskList.getChildren().subList(currentMax, currentTaskList.getChildren().size()).clear();
-                       HBox ellipsis = buildEllipsis(numTaskLeft);
-                       currentTaskList.getChildren().add(ellipsis);
-                    } else {
-                        summaryCount[i+1] = summaryCount[i+1] + summaryCount[i] - currentTaskList.getChildren().size();
-                    }
-                } else {
-                    summaryCount[i+1] = summaryCount[i+1] + summaryCount[i];
+                }
+
+                if (currSubcategory.getChildren().size() > 0) {
+                    subcategoryCount++;
                 }
             }
+
+            if (removeIndex != -1) {
+                upcomingTaskList.getChildren().remove(removeIndex, upcomingTaskList.getChildren().size());
+            }
+
+            HBox ellipsis = buildEllipsis(numTaskLeft);
+            upcomingTaskList.getChildren().add(ellipsis);
         }
-        isShowSummaryView = false;
+    }
+
+    private void checkUpcomingSubcategoriesAndTasks(int totalSubcategoryDisplayed, int totalTasksInSubcategories) {
+        for (int i = 0; i < upcomingSubcategories.size(); i++) {
+            VBox currSubcategory = upcomingSubcategories.get(i);
+            if (currSubcategory.getChildren().size() > 0) {
+                totalSubcategoryDisplayed++;
+                totalTasksInSubcategories += currSubcategory.getChildren().size();
+            }
+        }
+        summaryCount -= totalSubcategoryDisplayed * SUMMARY_HEADER_SIZE_COUNT;
+        summaryCount -= totalTasksInSubcategories * SUMMARY_NORMAL_SIZE_COUNT;
+    }
+
+    private void adjustMaxChildInCategory(VBox categoryTaskList, int maxChildSize) {
+        int numTaskLeft;
+        summaryCount -= SUMMARY_HEADER_SIZE_COUNT;
+        if (categoryTaskList.getChildren().size() > maxChildSize) {
+            numTaskLeft = categoryTaskList.getChildren().size() - maxChildSize;
+            categoryTaskList.getChildren().remove(maxChildSize, categoryTaskList.getChildren().size());
+            HBox ellipsis = buildEllipsis(numTaskLeft);
+            categoryTaskList.getChildren().add(ellipsis);
+            summaryCount -= SUMMARY_NORMAL_SIZE_COUNT;
+        }
+        summaryCount -= categoryTaskList.getChildren().size() * SUMMARY_NORMAL_SIZE_COUNT;
     }
 
     private HBox buildEllipsis(int numTaskLeft) {
