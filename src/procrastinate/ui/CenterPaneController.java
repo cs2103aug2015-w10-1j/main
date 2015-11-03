@@ -170,7 +170,7 @@ public class CenterPaneController {
      * Creates a splash screen that maintains full opacity for 2 seconds before completely fading out in 1 second
      * or until the user starts to type.
      */
-    protected void showSplashScreen() {
+    protected void showSplashOverlay() {
         currentOverlay = splashOverlay;
         centerStackPane.getChildren().add(splashOverlayNode);
 

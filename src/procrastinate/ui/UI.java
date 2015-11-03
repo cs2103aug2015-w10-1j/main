@@ -7,7 +7,6 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import procrastinate.task.Task;
@@ -32,8 +31,6 @@ public class UI {
 
     private static final String DEBUG_UI_INIT = "UI initialised.";
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
-
-    private static final String KEYWORD_HELP = "help";
 
     // ================================================================================
     // Class variables
@@ -96,11 +93,11 @@ public class UI {
     }
 
     // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
-    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler, EventHandler<KeyEvent> keyPressHandler,
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
         TextField userInputField = getUserInputField();
         userInputField.setOnKeyReleased(keyReleaseHandler);
-        userInputField.setOnKeyPressed(createKeyPressHandler());
+        userInputField.setOnKeyPressed(keyPressHandler);
         userInputField.textProperty().addListener(userInputListener);
         isExit.addListener(isExitListener);
     }
@@ -117,15 +114,15 @@ public class UI {
         centerPaneController.showHelpOverlay();
     }
 
-    private void showSplashScreenOverlay() {
-        centerPaneController.showSplashScreen();
+    public void showSplashOverlay() {
+        centerPaneController.showSplashOverlay();
     }
 
-    private void hideHelpOverlay() {
+    public void hideHelpOverlay() {
         centerPaneController.hideHelpOverlay();
     }
 
-    private void hideSplashOverlay() {
+    public void hideSplashOverlay() {
         centerPaneController.hideSplashOverlay();
     }
 
@@ -190,7 +187,7 @@ public class UI {
     private void setupAndShowStage() {
         assert(primaryStage != null);
         primaryStage.show();
-        showSplashScreenOverlay();
+        showSplashOverlay();
         logger.log(Level.INFO, DEBUG_UI_LOAD);
     }
 
@@ -202,16 +199,4 @@ public class UI {
         return windowHandler.getUserInputField();
     }
 
-    private EventHandler<KeyEvent> createKeyPressHandler() {
-        return (keyEvent) -> {
-            // To remove the help overlay only when the user presses 'Enter' or 'Esc'
-            // And checks also if the user command is 'help' only (follows case-insensitivity)
-            if ((keyEvent.getCode().equals(KeyCode.ENTER)
-                    || keyEvent.getCode().equals(KeyCode.ESCAPE))
-                    && !(getUserInputField().getText().trim().equalsIgnoreCase(KEYWORD_HELP))) {
-                hideHelpOverlay();
-            }
-            hideSplashOverlay();
-        };
-    }
 }

@@ -40,7 +40,7 @@ public class UIStub extends UI {
         return null;
     }
     @Override
-    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler,
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler, EventHandler<KeyEvent> keyPressHandler,
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override

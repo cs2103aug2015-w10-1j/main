@@ -516,7 +516,8 @@ public class Logic {
     // Main handle
     public void initUi(Stage stage) {
         ui = new UI(stage);
-        ui.attachHandlersAndListeners(createKeyReleaseHandler(), createUserInputListener(), createIsExitListener());
+        ui.attachHandlersAndListeners(createKeyReleaseHandler(), createKeyPressHandler(),
+                createUserInputListener(), createIsExitListener());
         ui.setStatus(STATUS_READY);
         updateUiTaskList();
     }
@@ -576,6 +577,9 @@ public class Logic {
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelpOverlay();
             }
+            if (keyEvent.getCode().equals(KeyCode.F2)) {
+                ui.showHelpOverlay();
+            }
             if (keyEvent.getCode().equals(KeyCode.TAB)) {
                 if (!hasLastPreviewedCommand()) {
                     return;
@@ -594,6 +598,19 @@ public class Logic {
 
                 ui.setInput(ui.getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
             }
+        };
+    }
+
+    private EventHandler<KeyEvent> createKeyPressHandler() {
+        return (keyEvent) -> {
+            // To remove the help overlay only when the user presses 'Enter' or 'Esc'
+            // And checks also if the user command is 'help' only (follows case-insensitivity)
+            if ((keyEvent.getCode().equals(KeyCode.ENTER)
+                    || keyEvent.getCode().equals(KeyCode.ESCAPE))
+                    && hasLastPreviewedCommand() && !lastPreviewedCommand.getType().equals(CommandType.HELP)) {
+                ui.hideHelpOverlay();
+            }
+            ui.hideSplashOverlay();
         };
     }
 
