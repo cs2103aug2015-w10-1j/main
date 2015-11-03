@@ -190,6 +190,13 @@ public class CenterPaneController {
         helpOverlayFadeIn.play();
     }
 
+    protected void nextHelpPage() {
+        if (currentOverlay != helpOverlay) {
+            return;
+        }
+        ((HelpOverlay) helpOverlay).nextPage();
+    }
+
     // ================================================================================
     // Utility methods
     // ================================================================================

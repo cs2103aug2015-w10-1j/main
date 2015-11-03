@@ -14,6 +14,7 @@ public class HelpOverlay extends ImageOverlay {
     private static final int WRAPPER_PREF_WIDTH = 400;
 
     private static final String LOCATION_REFERENCE_SHEET = "images/referencesheet.png";
+    private static final String LOCATION_REFERENCE_SHEET_2 = "images/referencesheet2.png";
 
     private static final String STYLE_CONTAINER_PADDING = "-fx-padding: 0 30 0 30;";
     private static final String STYLE_WRAPPER_BACKGROUND_RADIUS = "-fx-background-radius: 20;";
@@ -22,6 +23,8 @@ public class HelpOverlay extends ImageOverlay {
     // ================================================================================
     // Class variables
     // ================================================================================
+
+    private boolean isFirstPage = true;
 
     // ================================================================================
     // HelpOverlay Constructor
@@ -44,6 +47,14 @@ public class HelpOverlay extends ImageOverlay {
     }
 
     // TODO: Two more methods here to set between page 1 and 2
+    protected void nextPage() {
+        if (isFirstPage) {
+            imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_REFERENCE_SHEET_2).toExternalForm()));
+        } else {
+            imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_REFERENCE_SHEET).toExternalForm()));
+        }
+        isFirstPage = !isFirstPage;
+    }
 
     private void adjustStylesAndAddWrapper() {
         container.setStyle(STYLE_CONTAINER_PADDING);

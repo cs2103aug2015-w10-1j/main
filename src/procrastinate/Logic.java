@@ -608,6 +608,10 @@ public class Logic {
                        && !lastPreviewedCommand.getType().equals(CommandType.HELP)) {
                 ui.hideHelpOverlay();
             }
+            if ((keyEvent.getCode().equals(KeyCode.RIGHT) || keyEvent.getCode().equals(KeyCode.LEFT))
+                    && ui.getInput().isEmpty() ) {
+                ui.nextHelpPage();
+            }
             ui.hideSplashOverlay();
         };
     }

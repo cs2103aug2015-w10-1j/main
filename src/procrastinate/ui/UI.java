@@ -114,6 +114,10 @@ public class UI {
         centerPaneController.showHelpOverlay();
     }
 
+    public void nextHelpPage() {
+        centerPaneController.nextHelpPage();
+    }
+
     private void showSplashOverlay() {
         centerPaneController.showSplashOverlay();
     }
