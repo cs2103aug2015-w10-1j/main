@@ -201,8 +201,8 @@ public class CenterPaneController {
     // Utility methods
     // ================================================================================
 
-    protected void receiveSearchTermAndPassToSearchScreen(String searchTerm) {
-        searchScreen.updateSearchTermLabel(searchTerm);
+    protected void receiveSearchStringAndPassToSearchScreen(String searchString) {
+        searchScreen.updateSearchStringLabel(searchString);
     }
 
     private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {

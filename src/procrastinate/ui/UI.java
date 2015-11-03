@@ -106,8 +106,8 @@ public class UI {
     // CenterPaneController methods
     // ================================================================================
 
-    public void passSearchTermToSearchScreen(String searchTerm) {
-        centerPaneController.receiveSearchTermAndPassToSearchScreen(searchTerm);
+    public void passSearchStringToSearchScreen(String searchString) {
+        centerPaneController.receiveSearchStringAndPassToSearchScreen(searchString);
     }
 
     public void showHelpOverlay() {

@@ -91,6 +91,7 @@ public class Logic {
 
     private ViewType currentView = ViewType.SHOW_OUTSTANDING; // initial view
 
+    private String searchString = null;
     private String searchTerm = null;
     private Date searchStartDate = null;
     private Date searchEndDate = null;
@@ -358,6 +359,7 @@ public class Logic {
                 Date endDate = command.getEndDate();
 
                 if (execute) {
+                    searchString = "";
                     searchTerm = null;
                     searchStartDate = null;
                     searchEndDate = null;
@@ -370,7 +372,10 @@ public class Logic {
                     feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
                     if (execute) {
                         searchTerm = description;
+                        searchString += "'" + description + "'";
                     }
+                } else {
+                    searchString += "all tasks";
                 }
 
                 if (date != null) {
@@ -384,6 +389,7 @@ public class Logic {
                         if (execute) {
                             searchStartDate = date;
                             searchEndDate = DateUtils.addDays(date, 3);
+                            searchString += " on " + formatDate(date);
                         }
 
                     } else {
@@ -391,6 +397,7 @@ public class Logic {
                         if (execute) {
                             searchStartDate = new Date(0); // beginning of time
                             searchEndDate = DateUtils.addDays(date, 3);
+                            searchString += " due " + formatDate(date);
                         }
 
                     }
@@ -410,6 +417,7 @@ public class Logic {
                     if (execute) {
                         searchStartDate = startDate;
                         searchEndDate = DateUtils.addDays(endDate, 1);;
+                        searchString += " from " + formatDate(startDate) + " to " + formatDate(endDate);
                     }
                 }
 
@@ -546,7 +554,7 @@ public class Logic {
                 updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
             case SHOW_SEARCH_RESULTS:
-                ui.passSearchTermToSearchScreen(searchTerm);
+                ui.passSearchStringToSearchScreen(searchString);
                 updateUiTaskList(taskEngine.search(searchTerm, searchStartDate, searchEndDate, searchShowDone),
                         ScreenView.SCREEN_SEARCH);
                 break;

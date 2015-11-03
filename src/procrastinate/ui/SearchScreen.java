@@ -14,8 +14,7 @@ public class SearchScreen extends MultiCategoryScreen {
 
     private static final String FX_BACKGROUND_IMAGE_NO_SEARCH_RESULTS = "-fx-background-image: url('/procrastinate/ui/images/no-search-results.png')";
 
-    private static final String SEARCH_HEADER_FRONT = "Showing all tasks containing: '";
-    private static final String SEARCH_HEADER_END = "'";
+    private static final String SEARCH_HEADER = "Search results for ";
 
     private static final String STYLE_SEARCH_HEADER_FONT_FAMILY = "-fx-font-family: 'Helvetica Neue';";
     private static final String STYLE_SEARCH_HEADER_FONT_WEIGHT = "-fx-font-weight: bold;";
@@ -57,13 +56,13 @@ public class SearchScreen extends MultiCategoryScreen {
 
     @Override
     protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
-        if (mainVBox.getChildren().size() == 1) {
+        if (mainVBox.getChildren().isEmpty()) {
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_SEARCH_RESULTS);
         }
     }
 
-    protected void updateSearchTermLabel(String searchTerm) {
-        searchHeader.setText(SEARCH_HEADER_FRONT + searchTerm + SEARCH_HEADER_END);
+    protected void updateSearchStringLabel(String searchString) {
+        searchHeader.setText(SEARCH_HEADER + searchString.trim());
     }
 
     private void removeSearchHeaderLabel() {
