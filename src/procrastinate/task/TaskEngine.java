@@ -1,6 +1,8 @@
 package procrastinate.task;
 
 import procrastinate.FileHandler;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -35,6 +37,10 @@ public class TaskEngine {
     private TaskState previousState = null;
     private TaskState currentState = null;
     private TaskState currentView = null;
+
+    private boolean isPreviousOperationSet = false;
+    private String previousSaveDirectory = null;
+    private String previousSaveFilename = null;
 
     protected FileHandler fileHandler;
 
@@ -123,6 +129,10 @@ public class TaskEngine {
     }
 
     public boolean undo() {
+        if (isPreviousOperationSet) {
+            return set(previousSaveDirectory, previousSaveFilename);
+        }
+
         if (!hasPreviousOperation()) {
             return true;
         }
@@ -141,11 +151,15 @@ public class TaskEngine {
     }
 
     public boolean set(String directory, String filename) {
+        isPreviousOperationSet = true;
+        File previousSaveFile = fileHandler.getSaveFile();
+        previousSaveDirectory = previousSaveFile.getAbsoluteFile().getParent() + File.separator;
+        previousSaveFilename = previousSaveFile.getName();
         return fileHandler.setPath(directory, filename);
     }
 
     public boolean hasPreviousOperation() {
-        return previousState != null;
+        return previousState != null || isPreviousOperationSet;
     }
 
     public List<Task> search(String description, Date startDate, Date endDate, boolean showDone) {
@@ -210,6 +224,7 @@ public class TaskEngine {
 
     private void backupOlderState() {
         previousState = getBackupOfCurrentState();
+        isPreviousOperationSet = false;
     }
 
     private void restoreOlderState() {
