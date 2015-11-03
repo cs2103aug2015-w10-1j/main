@@ -7,9 +7,6 @@ public class FileHandlerStub extends FileHandler {
     public FileHandlerStub() {
         super(true);
     }
-    public FileHandlerStub(String path) {
-        this();
-    }
     @Override
     public boolean saveTaskState(TaskState taskState) {
         return true;
@@ -17,5 +14,9 @@ public class FileHandlerStub extends FileHandler {
     @Override
     public TaskState loadTaskState() {
         return new TaskState();
+    }
+    @Override
+    public boolean setPath(String dir, String filename) {
+        return true;
     }
 }
