@@ -47,6 +47,7 @@ public class Parser {
 
     private static final String KEYWORD_DUE_DATE = "due";
     private static final String KEYWORD_FROM_TO_DATE = "from";
+    private static final String KEYWORD_TO = "to";
     private static final String KEYWORD_ON_DATE = "on";
     private static final String KEYWORD_ALL = "all";
     private static final String KEYWORD_DONE = "done";
@@ -371,16 +372,12 @@ public class Parser {
     // ================================================================================
 
     private static CommandStringType getCommandStringType(String userCommand) {
-        int indexDue = getLastIndex(KEYWORD_DUE_DATE, userCommand);
-        int indexFrom = getLastIndex(KEYWORD_FROM_TO_DATE, userCommand);
-        int indexOn = getLastIndex(KEYWORD_ON_DATE, userCommand);
-
-        if (isOnDate(indexDue, indexFrom, indexOn, userCommand)) {
-            return CommandStringType.ON_DATE;
-        } else if (isDueDate(indexDue, indexFrom, indexOn, userCommand)) {
-            return CommandStringType.DUE_DATE;
-        } else if (isFromToDate(indexDue, indexFrom, indexOn, userCommand)) {
+        if (isKeywordDate(userCommand, KEYWORD_FROM_TO_DATE)) {
             return CommandStringType.FROM_TO_DATE;
+        } else if (isKeywordDate(userCommand, KEYWORD_DUE_DATE)) {
+            return CommandStringType.DUE_DATE;
+        } else if (isKeywordDate(userCommand, KEYWORD_ON_DATE)) {
+            return CommandStringType.ON_DATE;
         } else {
             return CommandStringType.NO_DATE;
         }
@@ -410,46 +407,17 @@ public class Parser {
         }
     }
 
-    private static boolean isOnDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
-        boolean isOnLast = indexOn > indexFrom && indexOn > indexDue;
-        if (!isOnLast) {
+    private static boolean isKeywordDate(String userCommand, String keyword) {
+        String[] arguments = userCommand.split(WHITESPACE + keyword + WHITESPACE);
+        String lastArgument = arguments[arguments.length - 1];
+        List<DateGroup> dateGroups = dateParser.parse(lastArgument);
+
+        if(keyword.equals(KEYWORD_FROM_TO_DATE) && !lastArgument.contains(WHITESPACE + KEYWORD_TO + WHITESPACE)) {
             return false;
         }
 
-        String onSubString = userCommand.substring(indexOn, userCommand.length());
-        List<DateGroup> dateGroups = dateParser.parse(onSubString);
         if (hasDates(dateGroups)) {
-            return dateGroups.get(0).getPosition() == 4;
-        }
-
-        return false;
-    }
-
-    private static boolean isDueDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
-        boolean isDueLast = indexDue > indexFrom && indexDue > indexOn;
-        if (!isDueLast) {
-            return false;
-        }
-
-        String dueSubString = userCommand.substring(indexDue, userCommand.length());
-        List<DateGroup> dateGroups = dateParser.parse(dueSubString);
-        if (hasDates(dateGroups)) {
-            return dateGroups.get(0).getPosition() == 5;
-        }
-
-        return false;
-    }
-
-    private static boolean isFromToDate(int indexDue, int indexFrom, int indexOn, String userCommand) {
-        boolean isFromToLast = indexFrom > indexOn && indexFrom > indexDue;
-        if (!isFromToLast) {
-            return false;
-        }
-
-        String fromToSubString = userCommand.substring(indexFrom, userCommand.length());
-        List<DateGroup> dateGroups = dateParser.parse(fromToSubString);
-        if (hasDates(dateGroups) && isEventDate(dateGroups)) {
-            return dateGroups.get(0).getPosition() == 6;
+            return dateGroups.get(0).getPosition() == 1 && dateGroups.get(0).getText().equals(lastArgument);
         }
 
         return false;
