@@ -101,6 +101,7 @@ public class LogicTest {
         assertEquals(expected, getTaskList());
     }
 
+    //@@author A0124321Y
     @Test
     public void search_DescriptionByWordDifferentTaskTypes_ShouldReturnHits() throws ParseException {
         List<Task> expected = new ArrayList<Task>();
@@ -117,6 +118,7 @@ public class LogicTest {
         assertEquals(expected, getTaskList());
     }
 
+    //@@author A0124321Y
     @Test
     public void search_DescriptionByWord_ShouldShowHits() {
         List<Task> expected = new ArrayList<Task>();
@@ -132,6 +134,7 @@ public class LogicTest {
         assertEquals(expected, getTaskList());
     }
 
+    //@@author A0124321Y
     @Test
     public void searchDue_ByDate_ShouldShowTasksTillDate() throws ParseException {
         List<Task> expected = new ArrayList<Task>();
@@ -149,8 +152,9 @@ public class LogicTest {
         assertEquals(expected, getTaskList());
     }
 
-    @Test
+    //@@author A0124321Y
     // start or end dates are not distinct
+    @Test
     public void searchDue_ByDateDiffTaskTypes_ShouldShowTasksWithGivenDates() throws ParseException {
         List<Task> expected = new ArrayList<Task>();
         execute("a due 1/2/14 12:00am");
@@ -168,6 +172,7 @@ public class LogicTest {
         assertEquals(expected, getTaskList());
     }
 
+    //@@author A0124321Y
     @Test
     public void searchOn_ByDate_ShouldShowTasksOnDate() throws ParseException {
         List<Task> expected = new ArrayList<Task>();
@@ -182,6 +187,7 @@ public class LogicTest {
 
         assertEquals(expected, getTaskList());
     }
+    //@@author
 
     private void execute(String userCommand) {
         logic.previewCommand(userCommand);
