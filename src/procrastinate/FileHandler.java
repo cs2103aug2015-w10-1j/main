@@ -347,7 +347,10 @@ public class FileHandler {
     private File makeNewFile(Path target) throws IOException {
         assert Files.notExists(target);
 
-        Files.createDirectories(target.toAbsolutePath().getParent().normalize());
+        Path parentDir = target.toAbsolutePath().getParent();
+        if (parentDir != null) {
+            Files.createDirectories(parentDir.normalize());
+        }
         return Files.createFile(target).toFile();
     }
 
