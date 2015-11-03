@@ -55,6 +55,7 @@ public class FileHandler {
     private File configFile;
     private BufferedWriter bw = null;
 
+    //@@author A0124321Y
     /**
      * FileHandler constructor. loads configuration and storage information.
      * Absence of config file is considered as first launch. Config and save files will
@@ -77,10 +78,12 @@ public class FileHandler {
 
         logger.log(Level.INFO, DEBUG_FILE_INIT + saveFile.getCanonicalPath());
     }
+    //@@author
 
     public FileHandler(boolean isUnderTest) {
     }
 
+    //@@author A0124321Y
     /**
      * Converts TaskState into json format and writes to disk
      * @param taskState
@@ -96,6 +99,7 @@ public class FileHandler {
         return true;
     }
 
+    //@@author A0124321Y
     /**
      * Loads TaskState from a json file
      * @return TaskState
@@ -104,6 +108,7 @@ public class FileHandler {
         return loadTaskState(saveFile);
     }
 
+    //@@author A0124321Y
     /**
      * Sets new path for save file.
      * Will not overwrite a file, fails if the path already exists.
@@ -112,7 +117,6 @@ public class FileHandler {
      * @param dir must end with '/'. filename should not have file extension
      * @return true on success, false otherwise
      */
-
     public boolean setPath(String dir, String filename) {
         assert dir.endsWith(File.separator);
 
@@ -135,18 +139,22 @@ public class FileHandler {
         }
     }
 
+    //@@author A0124321Y
     public String getFilename() {
         return fullFilename;
     }
 
+    //@@author A0124321Y
     public File getSaveFile() {
         return saveFile;
     }
 
+    //@@author A0124321Y
     public File getConfigFile() {
         return configFile;
     }
 
+    //@@author A0124321Y
     /**
      * Loads from existing configuration if it exists, otherwise initialise configuration
      * file with default settings
@@ -194,6 +202,7 @@ public class FileHandler {
         return p;
     }
 
+    //@@author A0124321Y
     /**
      * Writes new configuration to file. Save path will be converted to absolute path
      * to make it easier for advance users to edit
@@ -231,6 +240,7 @@ public class FileHandler {
         return success;
     }
 
+    //@@author A0124321Y
     /**
      * Move save file to a new location. Does not overwrite if file exists
      *
@@ -251,6 +261,7 @@ public class FileHandler {
         return savePath;
     }
 
+    //@@author A0124321Y
     /**
      * Loads TaskState from json formatted file
      *
@@ -288,11 +299,13 @@ public class FileHandler {
             }
         }
     };
+    //@@author
 
     // ================================================================================
     // Utility methods
     // ================================================================================
 
+    //@@author A0124321Y
     private void jsonToFile(String json) throws IOException {
         File parentDir = saveFile.getAbsoluteFile().getParentFile();
         if (parentDir != null) {
@@ -305,6 +318,7 @@ public class FileHandler {
         logger.log(Level.INFO, DEBUG_FILE_WRITE_SUCCESS + json);
     }
 
+    //@@author A0124321Y
     private String jsonify(TaskState taskState) {
         Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
                 .registerTypeAdapter(Date.class, new DateAdapter()).create();
@@ -313,6 +327,7 @@ public class FileHandler {
         return json;
     }
 
+    //@@author A0124321Y
     /**
      * Make a new save file based on given path.
      *
@@ -328,6 +343,7 @@ public class FileHandler {
         }
     }
 
+    //@@author A0124321Y
     private File makeNewFile(Path target) throws IOException {
         assert Files.notExists(target);
 
@@ -335,6 +351,7 @@ public class FileHandler {
         return Files.createFile(target).toFile();
     }
 
+    //@@author A0124321Y
     /**
      * Makes a empty state when a file is first initialised so that the json
      * file has the right structure
@@ -342,4 +359,5 @@ public class FileHandler {
     private void makeEmptyState() throws IOException {
         saveTaskState(new TaskState());
     }
+    //@@author
 }

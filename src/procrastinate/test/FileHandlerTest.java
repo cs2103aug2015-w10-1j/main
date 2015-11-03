@@ -37,6 +37,7 @@ public class FileHandlerTest {
     private static boolean hasCfg;
     private static boolean hasSave;
 
+    //@@author A0124321Y
     // move config and save file to a tmp folder
     @BeforeClass
     public static void prep() {
@@ -66,6 +67,7 @@ public class FileHandlerTest {
         }
     }
 
+    //@@author A0124321Y
     // move config and save file back to original location
     @AfterClass
     public static void revert() {
@@ -84,6 +86,7 @@ public class FileHandlerTest {
         }
     }
 
+    //@@author A0124321Y
     @After
     public void tearDown() {
         File config = handler.getConfigFile();
@@ -97,6 +100,7 @@ public class FileHandlerTest {
         handler = null;
     }
 
+    //@@author A0124321Y
     @Test
     public void fileHandler_DirNotGiven_ShouldMakeFileAtCurrLoc() throws IOException {
         System.out.println("fileHandler_DirNotGiven_ShouldMakeFileAtCurrLoc");
@@ -108,6 +112,7 @@ public class FileHandlerTest {
         assertTrue(Files.isWritable(p));
     }
 
+    //@@author A0124321Y
     @Test
     public void setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc() throws IOException {
         System.out.println("setPath_RelativePathWithFilename_ShouldUpdateCfgAndSaveFileLoc");
@@ -126,6 +131,7 @@ public class FileHandlerTest {
         assertEquals(newPath.toAbsolutePath().normalize().toString().trim(), content.trim());
     }
 
+    //@@author A0124321Y
     @Test
     public void setPath_SameDirDiffName_ShouldRemoveOldFile() throws IOException {
         System.out.println("setPath_SameDirDiffName_ShouldRemoveOldFile");
@@ -140,6 +146,7 @@ public class FileHandlerTest {
         assertTrue(Files.notExists(oldSave.toPath()));;
     }
 
+    //@@author A0124321Y
     @Test
     public void loadConfig_NoConfigFile_ShouldMakeFile() throws IOException {
         System.out.println("loadConfig_NoConfigFile_ShouldMakeFile");
@@ -151,6 +158,7 @@ public class FileHandlerTest {
         assertEquals(defaultName, line);
     }
 
+    //@@author A0124321Y
     @Test
     public void loadTaskState_NoStorageFile_ShouldInitAndLoad() throws IOException {
         System.out.println("loadTaskState_NoStorageFile_ShouldInitAndLoad");
@@ -163,6 +171,7 @@ public class FileHandlerTest {
         assertEquals(0, loadedState.getTasks().size());
     }
 
+    //@@author A0124321Y
     @Test
     public void loadTaskState_HasStorageFile_ShouldLoadState() throws IOException {
         System.out.println("loadTaskState_HasStorageFile_ShouldLoadState");
@@ -189,4 +198,5 @@ public class FileHandlerTest {
 
         assertEquals(stub, loadedState);
     }
+    //@@author
 }
