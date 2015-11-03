@@ -29,7 +29,6 @@ public class LogicTest {
         System.out.println("Setting up test...");
         uiStub = new UIStub();
         logic = new LogicUnit(uiStub);
-        logic.initUi(null);
     }
 
     @After
