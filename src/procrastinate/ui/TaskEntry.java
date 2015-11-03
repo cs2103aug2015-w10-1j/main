@@ -11,7 +11,7 @@ import javafx.scene.layout.HBox;
 
 import java.io.IOException;
 
-public class TaskEntry extends HBox{
+public class TaskEntry extends GridPane {
 
     // ================================================================================
     // Message strings
