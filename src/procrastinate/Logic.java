@@ -607,6 +607,9 @@ public class Logic {
                        && hasLastPreviewedCommand()
                        && !lastPreviewedCommand.getType().equals(CommandType.HELP)) {
                 ui.hideHelpOverlay();
+                if (ui.getInput().trim().isEmpty()) {
+                    ui.setStatus(STATUS_READY);
+                }
             }
             if ((keyEvent.getCode().equals(KeyCode.RIGHT) || keyEvent.getCode().equals(KeyCode.LEFT))
                     && ui.getInput().isEmpty() ) {
