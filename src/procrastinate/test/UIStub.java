@@ -50,6 +50,12 @@ public class UIStub extends UI {
     public void showHelpOverlay() {
     }
     @Override
+    public void hideHelpOverlay() {
+    }
+    @Override
+    public void hideSplashOverlay() {
+    }
+    @Override
     public void createErrorDialog(String message) {
     }
     @Override

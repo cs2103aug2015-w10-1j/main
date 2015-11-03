@@ -40,6 +40,7 @@ public class HelpOverlay extends ImageOverlay {
     protected void setImage() {
         // Set to first page of Help sheet
         imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_REFERENCE_SHEET).toExternalForm()));
+        imageView.fitWidthProperty().set(400);
     }
 
     // TODO: Two more methods here to set between page 1 and 2
