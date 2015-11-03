@@ -1,3 +1,4 @@
+//@@author A0121597B
 package procrastinate.ui;
 
 import javafx.fxml.FXML;
@@ -45,6 +46,7 @@ public abstract class ImageOverlay {
 
     protected abstract void setImage();
 
+    //@@author A0121597B generated
     protected Node getNode() {
         return this.node;
     }

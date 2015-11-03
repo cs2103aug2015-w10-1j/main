@@ -1,3 +1,4 @@
+//@@author A0121597B
 package procrastinate.ui;
 
 import javafx.animation.FadeTransition;
@@ -323,6 +324,7 @@ public class CenterPaneController {
         currentScreenView = mainScreen;
     }
 
+    //@@author A0121597B-reused
     // Required since each screen node is wrapped inside a scrollPane.
     private void addMouseDragListeners(Node screenNode) {
         Node scrollPaneNode = ((ScrollPane)screenNode.lookup("#scrollPane")).getContent();
@@ -340,6 +342,7 @@ public class CenterPaneController {
     // Test methods
     // ================================================================================
 
+    //@@author A0121597B generated
     protected Node getMainScreen() {
         return mainScreenNode;
     }

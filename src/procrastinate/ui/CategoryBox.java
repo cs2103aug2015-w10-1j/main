@@ -1,3 +1,4 @@
+//@@author A0121597B
 package procrastinate.ui;
 
 import javafx.fxml.FXML;
@@ -56,7 +57,7 @@ public class CategoryBox extends VBox {
     // ================================================================================
     // Getter methods
     // ================================================================================
-
+    //@@author A0121597B generated
     protected Node getCategoryBox() {
         return this.categoryBox;
     }

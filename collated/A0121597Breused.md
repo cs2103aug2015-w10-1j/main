@@ -1,4 +1,133 @@
-//@@author A0121597B-reused
+# A0121597Breused
+###### procrastinate\ui\CenterPaneController.java
+``` java
+    // Required since each screen node is wrapped inside a scrollPane.
+    private void addMouseDragListeners(Node screenNode) {
+        Node scrollPaneNode = ((ScrollPane)screenNode.lookup("#scrollPane")).getContent();
+        scrollPaneNode.setOnMousePressed((mouseEvent) -> {
+            xOffset = mouseEvent.getSceneX();
+            yOffset = mouseEvent.getSceneY();
+        });
+        scrollPaneNode.setOnMouseDragged((mouseEvent) -> {
+            centerStackPane.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
+            centerStackPane.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+        });
+    }
+
+    // ================================================================================
+    // Test methods
+    // ================================================================================
+
+```
+###### procrastinate\ui\DialogPopupHandler.java
+``` java
+package procrastinate.ui;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
+import javafx.stage.Stage;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Optional;
+
+public class DialogPopupHandler {
+
+    // ================================================================================
+    // Message Strings
+    // ================================================================================
+
+    private static final String MESSAGE_TITLE = "Error";
+    private static final String MESSAGE_HEADER = "An error has occurred with the following message:";
+
+    private static final String BUTTON_MESSAGE_OK = "OK";
+    private static final String BUTTON_MESSAGE_CANCEL = "Cancel";
+
+    // ================================================================================
+    // Class variables
+    // ================================================================================
+
+    private Stage primaryStage;
+
+    // ================================================================================
+    // DialogPopupHandler methods
+    // ================================================================================
+
+    protected DialogPopupHandler(Stage primaryStage) {
+        // Set up the parent stage to retrieve information if required
+        this.primaryStage = primaryStage;
+    }
+
+    /**
+     * Creates an error dialog that displays the given message string
+     *
+     * @param message
+     */
+    protected void createErrorDialogPopup(String message) {
+        Alert dialog = new Alert(Alert.AlertType.ERROR);
+        dialog.initOwner(primaryStage);
+
+        dialog.setTitle(MESSAGE_TITLE);
+        dialog.setHeaderText(MESSAGE_HEADER);
+        dialog.setContentText(message);
+
+        dialog.showAndWait();
+    }
+
+    /**
+     * Creates an error dialog that takes in an Exception and displays the exception message with its stack trace
+     * in an expandable region.
+     *
+     * @param exception
+     */
+    protected void createErrorDialogPopupWithTrace(Exception exception) {
+        Alert dialog = new Alert(Alert.AlertType.ERROR);
+        dialog.initOwner(primaryStage);
+
+        // Retrieve the stack trace as String
+        StringWriter stringWriter = new StringWriter();
+        exception.printStackTrace(new PrintWriter(stringWriter));
+        String stackTrace = stringWriter.toString();
+
+        dialog.setTitle(MESSAGE_TITLE);
+        dialog.setHeaderText(MESSAGE_HEADER);
+        dialog.setContentText(exception.getMessage());
+
+        // Place the stack trace into a TextArea for display
+        TextArea textArea = new TextArea();
+        textArea.setWrapText(true);
+        textArea.setEditable(false);
+        textArea.setText(stackTrace);
+
+        dialog.getDialogPane().setExpandableContent(textArea);
+        dialog.showAndWait();
+    }
+
+    protected boolean createErrorDialogPopupWithConfirmation(String message) {
+        Alert dialog = new Alert(Alert.AlertType.ERROR);
+        dialog.initOwner(primaryStage);
+
+        dialog.setTitle(MESSAGE_TITLE);
+        dialog.setHeaderText(MESSAGE_HEADER);
+        dialog.setContentText(message);
+
+        ButtonType okBtn = new ButtonType(BUTTON_MESSAGE_OK, ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelBtn = new ButtonType(BUTTON_MESSAGE_CANCEL, ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getButtonTypes().setAll(okBtn, cancelBtn);
+
+        Optional<ButtonType> choice = dialog.showAndWait();
+        if (choice.get().equals(okBtn)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+```
+###### procrastinate\ui\SystemTrayHandler.java
+``` java
 package procrastinate.ui;
 
 import javafx.application.Platform;
@@ -228,3 +357,64 @@ public class SystemTrayHandler {
         };
     }
 }
+```
+###### procrastinate\ui\WindowHandler.java
+``` java
+    private void setStyleAndMouseEvents() {
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
+
+        root.setOnMousePressed((mouseEvent) -> {
+            xOffset = mouseEvent.getSceneX();
+            yOffset = mouseEvent.getSceneY();
+        });
+        root.setOnMouseDragged((mouseEvent) -> {
+            primaryStage.setX(mouseEvent.getScreenX() - xOffset);
+            primaryStage.setY(mouseEvent.getScreenY() - yOffset);
+        });
+
+        // Since the CenterScreen is wrapped around another Pane, setting the mouse events on it is necessary as well.
+        StackPane centerPane = (StackPane) root.lookup(SELECTOR_CENTER_SCREEN);
+        centerPane.setOnMousePressed((mouseEvent) -> {
+            xOffset = mouseEvent.getSceneX();
+            yOffset = mouseEvent.getSceneY();
+        });
+        centerPane.setOnMouseDragged((mouseEvent) -> {
+            centerPane.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
+            centerPane.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+        });
+
+
+        // Wraps the current root in an AnchorPane to provide drop shadow styling
+        AnchorPane wrapperPane = new AnchorPane(root);
+        wrapperPane.setPrefSize(WRAPPER_PREF_WIDTH, WRAPPER_PREF_HEIGHT);
+        wrapperPane.getStyleClass().add(STYLE_CLASS_MAIN_WINDOW);
+        wrapperPane.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
+        root = wrapperPane;
+    }
+
+    /**
+     * Creates a title bar for minimising and closing of Procrastinate.
+     */
+    private void createTitleBar() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TITLE_BAR_FXML));
+        try {
+            loader.setController(this);
+            HBox titleBar = loader.load();
+
+            close.setText(ICON_CLOSE);
+            close.setOnMouseClicked(mouseEvent -> exitIndicator.set(true));
+
+            minimise.setText(ICON_MINIMISE);
+            if (systemTrayHandler != null) {
+                minimise.setOnMouseClicked(mouseEvent -> systemTrayHandler.windowHideOrShow());
+            } else {
+                minimise.setOnMouseClicked(mouseEvent -> primaryStage.setIconified(true));
+            }
+
+            ((BorderPane)root).setTop(titleBar);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+```

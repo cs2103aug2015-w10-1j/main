@@ -1,3 +1,4 @@
+//@@author A0121597B
 package procrastinate.ui;
 
 import javafx.animation.FadeTransition;
@@ -300,7 +301,7 @@ public abstract class CenterScreen extends VBox {
     // ================================================================================
     // Getter methods
     // ================================================================================
-
+    //@@author A0121597B generated
     protected Node getNode() {
         return this.node;
     }

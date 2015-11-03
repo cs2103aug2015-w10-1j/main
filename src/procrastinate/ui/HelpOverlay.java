@@ -1,3 +1,4 @@
+//@@author A0121597B
 package procrastinate.ui;
 
 import javafx.geometry.Pos;
@@ -46,7 +47,7 @@ public class HelpOverlay extends ImageOverlay {
         imageView.fitWidthProperty().set(400);
     }
 
-    // TODO: Two more methods here to set between page 1 and 2
+    //@@author A0080485B
     protected void nextPage() {
         if (isFirstPage) {
             imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_REFERENCE_SHEET_2).toExternalForm()));
@@ -56,6 +57,7 @@ public class HelpOverlay extends ImageOverlay {
         isFirstPage = !isFirstPage;
     }
 
+    //@@author A0121597B
     private void adjustStylesAndAddWrapper() {
         container.setStyle(STYLE_CONTAINER_PADDING);
         container.getChildren().clear();

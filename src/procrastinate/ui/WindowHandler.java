@@ -1,3 +1,4 @@
+//@@author A0121597B
 package procrastinate.ui;
 
 import javafx.beans.property.BooleanProperty;
@@ -133,6 +134,7 @@ public class WindowHandler {
     /**
      * Removes all window decorations sets mouse events to enable dragging of window
      */
+    //@@author A0121597B-reused
     private void setStyleAndMouseEvents() {
         primaryStage.initStyle(StageStyle.TRANSPARENT);
 
@@ -190,6 +192,7 @@ public class WindowHandler {
         }
     }
 
+    //@@author A0121597B generated
     private boolean isSysTraySupported() {
         return  SystemTray.isSupported();
     }

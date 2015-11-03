@@ -1,3 +1,4 @@
+//@@author A0121597B
 package procrastinate.ui;
 
 import javafx.fxml.FXML;
@@ -142,7 +143,7 @@ public class TaskEntry extends GridPane {
     // ================================================================================
     // Getter methods
     // ================================================================================
-
+    //@@author A0121597B generated
     protected Node getEntryDisplay() {
         return this.taskEntry;
     }
