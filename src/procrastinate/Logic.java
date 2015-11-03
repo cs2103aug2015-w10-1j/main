@@ -577,9 +577,6 @@ public class Logic {
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelpOverlay();
             }
-            if (keyEvent.getCode().equals(KeyCode.F2)) {
-                ui.showHelpOverlay();
-            }
             if (keyEvent.getCode().equals(KeyCode.TAB)) {
                 if (!hasLastPreviewedCommand()) {
                     return;
@@ -605,9 +602,10 @@ public class Logic {
         return (keyEvent) -> {
             // To remove the help overlay only when the user presses 'Enter' or 'Esc'
             // And checks also if the user command is 'help' only (follows case-insensitivity)
-            if ((keyEvent.getCode().equals(KeyCode.ENTER)
-                    || keyEvent.getCode().equals(KeyCode.ESCAPE))
-                    && hasLastPreviewedCommand() && !lastPreviewedCommand.getType().equals(CommandType.HELP)) {
+            if (keyEvent.getCode().equals(KeyCode.ESCAPE)
+                    || keyEvent.getCode().equals(KeyCode.ENTER)
+                       && hasLastPreviewedCommand()
+                       && !lastPreviewedCommand.getType().equals(CommandType.HELP)) {
                 ui.hideHelpOverlay();
             }
             ui.hideSplashOverlay();

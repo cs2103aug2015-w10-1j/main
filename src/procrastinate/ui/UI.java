@@ -114,7 +114,7 @@ public class UI {
         centerPaneController.showHelpOverlay();
     }
 
-    public void showSplashOverlay() {
+    private void showSplashOverlay() {
         centerPaneController.showSplashOverlay();
     }
 
