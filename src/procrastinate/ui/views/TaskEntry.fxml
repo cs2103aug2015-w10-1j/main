@@ -8,7 +8,7 @@
 
 <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="taskEntry" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
 <columnConstraints>
-   <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
+   <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="50" />
    <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
    <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
 </columnConstraints>
@@ -17,7 +17,7 @@
 </rowConstraints>
 <children>
    <Label fx:id="lineNum" text="Label" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
-   <Label fx:id="description" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.valignment="TOP" GridPane.halignment="LEFT" />
-   <Label fx:id="time" text="Label" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.valignment="TOP" />
+   <Label fx:id="description" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
+   <Label fx:id="time" text="Label" textAlignment="RIGHT" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.valignment="TOP" />
 </children>
 </GridPane>

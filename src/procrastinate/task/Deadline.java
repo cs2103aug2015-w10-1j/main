@@ -47,7 +47,11 @@ public class Deadline extends Task {
                 otherDate = ((Event) other).getStartDate();
             }
             if (!this.getDate().equals(otherDate)) {
-                return this.getDate().compareTo(otherDate);
+                if (this.isDone()) {
+                    return -1 * this.getDate().compareTo(otherDate); // flip order for done tasks
+                } else {
+                    return this.getDate().compareTo(otherDate);
+                }
             } else {
                 return this.getDescription().compareTo(other.getDescription());
             }

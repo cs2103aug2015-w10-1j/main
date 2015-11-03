@@ -1,9 +1,9 @@
+//@@author A0080485B
 package procrastinate.task;
 
 import procrastinate.FileHandler;
-import procrastinate.test.FileHandlerStub;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -28,8 +28,6 @@ public class TaskEngine {
     private static final String DEBUG_DONE_TASK = "Done %1$s: %2$s";
     private static final String DEBUG_UNDONE_TASK = "Undone %1$s: %2$s";
     private static final String DEBUG_UNDONE = "Last task operation undone";
-    private static final String DEBUG_FILE_NOT_FOUND = "No data file found; creating...";
-    private static final String DEBUG_INIT_TASK_FAILURE = "Could not create storage file";
 
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
@@ -41,18 +39,14 @@ public class TaskEngine {
     private TaskState currentState = null;
     private TaskState currentView = null;
 
-    private FileHandler fileHandler;
+    private boolean isPreviousOperationSet = false;
+    private String previousSaveDirectory = null;
+    private String previousSaveFilename = null;
+
+    protected FileHandler fileHandler;
 
     public TaskEngine() throws IOException {
-        this(false);
-    }
-
-    public TaskEngine(boolean isUnderTest) throws IOException {
-        if (isUnderTest) {
-            fileHandler = new FileHandlerStub();
-        } else {
-            initFileHandler();
-        }
+        initFileHandler();
         initTasks();
         logger.log(Level.INFO, DEBUG_TASK_ENGINE_INIT);
     }
@@ -136,6 +130,10 @@ public class TaskEngine {
     }
 
     public boolean undo() {
+        if (isPreviousOperationSet) {
+            return set(previousSaveDirectory, previousSaveFilename);
+        }
+
         if (!hasPreviousOperation()) {
             return true;
         }
@@ -153,15 +151,19 @@ public class TaskEngine {
         return writeStateToFile();
     }
 
-    public boolean set(String path) {
-        return fileHandler.setPath(path);
+    public boolean set(String directory, String filename) {
+        isPreviousOperationSet = true;
+        File previousSaveFile = fileHandler.getSaveFile();
+        previousSaveDirectory = previousSaveFile.getAbsoluteFile().getParent() + File.separator;
+        previousSaveFilename = previousSaveFile.getName();
+        return fileHandler.setPath(directory, filename);
     }
 
     public boolean hasPreviousOperation() {
-        return previousState != null;
+        return previousState != null || isPreviousOperationSet;
     }
 
-    public List<Task> getTasksContaining(String description, Date startDate, Date endDate) {
+    public List<Task> search(String description, Date startDate, Date endDate, boolean showDone) {
         assert(description != null || startDate != null && endDate != null);
         List<Task> results = getTasks();
         if (description != null) {
@@ -171,7 +173,7 @@ public class TaskEngine {
         }
         if (startDate != null) {
             results = results.stream()
-                    .filter(task -> task.isWithin(startDate, endDate))
+                    .filter(task -> task.isWithin(startDate, endDate) && task.isDone() == showDone)
                     .collect(Collectors.toList());
         }
         currentView = new TaskState(results);
@@ -207,23 +209,14 @@ public class TaskEngine {
     // Init methods
     // ================================================================================
 
-    private void initFileHandler() throws IOException {
+    protected void initFileHandler() throws IOException {
         fileHandler = new FileHandler();
     }
 
     private void initTasks() {
-        try {
-            loadState(fileHandler.loadTaskState());
-        } catch (FileNotFoundException e) {
-            loadState(new TaskState());
-            logger.log(Level.INFO, DEBUG_FILE_NOT_FOUND);
-            boolean success = writeStateToFile();
-            if (!success) {
-                logger.log(Level.SEVERE, DEBUG_INIT_TASK_FAILURE);
-            }
-        } finally {
-            currentView = currentState;
-        }
+        loadState(fileHandler.loadTaskState());
+        currentView = currentState;
+        Collections.sort(getTasks());
     }
 
     // ================================================================================
@@ -232,6 +225,7 @@ public class TaskEngine {
 
     private void backupOlderState() {
         previousState = getBackupOfCurrentState();
+        isPreviousOperationSet = false;
     }
 
     private void restoreOlderState() {

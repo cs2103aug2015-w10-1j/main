@@ -1,11 +1,13 @@
+//@@author A0080485B
 package procrastinate.test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.TextField;
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import procrastinate.task.Task;
 import procrastinate.ui.UI;
@@ -13,30 +15,55 @@ import procrastinate.ui.UI;
 public class UIStub extends UI {
     public List<Task> taskList;
     public UIStub() {
-        super(true);
         taskList = new ArrayList<Task>();
     }
-    @Override
-    public void initialize() {
+    public UIStub(Stage stage) {
     }
     @Override
-    public void setUpBinding(StringProperty userInput, StringProperty statusLabelText, BooleanProperty isExit) {
+    public String getInput() {
+        return null;
     }
     @Override
-    public void setUpStage(Stage primaryStage) {
+    public void setInput(String input) {
     }
     @Override
-    public void updateTaskList(List<Task> tasks) {
-        taskList = tasks;
+    public void clearInput() {
     }
     @Override
-    public TextField getUserInputField() {
-        return new TextField();
+    public void setStatus(String status) {
     }
     @Override
-    public void checkForScreenOverlay() {
+    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
+        this.taskList = taskList;
     }
     @Override
-    public void showHelp() {
+    public BooleanProperty getIsExit() {
+        return null;
+    }
+    @Override
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler, EventHandler<KeyEvent> keyPressHandler,
+            ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
+    }
+    @Override
+    public void passSearchStringToSearchScreen(String searchTerm) {
+    }
+    @Override
+    public void showHelpOverlay() {
+    }
+    @Override
+    public void hideHelpOverlay() {
+    }
+    @Override
+    public void hideSplashOverlay() {
+    }
+    @Override
+    public void createErrorDialog(String message) {
+    }
+    @Override
+    public void createErrorDialogWithTrace(Exception e) {
+    }
+    @Override
+    public boolean createErrorDialogWithConfirmation(String message) {
+        return true;
     }
 }

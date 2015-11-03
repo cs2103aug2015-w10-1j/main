@@ -1,3 +1,4 @@
+//@@author A0126576X
 package procrastinate.test;
 
 import static org.junit.Assert.*;
@@ -9,7 +10,6 @@ import procrastinate.Parser;
 import procrastinate.Command;
 
 public class ParserTest {
-    private static final String MESSAGE_INVALID_EDIT_NO_NEW_DATA = "Please specify the new description or date(s)";
     private static final String MESSAGE_INVALID_LINE_NUMBER = "Please specify a valid line number";
     private static final String MESSAGE_INVALID_NO_DESCRIPTION = "Please specify the description";
 
@@ -79,8 +79,8 @@ public class ParserTest {
 
         /* Edit with no description*/
         resultCommand = Parser.parse("edit 1");
-        assertEquals(CommandType.INVALID, resultCommand.getType());
-        assertEquals(MESSAGE_INVALID_EDIT_NO_NEW_DATA, resultCommand.getDescription());
+        assertEquals(CommandType.EDIT_PARTIAL, resultCommand.getType());
+        assertEquals(1, resultCommand.getLineNumber());
 
         /* Edit with no line number*/
         resultCommand = Parser.parse("edit");

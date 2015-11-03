@@ -19,6 +19,9 @@ public class DialogPopupHandler {
     private static final String MESSAGE_TITLE = "Error";
     private static final String MESSAGE_HEADER = "An error has occurred with the following message:";
 
+    private static final String BUTTON_MESSAGE_OK = "OK";
+    private static final String BUTTON_MESSAGE_CANCEL = "Cancel";
+
     // ================================================================================
     // Class variables
     // ================================================================================
@@ -87,8 +90,8 @@ public class DialogPopupHandler {
         dialog.setHeaderText(MESSAGE_HEADER);
         dialog.setContentText(message);
 
-        ButtonType okBtn = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType okBtn = new ButtonType(BUTTON_MESSAGE_OK, ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelBtn = new ButtonType(BUTTON_MESSAGE_CANCEL, ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getButtonTypes().setAll(okBtn, cancelBtn);
 
         Optional<ButtonType> choice = dialog.showAndWait();

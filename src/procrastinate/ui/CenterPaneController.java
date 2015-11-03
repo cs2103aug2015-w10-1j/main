@@ -1,33 +1,29 @@
 package procrastinate.ui;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import procrastinate.task.Task;
+import procrastinate.ui.UI.ScreenView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class CenterPaneController {
 
     // ================================================================================
-    // Screen change keys
-    // ================================================================================
-
-    protected static final int SCREEN_MAIN = 1;
-    protected static final int SCREEN_HELP = 2;  // Maybe should use arraylist of these integers/string to reference the integers?
-
-    // ================================================================================
     // Message strings
     // ================================================================================
 
-    private static final String LOCATION_MAIN_SCREEN_LAYOUT = "views/MainScreen.fxml";
-    private static final String LOCATION_HELP_SCREEN_LAYOUT = "views/HelpScreen.fxml";
+    private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
+
+    private static final String MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE = "Unable to recognise ScreenType";
 
     // ================================================================================
     // Animation time values
@@ -37,7 +33,8 @@ public class CenterPaneController {
     private static final double OPACITY_ZERO = 0;
 
     // Time values are in milliseconds
-    private static final double TIME_HELP_SCREEN_FADEOUT = 300;
+    private static final double TIME_HELP_SCREEN_FADEIN = 150;
+    private static final double TIME_HELP_SCREEN_FADEOUT = 200;
 
     private static final double TIME_SPLASH_SCREEN_FADE = 3000;
     private static final double TIME_SPLASH_SCREEN_FULL_OPACITY = 2000;
@@ -47,63 +44,118 @@ public class CenterPaneController {
     // Class variables
     // ================================================================================
 
-    private HashMap<Integer, Node> controlledScreens;   // CHANGE TO SWITCH
+    private static double xOffset, yOffset;
 
-    private FadeTransition helpScreenFadeOut;
+ // Changed to protected for testing purposes.
+    protected CenterScreen currentScreenView;
+    protected ImageOverlay currentOverlay;
+
     private Timeline splashScreenTimeline;
 
     private Node mainScreenNode;
-    private Node helpScreenNode;
+    private Node doneScreenNode;
+    private Node searchScreenNode;
+    private Node summaryScreenNode;
+
+    private Node helpOverlayNode;
+    private Node splashOverlayNode;
+
+    private ImageOverlay helpOverlay;
+    private ImageOverlay splashOverlay;
 
     private MainScreen mainScreen;
-    private HelpScreen helpScreen;
+    private SearchScreen searchScreen;
+    private SummaryScreen summaryScreen;
+
+    private DoneScreen doneScreen;
 
     private StackPane centerStackPane;
-    protected Node currentScreen;       // Changed to protected for testing purposes.
+
+    private boolean isInitial = true;
 
     // ================================================================================
     // CenterPaneController methods
     // ================================================================================
 
+    // New CenterPaneController should only contain one screen node at all times, excluding the overlay nodes.
     protected CenterPaneController(StackPane centerStackPane) {
-        this.controlledScreens = new HashMap<>();
         this.centerStackPane = centerStackPane;
-
-        initialiseScreens();
-        currentScreen = mainScreenNode;
-        mainScreenNode.setOpacity(OPACITY_FULL); // Setup straight into main screen.
+        createScreens();
+        createOverlays();
+        setToSummaryScreen();
     }
 
-    // ================================================================================
-    // Utility methods
-    // ================================================================================
+    protected void updateScreen(List<Task> taskList, ScreenView screenView) {
+        if (isInitial) {
+            summaryScreen.updateTaskList(taskList);
+            mainScreen.updateTaskList(taskList);
+            isInitial = false;
+            return;
+        }
 
-    /**
-     * Each screen is mapped to a key for use in UI/Logic for screen changing
-     * @param screenKey
-     */
-    protected void changeScreen(int screenKey) {
-        Node screen = controlledScreens.get(screenKey);
-        currentScreen = screen;
-        setScreen(screen);
+        switch (screenView) {
+
+            case SCREEN_DONE: {
+                if (currentScreenView == doneScreen) {
+                    doneScreen.updateTaskList(taskList);
+                    break;
+                } else {
+                    startScreenSwitchSequence(taskList, doneScreenNode, doneScreen);
+                    break;
+                }
+            }
+
+            case SCREEN_MAIN: {
+                if (currentScreenView == mainScreen) {
+                    mainScreen.updateTaskList(taskList);
+                    break;
+                } else if (currentScreenView == summaryScreen) {
+                    removeSummaryScreen(taskList);
+                    break;
+                } else {
+                    startScreenSwitchSequence(taskList, mainScreenNode, mainScreen);
+                    break;
+                }
+            }
+
+            case SCREEN_SEARCH: {
+                if (currentScreenView == searchScreen) {
+                    searchScreen.updateTaskList(taskList);
+                    break;
+                } else {
+                    startScreenSwitchSequence(taskList, searchScreenNode, searchScreen);
+                    break;
+                }
+            }
+
+            default:
+                System.out.println(MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE);
+                break;
+        }
     }
 
     /**
-     * Updates the given task list onto the MainScreen view
-     * @param taskList
+     * Starts the fade out transition that lasts for 0.5 seconds if the stack contains it
+     * and it is the current overlay screen.
      */
-    protected void updateMainScreen(List<Task> taskList) {
-        mainScreen.updateTaskList(taskList);
+    protected void hideHelpOverlay() {
+        if (currentOverlay != helpOverlay || !centerStackPane.getChildren().contains(helpOverlayNode)) {
+            return;
+        }
+        FadeTransition helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode);
+        helpOverlayFadeOut.setOnFinished(e -> {
+            centerStackPane.getChildren().remove(helpOverlayNode);
+            currentOverlay = null;
+        });
+        helpOverlayFadeOut.play();
     }
 
     /**
-     * Hides the current screen overlay for:
-     *      - splashScreen: Fast-forwards the fade animation if user starts typing, and builds the actual helpScreen
-     *                      once the animation is terminated
-     *      - helpScreen: Starts the fade out transition that lasts for 0.5 seconds
+     * Fast-forwards the fade animation if user starts typing, which will remove the entire
+     * node from the stack once it has finished fading.
      */
-    protected void hideScreenOverlay() {
-        if (currentScreen != helpScreenNode) {
+    protected void hideSplashOverlay() {
+        if (currentOverlay == splashOverlay && centerStackPane.getChildren().contains(splashOverlayNode)) {
             Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
             // Only fast forward the timeline if the current time of the animation is smaller than the given
             // interrupt time. Else, just wait for the animation to end.
@@ -111,99 +163,177 @@ public class CenterPaneController {
                 splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
             }
             splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_FADE));
-            // TODO: Set up the helpScreen labels below (Reference/cheat sheet)
-        } else {
-            helpScreenFadeOut.playFromStart();
         }
     }
 
     /**
      * Creates a splash screen that maintains full opacity for 2 seconds before completely fading out in 1 second
      * or until the user starts to type.
-     * currentScreen variable is not updated to helpScreen to differentiate splashScreen from helpScreen in the
-     * hideScreenOverlay method.
      */
-    protected void showSplashScreen() {
-        helpScreenNode.toFront();
-        helpScreenNode.setOpacity(OPACITY_FULL);
+    protected void showSplashOverlay() {
+        currentOverlay = splashOverlay;
+        centerStackPane.getChildren().add(splashOverlayNode);
 
-        // Set SplashScreen opacity at full for 2 seconds.
-        Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
-        KeyValue fullOpacityKeyValue = new KeyValue(helpScreenNode.opacityProperty(), OPACITY_FULL);
-        KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
-
-        // Set SplashScreen to fade out completely at time = 3 seconds
-        Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
-        KeyValue zeroOpacityKeyValue = new KeyValue(helpScreenNode.opacityProperty(), OPACITY_ZERO);
-        KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
-
-        splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
-        splashScreenTimeline.setOnFinished(e -> setScreen(mainScreenNode));
+        buildSplashScreenAnimation();
         splashScreenTimeline.play();
+    }
+
+    protected void showHelpOverlay() {
+        if (currentOverlay == helpOverlay || centerStackPane.getChildren().contains(helpOverlay)) {
+            return;
+        }
+        currentOverlay = helpOverlay;
+        centerStackPane.getChildren().add(helpOverlayNode);
+        helpOverlayNode.toFront();
+
+        FadeTransition helpOverlayFadeIn = getFadeInTransition(TIME_HELP_SCREEN_FADEIN, helpOverlayNode);
+        helpOverlayFadeIn.play();
+    }
+
+    protected void nextHelpPage() {
+        if (currentOverlay != helpOverlay) {
+            return;
+        }
+        ((HelpOverlay) helpOverlay).nextPage();
+    }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
+    protected void receiveSearchStringAndPassToSearchScreen(String searchString) {
+        searchScreen.updateSearchStringLabel(searchString);
+    }
+
+    private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
+        SequentialTransition screenSwitchSequence;
+        screenSwitchSequence = currentScreenView.getScreenSwitchOutSequence();
+        screenSwitchSequence.setOnFinished(e -> {
+            centerStackPane.getChildren().clear();
+            centerStackPane.getChildren().add(nodeToSwitchIn);
+            screenToSwitchIn.getScreenSwitchInSequence().play();
+            screenToSwitchIn.updateTaskList(taskList);
+            currentScreenView = screenToSwitchIn;
+        });
+        screenSwitchSequence.play();
     }
 
     private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
         fadeTransition.setFromValue(OPACITY_FULL);
         fadeTransition.setToValue(OPACITY_ZERO);
+        fadeTransition.setInterpolator(Interpolator.EASE_OUT);
         return fadeTransition;
     }
 
-    /**
-     * Changes the top most screen to the screen specified
-     * @param screen
-     */
-    private void setScreen(Node screen) {
-        currentScreen.setOpacity(OPACITY_ZERO);
-        screen.toFront();
-        screen.setOpacity(OPACITY_FULL);
-        currentScreen = screen;
+    private FadeTransition getFadeInTransition(double timeInMs, Node transitingNode) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
+        fadeTransition.setFromValue(OPACITY_ZERO);
+        fadeTransition.setToValue(OPACITY_FULL);
+        fadeTransition.setInterpolator(Interpolator.EASE_IN);
+        return fadeTransition;
+    }
+
+    private void buildSplashScreenAnimation() {
+        // Set SplashScreen opacity at full for 2 seconds.
+        Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
+        KeyValue fullOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_FULL);
+        KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
+
+        // Set SplashScreen to fade out completely at time = 3 seconds
+        Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
+        KeyValue zeroOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_ZERO);
+        KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
+
+        splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
+        splashScreenTimeline.setOnFinished(e -> {
+            centerStackPane.getChildren().remove(splashOverlayNode);
+            currentOverlay = null;
+        });
     }
 
     // ================================================================================
     // Init methods
     // ================================================================================
 
-    private void initialiseScreens() {
-        ArrayList<Node> screensList = createScreens();
-        centerStackPane.getChildren().addAll(screensList);
-    }
-
-    private void mapScreen(int screenKey, Node newScreen) {
-        controlledScreens.put(screenKey, newScreen);
+    private void createOverlays() {
+        createHelpOverlay();
+        createSplashOverlay();
     }
 
     /**
      * This creates and holds a list of the screens that can be easily added onto the center pane
      * @return list of screens
      */
-    private ArrayList<Node> createScreens() {
-        ArrayList<Node> screensList = new ArrayList<>();
-
-        // Main Screen setup
-        screensList.add(createMainScreen());
-
-        // Help Screen setup
-        screensList.add(createHelpScreen());
-        helpScreenFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpScreenNode);
-        helpScreenFadeOut.setOnFinished(e -> setScreen(mainScreenNode));
-        return screensList;
+    private void createScreens() {
+        createMainScreen();
+        createDoneScreen();
+        createSearchScreen();
+        createSummaryScreen();
     }
 
-    private Node createHelpScreen() {
-        this.helpScreen = new HelpScreen(LOCATION_HELP_SCREEN_LAYOUT);
-        this.helpScreenNode = helpScreen.getNode();
-        helpScreenNode.setOpacity(OPACITY_ZERO);
-        mapScreen(SCREEN_HELP, helpScreenNode);
-        return helpScreenNode;
+    private void createHelpOverlay() {
+        this.helpOverlay = new HelpOverlay();
+        this.helpOverlayNode = helpOverlay.getNode();
     }
 
-    private Node createMainScreen() {
-        this.mainScreen = new MainScreen(LOCATION_MAIN_SCREEN_LAYOUT);
+    private void createSplashOverlay() {
+        this.splashOverlay = new SplashOverlay();
+        this.splashOverlayNode = splashOverlay.getNode();
+    }
+
+    private void createMainScreen() {
+        this.mainScreen = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
         this.mainScreenNode = mainScreen.getNode();
-        mainScreenNode.setOpacity(OPACITY_ZERO);
-        mapScreen(SCREEN_MAIN, mainScreenNode);
-        return mainScreenNode;
+        addMouseDragListeners(mainScreenNode);
+    }
+
+    private void createDoneScreen() {
+        this.doneScreen = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.doneScreenNode = doneScreen.getNode();
+        addMouseDragListeners(doneScreenNode);
+    }
+
+    private void createSearchScreen() {
+        this.searchScreen = new SearchScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.searchScreenNode = searchScreen.getNode();
+        addMouseDragListeners(searchScreenNode);
+    }
+
+    private void createSummaryScreen() {
+        this.summaryScreen = new SummaryScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.summaryScreenNode = summaryScreen.getNode();
+        addMouseDragListeners(summaryScreenNode);
+    }
+
+    /**
+     * Hide the MainScreen below the SummaryScreen since it'll take some time to start up later on.
+     */
+    private void setToSummaryScreen() {
+        centerStackPane.getChildren().add(mainScreenNode);
+        centerStackPane.getChildren().add(summaryScreenNode);
+        currentScreenView = summaryScreen;
+        summaryScreenNode.toFront();
+        summaryScreenNode.setOpacity(OPACITY_FULL);
+    }
+
+    private void removeSummaryScreen(List<Task> taskList) {
+        centerStackPane.getChildren().remove(summaryScreenNode);
+        mainScreen.updateTaskList(taskList);
+        currentScreenView = mainScreen;
+    }
+
+    // Required since each screen node is wrapped inside a scrollPane.
+    private void addMouseDragListeners(Node screenNode) {
+        Node scrollPaneNode = ((ScrollPane)screenNode.lookup("#scrollPane")).getContent();
+        scrollPaneNode.setOnMousePressed((mouseEvent) -> {
+            xOffset = mouseEvent.getSceneX();
+            yOffset = mouseEvent.getSceneY();
+        });
+        scrollPaneNode.setOnMouseDragged((mouseEvent) -> {
+            centerStackPane.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
+            centerStackPane.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+        });
     }
 
     // ================================================================================
@@ -214,7 +344,7 @@ public class CenterPaneController {
         return mainScreenNode;
     }
 
-    protected Node getHelpScreen() {
-        return helpScreenNode;
+    protected Node getHelpOverlay() {
+        return helpOverlayNode;
     }
 }

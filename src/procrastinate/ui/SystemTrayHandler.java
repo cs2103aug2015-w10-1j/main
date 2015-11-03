@@ -1,6 +1,8 @@
 package procrastinate.ui;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -8,6 +10,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -33,11 +36,14 @@ public class SystemTrayHandler {
     // ================================================================================
 
     private boolean shownMinimiseMessage = false;
+    private BooleanProperty exitIndicator = new SimpleBooleanProperty(false);
 
     private Stage primaryStage;
     private SystemTray sysTray;
     private TrayIcon sysTrayIcon;
     private TextField userInputField;
+
+    private boolean isMouse = false;
 
     // ================================================================================
     // SystemTrayHandler methods
@@ -52,6 +58,10 @@ public class SystemTrayHandler {
         configureSysTray(primaryStage);
         createSysTray();
         return sysTray;
+    }
+
+    protected void bindExitIndicator(BooleanProperty isExit) {
+        exitIndicator.bindBidirectional(isExit);
     }
 
     private void configureSysTray(Stage primaryStage) {
@@ -86,7 +96,7 @@ public class SystemTrayHandler {
         PopupMenu menu = new PopupMenu();
 
         MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
-        menuExit.addActionListener(actionEvent -> System.exit(0));
+        menuExit.addActionListener(actionEvent -> exitIndicator.set(true));
 
         MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
         menuShow.addActionListener(actionEvent -> windowHideOrShow());
@@ -114,6 +124,7 @@ public class SystemTrayHandler {
         trayIcon.setImageAutoSize(true);
         trayIcon.setPopupMenu(popupMenu);
         trayIcon.addMouseListener(createIconClickListener());
+        trayIcon.addMouseMotionListener(createMouseMotionListener());
         return trayIcon;
     }
 
@@ -122,7 +133,10 @@ public class SystemTrayHandler {
     // ================================================================================
 
     protected void windowHideOrShow() {
-        if (primaryStage.isShowing()) {
+        if (isMouse && primaryStage.isShowing()) {
+            isMouse = false;
+        }
+        else if (primaryStage.isShowing()) {
             if (isWindowsOs()) {
                 showMinimiseMessage();
             }
@@ -163,6 +177,10 @@ public class SystemTrayHandler {
             public void mouseClicked(MouseEvent e) {
                 if (isWindowsOs() && isLeftClick(e)) {
                     // Windows check needed as MacOS doesn't differentiate buttons
+                    Platform.runLater(() -> {
+                        primaryStage.requestFocus();
+                        primaryStage.toFront();
+                    });
                     windowHideOrShow();
                 }
             }
@@ -178,6 +196,12 @@ public class SystemTrayHandler {
 
             @Override
             public void mouseEntered(MouseEvent e) {
+                if (primaryStage.isShowing() && !primaryStage.isFocused()) {
+                    isMouse = true;
+                    Platform.runLater(() -> {
+                        primaryStage.toFront();
+                    });
+                }
             }
 
             @Override
@@ -186,4 +210,20 @@ public class SystemTrayHandler {
         };
     }
 
+    private MouseMotionListener createMouseMotionListener() {
+        return new MouseMotionListener() {
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (primaryStage.isShowing() && !primaryStage.isFocused()) {
+                    isMouse = true;
+                }
+            }
+
+            // Unused methods, left empty.
+            @Override
+            public void mouseDragged(MouseEvent e) {
+            }
+        };
+    }
 }

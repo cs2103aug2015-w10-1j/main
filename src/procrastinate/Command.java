@@ -1,3 +1,4 @@
+//@@author A0080485B
 package procrastinate;
 
 import java.util.Date;
@@ -5,9 +6,9 @@ import java.util.Date;
 public class Command {
 
     public static enum CommandType {
-        ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, DELETE, UNDO, DONE,
-        SEARCH, SEARCH_ON, SHOW_OUTSTANDING,
-        SHOW_DONE, SHOW_ALL, SET_PATH, EXIT, HELP, INVALID;
+        ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, EDIT_PARTIAL, EDIT_TO_DREAM, DELETE, UNDO, DONE,
+        SEARCH, SEARCH_ON, SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL,
+        SET_PATH, EXIT, HELP, HELP_MORE, INVALID;
     }
 
     // Required field for all command types
@@ -19,6 +20,8 @@ public class Command {
     private Date startDate;
     private Date endDate;
     private int lineNumber;
+    private String pathDirectory;
+    private String pathFilename;
 
     public Command(CommandType type) {
         this.type = type;
@@ -53,6 +56,16 @@ public class Command {
         return this;
     }
 
+    public Command addPathDirectory(String pathDirectory) {
+        this.pathDirectory = pathDirectory;
+        return this;
+    }
+
+    public Command addPathFilename(String fileName) {
+        this.pathFilename = fileName;
+        return this;
+    }
+
     // ================================================================================
     // Getter methods
     // ================================================================================
@@ -79,6 +92,14 @@ public class Command {
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    public String getPathDirectory() {
+        return pathDirectory;
+    }
+
+    public String getPathFilename() {
+        return pathFilename;
     }
 
 }

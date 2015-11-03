@@ -15,6 +15,6 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         logic = Logic.getInstance();
         assert (logic != null);
-        logic.initialiseWindow(primaryStage);
+        logic.initUi(primaryStage);
     }
 }

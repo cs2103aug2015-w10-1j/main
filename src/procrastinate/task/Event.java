@@ -53,7 +53,11 @@ public class Event extends Task {
 	            otherDate = ((Event) other).getStartDate();
 	        }
 	        if (!this.getStartDate().equals(otherDate)) {
-	            return this.getStartDate().compareTo(otherDate);
+                if (this.isDone()) {
+                    return -1 * this.getStartDate().compareTo(otherDate); // flip order for done tasks
+                } else {
+                    return this.getStartDate().compareTo(otherDate);
+                }
 	        } else {
 	            return this.getDescription().compareTo(other.getDescription());
 	        }

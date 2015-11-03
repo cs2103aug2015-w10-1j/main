@@ -14,7 +14,7 @@ public class UITestHelper {
 
     // Some test variables that are utilised multiple times in a test body
     public CenterPaneController centerPaneController;
-    public MainScreen mainScreen;
+    public MultiCategoryScreen mainScreen;
     public TaskEntry dreamTask;
     public TaskEntry otherTask;
 
@@ -27,12 +27,12 @@ public class UITestHelper {
         return  centerPaneController;
     }
 
-    public Node getCPCCurrentScreen() {
-        return centerPaneController.currentScreen;
+    public ImageOverlay getCPCCurrentScreen() {
+        return centerPaneController.currentOverlay;
     }
 
     public void switchToMain() {
-        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
+//        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
     }
 
     public Node getMainScreen() {
@@ -40,32 +40,32 @@ public class UITestHelper {
     }
 
     public void switchToHelp() {
-        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+//        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
     }
 
     public Node getHelpScreen() {
-        return centerPaneController.getHelpScreen();
+        return centerPaneController.getHelpOverlay();
     }
 
     // ================================================================================
     // HelpScreen methods
     // ================================================================================
 
-    public HelpScreen getNewHelpScreen() {
-        return new HelpScreen("views/HelpScreen.fxml");
+    public ImageOverlay getNewHelpScreen() {
+        return new HelpOverlay();
     }
 
     // ================================================================================
     // MainScreen methods
     // ================================================================================
 
-    public MainScreen getNewMainScreen() {
-        mainScreen = new MainScreen("views/MainScreen.fxml");
+    public MultiCategoryScreen getNewMainScreen() {
+        mainScreen = new MainScreen("views/CenterScreen.fxml");
         return mainScreen;
     }
 
     public VBox getMainScreenVBox() {
-        return mainScreen.mainVBox;
+        return mainScreen.getMainVBox();
     }
 
     public void addDreamToMainScreen(Dream dream) {
@@ -76,7 +76,7 @@ public class UITestHelper {
 
     public VBox getDreamsTaskList() {
         // Dreams is the last category box added
-        return (VBox) mainScreen.mainVBox.getChildren().get(3);
+        return (VBox) mainScreen.getMainVBox().getChildren().get(3);
     }
 
     // ================================================================================
@@ -89,12 +89,12 @@ public class UITestHelper {
 
     public VBox getNewCategoryBoxVBox() {
         CategoryBox categoryBox = new CategoryBox("Test");
-        return categoryBox.categoryVBox;
+        return categoryBox.getTaskListVBox();
     }
 
     public Label getNewCategoryBoxLabel(String label) {
         CategoryBox categoryBox = new CategoryBox(label);
-        return categoryBox.categoryLabel;
+        return categoryBox.getCategoryLabel();
     }
 
     // ================================================================================
@@ -102,32 +102,32 @@ public class UITestHelper {
     // ================================================================================
 
     public TaskEntry getNewDreamTaskEntry(String lineNum, String des) {
-        dreamTask = new TaskEntry(lineNum, des);
+        dreamTask = new TaskEntry(lineNum, des, false);
         return dreamTask;
     }
 
     public Label getDreamTaskEntryLineNum() {
-        return dreamTask.lineNum;
+        return dreamTask.getLineNum();
     }
 
     public Label getDreamTaskEntryDescription() {
-        return dreamTask.description;
+        return dreamTask.getDescription();
     }
 
     public TaskEntry getNewOthersTaskEntry(String lineNum, String des, String time) {
-        otherTask = new TaskEntry(lineNum, des, time);
+        otherTask = new TaskEntry(lineNum, des, time, false);
         return otherTask;
     }
 
     public Label getOthersTaskEntryLineNum() {
-        return otherTask.lineNum;
+        return otherTask.getLineNum();
     }
 
     public Label getOthersTaskEntryDescription() {
-        return otherTask.description;
+        return otherTask.getDescription();
     }
 
     public Label getOthersTaskEntryTime() {
-        return otherTask.time;
+        return otherTask.getTime();
     }
 }

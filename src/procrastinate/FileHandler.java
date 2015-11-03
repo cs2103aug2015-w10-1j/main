@@ -33,7 +33,7 @@ public class FileHandler {
     private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
     private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded %1$s task(s) from file";
-    private static final String DEBUG_FILE_LOAD_FAILURE = "Could not load from file";
+    private static final String DEBUG_FILE_LOAD_NOT_FOUND = "File not found; creating new file";
     private static final String DEBUG_FILE_PARSE_FAILURE = "Unrecognisable file format";
     private static final String DEBUG_CONFIG_WRITE_FAILURE = "Could not write to configuration file";
     private static final String DEBUG_SET_PATH_FAILURE = "Could not set to new path %1$s";
@@ -43,9 +43,7 @@ public class FileHandler {
     // Defaults
     // ================================================================================
 
-    private static final String DEFAULT_FILENAME = "storage";
-    private static final String DEFAULT_FILE_EXTENSION = ".json";
-    private static final String DEFAULT_FULL_FILENAME = DEFAULT_FILENAME + DEFAULT_FILE_EXTENSION;
+    public static final String DEFAULT_FULL_FILENAME = "storage.json";
     private static final String CONFIG_PATH = "settings.config";
 
     // ================================================================================
@@ -57,6 +55,7 @@ public class FileHandler {
     private File configFile;
     private BufferedWriter bw = null;
 
+    //@@author A0124321Y
     /**
      * FileHandler constructor. loads configuration and storage information.
      * Absence of config file is considered as first launch. Config and save files will
@@ -79,10 +78,12 @@ public class FileHandler {
 
         logger.log(Level.INFO, DEBUG_FILE_INIT + saveFile.getCanonicalPath());
     }
+    //@@author
 
     public FileHandler(boolean isUnderTest) {
     }
 
+    //@@author A0124321Y
     /**
      * Converts TaskState into json format and writes to disk
      * @param taskState
@@ -98,24 +99,37 @@ public class FileHandler {
         return true;
     }
 
+    //@@author A0124321Y
     /**
      * Loads TaskState from a json file
      * @return TaskState
      */
-    public TaskState loadTaskState() throws FileNotFoundException {
+    public TaskState loadTaskState() {
         return loadTaskState(saveFile);
     }
 
+    //@@author A0124321Y
     /**
-     * Sets new path for save file. Given path must not be an existing file otherwise method fails
-     * @param newPath A non-existing path.
+     * Sets new path for save file.
+     * Will not overwrite a file, fails if the path already exists.
+     * On contrary, all non-existent directory and file will be created.
+     *
+     * @param dir must end with '/'. filename should not have file extension
      * @return true on success, false otherwise
      */
-    public boolean setPath(String newPath) {
+    public boolean setPath(String dir, String filename) {
+        assert dir.endsWith(File.separator);
+
+        if (filename == null || filename.isEmpty()) {
+            filename = DEFAULT_FULL_FILENAME;
+        }
+
+        Path newPath = Paths.get(dir + filename);
+
         try {
-            Path p = updateSaveFile(updateConfig(newPath));
-            fullFilename = p.getFileName().toString();
-            saveFile = p.toFile();
+            saveFile = updateSaveFile(newPath).toFile();
+            updateConfig(newPath);
+            fullFilename = filename;
 
             logger.log(Level.INFO, String.format(DEBUG_SET_PATH_SUCCESS, newPath));
             return true;
@@ -125,22 +139,22 @@ public class FileHandler {
         }
     }
 
-    public boolean setPath(Path newPath) {
-        return setPath(newPath.toString());
-    }
-
+    //@@author A0124321Y
     public String getFilename() {
         return fullFilename;
     }
 
+    //@@author A0124321Y
     public File getSaveFile() {
         return saveFile;
     }
 
+    //@@author A0124321Y
     public File getConfigFile() {
         return configFile;
     }
 
+    //@@author A0124321Y
     /**
      * Loads from existing configuration if it exists, otherwise initialise configuration
      * file with default settings
@@ -188,29 +202,29 @@ public class FileHandler {
         return p;
     }
 
+    //@@author A0124321Y
     /**
-     * Writes new configuration to file
+     * Writes new configuration to file. Save path will be converted to absolute path
+     * to make it easier for advance users to edit
      *
-     * @param savePath
+     * @param savePath Must be an existing path
+     * @return
      */
-    private Path updateConfig(String savePath) throws IOException {
-        File oldFile = configFile;
-        File tmp = null;
+    private boolean updateConfig(Path savePath) throws IOException {
+        assert Files.exists(savePath);
+        assert Files.isRegularFile(savePath);
+
+        String abPath = savePath.toAbsolutePath().normalize().toString();
         BufferedWriter writer = null;
-        Path p = null;
+        boolean success = false;
 
-        if (!hasFileName(savePath)) {
-            savePath = savePath + fullFilename;
-        }
-
-        // write to a tmp file then replace the old file with the new one
+        // overwrite the contents of the file.
         try {
-            tmp = Files.createTempFile(Paths.get(""), "tmp", "").toFile();
-            writer = new BufferedWriter(new FileWriter(tmp));
-            writer.write(savePath);
+            writer = new BufferedWriter(new FileWriter(configFile));
+            writer.write(abPath);
             writer.flush();
-            tmp.renameTo(oldFile);
-            p = Paths.get(savePath);
+
+            success = true;
         } catch (IOException e) {
             logger.log(Level.SEVERE, DEBUG_CONFIG_WRITE_FAILURE);
             throw e;
@@ -223,9 +237,10 @@ public class FileHandler {
                 e.printStackTrace();
             }
         }
-        return p;
+        return success;
     }
 
+    //@@author A0124321Y
     /**
      * Move save file to a new location. Does not overwrite if file exists
      *
@@ -235,27 +250,24 @@ public class FileHandler {
      */
     private Path updateSaveFile(Path savePath) throws IOException {
         File oldSave = saveFile;
-        File parentDir = savePath.toFile().getParentFile();
+        Path parentDir = savePath.getParent();
+
         if (parentDir != null) {
-            parentDir.mkdirs();
+            Files.createDirectories(parentDir);
         }
 
-        if (hasFileName(savePath)) {
-            Files.move(oldSave.toPath(), savePath);
-        } else {
-            savePath = savePath.resolve(DEFAULT_FULL_FILENAME);
-            Files.move(oldSave.toPath(), savePath);
-        }
+        Files.move(oldSave.toPath(), savePath);
 
         return savePath;
     }
 
+    //@@author A0124321Y
     /**
      * Loads TaskState from json formatted file
      *
-     * @return TaskState that was saved when the application last closed.
+     * @return TaskState parsed from file, or an empty TaskState if the file is not found or invalid
      */
-    private TaskState loadTaskState(File file) throws FileNotFoundException {
+    private TaskState loadTaskState(File file) {
         BufferedReader br = null;
         Gson gson = new GsonBuilder().registerTypeAdapter(Task.class, new TaskDeserializer())
                 .registerTypeAdapter(Date.class, new DateAdapter()).create();
@@ -272,8 +284,8 @@ public class FileHandler {
             logger.log(Level.INFO, String.format(DEBUG_FILE_LOAD_SUCCESS, taskState.getTasks().size()));
             return taskState;
         } catch (FileNotFoundException e) {
-            logger.log(Level.WARNING, DEBUG_FILE_LOAD_FAILURE);
-            throw e;
+            logger.log(Level.WARNING, DEBUG_FILE_LOAD_NOT_FOUND);
+            return new TaskState();
         } catch (JsonParseException e) {
             logger.log(Level.WARNING, DEBUG_FILE_PARSE_FAILURE);
             return new TaskState();
@@ -287,11 +299,13 @@ public class FileHandler {
             }
         }
     };
+    //@@author
 
     // ================================================================================
     // Utility methods
     // ================================================================================
 
+    //@@author A0124321Y
     private void jsonToFile(String json) throws IOException {
         File parentDir = saveFile.getAbsoluteFile().getParentFile();
         if (parentDir != null) {
@@ -304,6 +318,7 @@ public class FileHandler {
         logger.log(Level.INFO, DEBUG_FILE_WRITE_SUCCESS + json);
     }
 
+    //@@author A0124321Y
     private String jsonify(TaskState taskState) {
         Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
                 .registerTypeAdapter(Date.class, new DateAdapter()).create();
@@ -312,6 +327,7 @@ public class FileHandler {
         return json;
     }
 
+    //@@author A0124321Y
     /**
      * Make a new save file based on given path.
      *
@@ -327,22 +343,18 @@ public class FileHandler {
         }
     }
 
+    //@@author A0124321Y
     private File makeNewFile(Path target) throws IOException {
         assert Files.notExists(target);
 
-        File file = null;
-
-        if (hasFileName(target)) {
-            Files.createDirectories(target.toAbsolutePath().getParent().normalize());
-            file = Files.createFile(target).toFile();
-        } else {
-            Files.createDirectories(target.toAbsolutePath());
-            file = Files.createFile(target.resolve(Paths.get(fullFilename))).toFile();
+        Path parentDir = target.toAbsolutePath().getParent();
+        if (parentDir != null) {
+            Files.createDirectories(parentDir.normalize());
         }
-
-        return file;
+        return Files.createFile(target).toFile();
     }
 
+    //@@author A0124321Y
     /**
      * Makes a empty state when a file is first initialised so that the json
      * file has the right structure
@@ -350,15 +362,5 @@ public class FileHandler {
     private void makeEmptyState() throws IOException {
         saveTaskState(new TaskState());
     }
-
-    // uses file extension to check for filename within a path
-    private boolean hasFileName(String directoryPath) {
-        String pattern = ".*\\" + DEFAULT_FILE_EXTENSION;
-        return directoryPath.matches(pattern);
-    }
-
-    private boolean hasFileName(Path directoryPath) {
-        return hasFileName(directoryPath.toString());
-    }
-
+    //@@author
 }

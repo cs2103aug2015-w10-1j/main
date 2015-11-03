@@ -4,28 +4,15 @@
  * ================================================================
  */
 @font-face {
-	font-family: Bebas;
-	font-weight: 400;
-	font-style: normal;
-	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Regular.otf");
-}
-
-@font-face {
-	font-family: Bebas;
-	font-weight: bold;
-	src: url("/procrastinate/ui/fonts/bebas/BebasNeue-Bold.otf");
+	font-family: "Helvetica Neue";
+	font-style: bold;
+	src: url("/procrastinate/ui/fonts/helvetica-neue-bold.ttf");
 }
 
 @font-face {
 	font-family: Titillium;
 	font-style: normal;
 	src: url("/procrastinate/ui/fonts/titillium/Titillium-Regular.otf");
-}
-
-@font-face {
-	font-family: LiberationMono;
-	font-style: normal;
-	src: url("/procrastinate/ui/fonts/liberation_mono/LiberationMono-Regular.ttf");
 }
 
 @font-face {
@@ -45,6 +32,7 @@
 
 .mainWindow {
     -fx-background-color: transparent;
+    -fx-focus-color: #365fac;
 }
 
 .mainWindow #mainBorderPane {
@@ -77,31 +65,36 @@
 
 /*
  * ================================================================
- * HelpScreen Styling
+ * ImageOverlay Styling
  * ================================================================
  */
-.helpScreen #container {
-    -fx-alignment: top-center;
-    -fx-padding: 100 0 0 0;
+.imageOverlay #container {
+    -fx-alignment: center;
+    -fx-padding: 10 0 0 0;
     -fx-spacing: 10;
 }
 
-.helpScreen #overlay {
+.imageOverlay #overlay {
     -fx-background-color: white;
     -fx-opacity: 0.5;
 }
 
-.helpScreen #titleLabel {
+.imageOverlay #titleLabel {
+    -fx-font-family: "Helvetica Neue";
     -fx-font-weight: bold;
     -fx-font-size: 24px;
 }
 
+.imageOverlay #subtitleLabel {
+    -fx-font-family: Titillium;
+}
+
 /*
  * ================================================================
- * MainScreen Styling
+ * CenterScreen Styling
  * ================================================================
  */
-.mainScreen {
+.centerScreen {
     -fx-background-color: white;
     -fx-padding: 10;
     -fx-spacing: 5;
@@ -119,14 +112,14 @@
  * ================================================================
  */
 .categoryBox #categoryLabel {
-    -fx-font-family: Bebas;
+    -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 20px;
 	-fx-text-fill: #365fac;
 }
 
 .categoryBox #categoryVBox {
-    -fx-padding: 0 0 0 10;
+    -fx-padding: 0 0 0 5;
 }
 
 /*
@@ -135,10 +128,10 @@
  * ================================================================
  */
 .dateBox #dateLabel {
-    -fx-font-family: Bebas;
+    -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 16px;
-	-fx-text-fill: #455A64;
+	-fx-text-fill: #455a64;
 }
 
 .dateBox #dateVBox {
@@ -152,13 +145,14 @@
  */
 .taskEntry {
     -fx-font-family: Titillium;
-    -fx-font-style: italic;
     -fx-font-size: 16px;
+    -fx-padding: 0 0 5 0;
 }
 
 .taskEntry #lineNum {
-    -fx-font-family: LiberationMono;
+    -fx-font-family: "Helvetica Neue";
     -fx-font-size: 14px;
+    -fx-font-weight: bold;
     -fx-padding: 0 5 0 15;
 }
 
@@ -167,9 +161,11 @@
 }
 
 .taskEntry #time {
-    -fx-font-family: LiberationMono;
+    -fx-font-family: "Helvetica Neue";
     -fx-font-size: 13px;
+    -fx-font-weight: bold;
     -fx-padding: 0 0 0 25;
+    -fx-wrap-text: true;
 }
 
 /*
@@ -179,11 +175,16 @@
  */
 
 .titleBar {
-    -fx-spacing: 10;
     -fx-background-color: white;
     -fx-font: 16px FontAwesome;
 }
 
+.titleBar #title {
+	-fx-font-family: "Helvetic Neue";
+	-fx-font-size: 16px;
+	-fx-font-weight: bold;
+}
+
 .titleBar #close {
-    -fx-label-padding: 0 0 0 0;
+    -fx-label-padding: 0 0 0 10;
 }
