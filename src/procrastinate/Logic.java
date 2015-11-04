@@ -65,14 +65,22 @@ public class Logic {
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
     private static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";
+    private static final String FEEDBACK_ELLIPSIS = "...";
 
     private static final String FEEDBACK_ERROR_SAVE = "Could not save changes to file!";
     private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not save changes! Your data will be LOST!";
     private static final String FEEDBACK_ERROR_SAVE_EXIT_CONTINUE = "Discard unsaved changes and exit?";
     private static final String FEEDBACK_ERROR_SAVE_EXIT_BUTTON_LABEL = "Discard and exit";
     private static final String FEEDBACK_ERROR_SET_LOCATION = "Could not set save location:";
+    private static final String FEEDBACK_ERROR_SET_LOCATION_MESSAGE = "%1$s%2$s\n\n" + FEEDBACK_TRY_AGAIN;
 
     private static final String PREVIEW_EXIT = "Goodbye!";
+
+    private static final String SEARCH_STRING_DESCRIPTION = "'%1$s'";
+    private static final String SEARCH_STRING_NO_DESCRIPTION = "all tasks";
+    private static final String SEARCH_STRING_ON = " on ";
+    private static final String SEARCH_STRING_DUE = " due ";
+    private static final String SEARCH_STRING_FROM_TO = " from %1$s to %2$s";
 
     private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
 
@@ -380,10 +388,12 @@ public class Logic {
                     feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
                     if (execute) {
                         searchTerm = description;
-                        searchString += "'" + description + "'";
+                        searchString += String.format(SEARCH_STRING_DESCRIPTION, description);
                     }
                 } else {
-                    searchString += "all tasks";
+                    if (execute) {
+                        searchString += SEARCH_STRING_NO_DESCRIPTION;
+                    }
                 }
 
                 if (date != null) {
@@ -397,7 +407,7 @@ public class Logic {
                         if (execute) {
                             searchStartDate = date;
                             searchEndDate = DateUtils.addDays(date, 3);
-                            searchString += " on " + formatDate(date);
+                            searchString += SEARCH_STRING_ON + formatDate(date);
                         }
 
                     } else {
@@ -405,7 +415,7 @@ public class Logic {
                         if (execute) {
                             searchStartDate = new Date(0); // beginning of time
                             searchEndDate = DateUtils.addDays(date, 3);
-                            searchString += " due " + formatDate(date);
+                            searchString += SEARCH_STRING_DUE + formatDate(date);
                         }
 
                     }
@@ -425,7 +435,7 @@ public class Logic {
                     if (execute) {
                         searchStartDate = startDate;
                         searchEndDate = DateUtils.addDays(endDate, 1);;
-                        searchString += " from " + formatDate(startDate) + " to " + formatDate(endDate);
+                        searchString += String.format(SEARCH_STRING_FROM_TO, formatDate(startDate), formatDate(endDate));
                     }
                 }
 
@@ -462,8 +472,8 @@ public class Logic {
                     boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SET_LOCATION,
-                                             parsedPathDirectory + pathFilename
-                                             + "\n\n" + FEEDBACK_TRY_AGAIN);
+                                             String.format(FEEDBACK_ERROR_SET_LOCATION_MESSAGE,
+                                                           parsedPathDirectory, pathFilename));
                         return FEEDBACK_TRY_AGAIN;
                     }
                 }
@@ -709,7 +719,7 @@ public class Logic {
         if (description.length() <= maxLength) {
             return description;
         } else {
-            return description.substring(0, maxLength - 1) + "...";
+            return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
         }
     }
 
