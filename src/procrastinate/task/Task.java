@@ -16,9 +16,11 @@ public abstract class Task implements Comparable<Task> {
 	private String description;
 	private boolean done;
 
+	//@@author A0124321Y
 	public Task(TaskType type, String description) {
 	    this(type, description, false, UUID.randomUUID());
 	}
+	//@@author A0124321Y
 
 	protected Task(TaskType type, String description, boolean done, UUID id) {
         this.type = type;
@@ -107,8 +109,9 @@ public abstract class Task implements Comparable<Task> {
         }
     }
 
+    //@@author A0124321Y
 	/**
-	 * For two tasks to be indentical, they must be the same type
+	 * For two tasks to be identical, they must be the same type
 	 * and have the same description and done status
 	 */
 	@Override
@@ -131,6 +134,7 @@ public abstract class Task implements Comparable<Task> {
 			return false;
 		}
 	}
+   //@@author
 
     @Override
     public String toString() {

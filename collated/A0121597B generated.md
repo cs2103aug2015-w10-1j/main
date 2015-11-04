@@ -1,5 +1,5 @@
 # A0121597B generated
-###### procrastinate\ui\CategoryBox.java
+###### Procrastinate/src/procrastinate/ui/CategoryBox.java
 ``` java
     protected Node getCategoryBox() {
         return this.categoryBox;
@@ -17,7 +17,7 @@
     }
 }
 ```
-###### procrastinate\ui\CenterPaneController.java
+###### Procrastinate/src/procrastinate/ui/CenterPaneController.java
 ``` java
     protected Node getMainScreen() {
         return mainScreenNode;
@@ -28,7 +28,7 @@
     }
 }
 ```
-###### procrastinate\ui\CenterScreen.java
+###### Procrastinate/src/procrastinate/ui/CenterScreen.java
 ``` java
     protected Node getNode() {
         return this.node;
@@ -51,7 +51,7 @@
     }
 }
 ```
-###### procrastinate\ui\DateBox.java
+###### Procrastinate/src/procrastinate/ui/DateBox.java
 ``` java
     protected Node getDateBox() {
         return this.dateBox;
@@ -66,7 +66,7 @@
 }
 
 ```
-###### procrastinate\ui\ImageOverlay.java
+###### Procrastinate/src/procrastinate/ui/ImageOverlay.java
 ``` java
     protected Node getNode() {
         return this.node;
@@ -81,7 +81,7 @@
     }
 }
 ```
-###### procrastinate\ui\TaskEntry.java
+###### Procrastinate/src/procrastinate/ui/TaskEntry.java
 ``` java
     protected Node getEntryDisplay() {
         return this.taskEntry;
@@ -101,7 +101,7 @@
 }
 
 ```
-###### procrastinate\ui\WindowHandler.java
+###### Procrastinate/src/procrastinate/ui/WindowHandler.java
 ``` java
     private boolean isSysTraySupported() {
         return  SystemTray.isSupported();

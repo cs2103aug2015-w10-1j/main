@@ -1,5 +1,5 @@
 # A0121597Breused
-###### procrastinate\ui\CenterPaneController.java
+###### Procrastinate/src/procrastinate/ui/CenterPaneController.java
 ``` java
     // Required since each screen node is wrapped inside a scrollPane.
     private void addMouseDragListeners(Node screenNode) {
@@ -19,7 +19,7 @@
     // ================================================================================
 
 ```
-###### procrastinate\ui\DialogPopupHandler.java
+###### Procrastinate/src/procrastinate/ui/DialogPopupHandler.java
 ``` java
 package procrastinate.ui;
 
@@ -126,7 +126,7 @@ public class DialogPopupHandler {
     }
 }
 ```
-###### procrastinate\ui\SystemTrayHandler.java
+###### Procrastinate/src/procrastinate/ui/SystemTrayHandler.java
 ``` java
 package procrastinate.ui;
 
@@ -358,7 +358,7 @@ public class SystemTrayHandler {
     }
 }
 ```
-###### procrastinate\ui\WindowHandler.java
+###### Procrastinate/src/procrastinate/ui/WindowHandler.java
 ``` java
     private void setStyleAndMouseEvents() {
         primaryStage.initStyle(StageStyle.TRANSPARENT);
