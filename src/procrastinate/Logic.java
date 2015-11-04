@@ -180,11 +180,12 @@ public class Logic {
 
                 if (execute) {
                     boolean success = taskEngine.add(newTask);
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
-                    }
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
+                    if (!success) {
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        return FEEDBACK_TRY_AGAIN;
+                    }
                 }
 
                 if (commandType == CommandType.ADD_DREAM) {
@@ -246,10 +247,11 @@ public class Logic {
 
                 if (execute) {
                     boolean success = taskEngine.edit(oldTask.getId(), newTask);
+                    updateUiTaskList();
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        return FEEDBACK_TRY_AGAIN;
                     }
-                    updateUiTaskList();
                 }
 
                 String description = newTask.getDescription();
@@ -293,10 +295,11 @@ public class Logic {
 
                 if (execute) {
                     boolean success = taskEngine.delete(task.getId());
+                    updateUiTaskList();
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        return FEEDBACK_TRY_AGAIN;
                     }
-                    updateUiTaskList();
                 }
 
                 return String.format(FEEDBACK_DELETED, type, description);
@@ -327,10 +330,11 @@ public class Logic {
                     } else {
                         success = taskEngine.undone(task.getId());
                     }
+                    updateUiTaskList();
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        return FEEDBACK_TRY_AGAIN;
                     }
-                    updateUiTaskList();
                 }
 
                 return String.format(feedback, type, description);
@@ -343,10 +347,11 @@ public class Logic {
 
                 if (execute) {
                     boolean success = taskEngine.undo();
+                    updateUiTaskList();
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        return FEEDBACK_TRY_AGAIN;
                     }
-                    updateUiTaskList();
                 }
 
                 return FEEDBACK_UNDO;
@@ -455,6 +460,7 @@ public class Logic {
                     boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
                     if (!success) {
                         ui.createErrorDialog(FEEDBACK_ERROR_SET_LOCATION + parsedPathDirectory + pathFilename);
+                        return FEEDBACK_TRY_AGAIN;
                     }
                 }
 
@@ -570,41 +576,6 @@ public class Logic {
     // Key release is used to enable user to see the response first before the event executes.
     private EventHandler<KeyEvent> createKeyReleaseHandler() {
         return (keyEvent) -> {
-            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                String input = ui.getInput();
-                ui.clearInput(); // Must come before setStatus as key release handler resets status.
-                if (!input.trim().isEmpty()) {
-                    if (!hasLastPreviewedCommand()) {
-                        previewCommand(input);
-                    }
-                    String feedback = executeLastPreviewedCommand();
-                    ui.setStatus(feedback);
-                } else {
-                    ui.setStatus(STATUS_READY);
-                }
-            }
-            if (keyEvent.getCode().equals(KeyCode.F1)) {
-                ui.showHelpOverlay();
-                ui.setStatus(FEEDBACK_HELP);
-            }
-            if (keyEvent.getCode().equals(KeyCode.TAB)) {
-                if (!hasLastPreviewedCommand()) {
-                    return;
-                }
-
-                Command command = lastPreviewedCommand;
-                if (command.getType() != CommandType.EDIT_PARTIAL) {
-                    return;
-                }
-
-                int lineNumber = lastPreviewedCommand.getLineNumber();
-
-                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
-                    return;
-                }
-
-                ui.setInput(ui.getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
-            }
         };
     }
 
@@ -633,6 +604,41 @@ public class Logic {
                 ui.scrollDownScreen();
             }
             ui.hideSplashOverlay();
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                String input = ui.getInput();
+                if (input.trim().isEmpty()) {
+                    ui.clearInput(); // Must come before setStatus as user input handler resets status.
+                    ui.setStatus(STATUS_READY);
+                }
+                if (!hasLastPreviewedCommand()) {
+                    previewCommand(input);
+                }
+                String feedback = executeLastPreviewedCommand();
+                ui.clearInput(); // Must come before setStatus as user input handler resets status.
+                ui.setStatus(feedback);
+            }
+            if (keyEvent.getCode().equals(KeyCode.F1)) {
+                ui.showHelpOverlay();
+                ui.setStatus(FEEDBACK_HELP);
+            }
+            if (keyEvent.getCode().equals(KeyCode.TAB)) {
+                if (!hasLastPreviewedCommand()) {
+                    return;
+                }
+
+                Command command = lastPreviewedCommand;
+                if (command.getType() != CommandType.EDIT_PARTIAL) {
+                    return;
+                }
+
+                int lineNumber = lastPreviewedCommand.getLineNumber();
+
+                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
+                    return;
+                }
+
+                ui.setInput(ui.getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
+            }
         };
     }
 
@@ -652,7 +658,7 @@ public class Logic {
         return (observable, oldValue, newValue) -> {
             if (newValue.booleanValue()) {
                 if (!exit()) {
-                    ui.getIsExit().set(false);
+                    ui.resetIsExit();
                     ui.setStatus(FEEDBACK_TRY_AGAIN);
                 }
             }

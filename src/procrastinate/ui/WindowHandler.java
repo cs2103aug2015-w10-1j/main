@@ -177,7 +177,7 @@ public class WindowHandler {
             HBox titleBar = loader.load();
 
             close.setText(ICON_CLOSE);
-            close.setOnMouseClicked(mouseEvent -> exitIndicator.set(true));
+            close.setOnMouseClicked(mouseEvent -> {exitIndicator.set(false);exitIndicator.set(true);});
 
             minimise.setText(ICON_MINIMISE);
             if (systemTrayHandler != null) {

@@ -97,7 +97,7 @@ public class SystemTrayHandler {
         PopupMenu menu = new PopupMenu();
 
         MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
-        menuExit.addActionListener(actionEvent -> exitIndicator.set(true));
+        menuExit.addActionListener(actionEvent -> {exitIndicator.set(false);exitIndicator.set(true);});
 
         MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
         menuShow.addActionListener(actionEvent -> windowHideOrShow());

@@ -1,6 +1,7 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,6 +14,8 @@ import javafx.stage.Stage;
 import procrastinate.task.Task;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,15 +85,15 @@ public class UI {
 
     // Sets the text of the 'Status' Label directly.
     public void setStatus(String status) {
-        statusLabelText.set(status);
+        Platform.runLater(() -> statusLabelText.set(status));
     }
 
     public void updateTaskList(List<Task> taskList, ScreenView screenView) {
         centerPaneController.updateScreen(taskList, screenView);
     }
 
-    public BooleanProperty getIsExit() {
-        return isExit;
+    public void resetIsExit() {
+        isExit.set(false);
     }
 
     // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
@@ -104,7 +107,7 @@ public class UI {
     }
 
     public void hide() {
-        primaryStage.hide();
+        Platform.runLater(() -> primaryStage.hide());
     }
 
     // ================================================================================
@@ -170,7 +173,24 @@ public class UI {
      * @return true if 'OK', false if 'Cancel'
      */
     public boolean createErrorDialogWithConfirmation(String message) {
-        return dialogPopupHandler.createErrorDialogPopupWithConfirmation(message);
+        boolean result = false;
+        if (!Platform.isFxApplicationThread()) {
+            FutureTask<Boolean> query = new FutureTask<Boolean>(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return dialogPopupHandler.createErrorDialogPopupWithConfirmation(message);
+                }
+            });
+            Platform.runLater(query);
+            try {
+                result = query.get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            result = dialogPopupHandler.createErrorDialogPopupWithConfirmation(message);
+        }
+        return result;
     }
 
     // ================================================================================
