@@ -57,7 +57,7 @@ public class SearchScreen extends MultiCategoryScreen {
 
     @Override
     protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
-        if (mainVBox.getChildren().isEmpty()) {
+        if (mainVBox.getChildren().size() <= 1) {
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_SEARCH_RESULTS);
         }
     }
