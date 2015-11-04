@@ -42,7 +42,7 @@ public class LogicTest {
     @Test
     public void trivialTest() {
         assertEquals(logic.previewCommand("exit"), "Goodbye!");
-        assertEquals(logic.previewCommand("help"), "Showing help screen");
+        assertEquals(logic.previewCommand("help"), "Showing help screen (use left/right keys to navigate)");
         assertEquals(logic.previewCommand("show"), "Showing outstanding tasks");
         assertEquals(logic.previewCommand("show done"), "Showing completed tasks");
         assertEquals(logic.previewCommand("show all"), "Showing all tasks");
