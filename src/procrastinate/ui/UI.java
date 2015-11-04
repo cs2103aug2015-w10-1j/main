@@ -97,10 +97,9 @@ public class UI {
     }
 
     // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
-    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler, EventHandler<KeyEvent> keyPressHandler,
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyPressHandler,
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
         TextField userInputField = getUserInputField();
-        userInputField.setOnKeyReleased(keyReleaseHandler);
         userInputField.setOnKeyPressed(keyPressHandler);
         userInputField.textProperty().addListener(userInputListener);
         isExit.addListener(isExitListener);

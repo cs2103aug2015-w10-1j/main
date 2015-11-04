@@ -39,7 +39,7 @@ public class UIStub extends UI {
     public void resetIsExit() {
     }
     @Override
-    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyReleaseHandler, EventHandler<KeyEvent> keyPressHandler,
+    public void attachHandlersAndListeners(EventHandler<KeyEvent> keyPressHandler,
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override

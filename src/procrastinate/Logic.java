@@ -531,8 +531,7 @@ public class Logic {
     // Main handle
     public void initUi(Stage stage) {
         ui = new UI(stage);
-        ui.attachHandlersAndListeners(createKeyReleaseHandler(), createKeyPressHandler(),
-                createUserInputListener(), createIsExitListener());
+        ui.attachHandlersAndListeners(createKeyPressHandler(), createUserInputListener(), createIsExitListener());
         ui.setStatus(STATUS_READY);
         updateUiTaskList();
     }
@@ -570,13 +569,6 @@ public class Logic {
 
     private void updateUiTaskList(List<Task> taskList, ScreenView screenView) {
         ui.updateTaskList(taskList, screenView);
-    }
-
-    // Handles KeyEvents upon key release by the user.
-    // Key release is used to enable user to see the response first before the event executes.
-    private EventHandler<KeyEvent> createKeyReleaseHandler() {
-        return (keyEvent) -> {
-        };
     }
 
     private EventHandler<KeyEvent> createKeyPressHandler() {
