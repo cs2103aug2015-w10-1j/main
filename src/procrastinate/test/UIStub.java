@@ -57,6 +57,12 @@ public class UIStub extends UI {
     public void hideSplashOverlay() {
     }
     @Override
+    public void scrollUpScreen() {
+    }
+    @Override
+    public void scrollDownScreen() {
+    }
+    @Override
     public void createErrorDialog(String message) {
     }
     @Override
