@@ -24,11 +24,13 @@ public class SummaryScreen extends MultiCategoryScreen {
     private static final int UPCOMING_SUBCATEGORY_ONE_MAX_CHILD = 3;
     private static final int UPCOMING_SUBCATEGORY_TWO_MAX_CHILD = 2;
 
-    private static final int MAX_SUMMARY_COUNT = 21;
+    private static final int MAX_SUMMARY_COUNT = 23;
     private static final int SUMMARY_HEADER_SIZE_COUNT = 2;
     private static final int SUMMARY_NORMAL_SIZE_COUNT = 1;
 
-    private static final int SINGLE_LINE_DESCRIPTION_COUNT = 25;
+    private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_OTHERS = 25;
+    private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_DREAMS = 40;
+
     private static final int POSITION_DESCRIPTION_STRING = 1;
     private static final int POSITION_TIME_STRING = 2;
 
@@ -39,6 +41,7 @@ public class SummaryScreen extends MultiCategoryScreen {
     private static final String FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('/procrastinate/ui/images/no-summary.png')";
 
     private static final String LINE_BREAK = "\n";
+
     // ================================================================================
     // Class variables
     // ================================================================================
@@ -81,14 +84,16 @@ public class SummaryScreen extends MultiCategoryScreen {
     /**
      * Shows the summary view that limits the number of tasks in each category
      * The exact number of lines given to each category is declared as a final
-     * int variable.
+     * int variables above.
      *
      * @param taskList
-     *            to build the summary view from
+     *            to build the summary view from by removing tasks if needed.
      */
     private void setupSummaryView(List<Task> taskList) {
-        // Summary count is reset at each call just in case the screen is reused.
-        // It is used to check how much the 'Upcoming' category should be summarised.
+        // Summary count is reset at each call just in case the screen is
+        // reused.
+        // It is used to check how much the 'Upcoming' category should be
+        // summarised.
         summaryCount = MAX_SUMMARY_COUNT;
 
         if (mainVBox.getChildren().contains(overdueNode)) {
@@ -125,7 +130,11 @@ public class SummaryScreen extends MultiCategoryScreen {
             numTaskLeft = categoryTaskList.getChildren().size();
 
             categoryTaskList.getChildren().remove(maxChildSize, categoryTaskList.getChildren().size());
-            checkForMultiLineEvents(categoryTaskList);
+            if (categoryTaskList == dreamsTaskList) {
+                checkForMultiLineEvents(categoryTaskList, MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_DREAMS);
+            } else {
+                checkForMultiLineEvents(categoryTaskList, MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_OTHERS);
+            }
             numTaskLeft -= categoryTaskList.getChildren().size();
 
             HBox ellipsis = buildEllipsis(numTaskLeft);
@@ -137,16 +146,17 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     /**
      * Used specially for the 'Upcoming' category to limit its number of
-     * subcategories to at most 2. The number of lines given to each subcategory
-     * can be different and is declared above as a final int. The first subcategory
-     * shown will have its own ellipsis while the second will share one with all
-     * other subcategories.
+     * subcategories to at most CATEGORY_MAX_CHILD_UPCOMING. The number of lines
+     * given to each subcategory can be different and is declared above as a
+     * final int. The first subcategory shown will have its own ellipsis while
+     * the second will share one with all other subcategories which shows the
+     * entire remaining task count in the 'Upcoming' category.
      */
     private void adjustUpcomingCategoryChildren() {
         int totalSubcategoryDisplayed = 0;
         int totalTasksInSubcategories = 0;
         checkUpcomingSubcategoriesAndTasks(totalSubcategoryDisplayed, totalTasksInSubcategories);
-        if (summaryCount < -3) {
+        if (summaryCount < 0) {
             // Only summarise the view in this category if the number is less
             // than -3. Else it should still fit on screen.
             int subcategoryCount = 0;
@@ -197,7 +207,7 @@ public class SummaryScreen extends MultiCategoryScreen {
                 numTaskLeft += secondSubcategory.getChildren().size();
                 secondSubcategory.getChildren().remove(UPCOMING_SUBCATEGORY_TWO_MAX_CHILD,
                         secondSubcategory.getChildren().size());
-                checkForMultiLineEvents(secondSubcategory);
+                checkForMultiLineEvents(secondSubcategory, MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_OTHERS);
                 numTaskLeft -= secondSubcategory.getChildren().size();
             }
         }
@@ -212,7 +222,7 @@ public class SummaryScreen extends MultiCategoryScreen {
                 firstSubcategoryTaskLeft += firstSubcategory.getChildren().size();
                 firstSubcategory.getChildren().remove(UPCOMING_SUBCATEGORY_ONE_MAX_CHILD,
                         firstSubcategory.getChildren().size());
-                checkForMultiLineEvents(firstSubcategory);
+                checkForMultiLineEvents(firstSubcategory, MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_OTHERS);
                 firstSubcategoryTaskLeft -= firstSubcategory.getChildren().size();
 
                 HBox ellipsis = buildEllipsis(firstSubcategoryTaskLeft);
@@ -223,7 +233,8 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     /**
      * Counts the total number of tasks and subcategories available in the
-     * current display to determine if the category should be summarised.
+     * 'Upcoming' category of the current display to determine if the category
+     * should be summarised.
      *
      * @param totalSubcategoryDisplayed
      * @param totalTasksInSubcategories
@@ -240,22 +251,30 @@ public class SummaryScreen extends MultiCategoryScreen {
         summaryCount -= totalTasksInSubcategories * SUMMARY_NORMAL_SIZE_COUNT;
     }
 
-    private void checkForMultiLineEvents(VBox categoryTaskList) {
-        // Check for events that spans 2 lines
+    /**
+     * Checks the given categoryTaskList that has been reduced to the maximum
+     * number of child in the category for any multi-line TaskEntry displays. If
+     * one such task is found, the last child in the category will be removed.
+     *
+     * @param categoryTaskList
+     */
+    private void checkForMultiLineEvents(VBox categoryTaskList, int maxSingleLineCharCount) {
         boolean isMultiLineEventFound = false;
         for (int i = 0; i < categoryTaskList.getChildren().size(); i++) {
             if (((GridPane) categoryTaskList.getChildren().get(i)).getChildren().get(POSITION_TIME_STRING).toString()
                     .contains(LINE_BREAK)) {
                 isMultiLineEventFound = true;
                 break;
-            } else if (((GridPane) categoryTaskList.getChildren().get(i)).getChildren().get(POSITION_DESCRIPTION_STRING)
-                    .toString().length() > SINGLE_LINE_DESCRIPTION_COUNT) {
-                isMultiLineEventFound = true;
-                break;
+            } else {
+                GridPane taskEntry = ((GridPane) categoryTaskList.getChildren().get(i));
+                Label descriptionLabel = ((Label) (taskEntry.getChildren().get(POSITION_DESCRIPTION_STRING)));
+                if (descriptionLabel.getText().length() > maxSingleLineCharCount) {
+                    isMultiLineEventFound = true;
+                    break;
+                }
             }
         }
         if (isMultiLineEventFound) {
-            // Remove the last task found
             categoryTaskList.getChildren().remove(categoryTaskList.getChildren().size() - 1);
         }
     }
