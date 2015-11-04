@@ -48,10 +48,12 @@ public class Event extends Task {
 	        return -1;
 	    } else {
 	        Date otherDate = null;
+	        Date otherEndDate = null;
 	        if (other.getType() == TaskType.DEADLINE) {
 	            otherDate = ((Deadline) other).getDate();
 	        } else {
 	            otherDate = ((Event) other).getStartDate();
+	            otherEndDate = ((Event) other).getEndDate();
 	        }
 	        if (!this.getStartDate().equals(otherDate)) {
                 if (this.isDone()) {
@@ -59,6 +61,8 @@ public class Event extends Task {
                 } else {
                     return this.getStartDate().compareTo(otherDate);
                 }
+	        } else if (otherEndDate != null && !this.getEndDate().equals(otherEndDate)) {
+	            return this.getEndDate().compareTo(otherEndDate);
 	        } else {
 	            return this.getDescription().compareTo(other.getDescription());
 	        }
