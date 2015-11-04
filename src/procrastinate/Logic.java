@@ -615,8 +615,8 @@ public class Logic {
             if (keyEvent.getCode().equals(KeyCode.ESCAPE)
                     || keyEvent.getCode().equals(KeyCode.ENTER)
                        && hasLastPreviewedCommand()
-                       && (!lastPreviewedCommand.getType().equals(CommandType.HELP)
-                               || !lastPreviewedCommand.getType().equals(CommandType.EXIT))) {
+                       && !(lastPreviewedCommand.getType().equals(CommandType.HELP)
+                               || lastPreviewedCommand.getType().equals(CommandType.EXIT))) {
                 ui.hideHelpOverlay();
                 if (ui.getInput().trim().isEmpty()) {
                     ui.setStatus(STATUS_READY);
