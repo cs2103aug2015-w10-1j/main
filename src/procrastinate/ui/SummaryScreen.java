@@ -23,6 +23,7 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private static final int UPCOMING_SUBCATEGORY_ONE_MAX_CHILD = 3;
     private static final int UPCOMING_SUBCATEGORY_TWO_MAX_CHILD = 2;
+    private static final int UPCOMING_SUBCATEGORY_TO_REMOVE_FROM_INDEX = 2;
 
     private static final int MAX_SUMMARY_COUNT = 23;
     private static final int SUMMARY_HEADER_SIZE_COUNT = 2;
@@ -161,7 +162,7 @@ public class SummaryScreen extends MultiCategoryScreen {
             // than -3. Else it should still fit on screen.
             int subcategoryCount = 0;
             int numTaskLeft = 0;
-            int indexToRemoveFrom = -1;
+            boolean isExtraChildToRemove = false;
             int firstSubcategoryIndex = -1;
             int secondSubcategoryIndex = -1;
 
@@ -169,8 +170,8 @@ public class SummaryScreen extends MultiCategoryScreen {
                 VBox currSubcategory = upcomingSubcategories.get(i);
                 if ((subcategoryCount == CATEGORY_MAX_CHILD_UPCOMING) && (currSubcategory.getChildren().size() > 0)) {
                     numTaskLeft += currSubcategory.getChildren().size();
-                    if (indexToRemoveFrom == -1) {
-                        indexToRemoveFrom = i;
+                    if (!isExtraChildToRemove) {
+                        isExtraChildToRemove = true;
                     }
                     continue;
                 }
@@ -191,8 +192,8 @@ public class SummaryScreen extends MultiCategoryScreen {
             adjustFirstSubcategoryChildren(subcategoryCount, firstSubcategoryIndex);
 
             // Removes the third subcategory onwards if available.
-            if (indexToRemoveFrom != -1) {
-                upcomingTaskList.getChildren().remove(indexToRemoveFrom, upcomingTaskList.getChildren().size());
+            if (isExtraChildToRemove) {
+                upcomingTaskList.getChildren().remove(UPCOMING_SUBCATEGORY_TO_REMOVE_FROM_INDEX, upcomingTaskList.getChildren().size());
             }
 
             HBox ellipsis = buildEllipsis(numTaskLeft);
