@@ -47,6 +47,7 @@ public class SplashOverlay extends ImageOverlay {
     @Override
     protected void setImage() {
         imageView.setImage(new Image(ImageOverlay.class.getResource(LOCATION_SPLASH_IMAGE).toExternalForm()));
+        imageView.fitWidthProperty().set(250);
     }
 
     private void createLabels() {
