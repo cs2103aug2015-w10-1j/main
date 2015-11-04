@@ -8,7 +8,7 @@ public class Command {
     public static enum CommandType {
         ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, EDIT_PARTIAL, EDIT_TO_DREAM, DELETE, UNDO, DONE,
         SEARCH, SEARCH_ON, SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL,
-        SET_PATH, EXIT, HELP, HELP_MORE, INVALID;
+        SET_PATH, EXIT, HELP, INVALID;
     }
 
     // Required field for all command types
