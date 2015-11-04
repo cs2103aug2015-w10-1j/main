@@ -585,6 +585,7 @@ public class Logic {
             }
             if (keyEvent.getCode().equals(KeyCode.F1)) {
                 ui.showHelpOverlay();
+                ui.setStatus(FEEDBACK_HELP);
             }
             if (keyEvent.getCode().equals(KeyCode.TAB)) {
                 if (!hasLastPreviewedCommand()) {
