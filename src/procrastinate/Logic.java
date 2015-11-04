@@ -624,6 +624,12 @@ public class Logic {
                     && ui.getInput().isEmpty() ) {
                 ui.nextHelpPage();
             }
+            if (keyEvent.getCode().equals(KeyCode.UP)) {
+                ui.scrollUpScreen();
+            }
+            if (keyEvent.getCode().equals(KeyCode.DOWN)) {
+                ui.scrollDownScreen();
+            }
             ui.hideSplashOverlay();
         };
     }

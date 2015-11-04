@@ -131,6 +131,14 @@ public class UI {
         centerPaneController.hideSplashOverlay();
     }
 
+    public void scrollUpScreen() {
+        centerPaneController.scrollUpCurrentScreen();
+    }
+
+    public void scrollDownScreen() {
+        centerPaneController.scrollDownCurrentScreen();
+    }
+
     // ================================================================================
     // DialogPopupHandler methods
     // ================================================================================

@@ -8,6 +8,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
@@ -25,6 +26,9 @@ public class CenterPaneController {
     private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
 
     private static final String MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE = "Unable to recognise ScreenType";
+
+    private static final String SELECTOR_SCROLL_BAR = ".scroll-bar";
+    private static final String SELECTOR_SCROLL_PANE = "#scrollPane";
 
     // ================================================================================
     // Animation time values
@@ -198,6 +202,22 @@ public class CenterPaneController {
         ((HelpOverlay) helpOverlay).nextPage();
     }
 
+    // Methods below for scrolling current screen with key input. Scroll bar value is incremented/decremented twice
+    // to enable the user scroll faster
+    protected void scrollUpCurrentScreen() {
+        ScrollPane currScrollPane = ((ScrollPane)(currentScreenView.getNode().lookup(SELECTOR_SCROLL_PANE)));
+        ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
+        currScrollBar.decrement();
+        currScrollBar.decrement();
+    }
+
+    protected void scrollDownCurrentScreen() {
+        ScrollPane currScrollPane = ((ScrollPane)(currentScreenView.getNode().lookup(SELECTOR_SCROLL_PANE)));
+        ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
+        currScrollBar.increment();
+        currScrollBar.increment();
+    }
+
     // ================================================================================
     // Utility methods
     // ================================================================================
@@ -327,7 +347,7 @@ public class CenterPaneController {
     //@@author A0121597B-reused
     // Required since each screen node is wrapped inside a scrollPane.
     private void addMouseDragListeners(Node screenNode) {
-        Node scrollPaneNode = ((ScrollPane)screenNode.lookup("#scrollPane")).getContent();
+        Node scrollPaneNode = ((ScrollPane)screenNode.lookup(SELECTOR_SCROLL_PANE)).getContent();
         scrollPaneNode.setOnMousePressed((mouseEvent) -> {
             xOffset = mouseEvent.getSceneX();
             yOffset = mouseEvent.getSceneY();
