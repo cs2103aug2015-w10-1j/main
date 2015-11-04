@@ -68,7 +68,6 @@ public class FileHandler {
         Path savePath = loadConfig();
         if (Files.exists(savePath)) {
             saveFile = savePath.toFile();
-            loadTaskState(saveFile);
         } else {
             saveFile = makeFile(savePath);
             makeEmptyState();
