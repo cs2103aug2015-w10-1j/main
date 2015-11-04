@@ -23,6 +23,7 @@ public class SearchScreen extends MultiCategoryScreen {
     private static final String STYLE_SEARCH_HEADER_FONT_FAMILY = "-fx-font-family: 'Helvetica Neue';";
     private static final String STYLE_SEARCH_HEADER_FONT_WEIGHT = "-fx-font-weight: bold;";
     private static final String STYLE_SEARCH_HEADER_FONT_SIZE = "-fx-font-size: 18px;";
+    private static final String STYLE_SEARCH_HEADER_PADDING = "-fx-padding: 0 0 0 10;";
 
     private static final String STYLE_WRAPPER_BACKGROUND_COLOR = "-fx-background-color: white;";
 
@@ -95,6 +96,7 @@ public class SearchScreen extends MultiCategoryScreen {
         searchHeader.setFocusTraversable(false);
         searchHeader.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY
                             + STYLE_SEARCH_HEADER_FONT_WEIGHT
-                            + STYLE_SEARCH_HEADER_FONT_SIZE);
+                            + STYLE_SEARCH_HEADER_FONT_SIZE
+                            + STYLE_SEARCH_HEADER_PADDING);
     }
 }
