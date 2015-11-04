@@ -153,8 +153,8 @@ public class UI {
      * Used by Logic to create an Error Dialog with a given message in the popup body
      * @param message to be shown in popup body
      */
-    public void createErrorDialog(String message) {
-        dialogPopupHandler.createErrorDialogPopup(message);
+    public void createErrorDialog(String header, String message) {
+        dialogPopupHandler.createErrorDialogPopup(header, message);
     }
 
     /**
@@ -171,13 +171,13 @@ public class UI {
      * @param message to be shown in popup body
      * @return true if 'OK', false if 'Cancel'
      */
-    public boolean createErrorDialogWithConfirmation(String message) {
+    public boolean createErrorDialogWithConfirmation(String header, String message, String okLabel) {
         boolean result = false;
         if (!Platform.isFxApplicationThread()) {
             FutureTask<Boolean> query = new FutureTask<Boolean>(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return dialogPopupHandler.createErrorDialogPopupWithConfirmation(message);
+                    return dialogPopupHandler.createErrorDialogPopupWithConfirmation(header, message, okLabel);
                 }
             });
             Platform.runLater(query);
@@ -187,7 +187,7 @@ public class UI {
                 e.printStackTrace();
             }
         } else {
-            result = dialogPopupHandler.createErrorDialogPopupWithConfirmation(message);
+            result = dialogPopupHandler.createErrorDialogPopupWithConfirmation(header, message, okLabel);
         }
         return result;
     }

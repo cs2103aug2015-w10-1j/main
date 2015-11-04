@@ -64,11 +64,13 @@ public class Logic {
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
-    private static final String FEEDBACK_TRY_AGAIN = "Please try setting a different save location and try again";
+    private static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";
 
     private static final String FEEDBACK_ERROR_SAVE = "Could not save changes to file!";
-    private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not save changes! Your data will be lost! Continue?";
-    private static final String FEEDBACK_ERROR_SET_LOCATION = "Could not set save location to ";
+    private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not save changes! Your data will be LOST!";
+    private static final String FEEDBACK_ERROR_SAVE_EXIT_CONTINUE = "Discard unsaved changes and exit?";
+    private static final String FEEDBACK_ERROR_SAVE_EXIT_BUTTON_LABEL = "Discard and exit";
+    private static final String FEEDBACK_ERROR_SET_LOCATION = "Could not set save location:";
 
     private static final String PREVIEW_EXIT = "Goodbye!";
 
@@ -183,7 +185,7 @@ public class Logic {
                     currentView = ViewType.SHOW_OUTSTANDING;
                     updateUiTaskList();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
                         return FEEDBACK_TRY_AGAIN;
                     }
                 }
@@ -249,7 +251,7 @@ public class Logic {
                     boolean success = taskEngine.edit(oldTask.getId(), newTask);
                     updateUiTaskList();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
                         return FEEDBACK_TRY_AGAIN;
                     }
                 }
@@ -297,7 +299,7 @@ public class Logic {
                     boolean success = taskEngine.delete(task.getId());
                     updateUiTaskList();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
                         return FEEDBACK_TRY_AGAIN;
                     }
                 }
@@ -332,7 +334,7 @@ public class Logic {
                     }
                     updateUiTaskList();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
                         return FEEDBACK_TRY_AGAIN;
                     }
                 }
@@ -349,7 +351,7 @@ public class Logic {
                     boolean success = taskEngine.undo();
                     updateUiTaskList();
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
                         return FEEDBACK_TRY_AGAIN;
                     }
                 }
@@ -459,7 +461,9 @@ public class Logic {
                 if (execute) {
                     boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
                     if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SET_LOCATION + parsedPathDirectory + pathFilename);
+                        ui.createErrorDialog(FEEDBACK_ERROR_SET_LOCATION,
+                                             parsedPathDirectory + pathFilename
+                                             + "\n\n" + FEEDBACK_TRY_AGAIN);
                         return FEEDBACK_TRY_AGAIN;
                     }
                 }
@@ -671,7 +675,8 @@ public class Logic {
             hideAndTerminate();
         }
 
-        boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
+        boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT,
+                FEEDBACK_ERROR_SAVE_EXIT_CONTINUE, FEEDBACK_ERROR_SAVE_EXIT_BUTTON_LABEL);
         if (exitAnyway) {
             hideAndTerminate();
         }

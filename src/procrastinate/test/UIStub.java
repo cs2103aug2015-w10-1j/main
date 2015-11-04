@@ -61,13 +61,13 @@ public class UIStub extends UI {
     public void scrollDownScreen() {
     }
     @Override
-    public void createErrorDialog(String message) {
+    public void createErrorDialog(String header, String message) {
     }
     @Override
     public void createErrorDialogWithTrace(Exception e) {
     }
     @Override
-    public boolean createErrorDialogWithConfirmation(String message) {
+    public boolean createErrorDialogWithConfirmation(String header, String message, String okLabel) {
         return true;
     }
 }

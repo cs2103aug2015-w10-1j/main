@@ -2,6 +2,7 @@
 package procrastinate.ui;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
@@ -17,10 +18,8 @@ public class DialogPopupHandler {
     // Message Strings
     // ================================================================================
 
-    private static final String MESSAGE_TITLE = "Error";
     private static final String MESSAGE_HEADER = "An error has occurred with the following message:";
 
-    private static final String BUTTON_MESSAGE_OK = "OK";
     private static final String BUTTON_MESSAGE_CANCEL = "Cancel";
 
     // ================================================================================
@@ -43,12 +42,11 @@ public class DialogPopupHandler {
      *
      * @param message
      */
-    protected void createErrorDialogPopup(String message) {
+    protected void createErrorDialogPopup(String header, String message) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.initOwner(primaryStage);
 
-        dialog.setTitle(MESSAGE_TITLE);
-        dialog.setHeaderText(MESSAGE_HEADER);
+        dialog.setHeaderText(header);
         dialog.setContentText(message);
 
         dialog.showAndWait();
@@ -69,7 +67,6 @@ public class DialogPopupHandler {
         exception.printStackTrace(new PrintWriter(stringWriter));
         String stackTrace = stringWriter.toString();
 
-        dialog.setTitle(MESSAGE_TITLE);
         dialog.setHeaderText(MESSAGE_HEADER);
         dialog.setContentText(exception.getMessage());
 
@@ -83,17 +80,18 @@ public class DialogPopupHandler {
         dialog.showAndWait();
     }
 
-    protected boolean createErrorDialogPopupWithConfirmation(String message) {
+    protected boolean createErrorDialogPopupWithConfirmation(String header, String message, String okLabel) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.initOwner(primaryStage);
 
-        dialog.setTitle(MESSAGE_TITLE);
-        dialog.setHeaderText(MESSAGE_HEADER);
+        dialog.setHeaderText(header);
         dialog.setContentText(message);
 
-        ButtonType okBtn = new ButtonType(BUTTON_MESSAGE_OK, ButtonBar.ButtonData.OK_DONE);
+        ButtonType okBtn = new ButtonType(okLabel, ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelBtn = new ButtonType(BUTTON_MESSAGE_CANCEL, ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getButtonTypes().setAll(okBtn, cancelBtn);
+        ((Button) dialog.getDialogPane().lookupButton(okBtn)).setDefaultButton(false);
+        ((Button) dialog.getDialogPane().lookupButton(cancelBtn)).setDefaultButton(true);
 
         Optional<ButtonType> choice = dialog.showAndWait();
         if (choice.get().equals(okBtn)) {
