@@ -3,7 +3,6 @@ package procrastinate;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.apache.commons.lang.time.DateUtils;
@@ -82,7 +81,7 @@ public class Logic {
     private static final String SEARCH_STRING_DUE = " due ";
     private static final String SEARCH_STRING_FROM_TO = " from %1$s to %2$s";
 
-    private static final String ERROR_UNIMPLEMENTED_COMMAND = "Error: command not implemented yet";
+    private static final String NATTY_WARMUP_STRING = "Natty starts up slowly due tomorrow";
 
     private static final int MAX_LENGTH_DESCRIPTION = 20;
     private static final int MAX_LENGTH_DESCRIPTION_SHORT = 10;
@@ -530,9 +529,8 @@ public class Logic {
                 return PREVIEW_EXIT;
             }
 
-            default: {
-                throw new Error(ERROR_UNIMPLEMENTED_COMMAND);
-            }
+            default:
+                return null;
 
         }
 
@@ -555,7 +553,7 @@ public class Logic {
     }
 
     private void initParser() {
-        Parser.parse("Natty starts up slowly due tomorrow");
+        Parser.parse(NATTY_WARMUP_STRING);
     }
 
     // ================================================================================
@@ -567,16 +565,19 @@ public class Logic {
             case SHOW_OUTSTANDING:
                 updateUiTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
                 break;
+
             case SHOW_DONE:
                 updateUiTaskList(taskEngine.getCompletedTasks(), ScreenView.SCREEN_DONE);
                 break;
+
             case SHOW_ALL:
                 updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
+
             case SHOW_SEARCH_RESULTS:
                 ui.passSearchStringToSearchScreen(searchString);
                 updateUiTaskList(taskEngine.search(searchTerm, searchStartDate, searchEndDate, searchShowDone),
-                        ScreenView.SCREEN_SEARCH);
+                                 ScreenView.SCREEN_SEARCH);
                 break;
         }
     }
@@ -585,73 +586,112 @@ public class Logic {
         ui.updateTaskList(taskList, screenView);
     }
 
+    // Process key press events
     private EventHandler<KeyEvent> createKeyPressHandler() {
         return (keyEvent) -> {
-            // To remove the help overlay only when the user presses 'Enter' or 'Esc'
-            // And checks also if the user command is 'help' only (follows case-insensitivity)
-            if (keyEvent.getCode().equals(KeyCode.ESCAPE)
-                    || keyEvent.getCode().equals(KeyCode.ENTER)
-                       && hasLastPreviewedCommand()
-                       && !(lastPreviewedCommand.getType().equals(CommandType.HELP)
-                               || lastPreviewedCommand.getType().equals(CommandType.EXIT))) {
-                ui.hideHelpOverlay();
-                if (ui.getInput().trim().isEmpty()) {
-                    ui.setStatus(STATUS_READY);
-                }
-            }
-            if ((keyEvent.getCode().equals(KeyCode.RIGHT) || keyEvent.getCode().equals(KeyCode.LEFT))
-                    && ui.getInput().isEmpty() ) {
-                ui.nextHelpPage();
-            }
-            if (keyEvent.getCode().equals(KeyCode.UP)) {
-                ui.scrollUpScreen();
-            }
-            if (keyEvent.getCode().equals(KeyCode.DOWN)) {
-                ui.scrollDownScreen();
-            }
+
+            // Remove initial splash overlay
             ui.hideSplashOverlay();
-            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                String input = ui.getInput();
-                if (input.trim().isEmpty()) {
-                    ui.clearInput(); // Must come before setStatus as user input handler resets status.
-                    ui.setStatus(STATUS_READY);
-                }
-                if (!hasLastPreviewedCommand()) {
-                    previewCommand(input);
-                }
-                String feedback = executeLastPreviewedCommand();
-                ui.clearInput(); // Must come before setStatus as user input handler resets status.
-                ui.setStatus(feedback);
-            }
-            if (keyEvent.getCode().equals(KeyCode.F1)) {
-                ui.showHelpOverlay();
-                ui.setStatus(FEEDBACK_HELP);
-            }
-            if (keyEvent.getCode().equals(KeyCode.TAB)) {
-                if (!hasLastPreviewedCommand()) {
+
+            switch (keyEvent.getCode()) {
+
+                // Main command execution flow
+                case ENTER: {
+                    String input = ui.getInput();
+
+                    // Whitespace command
+                    if (input.trim().isEmpty()) {
+                        ui.clearInput();
+                        ui.hideHelpOverlay();
+                        return;
+                    }
+
+                    // Hide help unless it's a help or exit command
+                    if (!lastPreviewedCommand.getType().equals(CommandType.HELP)
+                            && !lastPreviewedCommand.getType().equals(CommandType.EXIT)) {
+                        ui.hideHelpOverlay();
+                    }
+
+                    // All the work happens here!
+                    String feedback = executeLastPreviewedCommand();
+
+                    // Clear input box and display feedback
+                    // ClearInput must come before setStatus as user input listener
+                    // resets status when input is cleared
+                    ui.clearInput();
+                    ui.setStatus(feedback);
+
                     return;
                 }
 
-                Command command = lastPreviewedCommand;
-                if (command.getType() != CommandType.EDIT_PARTIAL) {
+                // Edit description autocompletion
+                case TAB: {
+                    if (!hasLastPreviewedCommand()) {
+                        return;
+                    }
+
+                    Command command = lastPreviewedCommand;
+                    if (command.getType() != CommandType.EDIT_PARTIAL) {
+                        return;
+                    }
+
+                    int lineNumber = lastPreviewedCommand.getLineNumber();
+
+                    if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
+                        return;
+                    }
+
+                    ui.setInput(ui.getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
                     return;
                 }
 
-                int lineNumber = lastPreviewedCommand.getLineNumber();
-
-                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
+                // Scrolling
+                case UP: {
+                    ui.scrollUpScreen();
+                    return;
+                }
+                case DOWN: {
+                    ui.scrollDownScreen();
                     return;
                 }
 
-                ui.setInput(ui.getInput().trim() + " " + getTaskFromLineNumber(lineNumber).getDescription());
+                // Show help
+                case F1: {
+                    ui.showHelpOverlay();
+                    if (ui.getInput().isEmpty()) {
+                        ui.setStatus(FEEDBACK_HELP);
+                    }
+                    return;
+                }
+
+                // Activate next help page using left/right keys
+                // (but only when the input box is empty)
+                case LEFT:
+                case RIGHT: {
+                    if (ui.getInput().isEmpty()) {
+                        ui.nextHelpPage();
+                    }
+                    return;
+                }
+
+                // Hide help
+                case ESCAPE: {
+                    ui.hideHelpOverlay();
+                    if (ui.getInput().trim().isEmpty()) {
+                        ui.setStatus(STATUS_READY);
+                    }
+                    return;
+                }
+
+                default:
+                    break;
             }
         };
     }
 
+    // Main command preview flow
     private ChangeListener<String> createUserInputListener() {
         return (observable, oldValue, newValue) -> {
-            // A ChangeListener is added and the arguments are sent to its 'changed' method,
-            // which is overwritten below:
             if (newValue.trim().isEmpty()) {
                 ui.setStatus(STATUS_READY);
             } else {
@@ -660,6 +700,7 @@ public class Logic {
         };
     }
 
+    // Listen for exit invoked by close button or system tray
     private ChangeListener<Boolean> createIsExitListener() {
         return (observable, oldValue, newValue) -> {
             if (newValue.booleanValue()) {
@@ -675,25 +716,28 @@ public class Logic {
     // Utility methods
     // ================================================================================
 
+    // Exit routine used by exit command, close button and system tray
     private boolean exit() {
         if (!taskEngine.hasPreviousOperation()) {
-            hideAndTerminate();
+            hideAndTerminate(); // No write operations; safe to exit
         }
 
-        boolean success = taskEngine.save();
+        boolean success = taskEngine.save(); // Try to write state to file
         if (success) {
-            hideAndTerminate();
+            hideAndTerminate(); // Write success; safe to exit
         }
 
+        // Write failure; create confirmation dialog to warn user
         boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT,
                 FEEDBACK_ERROR_SAVE_EXIT_CONTINUE, FEEDBACK_ERROR_SAVE_EXIT_BUTTON_LABEL);
         if (exitAnyway) {
-            hideAndTerminate();
+            hideAndTerminate(); // User chose to exit anyway despite save failure
         }
 
-        return false;
+        return false; // User pressed cancel
     }
 
+    // Simulate faster exit by hiding window first
     private void hideAndTerminate() {
         ui.hide();
         System.exit(0);
