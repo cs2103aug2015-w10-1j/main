@@ -200,9 +200,7 @@ public abstract class CenterScreen extends VBox {
     }
 
     protected String getThisWeekEndDifferentDayEventDateFormat(Date startDate, Date endDate) {
-        return getFriendlyDayFormatThisWeek(startDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(startDate)
+        return timeFormat.format(startDate)
                 + EVENT_DATE_SEPARATOR_GENERAL
                 + getFriendlyDayFormatThisWeek(endDate)
                 + FRIENDLY_DATE_OR_TIME_SEPARATOR
@@ -210,9 +208,7 @@ public abstract class CenterScreen extends VBox {
     }
 
     protected String getThisWeekEndDifferentWeekEventDateFormat(Date startDate, Date endDate) {
-        return getFriendlyDayFormatThisWeek(startDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(startDate)
+        return timeFormat.format(startDate)
                 + EVENT_DATE_SEPARATOR_GENERAL
                 + getDayOfWeek(endDate)
                 + FRIENDLY_DATE_OR_TIME_SEPARATOR
@@ -222,11 +218,9 @@ public abstract class CenterScreen extends VBox {
     }
 
     protected String getThisWeekEndDifferentYearDateFormat(Date startDate, Date endDate) {
-        return getFriendlyDayFormatThisWeek(startDate)
-                    + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                    + timeFormat.format(startDate)
-                    + EVENT_DATE_SEPARATOR_GENERAL
-                    + dateFormatWithFriendlyDayAndYear.format(endDate);
+        return timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_GENERAL
+                + dateFormatWithFriendlyDayAndYear.format(endDate);
     }
 
     // ================================================================================
