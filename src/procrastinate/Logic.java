@@ -615,7 +615,8 @@ public class Logic {
             if (keyEvent.getCode().equals(KeyCode.ESCAPE)
                     || keyEvent.getCode().equals(KeyCode.ENTER)
                        && hasLastPreviewedCommand()
-                       && !lastPreviewedCommand.getType().equals(CommandType.HELP)) {
+                       && (!lastPreviewedCommand.getType().equals(CommandType.HELP)
+                               || !lastPreviewedCommand.getType().equals(CommandType.EXIT))) {
                 ui.hideHelpOverlay();
                 if (ui.getInput().trim().isEmpty()) {
                     ui.setStatus(STATUS_READY);
@@ -664,20 +665,25 @@ public class Logic {
 
     private boolean exit() {
         if (!taskEngine.hasPreviousOperation()) {
-            System.exit(0);
+            hideAndTerminate();
         }
 
         boolean success = taskEngine.save();
         if (success) {
-            System.exit(0);
+            hideAndTerminate();
         }
 
         boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT);
         if (exitAnyway) {
-            System.exit(0);
+            hideAndTerminate();
         }
 
         return false;
+    }
+
+    private void hideAndTerminate() {
+        ui.hide();
+        System.exit(0);
     }
 
     private Task getTaskFromLineNumber(int lineNumber) {

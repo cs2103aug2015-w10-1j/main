@@ -103,6 +103,10 @@ public class UI {
         isExit.addListener(isExitListener);
     }
 
+    public void hide() {
+        primaryStage.hide();
+    }
+
     // ================================================================================
     // CenterPaneController methods
     // ================================================================================
