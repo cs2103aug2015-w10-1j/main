@@ -173,7 +173,12 @@ public class TaskEngine {
         }
         if (startDate != null) {
             results = results.stream()
-                    .filter(task -> task.isWithin(startDate, endDate) && task.isDone() == showDone)
+                    .filter(task -> task.isWithin(startDate, endDate))
+                    .collect(Collectors.toList());
+        }
+        if (!showDone) {
+            results = results.stream()
+                    .filter(task -> !task.isDone())
                     .collect(Collectors.toList());
         }
         currentView = new TaskState(results);
