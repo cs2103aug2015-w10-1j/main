@@ -60,7 +60,7 @@ public class Logic {
     private static final String FEEDBACK_UNDO = "Undid last operation";
     private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
     private static final String FEEDBACK_SET_LOCATION = "Set save location to ";
-    private static final String FEEDBACK_HELP = "Showing help screen";
+    private static final String FEEDBACK_HELP = "Showing help screen (use left/right keys to navigate)";
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
