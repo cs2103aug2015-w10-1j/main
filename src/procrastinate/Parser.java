@@ -69,13 +69,15 @@ public class Parser {
     private static final String KEYWORD_TONIGHT_FIX = "today tonight";
 
     private static final String WHITESPACE = " ";
+    private static final String DOUBLE_QUOTE_STRING = "\"";
+    private static final char DOUBLE_QUOTE_CHARACTER = '\"';
 
     // ================================================================================
     // CommandStringType
     // ================================================================================
 
     private static enum CommandStringType {
-        NO_DATE, ON_DATE, DUE_DATE, FROM_TO_DATE
+        NO_DATE, NO_DATE_SET_PATH, ON_DATE, DUE_DATE, FROM_TO_DATE
     }
 
     // ================================================================================
@@ -86,6 +88,7 @@ public class Parser {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
         String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE); // Trim whitespace
+        System.out.println(isSetPath(userCommand));
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
         userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
@@ -319,29 +322,22 @@ public class Parser {
             }
 
             case COMMAND_SET_PATH: {
-                if (commandInputType.equals(CommandStringType.DUE_DATE)
-                        || commandInputType.equals(CommandStringType.FROM_TO_DATE)
-                        || userCommand.split(WHITESPACE).length > 3) {
-                    // Have dates or have more than four words
-                    // Inject add to the front of the command and recurse
-                    return Parser.parse(putAddInFront(userInput));
-                }
-
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "set" as an invalid command
                     // Display a helpful message (no path)
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_PATH);
                 }
 
-                String[] argument = userCommand.split(WHITESPACE, 3);
-                String pathDirectory = argument[1];
-
-                Command command = new Command(CommandType.SET_PATH).addPathDirectory(pathDirectory);
-
-                if (argument.length > 2) {
-                    command.addPathFilename(argument[2]);
+                if (!commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
+                    return Parser.parse(putAddInFront(userInput));
                 }
 
+                String[] pathArguments = extractSetPathArguments(userCommand);
+                Command command = new Command(CommandType.SET_PATH).addPathDirectory(pathArguments[0]);
+
+                if (pathArguments[1] != null) {
+                    command.addPathFilename(pathArguments[1]);
+                }
                 return command;
             }
 
@@ -369,7 +365,9 @@ public class Parser {
     // ================================================================================
 
     private static CommandStringType getCommandStringType(String userCommand) {
-        if (isKeywordDate(userCommand, KEYWORD_FROM_TO_DATE)) {
+        if (isSetPath(userCommand)) {
+            return CommandStringType.NO_DATE_SET_PATH;
+        } else if (isKeywordDate(userCommand, KEYWORD_FROM_TO_DATE)) {
             return CommandStringType.FROM_TO_DATE;
         } else if (isKeywordDate(userCommand, KEYWORD_DUE_DATE)) {
             return CommandStringType.DUE_DATE;
@@ -404,6 +402,51 @@ public class Parser {
         }
     }
 
+    private static boolean isSetPath(String userCommand) {
+        if (!getFirstWord(userCommand).equals(COMMAND_SET_PATH) || userCommand.equals(COMMAND_SET_PATH)) {
+            return false;
+        }
+
+        return isPathArgumentFormatValid(userCommand);
+    }
+
+    private static boolean isPathArgumentFormatValid(String userCommand) {
+        if (userCommand.contains(DOUBLE_QUOTE_STRING + DOUBLE_QUOTE_STRING)) {//Guard condition against two double quotes
+            return false;
+        }
+        String[] arguments = userCommand.split(DOUBLE_QUOTE_STRING);
+        if (arguments.length == 1) {
+            // The user command has no quotes or have a quote at the last character
+            // Therefore, we need to check if the last character is a quote
+            // We also need to check if the format only has two or three arguments
+            return !userCommand.contains(DOUBLE_QUOTE_STRING) && userCommand.split(WHITESPACE).length <= 3;
+        }
+
+        if (!arguments[0].equals(COMMAND_SET_PATH + WHITESPACE)) {
+            return false;
+        }
+
+        if (arguments.length == 2) {
+            // We need to check if the last character is a quote
+            return userCommand.charAt(userCommand.length() - 1) == DOUBLE_QUOTE_CHARACTER;
+        } else if (arguments.length == 3) {
+            // The second argument is unprotected by quotes
+            // To make sure the second argument is valid, we need to check if
+            // the first character is a space and the argument has two words only
+            return String.valueOf(arguments[2].charAt(0)).equals(WHITESPACE)
+                    && arguments[2].split(WHITESPACE).length == 2;
+        } else if (arguments.length == 4) {
+            // Both arguments are protected by quotes
+            // Check if the last character is a quote
+            // the two arguments are separated by a whitespace
+            return userCommand.charAt(userCommand.length() - 1) == DOUBLE_QUOTE_CHARACTER
+                    && arguments[2].equals(WHITESPACE);
+        } else {
+            // Too many arguments
+            return false;
+        }
+    }
+
     private static boolean isKeywordDate(String userCommand, String keyword) {
         if(!userCommand.contains(WHITESPACE + keyword + WHITESPACE)) {
             return false;
@@ -427,7 +470,7 @@ public class Parser {
     private static List<Date> getDates(String userCommand, CommandStringType commandInputType) {
         List<Date> dateList = new ArrayList<Date>();
         String keyword = null;
-        if (commandInputType.equals(CommandStringType.NO_DATE)) {
+        if (commandInputType.equals(CommandStringType.NO_DATE) || commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
             return null;
         } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
             keyword = KEYWORD_DUE_DATE;
@@ -472,7 +515,7 @@ public class Parser {
 
     private static String removeDatesFromUserCommand(String userCommand, CommandStringType commandInputType) {
         String keyword = null;
-        if (commandInputType.equals(CommandStringType.NO_DATE)) {
+        if (commandInputType.equals(CommandStringType.NO_DATE) || commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
             return userCommand;
         } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
             keyword = KEYWORD_DUE_DATE;
@@ -499,6 +542,32 @@ public class Parser {
         dateArguments = dateArguments.replace(KEYWORD_THIS_NIGHT, KEYWORD_THIS_NIGHT_FIX);
         dateArguments = dateArguments.replace(KEYWORD_TONIGHT, KEYWORD_TONIGHT_FIX);
         return dateArguments;
+    }
+
+    private static String[] extractSetPathArguments(String userCommand) {
+        String[] result = new String[2];
+        String[] arguments = userCommand.split(DOUBLE_QUOTE_STRING);
+        if (arguments.length == 1) {
+            String[] pathArguments = userCommand.split(WHITESPACE);
+            try {
+                result[0] = pathArguments[1];
+                result[1] = pathArguments[2];
+            } catch (Exception e) {}
+        } else if (arguments.length == 2) {
+            if (arguments[0].trim().replaceAll("\\s+", WHITESPACE).equals(COMMAND_SET_PATH)) {
+                result[0] = arguments[1];
+            } else {
+                result[0] = arguments[0].split(WHITESPACE)[1];
+                result[1] = arguments[1];
+            }
+        } else if (arguments.length == 3) {
+            result[0] = arguments[1];
+            result[1] = arguments[2].trim().replaceAll("\\s+", WHITESPACE);
+        } else if (arguments.length == 4) {
+            result[0] = arguments[1];
+            result[1] = arguments[3];
+        }
+        return result;
     }
 
     private static boolean isCommandEmpty(String userCommand) {
