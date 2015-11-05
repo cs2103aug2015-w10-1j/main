@@ -45,6 +45,11 @@ public class ParserTest {
         assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
         assertEquals("procrastinate because it is not in a hurry", resultCommand.getDescription());
 
+        /* Add dream with "exit" as a keyword */
+        resultCommand = Parser.parse("exit something");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("exit something", resultCommand.getDescription());
+
         /* Add dream with "undo" as a keyword */
         resultCommand = Parser.parse("undo a change in project");
         assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
@@ -59,6 +64,11 @@ public class ParserTest {
         resultCommand = Parser.parse("help out a friend");
         assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
         assertEquals("help out a friend", resultCommand.getDescription());
+
+        /* Add dream with "show" as a keyword */
+        resultCommand = Parser.parse("show something amazing to a friend");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("show something amazing to a friend", resultCommand.getDescription());
     }
 
     @Test
@@ -67,6 +77,16 @@ public class ParserTest {
         Command resultCommand = Parser.parse("do due tomorrow");
         assertEquals(CommandType.ADD_DEADLINE, resultCommand.getType());
         assertEquals("do", resultCommand.getDescription());
+
+        /* Add deadline with using "due" as keyword  */
+        resultCommand = Parser.parse("something important due tomorrow");
+        assertEquals(CommandType.ADD_DEADLINE, resultCommand.getType());
+        assertEquals("something important", resultCommand.getDescription());
+
+        /* Add deadline with using "on" as keyword  */
+        resultCommand = Parser.parse("something important on tomorrow");
+        assertEquals(CommandType.ADD_DEADLINE, resultCommand.getType());
+        assertEquals("something important", resultCommand.getDescription());
     }
 
     @Test
@@ -86,6 +106,10 @@ public class ParserTest {
         resultCommand = Parser.parse("edit");
         assertEquals(CommandType.INVALID, resultCommand.getType());
         assertEquals(MESSAGE_INVALID_LINE_NUMBER, resultCommand.getDescription());
+
+        /* Edit with eventually keyword*/
+        resultCommand = Parser.parse("edit 1 eventually");
+        assertEquals(CommandType.EDIT_TO_DREAM, resultCommand.getType());
     }
 
     @Test
@@ -119,12 +143,122 @@ public class ParserTest {
         resultCommand = Parser.parse("search");
         assertEquals(CommandType.INVALID, resultCommand.getType());
         assertEquals(MESSAGE_INVALID_NO_DESCRIPTION, resultCommand.getDescription());
+
+        /* Search with on keyword with a date*/
+        resultCommand = Parser.parse("search on tomorrow");
+        assertEquals(CommandType.SEARCH_ON, resultCommand.getType());
+
+        /* Search with on keyword with no dates*/
+        resultCommand = Parser.parse("search on something important");
+        assertEquals(CommandType.SEARCH, resultCommand.getType());
+        assertEquals("on something important", resultCommand.getDescription());
+
+        /* Search with due keyword with a date*/
+        resultCommand = Parser.parse("search due tomorrow");
+        assertEquals(CommandType.SEARCH, resultCommand.getType());
+
+        /* Search with on keyword with no dates*/
+        resultCommand = Parser.parse("search due to some reason");
+        assertEquals(CommandType.SEARCH, resultCommand.getType());
+        assertEquals("due to some reason", resultCommand.getDescription());
+
     }
 
     @Test
     public void helpTest() {
         /* Help in a standard format*/
         Command resultCommand = Parser.parse("help");
-        assertEquals(resultCommand.getType(), CommandType.HELP);
+        assertEquals(CommandType.HELP, resultCommand.getType());
+    }
+
+    @Test
+    public void showTest() {
+        /* Show in a standard format*/
+        Command resultCommand = Parser.parse("show");
+        assertEquals(CommandType.SHOW_OUTSTANDING, resultCommand.getType());
+
+        /* Show with "all" keyword*/
+        resultCommand = Parser.parse("show all");
+        assertEquals(CommandType.SHOW_ALL, resultCommand.getType());
+
+        /* Show with "done" keyword*/
+        resultCommand = Parser.parse("show done");
+        assertEquals(CommandType.SHOW_DONE, resultCommand.getType());
+    }
+
+    @Test
+    public void setPathTest() {
+        /* Set Path with no quotes*/
+        Command resultCommand = Parser.parse("set something else");
+        assertEquals(CommandType.SET_PATH, resultCommand.getType());
+        assertEquals("something", resultCommand.getPathDirectory());
+        assertEquals("else", resultCommand.getPathFilename());
+
+        /* Set Path with no filename*/
+        resultCommand = Parser.parse("set something");
+        assertEquals(CommandType.SET_PATH, resultCommand.getType());
+        assertEquals("something", resultCommand.getPathDirectory());
+
+        /* Set Path with more than two arguments*/
+        resultCommand = Parser.parse("set something else too");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+
+        /* Set Path with quotes in directory*/
+        resultCommand = Parser.parse("set \"something else\" too");
+        assertEquals(CommandType.SET_PATH, resultCommand.getType());
+        assertEquals("something else", resultCommand.getPathDirectory());
+        assertEquals("too", resultCommand.getPathFilename());
+
+        /* Set Path with quotes in directory with no filename*/
+        resultCommand = Parser.parse("set \"something else\"");
+        assertEquals(CommandType.SET_PATH, resultCommand.getType());
+        assertEquals("something else", resultCommand.getPathDirectory());
+
+        /* Set Path with quotes in filename only*/
+        resultCommand = Parser.parse("set too \"something else\"");
+        assertEquals(CommandType.SET_PATH, resultCommand.getType());
+        assertEquals("too", resultCommand.getPathDirectory());
+        assertEquals("something else", resultCommand.getPathFilename());
+
+        /* Set Path with quotes in directory with quotes in filename*/
+        resultCommand = Parser.parse("set \"something else\" \"too\"");
+        assertEquals(CommandType.SET_PATH, resultCommand.getType());
+        assertEquals("something else", resultCommand.getPathDirectory());
+        assertEquals("too", resultCommand.getPathFilename());
+
+        /* Illegal set path formats*/
+        resultCommand = Parser.parse("set\"something else\" \"too\"");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("set\"something else\" \"too\"", resultCommand.getDescription());
+
+        resultCommand = Parser.parse("set\"something else\" \"too\" more words");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("set\"something else\" \"too\" more words", resultCommand.getDescription());
+    }
+
+    @Test
+    public void escapeCharacterTest() {
+        /* Escape on keywords*/
+        Command resultCommand = Parser.parse("\\do 1");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("do 1", resultCommand.getDescription());
+
+        resultCommand = Parser.parse("something \\due tomorrow");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("something due tomorrow", resultCommand.getDescription());
+
+        resultCommand = Parser.parse("something \\on tomorrow");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("something on tomorrow", resultCommand.getDescription());
+
+        resultCommand = Parser.parse("something \\from tomorrow to next week");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("something from tomorrow to next week", resultCommand.getDescription());
+
+        /* Escape on non-keywords*/
+        resultCommand = Parser.parse("this should \\be done");
+        assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
+        assertEquals("this should be done", resultCommand.getDescription());
+
     }
 }
