@@ -97,11 +97,22 @@ public class Parser {
         // userCommand.equalsIgnoreCase(firstWord) will only be true if
         // no arguments were ever specified (if a date argument was specified and
         // subsequently removed, the expression will be false due to the trailing space).
-
+        Command command;
         if (isCommandEmpty(userCommand)) {
-            return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+            command = constructInvalidCommand(MESSAGE_INVALID_NO_DESCRIPTION);
+        } else {
+            command = constructCommand(userInput, userCommand, commandInputType, dateArray);
         }
 
+        return command;
+    }
+
+    // ================================================================================
+    // Construct command methods
+    // ================================================================================
+
+    private static Command constructCommand(String userInput, String userCommand, CommandStringType commandInputType,
+            List<Date> dateArray) {
         String firstWord = getFirstWord(userCommand).toLowerCase(); // Case insensitive
 
         switch (firstWord) {
@@ -109,36 +120,19 @@ public class Parser {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "add" as an invalid command
                     // Display a helpful message (no description)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+                    return constructInvalidCommand(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
                 String[] argument = userCommand.split(WHITESPACE_STRING, 2);
                 String description = argument[1];
                 description = removeEscapeCharacters(description);
+
                 if (description.isEmpty()) {
                     // Display a helpful message (no description)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+                    return constructInvalidCommand(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-                Command command;
-
-                switch (commandInputType) {
-                    case DUE_DATE:
-                    case ON_DATE:
-                        command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
-                        break;
-
-                    case FROM_TO_DATE:
-                        command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
-                        .addEndDate(getEndDate(dateArray));
-                        break;
-
-                    default: // NO_DATE
-                        command = new Command(CommandType.ADD_DREAM);
-                        break;
-                }
-
-                command.addDescription(description);
+                Command command = constructAddCommand(commandInputType, dateArray, description);
 
                 return command;
             }
@@ -148,7 +142,7 @@ public class Parser {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "edit" as an invalid command
                     // Display a helpful message (no line number given)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
+                    return constructInvalidCommand(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
                 String[] argument = userCommand.split(WHITESPACE_STRING, 3);
@@ -172,29 +166,9 @@ public class Parser {
                     description = argument[2];
                 }
 
-                Command command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
+                Command command;
 
-                switch (commandInputType) {
-                    case DUE_DATE:
-                    case ON_DATE:
-                        command.addDate(getStartDate(dateArray));
-                        break;
-
-                    case FROM_TO_DATE:
-                        command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
-                        break;
-
-                    default: // NO_DATE
-                        if (description.equals(KEYWORD_EVENTUALLY)) {
-                            return new Command(CommandType.EDIT_TO_DREAM).addLineNumber(lineNumber);
-                        }
-                        break;
-                }
-
-                if (!description.isEmpty()) {
-                    description = removeEscapeCharacters(description);
-                    command.addDescription(description);
-                }
+                command = constructEditCommand(commandInputType, dateArray, lineNumber, description);
 
                 return command;
             }
@@ -204,7 +178,7 @@ public class Parser {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "delete" as an invalid command
                     // Display a helpful message (no line number given)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
+                    return constructInvalidCommand(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
                 String argument = userCommand.substring(firstWord.length() + 1);
@@ -218,7 +192,7 @@ public class Parser {
                     return Parser.parse(putAddInFront(userInput));
                 }
 
-                return new Command(CommandType.DELETE).addLineNumber(lineNumber);
+                return constructDeleteCommand(lineNumber);
             }
 
             case COMMAND_UNDO:
@@ -229,7 +203,7 @@ public class Parser {
                     return Parser.parse(putAddInFront(userInput));
                 }
 
-                return new Command(CommandType.UNDO);
+                return constructUndoCommand();
             }
 
             case COMMAND_DONE:
@@ -237,7 +211,7 @@ public class Parser {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "done" as an invalid command
                     // Display a helpful message (no line number given)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
+                    return constructInvalidCommand(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
                 String[] argument = userCommand.split(WHITESPACE_STRING, 2);
@@ -251,7 +225,7 @@ public class Parser {
                     return Parser.parse(putAddInFront(userInput));
                 }
 
-                return new Command(CommandType.DONE).addLineNumber(lineNumber);
+                return constructDoneCommand(lineNumber);
             }
 
             case COMMAND_SEARCH:
@@ -259,33 +233,11 @@ public class Parser {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "search" as an invalid command
                     // Display a helpful message (no description)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
+                    return constructInvalidCommand(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-                Command command = null;
-                String[] argument = userCommand.split(WHITESPACE_STRING, 2);
-                String searchDescription = argument[1];
-
-                if (commandInputType.equals(CommandStringType.ON_DATE)) {
-                    command = new Command(CommandType.SEARCH_ON);
-
-                    command.addDate(getStartDate(dateArray));
-
-                } else {
-                    command = new Command(CommandType.SEARCH);
-
-                    if (commandInputType.equals(CommandStringType.DUE_DATE)) {
-                        command.addDate(getStartDate(dateArray));
-                    } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
-                        command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
-                    }
-
-                }
-
-                if (!searchDescription.isEmpty()) {
-                    searchDescription = removeEscapeCharacters(searchDescription);
-                    command.addDescription(searchDescription);
-                }
+                Command command;
+                command = constructSearchCommand(userCommand, commandInputType, dateArray);
 
                 return command;
             }
@@ -293,16 +245,16 @@ public class Parser {
             case COMMAND_SHOW:
             case COMMAND_SHORT_SHOW: {
                 if (userCommand.equalsIgnoreCase(firstWord)) {
-                    return new Command(CommandType.SHOW_OUTSTANDING);
+                    return constructShowOutstandingCommand();
                 }
 
                 String argument = userCommand.substring(firstWord.length() + 1);
 
                 if (argument.equals(KEYWORD_DONE)) {
-                    return new Command(CommandType.SHOW_DONE);
+                    return constructShowDoneCommand();
 
                 } else if (argument.equals(KEYWORD_ALL)) {
-                    return new Command(CommandType.SHOW_ALL);
+                    return constructShowAllCommand();
 
                 } else {
                     // Treat "show something" as an add command
@@ -318,26 +270,22 @@ public class Parser {
                     return Parser.parse(putAddInFront(userInput));
                 }
 
-                return new Command(CommandType.HELP);
+                return constructHelpCommand();
             }
 
             case COMMAND_SET_PATH: {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "set" as an invalid command
                     // Display a helpful message (no path)
-                    return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_PATH);
+                    return constructInvalidCommand(MESSAGE_INVALID_NO_PATH);
                 }
 
                 if (!commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
                     return Parser.parse(putAddInFront(userInput));
                 }
 
-                String[] pathArguments = extractSetPathArguments(userCommand);
-                Command command = new Command(CommandType.SET_PATH).addPathDirectory(pathArguments[0]);
-
-                if (pathArguments[1] != null) {
-                    command.addPathFilename(pathArguments[1]);
-                }
+                Command command;
+                command = constructSetPathCommand(userCommand);
                 return command;
             }
 
@@ -349,7 +297,7 @@ public class Parser {
                     return Parser.parse(putAddInFront(userInput));
                 }
 
-                return new Command(CommandType.EXIT);
+                return constructExitCommand();
             }
 
             default: {
@@ -357,7 +305,134 @@ public class Parser {
                 return Parser.parse(putAddInFront(userInput));
             }
         }
+    }
 
+    private static Command constructAddCommand(CommandStringType commandInputType, List<Date> dateArray,
+            String description) {
+        Command command;
+        switch (commandInputType) {
+            case DUE_DATE:
+            case ON_DATE:
+                command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
+                break;
+
+            case FROM_TO_DATE:
+                command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
+                .addEndDate(getEndDate(dateArray));
+                break;
+
+            default: // NO_DATE
+                command = new Command(CommandType.ADD_DREAM);
+                break;
+        }
+
+        command.addDescription(description);
+        return command;
+    }
+
+    private static Command constructEditCommand(CommandStringType commandInputType, List<Date> dateArray,
+            int lineNumber, String description) {
+        Command command;
+        command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
+
+        switch (commandInputType) {
+            case DUE_DATE:
+            case ON_DATE:
+                command.addDate(getStartDate(dateArray));
+                break;
+
+            case FROM_TO_DATE:
+                command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+                break;
+
+            default: // NO_DATE
+                if (description.equals(KEYWORD_EVENTUALLY)) {
+                    command = new Command(CommandType.EDIT_TO_DREAM).addLineNumber(lineNumber);
+                }
+                break;
+        }
+
+        if (!description.isEmpty() && !command.getType().equals(CommandType.EDIT_TO_DREAM)) {
+            description = removeEscapeCharacters(description);
+            command.addDescription(description);
+        }
+        return command;
+    }
+
+    private static Command constructDeleteCommand(int lineNumber) {
+        return new Command(CommandType.DELETE).addLineNumber(lineNumber);
+    }
+
+    private static Command constructUndoCommand() {
+        return new Command(CommandType.UNDO);
+    }
+
+    private static Command constructDoneCommand(int lineNumber) {
+        return new Command(CommandType.DONE).addLineNumber(lineNumber);
+    }
+
+    private static Command constructSearchCommand(String userCommand, CommandStringType commandInputType,
+            List<Date> dateArray) {
+        Command command;
+        String[] argument = userCommand.split(WHITESPACE_STRING, 2);
+        String searchDescription = argument[1];
+
+        if (commandInputType.equals(CommandStringType.ON_DATE)) {
+            command = new Command(CommandType.SEARCH_ON);
+
+            command.addDate(getStartDate(dateArray));
+
+        } else {
+            command = new Command(CommandType.SEARCH);
+
+            if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+                command.addDate(getStartDate(dateArray));
+            } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
+                command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+            }
+
+        }
+
+        if (!searchDescription.isEmpty()) {
+            searchDescription = removeEscapeCharacters(searchDescription);
+            command.addDescription(searchDescription);
+        }
+        return command;
+    }
+
+    private static Command constructShowOutstandingCommand() {
+        return new Command(CommandType.SHOW_OUTSTANDING);
+    }
+
+    private static Command constructShowDoneCommand() {
+        return new Command(CommandType.SHOW_DONE);
+    }
+
+    private static Command constructShowAllCommand() {
+        return new Command(CommandType.SHOW_ALL);
+    }
+
+    private static Command constructHelpCommand() {
+        return new Command(CommandType.HELP);
+    }
+
+    private static Command constructSetPathCommand(String userCommand) {
+        Command command;
+        String[] pathArguments = extractSetPathArguments(userCommand);
+        command = new Command(CommandType.SET_PATH).addPathDirectory(pathArguments[0]);
+
+        if (pathArguments[1] != null) {
+            command.addPathFilename(pathArguments[1]);
+        }
+        return command;
+    }
+
+    private static Command constructExitCommand() {
+        return new Command(CommandType.EXIT);
+    }
+
+    private static Command constructInvalidCommand (String invalidMessage) {
+        return new Command(CommandType.INVALID).addDescription(invalidMessage);
     }
 
     // ================================================================================
