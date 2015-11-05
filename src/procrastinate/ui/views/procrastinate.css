@@ -104,7 +104,7 @@
 #mainVBox {
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
-    -fx-background-size: contain;
+    -fx-background-size: 400 400;
 }
 
 /*
