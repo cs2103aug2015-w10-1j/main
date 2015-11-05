@@ -205,6 +205,10 @@ public class Logic {
 
     }
 
+    // ================================================================================
+    // Command handling methods
+    // ================================================================================
+
     private String runAdd(Command command, boolean execute) {
         String description = command.getDescription();
         assert(description != null);
@@ -825,9 +829,9 @@ public class Logic {
     private static String shorten(String description, int maxLength) {
         if (description.length() <= maxLength) {
             return description;
-        } else {
-            return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
         }
+
+        return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
     }
 
 }
