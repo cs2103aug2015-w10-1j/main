@@ -68,7 +68,8 @@ public class Parser {
     private static final String KEYWORD_THIS_NIGHT_FIX = "today night";
     private static final String KEYWORD_TONIGHT_FIX = "today tonight";
 
-    private static final String WHITESPACE = " ";
+    private static final String WHITESPACE_STRING = " ";
+    private static final char WHITESPACE_CHARACTER = ' ';
     private static final String DOUBLE_QUOTE_STRING = "\"";
     private static final char DOUBLE_QUOTE_CHARACTER = '\"';
 
@@ -87,7 +88,7 @@ public class Parser {
     public static Command parse(String userInput) {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
-        String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE); // Trim whitespace
+        String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE_STRING); // Trim WHITESPACE_STRING
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
         userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
@@ -111,7 +112,7 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-                String[] argument = userCommand.split(WHITESPACE, 2);
+                String[] argument = userCommand.split(WHITESPACE_STRING, 2);
                 String description = argument[1];
                 description = removeEscapeCharacters(description);
                 if (description.isEmpty()) {
@@ -150,7 +151,7 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
-                String[] argument = userCommand.split(WHITESPACE, 3);
+                String[] argument = userCommand.split(WHITESPACE_STRING, 3);
                 int lineNumber = 0;
 
                 try {
@@ -239,7 +240,7 @@ public class Parser {
                     return new Command(CommandType.INVALID).addDescription(MESSAGE_INVALID_LINE_NUMBER);
                 }
 
-                String[] argument = userCommand.split(WHITESPACE, 2);
+                String[] argument = userCommand.split(WHITESPACE_STRING, 2);
                 int lineNumber = 0;
 
                 try {
@@ -262,7 +263,7 @@ public class Parser {
                 }
 
                 Command command = null;
-                String[] argument = userCommand.split(WHITESPACE, 2);
+                String[] argument = userCommand.split(WHITESPACE_STRING, 2);
                 String searchDescription = argument[1];
 
                 if (commandInputType.equals(CommandStringType.ON_DATE)) {
@@ -393,7 +394,7 @@ public class Parser {
     }
 
     private static int getLastIndex(String keyword, String userCommand) {
-        int lastIndex = userCommand.lastIndexOf(WHITESPACE + keyword + WHITESPACE);
+        int lastIndex = userCommand.lastIndexOf(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
         if(lastIndex == -1) {
             return -1;
         } else {
@@ -418,10 +419,10 @@ public class Parser {
             // The user command has no quotes or have a quote at the last character
             // Therefore, we need to check if the last character is a quote
             // We also need to check if the format only has two or three arguments
-            return !userCommand.contains(DOUBLE_QUOTE_STRING) && userCommand.split(WHITESPACE).length <= 3;
+            return !userCommand.contains(DOUBLE_QUOTE_STRING) && userCommand.split(WHITESPACE_STRING).length <= 3;
         }
 
-        if (!arguments[0].equals(COMMAND_SET_PATH + WHITESPACE)) {
+        if (arguments[0].charAt(arguments[0].length() - 1) != WHITESPACE_CHARACTER) {
             return false;
         }
 
@@ -432,14 +433,14 @@ public class Parser {
             // The second argument is unprotected by quotes
             // To make sure the second argument is valid, we need to check if
             // the first character is a space and the argument has two words only
-            return String.valueOf(arguments[2].charAt(0)).equals(WHITESPACE)
-                    && arguments[2].split(WHITESPACE).length == 2;
+            return String.valueOf(arguments[2].charAt(0)).equals(WHITESPACE_STRING)
+                    && arguments[2].split(WHITESPACE_STRING).length == 2;
         } else if (arguments.length == 4) {
             // Both arguments are protected by quotes
             // Check if the last character is a quote
-            // the two arguments are separated by a whitespace
+            // the two arguments are separated by a WHITESPACE_STRING
             return userCommand.charAt(userCommand.length() - 1) == DOUBLE_QUOTE_CHARACTER
-                    && arguments[2].equals(WHITESPACE);
+                    && arguments[2].equals(WHITESPACE_STRING);
         } else {
             // Too many arguments
             return false;
@@ -447,15 +448,15 @@ public class Parser {
     }
 
     private static boolean isKeywordDate(String userCommand, String keyword) {
-        if(!userCommand.contains(WHITESPACE + keyword + WHITESPACE)) {
+        if(!userCommand.contains(WHITESPACE_STRING + keyword + WHITESPACE_STRING)) {
             return false;
         }
 
-        String[] arguments = userCommand.split(WHITESPACE + keyword + WHITESPACE);
+        String[] arguments = userCommand.split(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
         String lastArgument = arguments[arguments.length - 1];
         List<DateGroup> dateGroups = dateParser.parse(lastArgument);
 
-        if(keyword.equals(KEYWORD_FROM_TO_DATE) && !lastArgument.contains(WHITESPACE + KEYWORD_TO + WHITESPACE)) {
+        if(keyword.equals(KEYWORD_FROM_TO_DATE) && !lastArgument.contains(WHITESPACE_STRING + KEYWORD_TO + WHITESPACE_STRING)) {
             return false;
         }
 
@@ -479,7 +480,7 @@ public class Parser {
             keyword = KEYWORD_FROM_TO_DATE;
         }
 
-        String[] arguments = userCommand.split(WHITESPACE + keyword + WHITESPACE);
+        String[] arguments = userCommand.split(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
         String dateArguments = arguments[arguments.length - 1];
         dateArguments = replaceRelativeDates(dateArguments);
         List<DateGroup> dateGroups = dateParser.parse(dateArguments);
@@ -547,21 +548,21 @@ public class Parser {
         String[] result = new String[2];
         String[] arguments = userCommand.split(DOUBLE_QUOTE_STRING);
         if (arguments.length == 1) {
-            String[] pathArguments = userCommand.split(WHITESPACE);
+            String[] pathArguments = userCommand.split(WHITESPACE_STRING);
             try {
                 result[0] = pathArguments[1];
                 result[1] = pathArguments[2];
             } catch (Exception e) {}
         } else if (arguments.length == 2) {
-            if (arguments[0].trim().replaceAll("\\s+", WHITESPACE).equals(COMMAND_SET_PATH)) {
+            if (arguments[0].trim().replaceAll("\\s+", WHITESPACE_STRING).equals(COMMAND_SET_PATH)) {
                 result[0] = arguments[1];
             } else {
-                result[0] = arguments[0].split(WHITESPACE)[1];
+                result[0] = arguments[0].split(WHITESPACE_STRING)[1];
                 result[1] = arguments[1];
             }
         } else if (arguments.length == 3) {
             result[0] = arguments[1];
-            result[1] = arguments[2].trim().replaceAll("\\s+", WHITESPACE);
+            result[1] = arguments[2].trim().replaceAll("\\s+", WHITESPACE_STRING);
         } else if (arguments.length == 4) {
             result[0] = arguments[1];
             result[1] = arguments[3];
@@ -574,13 +575,13 @@ public class Parser {
     }
 
     private static String getFirstWord(String userCommand) {
-        return userCommand.split(WHITESPACE)[0];
+        return userCommand.split(WHITESPACE_STRING)[0];
     }
 
     private static String putAddInFront(String userInput) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(COMMAND_ADD);
-        stringBuilder.append(WHITESPACE);
+        stringBuilder.append(WHITESPACE_STRING);
         stringBuilder.append(userInput);
         return stringBuilder.toString();
     }
