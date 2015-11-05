@@ -88,7 +88,6 @@ public class Parser {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
         String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE); // Trim whitespace
-        System.out.println(isSetPath(userCommand));
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
         userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
