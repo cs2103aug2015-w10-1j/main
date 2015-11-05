@@ -40,7 +40,6 @@ public class WindowHandler {
 
     private static final String ICON_CLOSE = "\uf00d";
     private static final String ICON_MINIMISE = "\uf068";
-    private static final String SELECTOR_CENTER_SCREEN = "#centerScreen";
     private static final String STYLE_CLASS_MAIN_WINDOW = "mainWindow";
     private static final int WRAPPER_PREF_WIDTH = 800;
     private static final int WRAPPER_PREF_HEIGHT = 800;
@@ -148,11 +147,10 @@ public class WindowHandler {
         });
 
         // Prevent mouse clicks on the center pane from stealing focus from userInputField
-        StackPane centerPane = (StackPane) root.lookup(SELECTOR_CENTER_SCREEN);
-        centerPane.setOnMousePressed((mouseEvent) -> {
+        centerScreen.setOnMousePressed((mouseEvent) -> {
             userInputField.requestFocus();
         });
-        centerPane.setOnMouseDragged((mouseEvent) -> {
+        centerScreen.setOnMouseDragged((mouseEvent) -> {
             userInputField.requestFocus();
         });
 
