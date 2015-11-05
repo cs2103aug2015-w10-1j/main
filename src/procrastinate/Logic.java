@@ -83,6 +83,9 @@ public class Logic {
 
     private static final String NATTY_WARMUP_STRING = "Natty starts up slowly due tomorrow";
 
+    private static final String ERROR_STARTUP = "There was a problem accessing the directory";
+    private static final String ERROR_STARTUP_MESSAGE = "Please startup Procrastinate from a different working directory";
+
     private static final int MAX_LENGTH_DESCRIPTION = 20;
     private static final int MAX_LENGTH_DESCRIPTION_SHORT = 10;
     private static final int MAX_LENGTH_DESCRIPTION_TINY = 7;
@@ -96,6 +99,8 @@ public class Logic {
 
     protected TaskEngine taskEngine;
     protected UI ui;
+
+    private boolean startupError = false;
 
     private Command lastPreviewedCommand = null;
 
@@ -114,11 +119,7 @@ public class Logic {
     private static Logic logic;
 
     protected Logic() {
-        try {
-            initTaskEngine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        initTaskEngine();
         initParser();
         logger.log(Level.INFO, DEBUG_LOGIC_INIT);
     }
@@ -544,12 +545,20 @@ public class Logic {
     public void initUi(Stage stage) {
         ui = new UI(stage);
         ui.attachHandlersAndListeners(createKeyPressHandler(), createUserInputListener(), createIsExitListener());
+        if (startupError) {
+            ui.createErrorDialog(ERROR_STARTUP, ERROR_STARTUP_MESSAGE);
+            exit();
+        }
         ui.setStatus(STATUS_READY);
         updateUiTaskList();
     }
 
-    protected void initTaskEngine() throws IOException {
-		taskEngine = new TaskEngine();
+    protected void initTaskEngine() {
+		try {
+            taskEngine = new TaskEngine();
+        } catch (IOException e) {
+            startupError = true;
+        }
     }
 
     private void initParser() {
@@ -718,6 +727,10 @@ public class Logic {
 
     // Exit routine used by exit command, close button and system tray
     private boolean exit() {
+        if (startupError) {
+            hideAndTerminate();
+        }
+
         if (!taskEngine.hasPreviousOperation()) {
             hideAndTerminate(); // No write operations; safe to exit
         }

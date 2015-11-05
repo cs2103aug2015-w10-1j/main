@@ -9,7 +9,7 @@ public class TaskEngineUnit extends TaskEngine {
     public TaskEngineUnit() throws IOException {
     }
     @Override
-    protected void initFileHandler() throws IOException {
+    protected void initFileHandler() {
         fileHandler = new FileHandlerStub();
     }
 }
