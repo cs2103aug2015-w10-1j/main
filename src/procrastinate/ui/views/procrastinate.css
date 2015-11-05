@@ -34,6 +34,7 @@
 .mainWindow {
     -fx-background-color: transparent;
     -fx-focus-color: #365fac;
+    -fx-accent: #365fac;
 }
 
 .mainWindow #mainBorderPane {
