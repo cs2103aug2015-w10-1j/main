@@ -36,6 +36,8 @@ public class Logic {
 
     private static final String DEBUG_LOGIC_INIT = "Logic initialised.";
 
+    private static final String NATTY_WARMUP_STRING = "Natty starts up slowly due tomorrow";
+
     private static final String STATUS_READY = "Ready!";
     private static final String STATUS_PREVIEW_COMMAND = ">>";
 
@@ -65,26 +67,23 @@ public class Logic {
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
     private static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";
     private static final String FEEDBACK_ELLIPSIS = "...";
+    private static final String FEEDBACK_EXIT = "Goodbye!";
 
-    private static final String FEEDBACK_ERROR_SAVE = "Could not save changes to file!";
-    private static final String FEEDBACK_ERROR_SAVE_EXIT = "Could not save changes! Your data will be LOST!";
-    private static final String FEEDBACK_ERROR_SAVE_EXIT_CONTINUE = "Discard unsaved changes and exit?";
-    private static final String FEEDBACK_ERROR_SAVE_EXIT_BUTTON_LABEL = "Discard and exit";
-    private static final String FEEDBACK_ERROR_SET_LOCATION = "Could not set save location:";
-    private static final String FEEDBACK_ERROR_SET_LOCATION_MESSAGE = "%1$s%2$s\n\n" + FEEDBACK_TRY_AGAIN;
-
-    private static final String PREVIEW_EXIT = "Goodbye!";
+    private static final String ERROR_STARTUP_HEADER = "There was a problem accessing the directory";
+    private static final String ERROR_STARTUP_MESSAGE = "Please startup Procrastinate from a different working directory";
+    private static final String ERROR_SAVE_HEADER = "Could not save changes to file!";
+    private static final String ERROR_SAVE_MESSAGE = FEEDBACK_TRY_AGAIN;
+    private static final String ERROR_EXIT_HEADER = "Could not save changes! Your data will be LOST!";
+    private static final String ERROR_EXIT_MESSAGE = "Discard unsaved changes and exit?";
+    private static final String ERROR_EXIT_BUTTON_LABEL = "Discard and exit";
+    private static final String ERROR_SET_LOCATION_HEADER = "Could not set save location:";
+    private static final String ERROR_SET_LOCATION_MESSAGE = "%1$s%2$s\n\n" + FEEDBACK_TRY_AGAIN;
 
     private static final String SEARCH_STRING_DESCRIPTION = "'%1$s'";
     private static final String SEARCH_STRING_NO_DESCRIPTION = "all tasks";
     private static final String SEARCH_STRING_ON = " on ";
     private static final String SEARCH_STRING_DUE = " due ";
     private static final String SEARCH_STRING_FROM_TO = " from %1$s to %2$s";
-
-    private static final String NATTY_WARMUP_STRING = "Natty starts up slowly due tomorrow";
-
-    private static final String ERROR_STARTUP = "There was a problem accessing the directory";
-    private static final String ERROR_STARTUP_MESSAGE = "Please startup Procrastinate from a different working directory";
 
     private static final int MAX_LENGTH_DESCRIPTION = 20;
     private static final int MAX_LENGTH_DESCRIPTION_SHORT = 10;
@@ -151,390 +150,433 @@ public class Logic {
 
     private String runCommand(Command command, boolean execute) {
 
-        CommandType commandType = command.getType();
-
-        switch (commandType) {
+        switch (command.getType()) {
 
             case ADD_DREAM:
             case ADD_DEADLINE:
-            case ADD_EVENT: {
-                String description = command.getDescription();
-                assert(description != null);
-
-                Task newTask = null;
-                Date date = null;
-                Date startDate = null;
-                Date endDate = null;
-
-                if (commandType == CommandType.ADD_DREAM) {
-                    newTask = new Dream(description);
-
-                } else if (commandType == CommandType.ADD_DEADLINE) {
-                    date = command.getDate();
-                    assert(date != null);
-
-                    newTask = new Deadline(description, date);
-
-                } else { // CommandType.ADD_EVENT
-                    startDate = command.getStartDate();
-                    endDate = command.getEndDate();
-                    assert(startDate != null && endDate != null);
-
-                    if (endDate.compareTo(startDate) < 0) {
-                        return String.format(FEEDBACK_INVALID_RANGE, formatDateTime(startDate), formatDateTime(endDate));
-                    }
-
-                    newTask = new Event(description, startDate, endDate);
-
-                }
-
-                if (execute) {
-                    boolean success = taskEngine.add(newTask);
-                    currentView = ViewType.SHOW_OUTSTANDING;
-                    updateUiTaskList();
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
-                        return FEEDBACK_TRY_AGAIN;
-                    }
-                }
-
-                if (commandType == CommandType.ADD_DREAM) {
-                    return FEEDBACK_ADD_DREAM + description;
-
-                } else if (commandType == CommandType.ADD_DEADLINE) {
-                    return String.format(FEEDBACK_ADD_DEADLINE, shorten(description, MAX_LENGTH_DESCRIPTION),
-                            formatDateTime(date));
-
-                } else { // CommandType.ADD_DEADLINE
-                    return String.format(FEEDBACK_ADD_EVENT, shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
-                            formatDateTime(startDate), formatDateTime(endDate));
-
-                }
-
-            }
+            case ADD_EVENT:
+                return runAdd(command, execute);
 
             case EDIT:
-            case EDIT_TO_DREAM: {
-                int lineNumber = command.getLineNumber();
+            case EDIT_TO_DREAM:
+                return runEdit(command, execute);
 
-                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
-                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
-                }
+            case EDIT_PARTIAL:
+                return runEditPartial(command);
 
-                Task oldTask = getTaskFromLineNumber(lineNumber);
-                String oldDescription = oldTask.getDescription();
+            case DELETE:
+                return runDelete(command, execute);
 
-                String newDescription = command.getDescription();
-                Date newDate = command.getDate();
-                Date newStartDate = command.getStartDate();
-                Date newEndDate = command.getEndDate();
+            case DONE:
+                return runDone(command, execute);
 
-                Task newTask;
-
-                if (newDate != null) {
-                    newTask = new Deadline(oldDescription, newDate);
-
-                } else if (newStartDate != null) {
-                    assert(newEndDate != null);
-                    if (newEndDate.compareTo(newStartDate) < 0) {
-                        return String.format(FEEDBACK_INVALID_RANGE,
-                                formatDateTime(newStartDate), formatDateTime(newEndDate));
-                    }
-
-                    newTask = new Event(oldDescription, newStartDate, newEndDate);
-
-                } else if (commandType == CommandType.EDIT_TO_DREAM) {
-                    newTask = new Dream(oldDescription);
-
-                } else {
-                    newTask = Task.copy(oldTask);
-
-                }
-
-                if (newDescription != null) {
-                    newTask.setDescription(newDescription);
-                }
-
-                if (execute) {
-                    boolean success = taskEngine.edit(oldTask.getId(), newTask);
-                    updateUiTaskList();
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
-                        return FEEDBACK_TRY_AGAIN;
-                    }
-                }
-
-                String description = newTask.getDescription();
-
-                switch (newTask.getType()) {
-                    case DREAM:
-                        return String.format(FEEDBACK_EDIT_DREAM, lineNumber, description);
-                    case DEADLINE:
-                        return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber,
-                                shorten(description, MAX_LENGTH_DESCRIPTION),
-                                formatDateTime(((Deadline) newTask).getDate()));
-                    case EVENT:
-                        return String.format(FEEDBACK_EDIT_EVENT, lineNumber,
-                                shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
-                                formatDateTime(((Event) newTask).getStartDate()),
-                                formatDateTime(((Event) newTask).getEndDate()));
-                }
-
-            }
-
-            case EDIT_PARTIAL: {
-                int lineNumber = command.getLineNumber();
-
-                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
-                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
-                }
-
-                return FEEDBACK_EDIT_PARTIAL;
-            }
-
-            case DELETE: {
-                int lineNumber = command.getLineNumber();
-
-                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
-                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
-                }
-
-                Task task = getTaskFromLineNumber(lineNumber);
-                String type = task.getTypeString();
-                String description = task.getDescription();
-
-                if (execute) {
-                    boolean success = taskEngine.delete(task.getId());
-                    updateUiTaskList();
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
-                        return FEEDBACK_TRY_AGAIN;
-                    }
-                }
-
-                return String.format(FEEDBACK_DELETED, type, description);
-            }
-
-            case DONE: {
-                int lineNumber = command.getLineNumber();
-
-                if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
-                    return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
-                }
-
-                Task task = getTaskFromLineNumber(lineNumber);
-                String type = task.getTypeString();
-                String description = task.getDescription();
-                String feedback;
-
-                if (!task.isDone()) {
-                    feedback = FEEDBACK_DONE;
-                } else {
-                    feedback = FEEDBACK_UNDONE;
-                }
-
-                if (execute) {
-                    boolean success;
-                    if (!task.isDone()) {
-                        success = taskEngine.done(task.getId());
-                    } else {
-                        success = taskEngine.undone(task.getId());
-                    }
-                    updateUiTaskList();
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
-                        return FEEDBACK_TRY_AGAIN;
-                    }
-                }
-
-                return String.format(feedback, type, description);
-            }
-
-            case UNDO: {
-                if (!taskEngine.hasPreviousOperation()) {
-                    return FEEDBACK_NOTHING_TO_UNDO;
-                }
-
-                if (execute) {
-                    boolean success = taskEngine.undo();
-                    updateUiTaskList();
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SAVE, FEEDBACK_TRY_AGAIN);
-                        return FEEDBACK_TRY_AGAIN;
-                    }
-                }
-
-                return FEEDBACK_UNDO;
-            }
+            case UNDO:
+                return runUndo(execute);
 
             case SEARCH:
-            case SEARCH_ON: {
-                String description = command.getDescription();
-                Date date = command.getDate();
-                Date startDate = command.getStartDate();
-                Date endDate = command.getEndDate();
+            case SEARCH_ON:
+                return runSearch(command, execute);
 
-                if (execute) {
-                    searchString = "";
-                    searchTerm = null;
-                    searchStartDate = null;
-                    searchEndDate = null;
-                    searchShowDone = true;
-                }
+            case SET_PATH:
+                return runSetPath(command, execute);
 
-                String feedback = FEEDBACK_SEARCH;
+            case SHOW_OUTSTANDING:
+                return runShowOutstanding(execute);
 
-                if (description != null) {
-                    feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
-                    if (execute) {
-                        searchTerm = description;
-                        searchString += String.format(SEARCH_STRING_DESCRIPTION, description);
-                    }
-                } else {
-                    if (execute) {
-                        searchString += SEARCH_STRING_NO_DESCRIPTION;
-                    }
-                }
+            case SHOW_DONE:
+                return runShowDone(execute);
 
-                if (date != null) {
-                    searchShowDone = false;
+            case SHOW_ALL:
+                return runShowAll(execute);
 
-                    // set time to 0000 hrs of the specified day
-                    date = DateUtils.truncate(date, Calendar.DATE);
+            case HELP:
+                return runHelp(execute);
 
-                    if (commandType == CommandType.SEARCH_ON) {
-                        feedback += String.format(FEEDBACK_SEARCH_ON, formatDate(date));
-                        if (execute) {
-                            searchStartDate = date;
-                            searchEndDate = DateUtils.addDays(date, 3);
-                            searchString += SEARCH_STRING_ON + formatDate(date);
-                        }
+            case INVALID:
+                return runInvalid(command);
 
-                    } else {
-                        feedback += String.format(FEEDBACK_SEARCH_DUE, formatDate(date));
-                        if (execute) {
-                            searchStartDate = new Date(0); // beginning of time
-                            searchEndDate = DateUtils.addDays(date, 3);
-                            searchString += SEARCH_STRING_DUE + formatDate(date);
-                        }
-
-                    }
-
-                } else if (startDate != null) {
-                    assert(endDate != null);
-
-                    // set time to 0000 hrs of the specified day
-                    startDate = DateUtils.truncate(startDate, Calendar.DATE);
-                    endDate = DateUtils.truncate(endDate, Calendar.DATE);
-
-                    if (endDate.compareTo(startDate) < 0) {
-                        return String.format(FEEDBACK_INVALID_RANGE, formatDate(startDate), formatDate(endDate));
-                    }
-
-                    feedback += String.format(FEEDBACK_SEARCH_FROM_TO, formatDate(startDate), formatDate(endDate));
-                    if (execute) {
-                        searchStartDate = startDate;
-                        searchEndDate = DateUtils.addDays(endDate, 1);;
-                        searchString += String.format(SEARCH_STRING_FROM_TO, formatDate(startDate), formatDate(endDate));
-                    }
-                }
-
-                if (execute) {
-                    currentView = ViewType.SHOW_SEARCH_RESULTS;
-                    updateUiTaskList();
-                }
-
-                return feedback;
-            }
-
-            case SET_PATH: {
-                String pathDirectory = command.getPathDirectory();
-                String pathFilename = command.getPathFilename();
-
-                String parsedPathDirectory = null;
-                File targetDirectory = new File(pathDirectory);
-
-                try {
-                    parsedPathDirectory = targetDirectory.getCanonicalPath();
-                } catch (IOException e) {
-                    parsedPathDirectory = targetDirectory.getAbsolutePath();
-                }
-
-                if (!parsedPathDirectory.endsWith(File.separator)) {
-                    parsedPathDirectory += File.separator;
-                }
-
-                if (pathFilename == null) {
-                    pathFilename = FileHandler.DEFAULT_FULL_FILENAME;
-                }
-
-                if (execute) {
-                    boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
-                    if (!success) {
-                        ui.createErrorDialog(FEEDBACK_ERROR_SET_LOCATION,
-                                             String.format(FEEDBACK_ERROR_SET_LOCATION_MESSAGE,
-                                                           parsedPathDirectory, pathFilename));
-                        return FEEDBACK_TRY_AGAIN;
-                    }
-                }
-
-                return FEEDBACK_SET_LOCATION + parsedPathDirectory + pathFilename;
-            }
-
-            case SHOW_OUTSTANDING: {
-                if (execute) {
-                    currentView = ViewType.SHOW_OUTSTANDING;
-                    updateUiTaskList();
-                }
-
-                return FEEDBACK_SHOW_OUTSTANDING;
-            }
-
-            case SHOW_DONE: {
-                if (execute) {
-                    currentView = ViewType.SHOW_DONE;
-                    updateUiTaskList();
-                }
-
-                return FEEDBACK_SHOW_DONE;
-            }
-
-            case SHOW_ALL: {
-                if (execute) {
-                    currentView = ViewType.SHOW_ALL;
-                    updateUiTaskList();
-                }
-
-                return FEEDBACK_SHOW_ALL;
-            }
-
-            case HELP: {
-                if (execute) {
-                    ui.showHelpOverlay();
-                }
-
-                return FEEDBACK_HELP;
-            }
-
-            case INVALID: {
-                return command.getDescription();
-            }
-
-            case EXIT: {
-                if (execute) {
-                    if (!exit()) {
-                        return FEEDBACK_TRY_AGAIN;
-                    }
-                }
-
-                return PREVIEW_EXIT;
-            }
+            case EXIT:
+                return runExit(execute);
 
             default:
                 return null;
 
         }
 
+    }
+
+    private String runAdd(Command command, boolean execute) {
+        String description = command.getDescription();
+        assert(description != null);
+
+        Task newTask = null;
+        Date date = null;
+        Date startDate = null;
+        Date endDate = null;
+
+        switch(command.getType()) {
+            case ADD_DREAM:
+                newTask = new Dream(description);
+                break;
+
+            case ADD_DEADLINE:
+                date = command.getDate();
+                assert(date != null);
+
+                newTask = new Deadline(description, date);
+                break;
+
+            case ADD_EVENT:
+                startDate = command.getStartDate();
+                endDate = command.getEndDate();
+                assert(startDate != null && endDate != null);
+
+                if (endDate.before(startDate)) {
+                    return String.format(FEEDBACK_INVALID_RANGE, formatDateTime(startDate), formatDateTime(endDate));
+                }
+
+                newTask = new Event(description, startDate, endDate);
+                break;
+
+            default:
+                break;
+        }
+
+        if (execute) {
+            boolean success = taskEngine.add(newTask);
+            updateView(ViewType.SHOW_OUTSTANDING);
+            if (!success) {
+                ui.createErrorDialog(ERROR_SAVE_HEADER, ERROR_SAVE_MESSAGE);
+                return FEEDBACK_TRY_AGAIN;
+            }
+        }
+
+        switch(command.getType()) {
+            case ADD_DREAM:
+                return FEEDBACK_ADD_DREAM + description;
+
+            case ADD_DEADLINE:
+                return String.format(FEEDBACK_ADD_DEADLINE, shorten(description, MAX_LENGTH_DESCRIPTION),
+                        formatDateTime(date));
+
+            case ADD_EVENT:
+                return String.format(FEEDBACK_ADD_EVENT, shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
+                        formatDateTime(startDate), formatDateTime(endDate));
+
+            default:
+                return null;
+        }
+
+    }
+
+    private String runEdit(Command command, boolean execute) {
+        int lineNumber = command.getLineNumber();
+
+        if (!isValidLineNumber(lineNumber)) {
+            return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+        }
+
+        Task oldTask = getTaskFromLineNumber(lineNumber);
+        String oldDescription = oldTask.getDescription();
+
+        String newDescription = command.getDescription();
+        Date newDate = command.getDate();
+        Date newStartDate = command.getStartDate();
+        Date newEndDate = command.getEndDate();
+
+        Task newTask;
+
+        if (newDate != null) {
+            newTask = new Deadline(oldDescription, newDate);
+
+        } else if (newStartDate != null) {
+            assert(newEndDate != null);
+            if (newEndDate.before(newStartDate)) {
+                return String.format(FEEDBACK_INVALID_RANGE,
+                        formatDateTime(newStartDate), formatDateTime(newEndDate));
+            }
+
+            newTask = new Event(oldDescription, newStartDate, newEndDate);
+
+        } else if (command.getType() == CommandType.EDIT_TO_DREAM) {
+            newTask = new Dream(oldDescription);
+
+        } else {
+            newTask = Task.copy(oldTask);
+
+        }
+
+        if (newDescription != null) {
+            newTask.setDescription(newDescription);
+        }
+
+        if (execute) {
+            boolean success = taskEngine.edit(oldTask.getId(), newTask);
+            updateView();
+            if (!success) {
+                ui.createErrorDialog(ERROR_SAVE_HEADER, ERROR_SAVE_MESSAGE);
+                return FEEDBACK_TRY_AGAIN;
+            }
+        }
+
+        String description = newTask.getDescription();
+
+        switch (newTask.getType()) {
+            case DREAM:
+                return String.format(FEEDBACK_EDIT_DREAM, lineNumber, description);
+
+            case DEADLINE:
+                return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber,
+                        shorten(description, MAX_LENGTH_DESCRIPTION),
+                        formatDateTime(((Deadline) newTask).getDate()));
+
+            case EVENT:
+                return String.format(FEEDBACK_EDIT_EVENT, lineNumber,
+                        shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
+                        formatDateTime(((Event) newTask).getStartDate()),
+                        formatDateTime(((Event) newTask).getEndDate()));
+
+            default:
+                return null;
+        }
+    }
+
+    private String runEditPartial(Command command) {
+        int lineNumber = command.getLineNumber();
+
+        if (!isValidLineNumber(lineNumber)) {
+            return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+        }
+
+        return FEEDBACK_EDIT_PARTIAL;
+    }
+
+    private String runDelete(Command command, boolean execute) {
+        int lineNumber = command.getLineNumber();
+
+        if (!isValidLineNumber(lineNumber)) {
+            return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+        }
+
+        Task task = getTaskFromLineNumber(lineNumber);
+        String type = task.getTypeString();
+        String description = task.getDescription();
+
+        if (execute) {
+            boolean success = taskEngine.delete(task.getId());
+            updateView();
+            if (!success) {
+                ui.createErrorDialog(ERROR_SAVE_HEADER, ERROR_SAVE_MESSAGE);
+                return FEEDBACK_TRY_AGAIN;
+            }
+        }
+
+        return String.format(FEEDBACK_DELETED, type, description);
+    }
+
+    private String runDone(Command command, boolean execute) {
+        int lineNumber = command.getLineNumber();
+
+        if (!isValidLineNumber(lineNumber)) {
+            return FEEDBACK_INVALID_LINE_NUMBER + lineNumber;
+        }
+
+        Task task = getTaskFromLineNumber(lineNumber);
+        String type = task.getTypeString();
+        String description = task.getDescription();
+        String feedback;
+
+        if (!task.isDone()) {
+            feedback = FEEDBACK_DONE;
+        } else {
+            feedback = FEEDBACK_UNDONE;
+        }
+
+        if (execute) {
+            boolean success;
+            if (!task.isDone()) {
+                success = taskEngine.done(task.getId());
+            } else {
+                success = taskEngine.undone(task.getId());
+            }
+            updateView();
+            if (!success) {
+                ui.createErrorDialog(ERROR_SAVE_HEADER, ERROR_SAVE_MESSAGE);
+                return FEEDBACK_TRY_AGAIN;
+            }
+        }
+
+        return String.format(feedback, type, description);
+    }
+
+    private String runUndo(boolean execute) {
+        if (!taskEngine.hasPreviousOperation()) {
+            return FEEDBACK_NOTHING_TO_UNDO;
+        }
+
+        if (execute) {
+            boolean success = taskEngine.undo();
+            updateView();
+            if (!success) {
+                ui.createErrorDialog(ERROR_SAVE_HEADER, ERROR_SAVE_MESSAGE);
+                return FEEDBACK_TRY_AGAIN;
+            }
+        }
+
+        return FEEDBACK_UNDO;
+    }
+
+    private String runSearch(Command command, boolean execute) {
+        String description = command.getDescription();
+        Date date = command.getDate();
+        Date startDate = command.getStartDate();
+        Date endDate = command.getEndDate();
+
+        if (execute) {
+            searchString = "";
+            searchTerm = null;
+            searchStartDate = null;
+            searchEndDate = null;
+            searchShowDone = true;
+        }
+
+        String feedback = FEEDBACK_SEARCH;
+
+        if (description != null) {
+            feedback += String.format(FEEDBACK_SEARCH_CONTAINING, description);
+            if (execute) {
+                searchTerm = description;
+                searchString += String.format(SEARCH_STRING_DESCRIPTION, description);
+            }
+        } else {
+            if (execute) {
+                searchString += SEARCH_STRING_NO_DESCRIPTION;
+            }
+        }
+
+        if (date != null) {
+            searchShowDone = false;
+
+            // set time to 0000 hrs of the specified day
+            date = DateUtils.truncate(date, Calendar.DATE);
+
+            if (command.getType() == CommandType.SEARCH_ON) {
+                feedback += String.format(FEEDBACK_SEARCH_ON, formatDate(date));
+                if (execute) {
+                    searchStartDate = date;
+                    searchEndDate = DateUtils.addDays(date, 3);
+                    searchString += SEARCH_STRING_ON + formatDate(date);
+                }
+
+            } else {
+                feedback += String.format(FEEDBACK_SEARCH_DUE, formatDate(date));
+                if (execute) {
+                    searchStartDate = new Date(0); // beginning of time
+                    searchEndDate = DateUtils.addDays(date, 3);
+                    searchString += SEARCH_STRING_DUE + formatDate(date);
+                }
+
+            }
+
+        } else if (startDate != null) {
+            assert(endDate != null);
+
+            // set time to 0000 hrs of the specified day
+            startDate = DateUtils.truncate(startDate, Calendar.DATE);
+            endDate = DateUtils.truncate(endDate, Calendar.DATE);
+
+            if (endDate.before(startDate)) {
+                return String.format(FEEDBACK_INVALID_RANGE, formatDate(startDate), formatDate(endDate));
+            }
+
+            feedback += String.format(FEEDBACK_SEARCH_FROM_TO, formatDate(startDate), formatDate(endDate));
+            if (execute) {
+                searchStartDate = startDate;
+                searchEndDate = DateUtils.addDays(endDate, 1);;
+                searchString += String.format(SEARCH_STRING_FROM_TO, formatDate(startDate), formatDate(endDate));
+            }
+        }
+
+        if (execute) {
+            updateView(ViewType.SHOW_SEARCH_RESULTS);
+        }
+
+        return feedback;
+    }
+
+    private String runSetPath(Command command, boolean execute) {
+        String pathDirectory = command.getPathDirectory();
+        String pathFilename = command.getPathFilename();
+
+        String parsedPathDirectory = null;
+        File targetDirectory = new File(pathDirectory);
+
+        try {
+            parsedPathDirectory = targetDirectory.getCanonicalPath();
+        } catch (IOException e) {
+            parsedPathDirectory = targetDirectory.getAbsolutePath();
+        }
+
+        if (!parsedPathDirectory.endsWith(File.separator)) {
+            parsedPathDirectory += File.separator;
+        }
+
+        if (pathFilename == null) {
+            pathFilename = FileHandler.DEFAULT_FULL_FILENAME;
+        }
+
+        if (execute) {
+            boolean success = taskEngine.set(parsedPathDirectory, pathFilename);
+            if (!success) {
+                ui.createErrorDialog(ERROR_SET_LOCATION_HEADER,
+                                     String.format(ERROR_SET_LOCATION_MESSAGE,
+                                                   parsedPathDirectory, pathFilename));
+                return FEEDBACK_TRY_AGAIN;
+            }
+        }
+
+        return FEEDBACK_SET_LOCATION + parsedPathDirectory + pathFilename;
+    }
+
+    private String runShowOutstanding(boolean execute) {
+        if (execute) {
+            updateView(ViewType.SHOW_OUTSTANDING);
+        }
+        return FEEDBACK_SHOW_OUTSTANDING;
+    }
+
+    private String runShowDone(boolean execute) {
+        if (execute) {
+            updateView(ViewType.SHOW_DONE);
+        }
+        return FEEDBACK_SHOW_DONE;
+    }
+
+    private String runShowAll(boolean execute) {
+        if (execute) {
+            updateView(ViewType.SHOW_ALL);
+        }
+        return FEEDBACK_SHOW_ALL;
+    }
+
+    private String runHelp(boolean execute) {
+        if (execute) {
+            ui.showHelpOverlay();
+        }
+        return FEEDBACK_HELP;
+    }
+
+    private String runInvalid(Command command) {
+        return command.getDescription();
+    }
+
+    private String runExit(boolean execute) {
+        if (execute) {
+            if (!exit()) {
+                return FEEDBACK_TRY_AGAIN;
+            }
+        }
+        return FEEDBACK_EXIT;
     }
 
     // ================================================================================
@@ -546,7 +588,7 @@ public class Logic {
         ui = new UI(stage);
         ui.attachHandlersAndListeners(createKeyPressHandler(), createUserInputListener(), createIsExitListener());
         if (startupError) {
-            ui.createErrorDialog(ERROR_STARTUP, ERROR_STARTUP_MESSAGE);
+            ui.createErrorDialog(ERROR_STARTUP_HEADER, ERROR_STARTUP_MESSAGE);
             exit();
         }
         ui.setStatus(STATUS_READY);
@@ -569,30 +611,35 @@ public class Logic {
     // UI Interaction methods
     // ================================================================================
 
+    private void updateView() {
+        updateUiTaskList();
+    }
+
+    private void updateView(ViewType newView) {
+        currentView = newView;
+        updateUiTaskList();
+    }
+
     private void updateUiTaskList() {
         switch (currentView) {
             case SHOW_OUTSTANDING:
-                updateUiTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
+                ui.updateTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
                 break;
 
             case SHOW_DONE:
-                updateUiTaskList(taskEngine.getCompletedTasks(), ScreenView.SCREEN_DONE);
+                ui.updateTaskList(taskEngine.getCompletedTasks(), ScreenView.SCREEN_DONE);
                 break;
 
             case SHOW_ALL:
-                updateUiTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
+                ui.updateTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
 
             case SHOW_SEARCH_RESULTS:
                 ui.passSearchStringToSearchScreen(searchString);
-                updateUiTaskList(taskEngine.search(searchTerm, searchStartDate, searchEndDate, searchShowDone),
-                                 ScreenView.SCREEN_SEARCH);
+                ui.updateTaskList(taskEngine.search(searchTerm, searchStartDate, searchEndDate, searchShowDone),
+                                  ScreenView.SCREEN_SEARCH);
                 break;
         }
-    }
-
-    private void updateUiTaskList(List<Task> taskList, ScreenView screenView) {
-        ui.updateTaskList(taskList, screenView);
     }
 
     // Process key press events
@@ -606,10 +653,9 @@ public class Logic {
 
                 // Main command execution flow
                 case ENTER: {
-                    String input = ui.getInput();
 
                     // Whitespace command
-                    if (input.trim().isEmpty()) {
+                    if (ui.getInput().trim().isEmpty()) {
                         ui.clearInput();
                         ui.hideHelpOverlay();
                         return;
@@ -646,7 +692,7 @@ public class Logic {
 
                     int lineNumber = lastPreviewedCommand.getLineNumber();
 
-                    if (lineNumber < 1 || lineNumber > getCurrentTaskList().size()) {
+                    if (!isValidLineNumber(lineNumber)) {
                         return;
                     }
 
@@ -741,8 +787,8 @@ public class Logic {
         }
 
         // Write failure; create confirmation dialog to warn user
-        boolean exitAnyway = ui.createErrorDialogWithConfirmation(FEEDBACK_ERROR_SAVE_EXIT,
-                FEEDBACK_ERROR_SAVE_EXIT_CONTINUE, FEEDBACK_ERROR_SAVE_EXIT_BUTTON_LABEL);
+        boolean exitAnyway = ui.createErrorDialogWithConfirmation(ERROR_EXIT_HEADER,
+                ERROR_EXIT_MESSAGE, ERROR_EXIT_BUTTON_LABEL);
         if (exitAnyway) {
             hideAndTerminate(); // User chose to exit anyway despite save failure
         }
@@ -754,6 +800,10 @@ public class Logic {
     private void hideAndTerminate() {
         ui.hide();
         System.exit(0);
+    }
+
+    private boolean isValidLineNumber(int lineNumber) {
+        return (lineNumber >= 1 && lineNumber <= getCurrentTaskList().size());
     }
 
     private Task getTaskFromLineNumber(int lineNumber) {
