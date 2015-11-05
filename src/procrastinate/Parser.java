@@ -88,6 +88,8 @@ public class Parser {
     public static Command parse(String userInput) {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
+        assert(userInput != null && !userInput.isEmpty());
+
         String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE_STRING); // Trim WHITESPACE_STRING
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
