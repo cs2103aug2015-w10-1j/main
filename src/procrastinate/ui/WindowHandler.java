@@ -147,15 +147,13 @@ public class WindowHandler {
             primaryStage.setY(mouseEvent.getScreenY() - yOffset);
         });
 
-        // Since the CenterScreen is wrapped around another Pane, setting the mouse events on it is necessary as well.
+        // Prevent mouse clicks on the center pane from stealing focus from userInputField
         StackPane centerPane = (StackPane) root.lookup(SELECTOR_CENTER_SCREEN);
         centerPane.setOnMousePressed((mouseEvent) -> {
-            xOffset = mouseEvent.getSceneX();
-            yOffset = mouseEvent.getSceneY();
+            userInputField.requestFocus();
         });
         centerPane.setOnMouseDragged((mouseEvent) -> {
-            centerPane.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
-            centerPane.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+            userInputField.requestFocus();
         });
 
 
