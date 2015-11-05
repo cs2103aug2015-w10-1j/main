@@ -41,8 +41,8 @@ public class CenterPaneController {
     private static final double TIME_HELP_SCREEN_FADEIN = 150;
     private static final double TIME_HELP_SCREEN_FADEOUT = 200;
 
-    private static final double TIME_SPLASH_SCREEN_FADE = 3000;
-    private static final double TIME_SPLASH_SCREEN_FULL_OPACITY = 2000;
+    private static final double TIME_SPLASH_SCREEN_FADE = 4000;
+    private static final double TIME_SPLASH_SCREEN_FULL_OPACITY = 3000;
     private static final double TIME_SPLASH_SCREEN_INTERRUPT = 2700;
 
     // ================================================================================
