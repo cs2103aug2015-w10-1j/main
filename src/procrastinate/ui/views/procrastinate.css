@@ -55,6 +55,7 @@
 
 .mainWindow #userInputField {
     -fx-font-size: 18px;
+    -fx-text-fill: #314976;
 }
 
 .mainWindow #statusLabel {
@@ -118,7 +119,7 @@
     -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 20px;
-	-fx-text-fill: #365fac;
+	-fx-text-fill: #395c9c;
 }
 
 .categoryBox #categoryVBox {
@@ -184,7 +185,7 @@
 
 .titleBar #title {
 	-fx-font-family: "Helvetic Neue";
-	-fx-font-size: 16px;
+	-fx-font-size: 17px;
 	-fx-font-weight: bold;
 }
 
