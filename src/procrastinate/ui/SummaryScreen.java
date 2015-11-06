@@ -5,6 +5,7 @@ import java.util.List;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -28,8 +29,6 @@ public class SummaryScreen extends MultiCategoryScreen {
     private static final int MAX_SUMMARY_COUNT = 23;
     private static final int SUMMARY_HEADER_SIZE_COUNT = 2;
     private static final int SUMMARY_NORMAL_SIZE_COUNT = 1;
-
-    private static final int SUMMARY_THRESHOLD = 7;
 
     private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_OTHERS = 25;
     private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_DREAMS = 40;
@@ -97,7 +96,11 @@ public class SummaryScreen extends MultiCategoryScreen {
      *            to build the summary view from by removing tasks if needed.
      */
     private void setupSummaryView(List<Task> taskList) {
-        if (taskList.size() < SUMMARY_THRESHOLD) {
+        mainVBox.getParent().applyCss();
+        mainVBox.getParent().layout();
+        System.out.println(mainVBox.getHeight());
+        System.out.println(((ScrollPane) mainVBox.getParent().getParent().getParent()).getHeight());
+        if (mainVBox.getHeight() < ((ScrollPane) mainVBox.getParent().getParent().getParent()).getHeight()) {
             return;
         }
 
