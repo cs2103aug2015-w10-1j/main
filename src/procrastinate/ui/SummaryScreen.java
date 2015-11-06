@@ -29,6 +29,8 @@ public class SummaryScreen extends MultiCategoryScreen {
     private static final int SUMMARY_HEADER_SIZE_COUNT = 2;
     private static final int SUMMARY_NORMAL_SIZE_COUNT = 1;
 
+    private static final int SUMMARY_THRESHOLD = 11;
+
     private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_OTHERS = 25;
     private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_DREAMS = 40;
 
@@ -91,6 +93,10 @@ public class SummaryScreen extends MultiCategoryScreen {
      *            to build the summary view from by removing tasks if needed.
      */
     private void setupSummaryView(List<Task> taskList) {
+        if (taskList.size() < SUMMARY_THRESHOLD) {
+            return;
+        }
+
         // Summary count is reset at each call just in case the screen is
         // reused.
         // It is used to check how much the 'Upcoming' category should be
