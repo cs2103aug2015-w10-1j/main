@@ -8,6 +8,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
+import javax.swing.JWindow;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -42,6 +44,7 @@ public class SystemTrayHandler {
     private SystemTray sysTray;
     private TrayIcon sysTrayIcon;
     private PopupMenu popupMenu;
+    private Component awtHandle;
     private TextField userInputField;
 
     private boolean isMouse = false;
@@ -86,6 +89,9 @@ public class SystemTrayHandler {
         Image sysTrayIconImage = createSysTrayIconImage();
         popupMenu = createSysTrayMenu();
         sysTrayIcon = createSysTrayIcon(sysTrayIconImage);
+        awtHandle = new JWindow();
+        awtHandle.setVisible(true);
+        awtHandle.add(popupMenu);
         try {
             sysTray.add(sysTrayIcon);
         } catch (AWTException e) {
@@ -175,12 +181,7 @@ public class SystemTrayHandler {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    Frame frame = new Frame();
-                    frame.setUndecorated(true);
-                    frame.setResizable(false);
-                    frame.setVisible(true);
-                    frame.add(popupMenu);
-                    popupMenu.show(frame, e.getXOnScreen(), e.getYOnScreen());
+                    popupMenu.show(awtHandle, e.getXOnScreen(), e.getYOnScreen());
                 } else {
                     windowHideOrShow();
                 }
@@ -197,6 +198,8 @@ public class SystemTrayHandler {
                     isMouse = true;
                 }
             }
+
+
         };
     }
 }
