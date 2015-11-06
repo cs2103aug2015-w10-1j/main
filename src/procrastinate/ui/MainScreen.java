@@ -3,6 +3,7 @@ package procrastinate.ui;
 
 import java.util.List;
 
+import javafx.animation.FadeTransition;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Task;
 
@@ -28,16 +29,20 @@ public class MainScreen extends MultiCategoryScreen {
 
     @Override
     protected void updateTaskList(List<Task> taskList) {
-        getUpdatedDates();
-        clearTaskList();
+        FadeTransition fadeOutDeletedTaskEntry = fadeOutDeletedTaskEntry(taskList);
+        fadeOutDeletedTaskEntry.setOnFinished(finish -> {
+            getUpdatedDates();
+            clearTaskList();
 
-        for (Task task : taskList) {
-            taskCount.set(taskCount.get() + 1);
+            for (Task task : taskList) {
+                taskCount.set(taskCount.get() + 1);
 
-            addTaskByType(task);
-        }
-        updateDisplay();
-        highlightChangedTaskEntry(taskList);
+                addTaskByType(task);
+            }
+            updateDisplay();
+            highlightAddedOrEditedTaskEntry(taskList);
+        });
+        fadeOutDeletedTaskEntry.play();
     }
 
     @Override

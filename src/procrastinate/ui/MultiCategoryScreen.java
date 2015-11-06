@@ -49,6 +49,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     private static final int TIME_TRANSITION_SUBCATEGORY_FADE_IN = 200;
     private static final int TIME_TRANSITION_SUBCATEGORY_FADE_OUT = 150;
 
+    private static final int TIME_TRANSITION_TASK_ENTRY_FADE_OUT = 100;
+
     private static final int STYLE_BACKGROUND_HIGHLIGHT_FRAME_TIME = 10;
     private static final int STYLE_BACKGROUND_HIGHLIGHT_FULL_OPACITY = 100;
 
@@ -86,7 +88,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     protected VBox mainVBox;
 
-    protected ArrayList<Task> prevTaskList;     // Used for tracking changes and animating add/edit/deletes
+    // Used for tracking changes and animating add/edit/deletes
+    protected ArrayList<Task> prevTaskList;
 
     // ================================================================================
     // MultiCategoryScreen Constructor
@@ -584,63 +587,61 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // TaskList change animation methods
     // ================================================================================
 
-    protected void highlightChangedTaskEntry(List<Task> taskList) {
+    protected FadeTransition fadeOutDeletedTaskEntry(List<Task> taskList) {
         boolean isInitialised = initialisePrevTaskList(taskList);
-        if (isInitialised) {
-            boolean isDelete = isTaskChangeDelete(taskList);
-            if (isDelete) {
-
-            } else {
-                // Add/Edit is done on the task list
-                int index = findIndexOfChangedTask(taskList);
-                highlightAddedOrEditedTask(index);
-            }
-        }
-    }
-
-    private boolean initialisePrevTaskList(List<Task> taskList) {
-        if (prevTaskList == null) {
-            prevTaskList = (ArrayList<Task>) taskList;
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isTaskChangeDelete(List<Task> taskList) {
-        if (taskList.size() < prevTaskList.size()) {
-            prevTaskList = (ArrayList<Task>) taskList;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private int findIndexOfChangedTask(List<Task> taskList) {
-            List<Task> filteredTaskList = new ArrayList<>(taskList);
-            // To retrieve the newly added/edited task
-            for (Task task : prevTaskList) {
-                filteredTaskList = filteredTaskList.stream()
-                        .filter(filterTask -> (!filterTask.getId().equals(task.getId())))
-                        .collect(Collectors.toList());
-            }
-            // To catch an edit that does not do any changes
-            if (filteredTaskList.isEmpty()) {
-                return -1;
-            }
-            Task newTask = filteredTaskList.get(0);
+        boolean isDelete = isTaskChangeDelete(taskList);
+        if (isInitialised && isDelete) {
+            int index = findIndexOfDeletedTask(taskList);
             prevTaskList = (ArrayList<Task>) taskList;  // Update the prevTaskList
-            for (int i = 0; i < taskList.size(); i++) {
-                Task currTask = taskList.get(i);
-                if (currTask.equals(newTask) && currTask.getId().equals(newTask.getId())) {
-                    System.out.println("Newly added/edited task at index = " + i);
-                    return i;
+            return fadeOutDeletedTask(index);
+        }
+        return new FadeTransition();
+    }
+
+    protected void highlightAddedOrEditedTaskEntry(List<Task> taskList) {
+        boolean isInitialised = initialisePrevTaskList(taskList);
+        boolean isDelete = isTaskChangeDelete(taskList);
+        if (isInitialised && !isDelete) {
+            int index = findIndexOfAddedOrEditedTask(taskList);
+            highlightTask(index);
+            prevTaskList = (ArrayList<Task>) taskList;  // Update the prevTaskList
+        }
+    }
+
+    private FadeTransition fadeOutDeletedTask(int index) {
+        int prevCount = 0;
+        int currCount = 0;
+        int indexOfTaskEntry = -1;
+        for (Node node : nodeList) {
+            if (node == upcomingNode) {
+                prevCount = currCount;
+                currCount = currCount + findNumberOfTasksInUpcomingSubcategories();
+                if (currCount > index) {
+                    indexOfTaskEntry = index - prevCount;
+                    for (VBox vBox : upcomingSubcategories) {
+                        if (indexOfTaskEntry < vBox.getChildren().size()) {
+                            GridPane newTaskEntry = (GridPane) vBox.getChildren().get(indexOfTaskEntry);
+                            return generateFadeOutTransition(newTaskEntry, TIME_TRANSITION_TASK_ENTRY_FADE_OUT);
+                        }
+                        indexOfTaskEntry -= vBox.getChildren().size();
+                    }
+                    break;
+                }
+            } else {
+                prevCount = currCount;
+                VBox currTaskList = ((VBox) node.lookup(SELECTOR_CATEGORY_VBOX));
+                currCount = currCount + currTaskList.getChildren().size();
+                if (currCount > index) {
+                    indexOfTaskEntry = index - prevCount;
+                    GridPane newTaskEntry = (GridPane) currTaskList.getChildren().get(indexOfTaskEntry);
+                    return generateFadeOutTransition(newTaskEntry, TIME_TRANSITION_TASK_ENTRY_FADE_OUT);
                 }
             }
-            // Should be another 'show' command
-            return -1;
+        }
+        return new FadeTransition();
     }
 
-    private void highlightAddedOrEditedTask(int index) {
+    private void highlightTask(int index) {
         if (index == -1) {
             return;
         }
@@ -671,8 +672,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
                 if (currCount > index) {
                     indexOfTaskEntry = index - prevCount;
                     GridPane newTaskEntry = (GridPane) currTaskList.getChildren().get(indexOfTaskEntry);
-                    newTaskEntry.setStyle("-fx-background-color: #FADDB1;"
-                                        + "-fx-border-color: #FBEFDD;");
+                    Timeline highlightTimeline = generateHighlightTimeline(newTaskEntry);
+                    highlightTimeline.play();
                     break;
                 }
             }
@@ -692,12 +693,66 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         return highlightTimeline;
     }
 
+    private int findIndexOfDeletedTask(List<Task> taskList) {
+        Task prevTaskListTask;
+        Task currTaskListTask;
+        for (int i = 0; i<taskList.size(); i++) {
+            currTaskListTask = taskList.get(i);
+            prevTaskListTask = prevTaskList.get(i);
+            if (currTaskListTask.equals(prevTaskListTask) && currTaskListTask.getId().equals(prevTaskListTask.getId())) {
+                continue;
+            } else {
+                return i;
+            }
+        }
+        return taskList.size();
+    }
+
+    private int findIndexOfAddedOrEditedTask(List<Task> taskList) {
+            List<Task> filteredTaskList = new ArrayList<>(taskList);
+            // To retrieve the newly added/edited task
+            for (Task task : prevTaskList) {
+                filteredTaskList = filteredTaskList.stream()
+                        .filter(filterTask -> (!filterTask.getId().equals(task.getId())))
+                        .collect(Collectors.toList());
+            }
+            // To catch an edit that does not do any changes
+            if (filteredTaskList.isEmpty()) {
+                return -1;
+            }
+            Task newTask = filteredTaskList.get(0);
+            for (int i = 0; i < taskList.size(); i++) {
+                Task currTask = taskList.get(i);
+                if (currTask.equals(newTask) && currTask.getId().equals(newTask.getId())) {
+                    return i;
+                }
+            }
+            // Should be another 'show' command
+            return -1;
+    }
+
     private int findNumberOfTasksInUpcomingSubcategories() {
         int numTasks = 0;
         for (VBox vBox : upcomingSubcategories) {
             numTasks += vBox.getChildren().size();
         }
         return numTasks;
+    }
+
+    private boolean initialisePrevTaskList(List<Task> taskList) {
+        if (prevTaskList == null) {
+            prevTaskList = (ArrayList<Task>) taskList;
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isTaskChangeDelete(List<Task> taskList) {
+        if (taskList.size() < prevTaskList.size()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // ================================================================================
