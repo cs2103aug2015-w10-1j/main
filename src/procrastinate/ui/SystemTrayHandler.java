@@ -9,9 +9,8 @@ import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -121,9 +120,8 @@ public class SystemTrayHandler {
     private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
         TrayIcon trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, popupMenu);
         trayIcon.setImageAutoSize(true);
-        trayIcon.setPopupMenu(popupMenu);
         trayIcon.addMouseListener(createIconClickListener());
-        trayIcon.addMouseMotionListener(createMouseMotionListener());
+        trayIcon.addMouseMotionListener(createIconMouseMotionListener());
         return trayIcon;
     }
 
@@ -134,6 +132,11 @@ public class SystemTrayHandler {
     protected void windowHideOrShow() {
         if (isMouse && primaryStage.isShowing()) {
             isMouse = false;
+            Platform.runLater(() -> {
+                primaryStage.show();
+                primaryStage.toFront();
+                userInputField.requestFocus();
+            });
         }
         else if (primaryStage.isShowing()) {
             if (isWindowsOs()) {
@@ -143,8 +146,8 @@ public class SystemTrayHandler {
         } else {
             Platform.runLater(() -> {
                 primaryStage.show();
-                userInputField.requestFocus();
                 primaryStage.toFront();
+                userInputField.requestFocus();
             });
         }
     }
@@ -157,10 +160,6 @@ public class SystemTrayHandler {
         return System.getProperty(OS_CHECK_NAME).startsWith(OS_CHECK_WINDOWS);
     }
 
-    private boolean isLeftClick(MouseEvent e) {
-        return e.getButton() == MouseEvent.BUTTON1;
-    }
-
     private void showMinimiseMessage() {
         if (!shownMinimiseMessage) {
             sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
@@ -170,58 +169,26 @@ public class SystemTrayHandler {
         }
     }
 
-    private MouseListener createIconClickListener() {
-        return new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (isWindowsOs() && isLeftClick(e)) {
-                    // Windows check needed as MacOS doesn't differentiate buttons
-                    Platform.runLater(() -> {
-                        primaryStage.requestFocus();
-                        primaryStage.toFront();
-                    });
-                    windowHideOrShow();
-                }
-            }
-
-            // Unused methods, left empty.
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
+    private MouseAdapter createIconClickListener() {
+        return new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if (primaryStage.isShowing() && !primaryStage.isFocused()) {
-                    isMouse = true;
-                    Platform.runLater(() -> {
-                        primaryStage.toFront();
-                    });
+                if (e.isPopupTrigger()) {
+                } else {
+                    windowHideOrShow();
                 }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
             }
         };
     }
 
-    private MouseMotionListener createMouseMotionListener() {
-        return new MouseMotionListener() {
+    private MouseAdapter createIconMouseMotionListener() {
+        return new MouseAdapter() {
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (primaryStage.isShowing() && !primaryStage.isFocused()) {
                     isMouse = true;
                 }
-            }
-
-            // Unused methods, left empty.
-            @Override
-            public void mouseDragged(MouseEvent e) {
             }
         };
     }
