@@ -26,7 +26,7 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     // Animation Values
     // ================================================================================
     // Time values used are in milliseconds
-//  private static final int TIME_TRANSITION_FADE = 250;
+  private static final int TIME_TRANSITION_FADE = 250;
 
     // ================================================================================
     // SingleCategoryScreen Constructor
@@ -45,14 +45,14 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     @Override
     protected SequentialTransition getScreenSwitchOutSequence() {
         SequentialTransition sequentialTransition = new SequentialTransition();
-//        sequentialTransition.getChildren().add(generateFadeOutTransition(doneNode, TIME_TRANSITION_FADE));
+        sequentialTransition.getChildren().add(generateFadeOutTransition(thisCategoryNode, TIME_TRANSITION_FADE));
         return sequentialTransition;
     }
 
     @Override
     protected SequentialTransition getScreenSwitchInSequence() {
         SequentialTransition sequentialTransition = new SequentialTransition();
-//        sequentialTransition.getChildren().add(generateFadeInTransition(doneNode, TIME_TRANSITION_FADE));
+        sequentialTransition.getChildren().add(generateFadeInTransition(thisCategoryNode, TIME_TRANSITION_FADE));
         return sequentialTransition;
     }
 

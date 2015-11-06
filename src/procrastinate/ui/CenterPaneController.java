@@ -227,15 +227,22 @@ public class CenterPaneController {
     }
 
     private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
+
         SequentialTransition screenSwitchSequence;
-        screenSwitchSequence = currentScreenView.getScreenSwitchOutSequence();
-        screenSwitchSequence.setOnFinished(e -> {
-            centerStackPane.getChildren().clear();
-            centerStackPane.getChildren().add(nodeToSwitchIn);
-            screenToSwitchIn.getScreenSwitchInSequence().play();
-            screenToSwitchIn.updateTaskList(taskList);
+
+        SequentialTransition screenSwitchInSequence = screenToSwitchIn.getScreenSwitchInSequence();
+        screenToSwitchIn.updateTaskList(taskList);
+        screenSwitchInSequence.setOnFinished(switchInFinish -> {
             currentScreenView = screenToSwitchIn;
         });
+
+        screenSwitchSequence = currentScreenView.getScreenSwitchOutSequence();
+        screenSwitchSequence.setOnFinished(switchOutFinish -> {
+            centerStackPane.getChildren().clear();
+            centerStackPane.getChildren().add(nodeToSwitchIn);
+            screenSwitchInSequence.play();
+        });
+
         screenSwitchSequence.play();
     }
 

@@ -169,7 +169,9 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     protected SequentialTransition getScreenSwitchInSequence() {
         SequentialTransition sequentialTransition = new SequentialTransition();
         for (Node node : nodeList) {
-            sequentialTransition.getChildren().add(generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT));
+            if (mainVBox.getChildren().contains(node)) {
+                sequentialTransition.getChildren().add(generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_IN));
+            }
         }
         return sequentialTransition;
     }
@@ -649,6 +651,9 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         int currCount = 0;
         int indexOfTaskEntry = -1;
         for (Node node : nodeList) {
+            if (node == doneNode) {
+                break;
+            }
             if (node == upcomingNode) {
                 prevCount = currCount;
                 currCount = currCount + findNumberOfTasksInUpcomingSubcategories();
