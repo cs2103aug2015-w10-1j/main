@@ -29,7 +29,7 @@ public class SummaryScreen extends MultiCategoryScreen {
     private static final int SUMMARY_HEADER_SIZE_COUNT = 2;
     private static final int SUMMARY_NORMAL_SIZE_COUNT = 1;
 
-    private static final int SUMMARY_THRESHOLD = 11;
+    private static final int SUMMARY_THRESHOLD = 7;
 
     private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_OTHERS = 25;
     private static final int MAX_DESCRIPTION_CHAR_COUNT_IN_ONE_LINE_DREAMS = 40;
@@ -50,6 +50,10 @@ public class SummaryScreen extends MultiCategoryScreen {
     // ================================================================================
 
     private int summaryCount;
+
+    private int maxOverdueTasksToShow;
+    private int maxFutureTasksToShow;
+    private int maxDreamsTasksToShow;
 
     // ================================================================================
     // SummaryScreen Constructor
@@ -103,16 +107,25 @@ public class SummaryScreen extends MultiCategoryScreen {
         // summarised.
         summaryCount = MAX_SUMMARY_COUNT;
 
+        maxOverdueTasksToShow = CATEGORY_MAX_CHILD_OVERDUE;
+        maxFutureTasksToShow = CATEGORY_MAX_CHILD_FUTURE;
+        maxDreamsTasksToShow = CATEGORY_MAX_CHILD_DREAMS;
+
         if (mainVBox.getChildren().contains(overdueNode)) {
-            adjustMaxChildInCategory(overdueTaskList, CATEGORY_MAX_CHILD_OVERDUE);
+            adjustMaxChildInCategory(overdueTaskList, maxOverdueTasksToShow);
+        } else {
+            maxFutureTasksToShow++;
+            maxDreamsTasksToShow++;
         }
 
         if (mainVBox.getChildren().contains(futureNode)) {
-            adjustMaxChildInCategory(futureTaskList, CATEGORY_MAX_CHILD_FUTURE);
+            adjustMaxChildInCategory(futureTaskList, maxFutureTasksToShow);
+        } else {
+            maxDreamsTasksToShow++;
         }
 
         if (mainVBox.getChildren().contains(dreamsNode)) {
-            adjustMaxChildInCategory(dreamsTaskList, CATEGORY_MAX_CHILD_DREAMS);
+            adjustMaxChildInCategory(dreamsTaskList, maxDreamsTasksToShow);
         }
 
         if (mainVBox.getChildren().contains(upcomingNode)) {
