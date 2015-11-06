@@ -37,6 +37,7 @@ public class MainScreen extends MultiCategoryScreen {
             addTaskByType(task);
         }
         updateDisplay();
+        highlightChangedTaskEntry(taskList);
     }
 
     @Override

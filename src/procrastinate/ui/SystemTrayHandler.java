@@ -115,9 +115,7 @@ public class SystemTrayHandler {
         } catch (IOException e) {
             System.err.println(MESSAGE_UNABLE_TO_LOAD_ICON_IMAGE);
         }
-        Dimension trayIconSize = sysTray.getTrayIconSize();
-        Image trayImage = img.getScaledInstance(trayIconSize.width, trayIconSize.height, Image.SCALE_SMOOTH);
-        return trayImage;
+        return img;
     }
 
     private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
