@@ -41,6 +41,7 @@ public class SystemTrayHandler {
     private Stage primaryStage;
     private SystemTray sysTray;
     private TrayIcon sysTrayIcon;
+    private PopupMenu popupMenu;
     private TextField userInputField;
 
     private boolean isMouse = false;
@@ -83,8 +84,8 @@ public class SystemTrayHandler {
     private void createSysTray() {
         sysTray = SystemTray.getSystemTray();
         Image sysTrayIconImage = createSysTrayIconImage();
-        PopupMenu sysTrayPopup = createSysTrayMenu();
-        sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup);
+        popupMenu = createSysTrayMenu();
+        sysTrayIcon = createSysTrayIcon(sysTrayIconImage);
         try {
             sysTray.add(sysTrayIcon);
         } catch (AWTException e) {
@@ -117,8 +118,8 @@ public class SystemTrayHandler {
         return img;
     }
 
-    private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
-        TrayIcon trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, popupMenu);
+    private TrayIcon createSysTrayIcon(Image iconImage) {
+        TrayIcon trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE);
         trayIcon.setImageAutoSize(true);
         trayIcon.addMouseListener(createIconClickListener());
         trayIcon.addMouseMotionListener(createIconMouseMotionListener());
@@ -173,7 +174,13 @@ public class SystemTrayHandler {
         return new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    Frame frame = new Frame();
+                    frame.setUndecorated(true);
+                    frame.setResizable(false);
+                    frame.setVisible(true);
+                    frame.add(popupMenu);
+                    popupMenu.show(frame, e.getXOnScreen(), e.getYOnScreen());
                 } else {
                     windowHideOrShow();
                 }
