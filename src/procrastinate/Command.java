@@ -3,6 +3,7 @@ package procrastinate;
 
 import java.util.Date;
 
+@Deprecated
 public class Command {
 
     public static enum CommandType {
