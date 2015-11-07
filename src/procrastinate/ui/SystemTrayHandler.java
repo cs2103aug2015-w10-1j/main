@@ -8,10 +8,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JWindow;
-
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -45,8 +41,8 @@ public class SystemTrayHandler {
     private Stage primaryStage;
     private SystemTray sysTray;
     private TrayIcon sysTrayIcon;
-    private JPopupMenu jPopupMenu;
-    private Component awtHandle;
+    private PopupMenu popupMenu;
+    private Frame invisibleFrame;
     private TextField userInputField;
 
     private boolean isMouse = false;
@@ -75,27 +71,18 @@ public class SystemTrayHandler {
         // Enables the app to run normally until the app calls exit, even if the last app window is closed.
         primaryStage.setOnCloseRequest(windowEvent -> {
             exitIndicator.set(false);exitIndicator.set(true);
-//            if (isSysTraySupported()) {
-//                primaryStage.hide();
-//                if (isWindowsOs()) {
-//                    // Windows check needed as MacOS doesn't recognise balloon messages
-//                    showMinimiseMessage();
-//                }
-//            } else {
-//                System.exit(0);
-//            }
-
         });
     }
 
     private void createSysTray() {
         sysTray = SystemTray.getSystemTray();
-        Image sysTrayIconImage = createSysTrayIconImage();
-        jPopupMenu = createJPopupMenu();
-        sysTrayIcon = createSysTrayIcon(sysTrayIconImage);
+        popupMenu = createPopupMenu();
+        sysTrayIcon = createSysTrayIcon(createSysTrayIconImage());
         if (!isWindowsOs()) {
-            awtHandle = new JWindow();
-            awtHandle.setVisible(true);
+            invisibleFrame = new Frame();
+            invisibleFrame.setUndecorated(true);
+            invisibleFrame.setResizable(false);
+            invisibleFrame.add(popupMenu);
         }
         try {
             sysTray.add(sysTrayIcon);
@@ -118,20 +105,6 @@ public class SystemTrayHandler {
         return menu;
     }
 
-    private JPopupMenu createJPopupMenu() {
-        JPopupMenu menu = new JPopupMenu();
-
-        JMenuItem menuExit = new JMenuItem(TRAY_MENU_EXIT);
-        menuExit.addActionListener(actionEvent -> {exitIndicator.set(false);exitIndicator.set(true);});
-
-        JMenuItem menuShow = new JMenuItem(TRAY_MENU_SHOW_OR_HIDE);
-        menuShow.addActionListener(actionEvent -> windowHideOrShow());
-
-        menu.add(menuShow);
-        menu.add(menuExit);
-        return menu;
-    }
-
     private Image createSysTrayIconImage() {
         // Load an image as system tray icon image. Auto resize is enabled in createSysTrayIcon method.
         BufferedImage img = null;
@@ -146,7 +119,7 @@ public class SystemTrayHandler {
     private TrayIcon createSysTrayIcon(Image iconImage) {
         TrayIcon trayIcon;
         if (isWindowsOs()) {
-            trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, createPopupMenu());
+            trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, popupMenu);
         } else {
             trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE);
         }
@@ -206,7 +179,8 @@ public class SystemTrayHandler {
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     if (!isWindowsOs()) {
-                        jPopupMenu.show(awtHandle, e.getX(), e.getY());
+                        invisibleFrame.setVisible(true);
+                        popupMenu.show(invisibleFrame, e.getX(), e.getY());
                     }
                 } else {
                     windowHideOrShow();
