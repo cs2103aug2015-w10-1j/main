@@ -50,6 +50,12 @@ public abstract class Task implements Comparable<Task> {
 	    }
 	}
 
+    public static Task copyWithNewId(Task task) {
+        Task newTask = copy(task);
+        newTask.id = UUID.randomUUID();
+        return newTask;
+    }
+
 	public boolean contains(String term) { // case insensitive
 	    return description.toLowerCase().contains(term.toLowerCase());
 	}

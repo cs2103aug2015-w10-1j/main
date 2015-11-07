@@ -310,7 +310,7 @@ public class Logic {
             newTask = new Dream(oldDescription);
 
         } else {
-            newTask = Task.copy(oldTask);
+            newTask = Task.copyWithNewId(oldTask);
 
         }
 
@@ -627,6 +627,9 @@ public class Logic {
     // ================================================================================
 
     private void updateView() {
+        if (currentView == ViewType.SHOW_SUMMARY) {
+            currentView = ViewType.SHOW_OUTSTANDING;
+        }
         updateUiTaskList();
     }
 
