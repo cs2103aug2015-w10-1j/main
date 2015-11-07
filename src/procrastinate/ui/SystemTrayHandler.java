@@ -45,7 +45,7 @@ public class SystemTrayHandler {
     private Stage primaryStage;
     private SystemTray sysTray;
     private TrayIcon sysTrayIcon;
-    private JPopupMenu popupMenu;
+    private JPopupMenu jPopupMenu;
     private Component awtHandle;
     private TextField userInputField;
 
@@ -91,10 +91,12 @@ public class SystemTrayHandler {
     private void createSysTray() {
         sysTray = SystemTray.getSystemTray();
         Image sysTrayIconImage = createSysTrayIconImage();
-        popupMenu = createSysTrayMenu();
+        jPopupMenu = createJPopupMenu();
         sysTrayIcon = createSysTrayIcon(sysTrayIconImage);
-        awtHandle = new JWindow();
-        awtHandle.setVisible(true);
+        if (!isWindowsOs()) {
+            awtHandle = new JWindow();
+            awtHandle.setVisible(true);
+        }
         try {
             sysTray.add(sysTrayIcon);
         } catch (AWTException e) {
@@ -102,7 +104,21 @@ public class SystemTrayHandler {
         }
     }
 
-    private JPopupMenu createSysTrayMenu() {
+    private PopupMenu createPopupMenu() {
+        PopupMenu menu = new PopupMenu();
+
+        MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
+        menuExit.addActionListener(actionEvent -> {exitIndicator.set(false);exitIndicator.set(true);});
+
+        MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
+        menuShow.addActionListener(actionEvent -> windowHideOrShow());
+
+        menu.add(menuShow);
+        menu.add(menuExit);
+        return menu;
+    }
+
+    private JPopupMenu createJPopupMenu() {
         JPopupMenu menu = new JPopupMenu();
 
         JMenuItem menuExit = new JMenuItem(TRAY_MENU_EXIT);
@@ -128,7 +144,12 @@ public class SystemTrayHandler {
     }
 
     private TrayIcon createSysTrayIcon(Image iconImage) {
-        TrayIcon trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE);
+        TrayIcon trayIcon;
+        if (isWindowsOs()) {
+            trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, createPopupMenu());
+        } else {
+            trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE);
+        }
         trayIcon.setImageAutoSize(true);
         trayIcon.addMouseListener(createIconClickListener());
         trayIcon.addMouseMotionListener(createIconMouseMotionListener());
@@ -184,7 +205,9 @@ public class SystemTrayHandler {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    popupMenu.show(awtHandle, e.getX(), e.getY());
+                    if (!isWindowsOs()) {
+                        jPopupMenu.show(awtHandle, e.getX(), e.getY());
+                    }
                 } else {
                     windowHideOrShow();
                 }
