@@ -104,7 +104,7 @@ public class Logic {
 
     private Command lastPreviewedCommand = null;
 
-    private ViewType currentView = ViewType.SHOW_OUTSTANDING; // initial view
+    private ViewType currentView = ViewType.SHOW_SUMMARY; // initial view
 
     private String searchString = null;
     private String searchTerm = null;

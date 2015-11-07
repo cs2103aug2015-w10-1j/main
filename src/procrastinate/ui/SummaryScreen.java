@@ -90,6 +90,7 @@ public class SummaryScreen extends MultiCategoryScreen {
         if (currMainVBoxHeight < maxMainVBoxHeight) {
             return;
         }
+
         resizeScreenToFit(maxMainVBoxHeight);
     }
 
