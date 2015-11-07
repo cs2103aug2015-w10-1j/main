@@ -8,6 +8,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JWindow;
 
 import java.awt.*;
@@ -26,7 +28,7 @@ public class SystemTrayHandler {
     private static final String TRAY_IMAGE_ICON = "images/icon.png";
     private static final String TRAY_MENU_SHOW_OR_HIDE = "Show/Hide";
     private static final String TRAY_MENU_EXIT = "Exit";
-    private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
+    private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from the tray icon";
     private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
 
     private static final String MESSAGE_UNABLE_TO_LOAD_ICON_IMAGE = "Unable to load icon image for system tray.";
@@ -43,7 +45,7 @@ public class SystemTrayHandler {
     private Stage primaryStage;
     private SystemTray sysTray;
     private TrayIcon sysTrayIcon;
-    private PopupMenu popupMenu;
+    private JPopupMenu popupMenu;
     private Component awtHandle;
     private TextField userInputField;
 
@@ -72,15 +74,17 @@ public class SystemTrayHandler {
         Platform.setImplicitExit(false);    // Set this up before creating the trays
         // Enables the app to run normally until the app calls exit, even if the last app window is closed.
         primaryStage.setOnCloseRequest(windowEvent -> {
-            if (isSysTraySupported()) {
-                primaryStage.hide();
-                if (isWindowsOs()) {
-                    // Windows check needed as MacOS doesn't recognise balloon messages
-                    showMinimiseMessage();
-                }
-            } else {
-                System.exit(0);
-            }
+            exitIndicator.set(false);exitIndicator.set(true);
+//            if (isSysTraySupported()) {
+//                primaryStage.hide();
+//                if (isWindowsOs()) {
+//                    // Windows check needed as MacOS doesn't recognise balloon messages
+//                    showMinimiseMessage();
+//                }
+//            } else {
+//                System.exit(0);
+//            }
+
         });
     }
 
@@ -91,7 +95,6 @@ public class SystemTrayHandler {
         sysTrayIcon = createSysTrayIcon(sysTrayIconImage);
         awtHandle = new JWindow();
         awtHandle.setVisible(true);
-        awtHandle.add(popupMenu);
         try {
             sysTray.add(sysTrayIcon);
         } catch (AWTException e) {
@@ -99,13 +102,13 @@ public class SystemTrayHandler {
         }
     }
 
-    private PopupMenu createSysTrayMenu() {
-        PopupMenu menu = new PopupMenu();
+    private JPopupMenu createSysTrayMenu() {
+        JPopupMenu menu = new JPopupMenu();
 
-        MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
+        JMenuItem menuExit = new JMenuItem(TRAY_MENU_EXIT);
         menuExit.addActionListener(actionEvent -> {exitIndicator.set(false);exitIndicator.set(true);});
 
-        MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
+        JMenuItem menuShow = new JMenuItem(TRAY_MENU_SHOW_OR_HIDE);
         menuShow.addActionListener(actionEvent -> windowHideOrShow());
 
         menu.add(menuShow);
@@ -159,9 +162,9 @@ public class SystemTrayHandler {
         }
     }
 
-    private boolean isSysTraySupported() {
-        return SystemTray.isSupported();
-    }
+//    private boolean isSysTraySupported() {
+//        return SystemTray.isSupported();
+//    }
 
     private boolean isWindowsOs() {
         return System.getProperty(OS_CHECK_NAME).startsWith(OS_CHECK_WINDOWS);
@@ -181,7 +184,7 @@ public class SystemTrayHandler {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    popupMenu.show(awtHandle, e.getXOnScreen(), e.getYOnScreen());
+                    popupMenu.show(awtHandle, e.getX(), e.getY());
                 } else {
                     windowHideOrShow();
                 }
@@ -191,15 +194,12 @@ public class SystemTrayHandler {
 
     private MouseAdapter createIconMouseMotionListener() {
         return new MouseAdapter() {
-
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (primaryStage.isShowing() && !primaryStage.isFocused()) {
                     isMouse = true;
                 }
             }
-
-
         };
     }
 }
