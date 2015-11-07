@@ -86,11 +86,19 @@ public class CenterPaneController {
         setToSummaryScreen();
     }
 
+    /**
+     * Switches the current screen in the StackPane that is set within the
+     * center region of the BorderPane of the main window.
+     *
+     * @param taskList
+     *            that contains the tasks related to each screen
+     * @param screenView
+     */
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
         switch (screenView) {
             case SCREEN_DONE: {
                 if (currentScreen != doneScreen) {
-                    startScreenSwitchSequence(taskList, doneScreenNode, doneScreen);
+                    startScreenSwitchSequence(doneScreenNode, doneScreen);
                 }
                 doneScreen.updateTaskList(taskList);
                 break;
@@ -98,7 +106,7 @@ public class CenterPaneController {
 
             case SCREEN_MAIN: {
                 if (currentScreen != mainScreen) {
-                    startScreenSwitchSequence(taskList, mainScreenNode, mainScreen);
+                    startScreenSwitchSequence(mainScreenNode, mainScreen);
                 }
                 mainScreen.updateTaskList(taskList);
                 break;
@@ -106,7 +114,7 @@ public class CenterPaneController {
 
             case SCREEN_SEARCH: {
                 if (currentScreen != searchScreen) {
-                    startScreenSwitchSequence(taskList, searchScreenNode, searchScreen);
+                    startScreenSwitchSequence(searchScreenNode, searchScreen);
                 }
                 searchScreen.updateTaskList(taskList);
                 break;
@@ -116,10 +124,7 @@ public class CenterPaneController {
                 if (currentScreen != summaryScreen) {
                     // Special exception for summary screen, which requires the
                     // entire screen to be loaded before summarising can start.
-                    centerStackPane.getChildren().add(summaryScreenNode);
-                    summaryScreen.getScreenSwitchInSequence().play();
-                    centerStackPane.getChildren().remove(currentScreen.getNode());
-                    currentScreen = summaryScreen;
+                    switchToSummaryScreen();
                 }
                 summaryScreen.updateTaskList(taskList);
                 break;
@@ -132,8 +137,10 @@ public class CenterPaneController {
     }
 
     /**
-     * Starts the fade out transition that lasts for 0.5 seconds if the stack
-     * contains it and it is the current overlay screen.
+     * Starts the fade out transition that lasts for TIME_HELP_SCREEN_FADEOUT
+     * seconds if the stack contains it and it is the current overlay screen.
+     * Each call will create a new FadeTransition to be used for fading the
+     * overlay out.
      */
     protected void hideHelpOverlay() {
         if (currentOverlay != helpOverlay || !centerStackPane.getChildren().contains(helpOverlayNode)) {
@@ -148,15 +155,16 @@ public class CenterPaneController {
     }
 
     /**
-     * Fast-forwards the fade animation if user starts typing, which will remove
-     * the entire node from the stack once it has finished fading.
+     * Fast-forwards the fade animation if user starts typing. The splash screen
+     * is automatically removed from the centerStackPane once it has finished
+     * playing.
      */
     protected void hideSplashOverlay() {
         if (currentOverlay == splashOverlay && centerStackPane.getChildren().contains(splashOverlayNode)) {
             Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
             // Only fast forward the timeline if the current time of the
-            // animation is smaller than the given
-            // interrupt time. Else, just wait for the animation to end.
+            // animation is smaller than the given interrupt time. Else, just
+            // wait for the animation to end.
             if (splashScreenTimeline.getCurrentTime().lessThan(interruptTime)) {
                 splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
             }
@@ -165,10 +173,9 @@ public class CenterPaneController {
     }
 
     /**
-     * Creates a splash screen that maintains full opacity for
-     * TIME_SPLASH_SCREEN_FULL_OPACITY seconds before completely fading out in
-     * (TIME_SPLASH_SCREEN_FADE-TIME_SPLASH_SCREEN_FULL_OPACITY) seconds or
-     * until the user starts to type.
+     * Shows the SplashOverlay which is only used at start-up. The main
+     * animation of the overlay is contained within the
+     * buildSplashScreenAnimation method.
      */
     protected void showSplashOverlay() {
         currentOverlay = splashOverlay;
@@ -178,6 +185,10 @@ public class CenterPaneController {
         splashScreenTimeline.play();
     }
 
+    /**
+     * Shows the HelpOverlay only if the HelpOverlay is not present. Each call
+     * creates a new FadeTransition to be used for fading the overlay in.
+     */
     protected void showHelpOverlay() {
         if (currentOverlay == helpOverlay || centerStackPane.getChildren().contains(helpOverlay)) {
             return;
@@ -190,6 +201,10 @@ public class CenterPaneController {
         helpOverlayFadeIn.play();
     }
 
+    /**
+     * A handle to help switch between pages of the HelpOverlay if it is
+     * currently being shown.
+     */
     protected void nextHelpPage() {
         if (currentOverlay != helpOverlay) {
             return;
@@ -217,11 +232,28 @@ public class CenterPaneController {
     // Utility methods
     // ================================================================================
 
+    /**
+     * A handle to pass the search string from Logic to the SearchScreen.
+     *
+     * @param searchString
+     *            that the user searched for, to be used as the search query
+     *            header on the SearchScreen.
+     */
     protected void receiveSearchStringAndPassToSearchScreen(String searchString) {
         searchScreen.updateSearchStringLabel(searchString);
     }
 
-    private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
+    /**
+     * Combines the screen changing transitions of the outgoing and incoming
+     * screens by playing them in sequence.
+     *
+     * @param nodeToSwitchIn
+     *            must be the corresponding Node of the CenterScreen passed in.
+     * @param screenToSwitchIn
+     *            the CenterScreen to be switched in and should not be contained
+     *            within the centerStackPane.
+     */
+    private void startScreenSwitchSequence(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
         SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
         incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
 
@@ -232,6 +264,18 @@ public class CenterPaneController {
             incomingScreenTransition.play();
         });
         outgoingScreenTransition.play();
+    }
+
+    /**
+     * Exception case for switching to SummaryScreen, which wouldn't show
+     * correctly if the screen switch transition of the outgoing screen is
+     * played together.
+     */
+    private void switchToSummaryScreen() {
+        centerStackPane.getChildren().add(summaryScreenNode);
+        centerStackPane.getChildren().remove(currentScreen.getNode());
+        summaryScreen.getScreenSwitchInSequence().play();
+        currentScreen = summaryScreen;
     }
 
     private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
@@ -250,13 +294,17 @@ public class CenterPaneController {
         return fadeTransition;
     }
 
+    /**
+     * Creates a splash screen that maintains full opacity for
+     * TIME_SPLASH_SCREEN_FULL_OPACITY seconds before completely fading out in
+     * (TIME_SPLASH_SCREEN_FADE-TIME_SPLASH_SCREEN_FULL_OPACITY) seconds or
+     * until the user starts to type.
+     */
     private void buildSplashScreenAnimation() {
-        // Set SplashScreen opacity at full for 2 seconds.
         Duration fullOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FULL_OPACITY);
         KeyValue fullOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_FULL);
         KeyFrame fullOpacityFrame = new KeyFrame(fullOpacityDuration, fullOpacityKeyValue);
 
-        // Set SplashScreen to fade out completely at time = 3 seconds
         Duration zeroOpacityDuration = Duration.millis(TIME_SPLASH_SCREEN_FADE);
         KeyValue zeroOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_ZERO);
         KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
@@ -277,12 +325,6 @@ public class CenterPaneController {
         createSplashOverlay();
     }
 
-    /**
-     * This creates and holds a list of the screens that can be easily added
-     * onto the center pane
-     *
-     * @return list of screens
-     */
     private void createScreens() {
         createMainScreen();
         createDoneScreen();

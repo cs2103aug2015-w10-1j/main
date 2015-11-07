@@ -30,34 +30,49 @@ public class CategoryBox extends VBox {
     // FXML field variables
     // ================================================================================
 
-    @FXML private Label categoryLabel;
-    @FXML private VBox categoryVBox;
+    @FXML
+    private Label categoryLabel;
+    @FXML
+    private VBox categoryVBox;
 
     // ================================================================================
     // CategoryBox methods
     // ================================================================================
 
     /**
-     * Creates a category with the given label for tasks to go into
-     * @param label
+     * Creates a category with the given labelString as header for tasks to go
+     * into
+     *
+     * @param labelString
+     *            string to be used as the header text of the category
      */
-    protected CategoryBox(String label) {
+    protected CategoryBox(String labelString) {
+        loadLayout();
+        setLabel(labelString);
+    }
+
+    private void loadLayout() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_CATEGORYBOX_FXML));
-        loader.setController(this); // Required due to different package declaration from Main
+        loader.setController(this); // Required due to different package
+                                    // declaration from Main
         try {
             this.categoryBox = loader.load();
-            this.categoryLabel.setText(label);
-            DropShadow ds = new DropShadow(BlurType.GAUSSIAN, Color.GRAY, 6, 0, 0, 2.0f);
-            categoryLabel.setEffect(ds);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private void setLabel(String label) {
+        this.categoryLabel.setText(label);
+        DropShadow ds = new DropShadow(BlurType.GAUSSIAN, Color.GRAY, 6, 0, 0, 2.0f);
+        categoryLabel.setEffect(ds);
+    }
+
     // ================================================================================
     // Getter methods
     // ================================================================================
-    //@@author A0121597B generated
+
+    // @@author A0121597B generated
     protected Node getCategoryBox() {
         return this.categoryBox;
     }

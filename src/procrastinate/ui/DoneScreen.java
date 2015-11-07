@@ -87,26 +87,26 @@ public class DoneScreen extends SingleCategoryScreen {
 
     private String getDateFormatForDateline(Date date) {
         String dateString;
-        boolean isSameYear = checkIfTwoDatesOfSameYear(date, today);
+        boolean isSameYear = checkIfTwoDatesAreOfTheSameYear(date, today);
         if (isSameYear) {
-            dateString = getSameYearDeadlineDateFormat(date);
+            dateString = getDateFormatForDeadlineWithSameYear(date);
         } else {
-            dateString = getDifferentYearDeadlineDateFormat(date);
+            dateString = getDateFormatForDeadlineWithDifferentYear(date);
         }
         return dateString;
     }
 
     private String getDateFormatForEvent(Date startDate, Date endDate) {
         String dateString;
-        boolean isStartSameYear = checkIfTwoDatesOfSameYear(startDate, today);
+        boolean isStartSameYear = checkIfTwoDatesAreOfTheSameYear(startDate, today);
         if (isStartSameYear) {
-            if (checkIfStartAndEndSameDay(startDate, endDate)) {
-                dateString = getSameYearSameDayEventDateFormat(startDate, endDate);
+            if (checkIfStartTwoDatesAreOnSameDay(startDate, endDate)) {
+                dateString = getDateFormatForEventWithSameYearAndInOneDay(startDate, endDate);
             } else {
-                dateString = getSameYearDifferentDayEventDateFormat(startDate, endDate);
+                dateString = getDateFormatForEventWithSameYearAndDifferentDays(startDate, endDate);
             }
         } else {
-            dateString = getDifferentYearEventDateFormat(startDate, endDate);
+            dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(startDate, endDate);
         }
         return dateString;
     }

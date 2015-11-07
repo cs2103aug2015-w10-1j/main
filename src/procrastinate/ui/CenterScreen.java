@@ -71,7 +71,8 @@ public abstract class CenterScreen extends VBox {
     // FXML field variables
     // ================================================================================
 
-    @FXML private VBox mainVBox;
+    @FXML
+    private VBox mainVBox;
 
     // ================================================================================
     // CenterScreen Constructor
@@ -92,29 +93,35 @@ public abstract class CenterScreen extends VBox {
     protected abstract void createCategories();
 
     /**
-     * The list of tasks displayed is updated by removing all previously added tasks and re-adding them back to allow
-     * the line number to be sorted by category and not insertion time.
+     * The list of tasks displayed is updated by removing all previously added
+     * tasks and re-adding them back to allow the line number to be sorted by
+     * category and not insertion time.
      *
-     * Dreams are directly added via this method but Deadlines and Events are passed to two different
-     * addTask methods depending on their (start) dates.
-     * @param taskList List of Tasks to be added onto the screen
+     * Dreams are directly added via this method but Deadlines and Events are
+     * passed to two different addTask methods depending on their (start) dates.
+     *
+     * @param taskList
+     *            to be added onto the screen
      */
     protected abstract void updateTaskList(List<Task> taskList);
+
     protected abstract SequentialTransition getScreenSwitchOutSequence();
+
     protected abstract SequentialTransition getScreenSwitchInSequence();
 
     private void loadLayout(String filePath) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(filePath));
-        loader.setController(this); // Required due to different package declaration from Main
+        loader.setController(this); // Required due to different package
+                                    // declaration from Main
         try {
             node = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     /**
-     * Creates a formatted shared task counter for use when adding tasks onto the screen
+     * Creates a formatted task counter for use when adding tasks onto screen
      */
     private void setupBinding() {
         taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
@@ -145,81 +152,55 @@ public abstract class CenterScreen extends VBox {
     // Date Format methods
     // ================================================================================
 
-    protected String getDifferentYearDeadlineDateFormat(Date date) {
+    protected String getDateFormatForDeadlineWithDifferentYear(Date date) {
         return dateFormatWithFriendlyDayAndYear.format(date);
     }
 
-    protected String getDifferentYearSameDayEventDateFormat(Date date, Date endDate) {
-        return dateFormatWithFriendlyDayAndYear.format(date)
-                + EVENT_DATE_SEPARATOR_SAME_DAY
+    protected String getDateFormatForEventWithDifferentYearButInOneDay(Date date, Date endDate) {
+        return dateFormatWithFriendlyDayAndYear.format(date) + EVENT_DATE_SEPARATOR_SAME_DAY
                 + timeFormat.format(endDate);
     }
 
-    protected String getDifferentYearEventDateFormat(Date date, Date endDate) {
-        return dateFormatWithFriendlyDayAndYear.format(date)
-                    + EVENT_DATE_SEPARATOR_GENERAL
-                    + dateFormatWithFriendlyDayAndYear.format(endDate);
+    protected String getDateFormatForEventWithDifferentYearAndDifferentDays(Date date, Date endDate) {
+        return dateFormatWithFriendlyDayAndYear.format(date) + EVENT_DATE_SEPARATOR_GENERAL
+                + dateFormatWithFriendlyDayAndYear.format(endDate);
     }
 
-    protected String getSameYearDeadlineDateFormat(Date date) {
-        return getDayOfWeek(date)
-                    + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                    + dateFormat.format(date)
-                    + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                    + timeFormat.format(date);
+    protected String getDateFormatForDeadlineWithSameYear(Date date) {
+        return getDayOfWeek(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(date);
     }
 
-    protected String getSameYearSameDayEventDateFormat(Date date, Date endDate) {
-        return getDayOfWeek(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(date)
-                + EVENT_DATE_SEPARATOR_SAME_DAY
+    protected String getDateFormatForEventWithSameYearAndInOneDay(Date date, Date endDate) {
+        return getDayOfWeek(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(date) + EVENT_DATE_SEPARATOR_SAME_DAY
                 + timeFormat.format(endDate);
     }
 
-    protected String getSameYearDifferentDayEventDateFormat(Date date, Date endDate) {
-        return getDayOfWeek(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(date)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + getDayOfWeek(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+    protected String getDateFormatForEventWithSameYearAndDifferentDays(Date date, Date endDate) {
+        return getDayOfWeek(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(date) + EVENT_DATE_SEPARATOR_GENERAL
+                + getDayOfWeek(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(endDate);
+    }
+
+    protected String getDateFormatForUpcomingEventAndInOneDay(Date startDate, Date endDate) {
+        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_SAME_DAY + timeFormat.format(endDate);
+    }
+
+    protected String getDateFormatForUpcomingEventButDifferentDays(Date startDate, Date endDate) {
+        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL + getFriendlyDayFormatForUpcoming(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(endDate);
+    }
+
+    protected String getDateFormatForUpcomingEventButDifferentWeek(Date startDate, Date endDate) {
+        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL + getDayOfWeek(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR
                 + timeFormat.format(endDate);
     }
 
-    protected String getThisWeekSameDayEventDateFormat(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_SAME_DAY
-                + timeFormat.format(endDate);
-    }
-
-    protected String getThisWeekEndDifferentDayEventDateFormat(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + getFriendlyDayFormatThisWeek(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(endDate);
-    }
-
-    protected String getThisWeekEndDifferentWeekEventDateFormat(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + getDayOfWeek(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(endDate);
-    }
-
-    protected String getThisWeekEndDifferentYearDateFormat(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_GENERAL
+    protected String getDateFormatForUpcomingEventButDifferentYear(Date startDate, Date endDate) {
+        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL
                 + dateFormatWithFriendlyDayAndYear.format(endDate);
     }
 
@@ -231,30 +212,42 @@ public abstract class CenterScreen extends VBox {
         mainVBox.setStyle(value);
     }
 
+    /**
+     * Updates the class variable Dates that are used to compare the event dates
+     * and generate subcategories for 'Upcoming'
+     */
     protected void updateDates() {
-        today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));    // To get today's Date at 0000hrs
+        today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));
         currentDate = new Date();
         endOfWeek = getEndOfWeekDate(today);
     }
 
+    /**
+     * Creates a LocalDateTime that reflects today's date at 0000hrs, to be used
+     * for more accurate comparison of the date of tasks.
+     *
+     * @return LocalDateTime of today at 0000hrs
+     */
     protected LocalDateTime getDateTimeStartOfToday() {
         return LocalDate.now().atStartOfDay();
     }
 
     /**
      * Converts a LocalDateTime to an Instant
-     * @param localDateTime to be converted
+     *
+     * @param localDateTime
+     *            to be converted
      * @return Instant generated from the given LocalDateTime
      */
     protected Instant getInstantFromLocalDateTime(LocalDateTime localDateTime) {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
     }
 
-    protected boolean checkIfTwoDatesOfSameYear(Date date1, Date date2) {
+    protected boolean checkIfTwoDatesAreOfTheSameYear(Date date1, Date date2) {
         return yearFormat.format(date1).equals(yearFormat.format(date2));
     }
 
-    protected boolean checkIfStartAndEndSameDay(Date firstDate, Date secondDate) {
+    protected boolean checkIfStartTwoDatesAreOnSameDay(Date firstDate, Date secondDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(firstDate);
         int firstDay = calendar.get(Calendar.DAY_OF_YEAR);
@@ -263,7 +256,7 @@ public abstract class CenterScreen extends VBox {
         return firstDay == secondDay;
     }
 
-    protected String getFriendlyDayFormatThisWeek(Date date) {
+    protected String getFriendlyDayFormatForUpcoming(Date date) {
         LocalDateTime startingDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().getDayOfMonth()) {
             return DATE_TODAY;
@@ -281,8 +274,10 @@ public abstract class CenterScreen extends VBox {
 
     /**
      * Generates the date of the end of the week for task date comparisons
-     * @param today Current date at 0000hrs
-     * @return Date of next Monday at 0000hrs for comparing tasks due this week
+     *
+     * @param today
+     *            Current date at 0000hrs
+     * @return Date that is a week from now at 0000hrs for comparing tasks due this week
      */
     private Date getEndOfWeekDate(Date today) {
         Calendar calendar = Calendar.getInstance();
@@ -295,7 +290,8 @@ public abstract class CenterScreen extends VBox {
     // ================================================================================
     // Getter methods
     // ================================================================================
-    //@@author A0121597B generated
+
+    // @@author A0121597B generated
     protected Node getNode() {
         return this.node;
     }

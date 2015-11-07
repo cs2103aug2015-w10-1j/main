@@ -128,17 +128,17 @@
 
 /*
  * ================================================================
- * DateBox Styling
+ * SubcategoryBox Styling
  * ================================================================
  */
-.dateBox #dateLabel {
+.subcategoryBox #subcategoryLabel {
     -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 16px;
 	-fx-text-fill: #455a64;
 }
 
-.dateBox #dateVBox {
+.subcategoryBox #subcategoryVBox {
     -fx-padding: 0 0 0 0;
 }
 
