@@ -1,7 +1,7 @@
 //@@author A0124321Y
 package procrastinate.command;
 
-public abstract class CleanCommand implements Preview {
+public abstract class CleanCommand implements Preview, Feedback {
     public static enum CommandType {
         ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, EDIT_PARTIAL, EDIT_TO_DREAM, DELETE, UNDO, DONE,
         SEARCH, SEARCH_ON, SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SUMMARY,
@@ -9,7 +9,7 @@ public abstract class CleanCommand implements Preview {
     }
 
     // Required field for all command types
-    private CommandType type;
+    protected CommandType type;
 
     public CleanCommand(CommandType type) {
         this.type = type;
