@@ -184,6 +184,10 @@ public class ParserTest {
         /* Show with "done" keyword*/
         resultCommand = Parser.parse("show done");
         assertEquals(CommandType.SHOW_DONE, resultCommand.getType());
+
+        /* Show with "summary" keyword*/
+        resultCommand = Parser.parse("show summary");
+        assertEquals(CommandType.SHOW_SUMMARY, resultCommand.getType());
     }
 
     @Test
