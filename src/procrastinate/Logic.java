@@ -94,7 +94,7 @@ public class Logic {
     private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
 
     // ================================================================================
-    // Class variables
+    // Instance variables
     // ================================================================================
 
     protected TaskEngine taskEngine;

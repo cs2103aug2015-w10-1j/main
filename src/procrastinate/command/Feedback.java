@@ -7,5 +7,5 @@ package procrastinate.command;
  *
  */
 public interface Feedback {
-    public String getFeedback();
+    public static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";;
 }
