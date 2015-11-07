@@ -167,17 +167,20 @@ public class SummaryScreen extends MultiCategoryScreen {
         int totalSubcategoryCount = upcomingSubcategories.size() - 1;
 
         for (int i = totalSubcategoryCount; i >= 0; i--) {
-            if (getHeightOfCategoryNode(upcomingNode) < (heightToFit - ellipsisBoxHeight)) {
-                break;
-            }
             VBox currSubcategory = upcomingSubcategories.get(i);
-            while (currSubcategory.getChildren().size() != 0) {
+            if (currSubcategory.getChildren().isEmpty()) {
+                continue;
+            }
+            while (!currSubcategory.getChildren().isEmpty() && (getHeightOfCategoryNode(upcomingNode) > (heightToFit - ellipsisBoxHeight))) {
                 currSubcategory.getChildren().remove(currSubcategory.getChildren().size() - 1);
                 numTasksRemoved++;
                 mainVBox.getParent().layout();
             }
-            if (currSubcategory.getChildren().isEmpty()) {
-                upcomingTaskList.getChildren().remove(i);
+            if (currSubcategory.getChildren().isEmpty()){
+                upcomingTaskList.getChildren().remove(upcomingTaskList.getChildren().size()-1);
+            }
+            if (getHeightOfCategoryNode(upcomingNode) < (heightToFit - ellipsisBoxHeight)) {
+                break;
             }
         }
 
