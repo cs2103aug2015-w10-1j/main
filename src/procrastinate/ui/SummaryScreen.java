@@ -90,7 +90,6 @@ public class SummaryScreen extends MultiCategoryScreen {
         if (currMainVBoxHeight < maxMainVBoxHeight) {
             return;
         }
-
         resizeScreenToFit(maxMainVBoxHeight);
     }
 
@@ -124,6 +123,9 @@ public class SummaryScreen extends MultiCategoryScreen {
         for (HeightNodePair currHeightNodePair : allCategoryHeightNodePair) {
             double currCategoryHeight = currHeightNodePair.getHeight();
             Node currCategoryNode = currHeightNodePair.getNode();
+            if (currCategoryHeight == 0) {
+                continue;
+            }
             if (currCategoryNode == overdueNode) {
                 double maxOverdueCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_OVERDUE) + rollOverHeight;
                 rollOverHeight = 0;
