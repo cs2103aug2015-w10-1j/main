@@ -92,7 +92,7 @@ public class Parser {
         assert(userInput != null && !userInput.isEmpty());
 
         // Filtering userInput
-        String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE_STRING); // Trim whitespace
+        String userCommand = trimWhiteSpace(userInput);
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
         userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
@@ -529,6 +529,8 @@ public class Parser {
         }
 
         if (hasDates(dateGroups)) {
+            // natty returns dates even if the dates are between words
+            // we need to make sure there are no excess words before and after the dates
             return dateGroups.get(0).getPosition() == 1 && dateGroups.get(0).getText().equals(lastArgument);
         }
 
@@ -600,6 +602,11 @@ public class Parser {
         return newDate;
     }
 
+    /**
+     *  There exists bugs that cause Natty to parse some dates wrongly
+     *  We replace these dates to dates that are more specific but yields
+     *  the same result.
+     */
     private static String replaceRelativeDates(String dateArguments) {
         dateArguments = dateArguments.toLowerCase();
         dateArguments = dateArguments.replace(KEYWORD_THIS_MORNING, KEYWORD_THIS_MORNING_FIX);
@@ -626,29 +633,41 @@ public class Parser {
     }
 
     private static String[] extractSetPathArguments(String userCommand) {
+        // We assume that the user command is in a valid set path format
         String[] result = new String[2];
         String[] arguments = userCommand.split(DOUBLE_QUOTE_STRING);
-        if (arguments.length == 1) {
+        if (arguments.length == 1) { // There are no double quotes
             String[] pathArguments = userCommand.split(WHITESPACE_STRING);
             try {
                 result[0] = pathArguments[1];
                 result[1] = pathArguments[2];
             } catch (Exception e) {}
         } else if (arguments.length == 2) {
-            if (arguments[0].trim().replaceAll("\\s+", WHITESPACE_STRING).equals(COMMAND_SET_PATH)) {
+            // We need to take care two situations
+            // 1) set <path dir> "<filename>"
+            // 2) set "<path dir>"
+            if (trimWhiteSpace(arguments[0]).equals(COMMAND_SET_PATH)) {
                 result[0] = arguments[1];
             } else {
                 result[0] = arguments[0].split(WHITESPACE_STRING)[1];
                 result[1] = arguments[1];
             }
         } else if (arguments.length == 3) {
+            // Only possibility
+            // set "<path dir>" <filename>
             result[0] = arguments[1];
-            result[1] = arguments[2].trim().replaceAll("\\s+", WHITESPACE_STRING);
+            result[1] = trimWhiteSpace(arguments[2]);
         } else if (arguments.length == 4) {
+            // Only possibility
+            // set "<path dir>" "<filename>"
             result[0] = arguments[1];
             result[1] = arguments[3];
         }
         return result;
+    }
+
+    private static String trimWhiteSpace(String userInput) {
+        return userInput.trim().replaceAll("\\s+", WHITESPACE_STRING);
     }
 
     private static int getLastIndex(String keyword, String userCommand) {
