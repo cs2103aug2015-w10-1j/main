@@ -18,6 +18,8 @@ public class SummaryScreen extends MultiCategoryScreen {
     // Message strings
     // ================================================================================
 
+    private static final String DESCRIPTION_ELLIPSIS_STRING = "...";
+
     private static final String ELLIPSIS_STRING = "... ";
     private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " tasks hidden ...";
     private static final String ELLIPSIS_MESSAGE_TASK_HIDDEN = " task hidden ...";
@@ -36,6 +38,9 @@ public class SummaryScreen extends MultiCategoryScreen {
     private static final int PARTITION_COUNT_DREAMS = 1;
 
     private static final int TEST_ELLIPSIS_COUNT = 666;
+
+    private static final int DESCRIPTION_MAX_LENGTH = 50;
+    private static final int DESCRIPTION_ELLIPSIS_LENGTH = 3;
 
     // ================================================================================
     // Class variables
@@ -63,7 +68,7 @@ public class SummaryScreen extends MultiCategoryScreen {
         for (Task task : taskList) {
             taskCount.set(taskCount.get() + 1);
 
-            addTaskByType(task);
+            addTaskByType(shortenTaskDescription(task));
         }
         updateDisplay();
         setupSummaryView();
@@ -300,5 +305,16 @@ public class SummaryScreen extends MultiCategoryScreen {
         HBox ellipsisBox = new HBox(ellipsisMessage);
         ellipsisBox.setAlignment(Pos.CENTER);
         return ellipsisBox;
+    }
+
+    //@@author A0080485B
+    private Task shortenTaskDescription(Task task) {
+        String description = task.getDescription();
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
+            task = Task.copy(task);
+            task.setDescription(description.substring(0, DESCRIPTION_MAX_LENGTH
+                                                         - DESCRIPTION_ELLIPSIS_LENGTH) + DESCRIPTION_ELLIPSIS_STRING);
+        }
+        return task;
     }
 }
