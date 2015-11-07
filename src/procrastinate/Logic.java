@@ -27,7 +27,7 @@ public class Logic {
     private static final Logger logger = Logger.getLogger(Logic.class.getName());
 
     private static enum ViewType {
-        SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SEARCH_RESULTS
+        SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SUMMARY, SHOW_SEARCH_RESULTS
     }
 
     // ================================================================================
@@ -65,6 +65,7 @@ public class Logic {
     private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
     private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
+    private static final String FEEDBACK_SHOW_SUMMARY = "Showing summary of outstanding tasks";
     private static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";
     private static final String FEEDBACK_ELLIPSIS = "...";
     private static final String FEEDBACK_EXIT = "Goodbye!";
@@ -188,6 +189,9 @@ public class Logic {
 
             case SHOW_ALL:
                 return runShowAll(execute);
+
+            case SHOW_SUMMARY:
+                return runShowSummary(execute);
 
             case HELP:
                 return runHelp(execute);
@@ -563,6 +567,13 @@ public class Logic {
         return FEEDBACK_SHOW_ALL;
     }
 
+    private String runShowSummary(boolean execute) {
+        if (execute) {
+            updateView(ViewType.SHOW_SUMMARY);
+        }
+        return FEEDBACK_SHOW_SUMMARY;
+    }
+
     private String runHelp(boolean execute) {
         if (execute) {
             ui.showHelpOverlay();
@@ -636,6 +647,10 @@ public class Logic {
 
             case SHOW_ALL:
                 ui.updateTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
+                break;
+
+            case SHOW_SUMMARY:
+                ui.updateTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_SUMMARY);
                 break;
 
             case SHOW_SEARCH_RESULTS:

@@ -52,6 +52,7 @@ public class Parser {
     private static final String KEYWORD_ON_DATE = "on";
     private static final String KEYWORD_ALL = "all";
     private static final String KEYWORD_DONE = "done";
+    private static final String KEYWORD_SUMMARY = "summary";
     private static final String KEYWORD_EVENTUALLY = "eventually";
     private static final String KEYWORD_ESCAPE = "\\";
 
@@ -258,6 +259,9 @@ public class Parser {
                 } else if (argument.equals(KEYWORD_ALL)) {
                     return constructShowAllCommand();
 
+                } else if (argument.equals(KEYWORD_SUMMARY)) {
+                    return constructShowSummaryCommand();
+
                 } else {
                     // Treat "show something" as an add command
                     // Inject add to the front of command and recurse
@@ -412,6 +416,10 @@ public class Parser {
 
     private static Command constructShowAllCommand() {
         return new Command(CommandType.SHOW_ALL);
+    }
+
+    private static Command constructShowSummaryCommand() {
+        return new Command(CommandType.SHOW_SUMMARY);
     }
 
     private static Command constructHelpCommand() {

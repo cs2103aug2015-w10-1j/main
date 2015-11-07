@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class UI {
 
     public static enum ScreenView {
-        SCREEN_DONE, SCREEN_MAIN, SCREEN_SEARCH
+        SCREEN_DONE, SCREEN_MAIN, SCREEN_SEARCH, SCREEN_SUMMARY
     }
 
     private static final Logger logger = Logger.getLogger(UI.class.getName());
