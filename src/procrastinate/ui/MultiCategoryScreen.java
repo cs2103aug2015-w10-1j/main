@@ -2,6 +2,7 @@
 package procrastinate.ui;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -803,13 +804,14 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         int count = 1;
         while (!(getInstantFromLocalDateTime(startingDateTime)).equals(endOfWeek.toInstant())) {
             SubcategoryBox newDateBox;
+            String shortDate = ", " + startingDateTime.format(DateTimeFormatter.ofPattern(dateFormat.toPattern()));
             if (count == 1) {
-                newDateBox = new SubcategoryBox(SUBCATEGORY_TODAY);
+                newDateBox = new SubcategoryBox(SUBCATEGORY_TODAY + shortDate);
             } else if (count == 2) {
-                newDateBox = new SubcategoryBox(SUBCATEGORY_TOMORROW);
+                newDateBox = new SubcategoryBox(SUBCATEGORY_TOMORROW + shortDate);
             } else {
                 newDateBox = new SubcategoryBox(
-                        startingDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
+                        startingDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()) + shortDate);
             }
             VBox newDateVBox = newDateBox.getTaskListVBox();
             upcomingSubcategories.add(newDateVBox);
