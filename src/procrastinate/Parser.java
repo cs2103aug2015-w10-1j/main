@@ -91,8 +91,7 @@ public class Parser {
 
         assert(userInput != null && !userInput.isEmpty());
 
-        // Filtering userInput
-        String userCommand = trimWhiteSpace(userInput);
+        String userCommand = userInput.trim().replaceAll("\\s+", WHITESPACE_STRING); // Trim WHITESPACE_STRING
         CommandStringType commandInputType = getCommandStringType(userCommand);
         List<Date> dateArray = getDates(userCommand, commandInputType);
         userCommand = removeDatesFromUserCommand(userCommand, commandInputType);
@@ -447,7 +446,7 @@ public class Parser {
     }
 
     // ================================================================================
-    // Filtering user input methods
+    // Utility methods
     // ================================================================================
 
     private static CommandStringType getCommandStringType(String userCommand) {
@@ -464,46 +463,27 @@ public class Parser {
         }
     }
 
-    private static List<Date> getDates(String userCommand, CommandStringType commandInputType) {
-        List<Date> dateList = new ArrayList<Date>();
-        String keyword = null;
-        if (commandInputType.equals(CommandStringType.NO_DATE) || commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
-            return null;
-        } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
-            keyword = KEYWORD_DUE_DATE;
-        } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
-            keyword = KEYWORD_ON_DATE;
-        } else { //FROM_TO_DATE
-            keyword = KEYWORD_FROM_TO_DATE;
+    private static String removeEscapeCharacters(String userCommand) {
+        String removedString = "";
+        boolean isPreviousEscapeChar = false;
+        for (int i = 0; i < userCommand.length(); i ++) {
+            String currentChar = String.valueOf(userCommand.charAt(i));
+            if(!isPreviousEscapeChar && currentChar.equals(KEYWORD_ESCAPE)) {
+                isPreviousEscapeChar = true;
+            } else {
+                removedString += currentChar;
+                isPreviousEscapeChar = false;
+            }
         }
-
-        String[] arguments = userCommand.split(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
-        String dateArguments = arguments[arguments.length - 1];
-        dateArguments = replaceRelativeDates(dateArguments);
-        List<DateGroup> dateGroups = dateParser.parse(dateArguments);
-
-        dateList = fillUpDateArray(dateList, dateGroups);
-        return dateList;
+        return removedString;
     }
 
-    private static String removeDatesFromUserCommand(String userCommand, CommandStringType commandInputType) {
-        String keyword = null;
-        if (commandInputType.equals(CommandStringType.NO_DATE) || commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
-            return userCommand;
-        } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
-            keyword = KEYWORD_DUE_DATE;
-        } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
-            keyword = KEYWORD_ON_DATE;
-        } else { // FROM_TO_DATE
-            keyword = KEYWORD_FROM_TO_DATE;
-        }
-
-        int endIndex = getLastIndex(keyword, userCommand);
-        if (endIndex == 0) {
-            return null;
+    private static int getLastIndex(String keyword, String userCommand) {
+        int lastIndex = userCommand.lastIndexOf(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
+        if(lastIndex == -1) {
+            return -1;
         } else {
-            return userCommand.substring(0, endIndex);
-            // NOT endIndex - 1; we need the trailing space! See long comment above
+            return lastIndex + 1;
         }
     }
 
@@ -513,28 +493,6 @@ public class Parser {
         }
 
         return isPathArgumentFormatValid(userCommand);
-    }
-
-    private static boolean isKeywordDate(String userCommand, String keyword) {
-        if(!userCommand.contains(WHITESPACE_STRING + keyword + WHITESPACE_STRING)) {
-            return false;
-        }
-
-        String[] arguments = userCommand.split(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
-        String lastArgument = arguments[arguments.length - 1];
-        List<DateGroup> dateGroups = dateParser.parse(lastArgument);
-
-        if(keyword.equals(KEYWORD_FROM_TO_DATE) && !lastArgument.contains(WHITESPACE_STRING + KEYWORD_TO + WHITESPACE_STRING)) {
-            return false;
-        }
-
-        if (hasDates(dateGroups)) {
-            // natty returns dates even if the dates are between words
-            // we need to make sure there are no excess words before and after the dates
-            return dateGroups.get(0).getPosition() == 1 && dateGroups.get(0).getText().equals(lastArgument);
-        }
-
-        return false;
     }
 
     private static boolean isPathArgumentFormatValid(String userCommand) {
@@ -574,39 +532,93 @@ public class Parser {
         }
     }
 
-    // ================================================================================
-    // Utility methods
-    // ================================================================================
+    private static boolean isKeywordDate(String userCommand, String keyword) {
+        if(!userCommand.contains(WHITESPACE_STRING + keyword + WHITESPACE_STRING)) {
+            return false;
+        }
 
-    private static List<Date> fillUpDateArray(List<Date> dateList, List<DateGroup> dateGroups) {
+        String[] arguments = userCommand.split(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
+        String lastArgument = arguments[arguments.length - 1];
+        List<DateGroup> dateGroups = dateParser.parse(lastArgument);
+
+        if(keyword.equals(KEYWORD_FROM_TO_DATE) && !lastArgument.contains(WHITESPACE_STRING + KEYWORD_TO + WHITESPACE_STRING)) {
+            return false;
+        }
+
+        if (hasDates(dateGroups)) {
+            return dateGroups.get(0).getPosition() == 1 && dateGroups.get(0).getText().equals(lastArgument);
+        }
+
+        return false;
+    }
+
+    private static List<Date> getDates(String userCommand, CommandStringType commandInputType) {
+        List<Date> dateList = new ArrayList<Date>();
+        String keyword = null;
+        if (commandInputType.equals(CommandStringType.NO_DATE) || commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
+            return null;
+        } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+            keyword = KEYWORD_DUE_DATE;
+        } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
+            keyword = KEYWORD_ON_DATE;
+        } else { //FROM_TO_DATE
+            keyword = KEYWORD_FROM_TO_DATE;
+        }
+
+        String[] arguments = userCommand.split(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
+        String dateArguments = arguments[arguments.length - 1];
+        dateArguments = replaceRelativeDates(dateArguments);
+        List<DateGroup> dateGroups = dateParser.parse(dateArguments);
+        try {
+            dateList.add(dateGroups.get(0).getDates().get(0));
+            dateList.add(dateGroups.get(0).getDates().get(1));
+        } catch (Exception e) {}
+
         if (dateGroups.get(0).isTimeInferred()) {
             Calendar date = Calendar.getInstance();
-            Date newDate = setDate(dateGroups.get(0).getDates().get(0), date);
+            date.setTime(dateList.get(0));
+            date.set(Calendar.HOUR_OF_DAY, 23);
+            date.set(Calendar.MINUTE, 59);
+            date.set(Calendar.SECOND, 0);
+            date.set(Calendar.MILLISECOND, 0);
+            Date newDate = date.getTime();
+            dateList.remove(0);
             dateList.add(0, newDate);
-            if (dateGroups.get(0).getDates().size() > 1) {
-                newDate = setDate(dateGroups.get(0).getDates().get(1), date);
+            if (dateList.size() > 1) {
+                date.setTime(dateList.get(1));
+                date.set(Calendar.HOUR_OF_DAY, 23);
+                date.set(Calendar.MINUTE, 59);
+                date.set(Calendar.SECOND, 0);
+                date.set(Calendar.MILLISECOND, 0);
+                newDate = date.getTime();
+                dateList.remove(1);
                 dateList.add(1, newDate);
             }
         }
-
         return dateList;
     }
 
-    private static Date setDate(Date date, Calendar calendarDate) {
-        calendarDate.setTime(date);
-        calendarDate.set(Calendar.HOUR_OF_DAY, 23);
-        calendarDate.set(Calendar.MINUTE, 59);
-        calendarDate.set(Calendar.SECOND, 0);
-        calendarDate.set(Calendar.MILLISECOND, 0);
-        Date newDate = calendarDate.getTime();
-        return newDate;
+    private static String removeDatesFromUserCommand(String userCommand, CommandStringType commandInputType) {
+        String keyword = null;
+        if (commandInputType.equals(CommandStringType.NO_DATE) || commandInputType.equals(CommandStringType.NO_DATE_SET_PATH)) {
+            return userCommand;
+        } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+            keyword = KEYWORD_DUE_DATE;
+        } else if (commandInputType.equals(CommandStringType.ON_DATE)) {
+            keyword = KEYWORD_ON_DATE;
+        } else { // FROM_TO_DATE
+            keyword = KEYWORD_FROM_TO_DATE;
+        }
+
+        int endIndex = getLastIndex(keyword, userCommand);
+        if (endIndex == 0) {
+            return null;
+        } else {
+            return userCommand.substring(0, endIndex);
+            // NOT endIndex - 1; we need the trailing space! See long comment above
+        }
     }
 
-    /**
-     *  There exists bugs that cause Natty to parse some dates wrongly
-     *  We replace these dates to dates that are more specific but yields
-     *  the same result.
-     */
     private static String replaceRelativeDates(String dateArguments) {
         dateArguments = dateArguments.toLowerCase();
         dateArguments = dateArguments.replace(KEYWORD_THIS_MORNING, KEYWORD_THIS_MORNING_FIX);
@@ -617,66 +629,30 @@ public class Parser {
         return dateArguments;
     }
 
-    private static String removeEscapeCharacters(String userCommand) {
-        String removedString = "";
-        boolean isPreviousEscapeChar = false;
-        for (int i = 0; i < userCommand.length(); i ++) {
-            String currentChar = String.valueOf(userCommand.charAt(i));
-            if(!isPreviousEscapeChar && currentChar.equals(KEYWORD_ESCAPE)) {
-                isPreviousEscapeChar = true;
-            } else {
-                removedString += currentChar;
-                isPreviousEscapeChar = false;
-            }
-        }
-        return removedString;
-    }
-
     private static String[] extractSetPathArguments(String userCommand) {
-        // We assume that the user command is in a valid set path format
         String[] result = new String[2];
         String[] arguments = userCommand.split(DOUBLE_QUOTE_STRING);
-        if (arguments.length == 1) { // There are no double quotes
+        if (arguments.length == 1) {
             String[] pathArguments = userCommand.split(WHITESPACE_STRING);
             try {
                 result[0] = pathArguments[1];
                 result[1] = pathArguments[2];
             } catch (Exception e) {}
         } else if (arguments.length == 2) {
-            // We need to take care two situations
-            // 1) set <path dir> "<filename>"
-            // 2) set "<path dir>"
-            if (trimWhiteSpace(arguments[0]).equals(COMMAND_SET_PATH)) {
+            if (arguments[0].trim().replaceAll("\\s+", WHITESPACE_STRING).equals(COMMAND_SET_PATH)) {
                 result[0] = arguments[1];
             } else {
                 result[0] = arguments[0].split(WHITESPACE_STRING)[1];
                 result[1] = arguments[1];
             }
         } else if (arguments.length == 3) {
-            // Only possibility
-            // set "<path dir>" <filename>
             result[0] = arguments[1];
-            result[1] = trimWhiteSpace(arguments[2]);
+            result[1] = arguments[2].trim().replaceAll("\\s+", WHITESPACE_STRING);
         } else if (arguments.length == 4) {
-            // Only possibility
-            // set "<path dir>" "<filename>"
             result[0] = arguments[1];
             result[1] = arguments[3];
         }
         return result;
-    }
-
-    private static String trimWhiteSpace(String userInput) {
-        return userInput.trim().replaceAll("\\s+", WHITESPACE_STRING);
-    }
-
-    private static int getLastIndex(String keyword, String userCommand) {
-        int lastIndex = userCommand.lastIndexOf(WHITESPACE_STRING + keyword + WHITESPACE_STRING);
-        if(lastIndex == -1) {
-            return -1;
-        } else {
-            return lastIndex + 1;
-        }
     }
 
     private static boolean isCommandEmpty(String userCommand) {
