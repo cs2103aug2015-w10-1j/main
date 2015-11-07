@@ -29,15 +29,18 @@ public class FileHandler {
     // Message strings
     // ================================================================================
 
-    private static final String DEBUG_FILE_INIT = "FileHandler initialised. Using file ";
+    private static final String DEBUG_FILE_INIT = "FileHandler initialised. Using file %1$s";
     private static final String DEBUG_FILE_WRITE_SUCCESS = "Wrote to file:\n";
     private static final String DEBUG_FILE_WRITE_FAILURE = "Could not write to file";
     private static final String DEBUG_FILE_LOAD_SUCCESS = "Loaded %1$s task(s) from file";
     private static final String DEBUG_FILE_LOAD_NOT_FOUND = "File not found; creating new file";
     private static final String DEBUG_FILE_PARSE_FAILURE = "Unrecognisable file format";
+    private static final String DEBUG_CONFIG_EXISTS = "Config exists, reading from %1$s ";
+    private static final String DEBUG_CONFIG_ABSENT = "Config file missing, making file %1$s ";
     private static final String DEBUG_CONFIG_WRITE_FAILURE = "Could not write to configuration file";
     private static final String DEBUG_SET_PATH_FAILURE = "Could not set to new path %1$s";
     private static final String DEBUG_SET_PATH_SUCCESS = "Path set to %1$s";
+    private static final String DEBUG_FILE_INDETERMINANT = "%1$s existence cannot be determined";
 
     // ================================================================================
     // Defaults
@@ -75,7 +78,7 @@ public class FileHandler {
         this.saveFile = saveFile;
         this.fullFilename = savePath.getFileName().toString();
 
-        logger.log(Level.INFO, DEBUG_FILE_INIT + saveFile.getCanonicalPath());
+        logger.log(Level.INFO, String.format(DEBUG_FILE_INIT, saveFile.getCanonicalPath()));
     }
     //@@author
 
@@ -185,6 +188,7 @@ public class FileHandler {
                 saveFile = p.toFile();
             }
             reader.close();
+            logger.log(Level.INFO, String.format(DEBUG_CONFIG_EXISTS,  configFile.getCanonicalPath()));
         } else if (Files.notExists(configFile.toPath())) {
             Files.createFile(configFile.toPath());
             writer = new BufferedWriter(new FileWriter(configFile));
@@ -194,6 +198,9 @@ public class FileHandler {
 
             p = Paths.get(DEFAULT_FULL_FILENAME);
             saveFile = p.toFile();
+            logger.log(Level.INFO, String.format(DEBUG_CONFIG_ABSENT,  configFile.getCanonicalPath()));
+        } else {
+            logger.log(Level.SEVERE, String.format(DEBUG_FILE_INDETERMINANT, configFile.getCanonicalPath()));
         }
 
         if (writer !=null) {
