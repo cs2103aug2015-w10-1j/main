@@ -51,7 +51,7 @@ public class CenterPaneController {
 
     private static double xOffset, yOffset;
 
- // Changed to protected for testing purposes.
+    // Changed to protected for testing purposes.
     protected CenterScreen currentScreen;
     protected ImageOverlay currentOverlay;
 
@@ -75,8 +75,6 @@ public class CenterPaneController {
 
     private StackPane centerStackPane;
 
-    private boolean isInitial = true;
-
     // ================================================================================
     // CenterPaneController methods
     // ================================================================================
@@ -89,98 +87,45 @@ public class CenterPaneController {
     }
 
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
-//        if (isInitial) {
-//            summaryScreen.updateTaskList(taskList);
-//            isInitial = false;
-//            return;
-//        }
-
         switch (screenView) {
 
             case SCREEN_DONE: {
-                doneScreen.updateTaskList(taskList);
                 if (currentScreen != doneScreen) {
-                    doneScreenNode.setOpacity(OPACITY_ZERO);
+                    centerStackPane.getChildren().remove(currentScreen.getNode());
                     centerStackPane.getChildren().add(doneScreenNode);
-                    SequentialTransition screenSwitchInTransition = doneScreen.getScreenSwitchInSequence();
-                    SequentialTransition screenSwitchOutTransition = currentScreen.getScreenSwitchOutSequence();
-                    screenSwitchOutTransition.setOnFinished(e -> {
-                        doneScreenNode.setOpacity(OPACITY_FULL);
-                        centerStackPane.getChildren().remove(currentScreen.getNode());
-                        currentScreen = doneScreen;
-                        screenSwitchInTransition.play();
-                    });
-                    screenSwitchOutTransition.play();
+                    currentScreen = doneScreen;
                 }
-//                if (currentScreenView == doneScreen) {
-//                    doneScreen.updateTaskList(taskList);
-//                } else {
-//                    startScreenSwitchSequence(taskList, doneScreenNode, doneScreen);
-//                }
+                doneScreen.updateTaskList(taskList);
                 break;
             }
 
             case SCREEN_MAIN: {
-                mainScreen.updateTaskList(taskList);
                 if (currentScreen != mainScreen) {
-                    mainScreenNode.setOpacity(OPACITY_ZERO);
+                    centerStackPane.getChildren().remove(currentScreen.getNode());
                     centerStackPane.getChildren().add(mainScreenNode);
-                    SequentialTransition screenSwitchInTransition = mainScreen.getScreenSwitchInSequence();
-                    SequentialTransition screenSwitchOutTransition = currentScreen.getScreenSwitchOutSequence();
-                    screenSwitchOutTransition.setOnFinished(e -> {
-                        mainScreenNode.setOpacity(OPACITY_FULL);
-                        centerStackPane.getChildren().remove(currentScreen.getNode());
-                        currentScreen = mainScreen;
-                        screenSwitchInTransition.play();
-                    });
-                    screenSwitchOutTransition.play();
+                    currentScreen = mainScreen;
                 }
-
-//                if (currentScreenView == mainScreen) {
-//                    mainScreen.updateTaskList(taskList);
-//                } else {
-//                    startScreenSwitchSequence(taskList, mainScreenNode, mainScreen);
-//                }
+                mainScreen.updateTaskList(taskList);
                 break;
             }
 
             case SCREEN_SEARCH: {
-                searchScreen.updateTaskList(taskList);
                 if (currentScreen != searchScreen) {
-                    searchScreenNode.setOpacity(OPACITY_ZERO);
+                    centerStackPane.getChildren().remove(currentScreen.getNode());
                     centerStackPane.getChildren().add(searchScreenNode);
-                    SequentialTransition screenSwitchInTransition = searchScreen.getScreenSwitchInSequence();
-                    SequentialTransition screenSwitchOutTransition = currentScreen.getScreenSwitchOutSequence();
-                    screenSwitchOutTransition.setOnFinished(e -> {
-                        searchScreenNode.setOpacity(OPACITY_FULL);
-                        centerStackPane.getChildren().remove(currentScreen.getNode());
-                        currentScreen = searchScreen;
-                        screenSwitchInTransition.play();
-                    });
-                    screenSwitchOutTransition.play();
+                    currentScreen = searchScreen;
                 }
-//                if (currentScreenView == searchScreen) {
-//                    searchScreen.updateTaskList(taskList);
-//                } else {
-//                    startScreenSwitchSequence(taskList, searchScreenNode, searchScreen);
-//                }
+                searchScreen.updateTaskList(taskList);
                 break;
             }
 
             case SCREEN_SUMMARY: {
-                summaryScreen.updateTaskList(taskList);
                 if (currentScreen != summaryScreen) {
-                    centerStackPane.getChildren().clear();
+                    centerStackPane.getChildren().remove(currentScreen.getNode());
                     centerStackPane.getChildren().add(summaryScreenNode);
                     currentScreen = summaryScreen;
                 }
-//                if (currentScreenView == summaryScreen) {
-//                    summaryScreen.updateTaskList(taskList);
-//                } else {
-//                    startScreenSwitchSequence(taskList, summaryScreenNode, summaryScreen);
-////                    summaryScreenNode.toFront();
-////                    summaryScreenNode.setOpacity(OPACITY_FULL);
-//                }
+                summaryScreen.updateTaskList(taskList);
                 break;
             }
 
@@ -191,8 +136,8 @@ public class CenterPaneController {
     }
 
     /**
-     * Starts the fade out transition that lasts for 0.5 seconds if the stack contains it
-     * and it is the current overlay screen.
+     * Starts the fade out transition that lasts for 0.5 seconds if the stack
+     * contains it and it is the current overlay screen.
      */
     protected void hideHelpOverlay() {
         if (currentOverlay != helpOverlay || !centerStackPane.getChildren().contains(helpOverlayNode)) {
@@ -207,13 +152,14 @@ public class CenterPaneController {
     }
 
     /**
-     * Fast-forwards the fade animation if user starts typing, which will remove the entire
-     * node from the stack once it has finished fading.
+     * Fast-forwards the fade animation if user starts typing, which will remove
+     * the entire node from the stack once it has finished fading.
      */
     protected void hideSplashOverlay() {
         if (currentOverlay == splashOverlay && centerStackPane.getChildren().contains(splashOverlayNode)) {
             Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
-            // Only fast forward the timeline if the current time of the animation is smaller than the given
+            // Only fast forward the timeline if the current time of the
+            // animation is smaller than the given
             // interrupt time. Else, just wait for the animation to end.
             if (splashScreenTimeline.getCurrentTime().lessThan(interruptTime)) {
                 splashScreenTimeline.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
@@ -223,8 +169,10 @@ public class CenterPaneController {
     }
 
     /**
-     * Creates a splash screen that maintains full opacity for 2 seconds before completely fading out in 1 second
-     * or until the user starts to type.
+     * Creates a splash screen that maintains full opacity for
+     * TIME_SPLASH_SCREEN_FULL_OPACITY seconds before completely fading out in
+     * (TIME_SPLASH_SCREEN_FADE-TIME_SPLASH_SCREEN_FULL_OPACITY) seconds or
+     * until the user starts to type.
      */
     protected void showSplashOverlay() {
         currentOverlay = splashOverlay;
@@ -253,17 +201,17 @@ public class CenterPaneController {
         ((HelpOverlay) helpOverlay).nextPage();
     }
 
-    // Methods below for scrolling current screen with key input. Scroll bar value is incremented/decremented twice
-    // to enable the user scroll faster
+    // Methods below for scrolling current screen with key input. Scroll bar
+    // value is incremented/decremented twice to enable the user scroll faster
     protected void scrollUpCurrentScreen() {
-        ScrollPane currScrollPane = ((ScrollPane)(currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
+        ScrollPane currScrollPane = ((ScrollPane) (currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
         ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
         currScrollBar.decrement();
         currScrollBar.decrement();
     }
 
     protected void scrollDownCurrentScreen() {
-        ScrollPane currScrollPane = ((ScrollPane)(currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
+        ScrollPane currScrollPane = ((ScrollPane) (currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
         ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
         currScrollBar.increment();
         currScrollBar.increment();
@@ -324,7 +272,7 @@ public class CenterPaneController {
         KeyValue zeroOpacityKeyValue = new KeyValue(splashOverlayNode.opacityProperty(), OPACITY_ZERO);
         KeyFrame zeroOpacityFrame = new KeyFrame(zeroOpacityDuration, zeroOpacityKeyValue);
 
-        splashScreenTimeline= new Timeline(fullOpacityFrame, zeroOpacityFrame);
+        splashScreenTimeline = new Timeline(fullOpacityFrame, zeroOpacityFrame);
         splashScreenTimeline.setOnFinished(e -> {
             centerStackPane.getChildren().remove(splashOverlayNode);
             currentOverlay = null;
@@ -341,7 +289,9 @@ public class CenterPaneController {
     }
 
     /**
-     * This creates and holds a list of the screens that can be easily added onto the center pane
+     * This creates and holds a list of the screens that can be easily added
+     * onto the center pane
+     *
      * @return list of screens
      */
     private void createScreens() {
@@ -388,22 +338,12 @@ public class CenterPaneController {
     private void setToSummaryScreen() {
         centerStackPane.getChildren().add(summaryScreenNode);
         currentScreen = summaryScreen;
-//        centerStackPane.getChildren().add(mainScreenNode);
-//        centerStackPane.getChildren().add(summaryScreenNode);
-//        currentScreenView = summaryScreen;
-//        summaryScreenNode.toFront();
     }
 
-    private void removeSummaryScreen(List<Task> taskList) {
-        centerStackPane.getChildren().remove(summaryScreenNode);
-        mainScreen.updateTaskList(taskList);
-        currentScreen = mainScreen;
-    }
-
-    //@@author A0121597B-reused
+    // @@author A0121597B-reused
     // Required since each screen node is wrapped inside a scrollPane.
     private void addMouseDragListeners(Node screenNode) {
-        Node scrollPaneNode = ((ScrollPane)screenNode.lookup(SELECTOR_SCROLL_PANE)).getContent();
+        Node scrollPaneNode = ((ScrollPane) screenNode.lookup(SELECTOR_SCROLL_PANE)).getContent();
         scrollPaneNode.setOnMousePressed((mouseEvent) -> {
             xOffset = mouseEvent.getSceneX();
             yOffset = mouseEvent.getSceneY();
@@ -418,7 +358,7 @@ public class CenterPaneController {
     // Test methods
     // ================================================================================
 
-    //@@author A0121597B generated
+    // @@author A0121597B generated
     protected Node getMainScreen() {
         return mainScreenNode;
     }
