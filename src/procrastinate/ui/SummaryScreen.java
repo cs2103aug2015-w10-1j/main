@@ -1,6 +1,7 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javafx.geometry.Pos;
@@ -111,48 +112,52 @@ public class SummaryScreen extends MultiCategoryScreen {
 
         double rollOverHeight = 0;
 
-        double currOverdueCategoryHeight = getHeightOfCategoryNode(overdueNode);
-        double currUpcomingCategoryHeight = getHeightOfCategoryNode(upcomingNode);
-        double currFutureCategoryHeight = getHeightOfCategoryNode(futureNode);
-        double currDreamsCategoryHeight = getHeightOfCategoryNode(dreamsNode);
+        HeightNodePair overdueCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(overdueNode), overdueNode);
+        HeightNodePair upcomingCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(upcomingNode), upcomingNode);
+        HeightNodePair futureCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(futureNode), futureNode);
+        HeightNodePair dreamsCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(dreamsNode), dreamsNode);
+        HeightNodePair[] allCategoryHeightNodePair = { overdueCategoryHeightNodePair, upcomingCategoryHeightNodePair,
+                futureCategoryHeightNodePair, dreamsCategoryHeightNodePair };
 
-        if (currOverdueCategoryHeight != 0) {
+        Arrays.sort(allCategoryHeightNodePair);
 
-            double maxOverdueCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_OVERDUE);
-            if (currOverdueCategoryHeight > maxOverdueCategoryHeight) {
-                rollOverHeight += resizeTaskListOfOtherCategoriesToFit(overdueNode, maxOverdueCategoryHeight);
+        for (HeightNodePair currHeightNodePair : allCategoryHeightNodePair) {
+            double currCategoryHeight = currHeightNodePair.getHeight();
+            Node currCategoryNode = currHeightNodePair.getNode();
+            if (currCategoryNode == overdueNode) {
+                double maxOverdueCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_OVERDUE) + rollOverHeight;
+                rollOverHeight = 0;
+                if (currCategoryHeight > maxOverdueCategoryHeight) {
+                    rollOverHeight += resizeTaskListOfOtherCategoriesToFit(overdueNode, maxOverdueCategoryHeight);
+                } else {
+                    rollOverHeight += maxOverdueCategoryHeight - currCategoryHeight;
+                }
+            } else if (currCategoryNode == upcomingNode) {
+                double maxUpcomingCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_UPCOMING) + rollOverHeight;
+                rollOverHeight = 0;
+                if (currCategoryHeight > maxUpcomingCategoryHeight) {
+                    rollOverHeight += resizeTaskListOfUpcomingCategoryToFit(upcomingNode, maxUpcomingCategoryHeight);
+                } else {
+                    rollOverHeight += maxUpcomingCategoryHeight - currCategoryHeight;
+                }
+            } else if (currCategoryNode == futureNode) {
+                double maxFutureCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_FUTURE) + rollOverHeight;
+                rollOverHeight = 0;
+                if (currCategoryHeight > maxFutureCategoryHeight) {
+                    rollOverHeight += resizeTaskListOfOtherCategoriesToFit(futureNode, maxFutureCategoryHeight);
+                } else {
+                    rollOverHeight += maxFutureCategoryHeight - currCategoryHeight;
+                }
+            } else if (currCategoryNode == dreamsNode) {
+                double maxDreamsCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_DREAMS) + rollOverHeight;
+                rollOverHeight = 0;
+                if (currCategoryHeight > maxDreamsCategoryHeight) {
+                    rollOverHeight += resizeTaskListOfOtherCategoriesToFit(dreamsNode, maxDreamsCategoryHeight);
+                } else {
+                    rollOverHeight += maxDreamsCategoryHeight - currCategoryHeight;
+                }
             } else {
-                rollOverHeight += maxOverdueCategoryHeight - currOverdueCategoryHeight;
-            }
-        }
-
-        if (currUpcomingCategoryHeight != 0) {
-            double maxUpcomingCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_UPCOMING) + rollOverHeight;
-            rollOverHeight = 0;
-            if (currUpcomingCategoryHeight > maxUpcomingCategoryHeight) {
-                rollOverHeight += resizeTaskListOfUpcomingCategoryToFit(upcomingNode, maxUpcomingCategoryHeight);
-            } else {
-                rollOverHeight += maxUpcomingCategoryHeight - currUpcomingCategoryHeight;
-            }
-        }
-
-        if (currFutureCategoryHeight != 0) {
-            double maxFutureCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_FUTURE) + rollOverHeight;
-            rollOverHeight = 0;
-            if (currFutureCategoryHeight > maxFutureCategoryHeight) {
-                rollOverHeight += resizeTaskListOfOtherCategoriesToFit(futureNode, maxFutureCategoryHeight);
-            } else {
-                rollOverHeight += maxFutureCategoryHeight - currFutureCategoryHeight;
-            }
-        }
-
-        if (currDreamsCategoryHeight != 0) {
-            double maxDreamsCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_DREAMS) + rollOverHeight;
-            rollOverHeight = 0;
-            if (currDreamsCategoryHeight > maxDreamsCategoryHeight) {
-                rollOverHeight += resizeTaskListOfOtherCategoriesToFit(dreamsNode, maxDreamsCategoryHeight);
-            } else {
-                rollOverHeight += maxDreamsCategoryHeight - currDreamsCategoryHeight;
+                continue;
             }
         }
     }
@@ -171,13 +176,14 @@ public class SummaryScreen extends MultiCategoryScreen {
             if (currSubcategory.getChildren().isEmpty()) {
                 continue;
             }
-            while (!currSubcategory.getChildren().isEmpty() && (getHeightOfCategoryNode(upcomingNode) > (heightToFit - ellipsisBoxHeight))) {
+            while (!currSubcategory.getChildren().isEmpty()
+                    && (getHeightOfCategoryNode(upcomingNode) > (heightToFit - ellipsisBoxHeight))) {
                 currSubcategory.getChildren().remove(currSubcategory.getChildren().size() - 1);
                 numTasksRemoved++;
                 mainVBox.getParent().layout();
             }
-            if (currSubcategory.getChildren().isEmpty()){
-                upcomingTaskList.getChildren().remove(upcomingTaskList.getChildren().size()-1);
+            if (currSubcategory.getChildren().isEmpty()) {
+                upcomingTaskList.getChildren().remove(upcomingTaskList.getChildren().size() - 1);
             }
             if (getHeightOfCategoryNode(upcomingNode) < (heightToFit - ellipsisBoxHeight)) {
                 break;
