@@ -36,6 +36,9 @@ public class UIStub extends UI {
         this.taskList = taskList;
     }
     @Override
+    public void initialUpdateTaskList(List<Task> taskList) {
+    }
+    @Override
     public void resetIsExit() {
     }
     @Override

@@ -92,6 +92,10 @@ public class UI {
         centerPaneController.updateScreen(taskList, screenView);
     }
 
+    public void initialUpdateTaskList(List<Task> taskList) {
+        centerPaneController.initialUpdateMainScreen(taskList);
+    }
+
     public void resetIsExit() {
         isExit.set(false);
     }

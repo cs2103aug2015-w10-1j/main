@@ -104,7 +104,7 @@ public class Logic {
 
     private Command lastPreviewedCommand = null;
 
-    private ViewType currentView = ViewType.SHOW_SUMMARY; // initial view
+    private ViewType currentView;
 
     private String searchString = null;
     private String searchTerm = null;
@@ -606,8 +606,8 @@ public class Logic {
             ui.createErrorDialog(ERROR_STARTUP_HEADER, ERROR_STARTUP_MESSAGE);
             exit();
         }
+        initUiTaskList();
         ui.setStatus(STATUS_READY);
-        updateUiTaskList();
     }
 
     protected void initTaskEngine() {
@@ -662,6 +662,11 @@ public class Logic {
                                   ScreenView.SCREEN_SEARCH);
                 break;
         }
+    }
+
+    private void initUiTaskList() {
+        ui.initialUpdateTaskList(taskEngine.getOutstandingTasks());
+        updateView(ViewType.SHOW_SUMMARY);
     }
 
     // Process key press events

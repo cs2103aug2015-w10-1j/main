@@ -136,6 +136,10 @@ public class CenterPaneController {
         }
     }
 
+    protected void initialUpdateMainScreen(List<Task> taskList) {
+        mainScreen.updateTaskList(taskList);
+    }
+
     /**
      * Starts the fade out transition that lasts for TIME_HELP_SCREEN_FADEOUT
      * seconds if the stack contains it and it is the current overlay screen.
