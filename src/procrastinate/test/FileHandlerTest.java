@@ -149,7 +149,7 @@ public class FileHandlerTest {
         String line = reader.readLine();
         reader.close();
 
-        assertEquals(defaultName, line);
+        assertEquals(Paths.get(defaultName).toAbsolutePath().toString(), line);
     }
 
     @Test

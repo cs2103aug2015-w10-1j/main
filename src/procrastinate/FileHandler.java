@@ -160,7 +160,8 @@ public class FileHandler {
     //@@author A0124321Y
     /**
      * Loads from existing configuration if it exists, otherwise initialise configuration
-     * file with default settings
+     * file with default settings. If config file does not exists, storage file is assumed
+     * to not exists
      *
      * @return savePath, the path of the storage file.
      */
@@ -193,7 +194,7 @@ public class FileHandler {
             Files.createFile(configFile.toPath());
             writer = new BufferedWriter(new FileWriter(configFile));
 
-            writer.write(DEFAULT_FULL_FILENAME);
+            writer.write(Paths.get(DEFAULT_FULL_FILENAME).toAbsolutePath().toString());
             writer.flush();
 
             p = Paths.get(DEFAULT_FULL_FILENAME);
