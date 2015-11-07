@@ -48,6 +48,8 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private static double ellipsisBoxHeight = -1;
 
+    private boolean isSummarising = false;
+
     // ================================================================================
     // SummaryScreen Constructor
     // ================================================================================
@@ -74,6 +76,10 @@ public class SummaryScreen extends MultiCategoryScreen {
         setupSummaryView();
     }
 
+    protected boolean isSummarising() {
+        return isSummarising;
+    }
+
     @Override
     protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
         if (mainVBox.getChildren().isEmpty()) {
@@ -93,9 +99,11 @@ public class SummaryScreen extends MultiCategoryScreen {
         double maxMainVBoxHeight = ((ScrollPane) getNode().lookup(SELECTOR_SCROLLPANE)).getHeight();
 
         if (currMainVBoxHeight < maxMainVBoxHeight) {
+            isSummarising = false;
             return;
         }
 
+        isSummarising = true;
         resizeScreenToFit(maxMainVBoxHeight);
     }
 

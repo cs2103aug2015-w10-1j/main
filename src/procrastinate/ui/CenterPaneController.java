@@ -127,6 +127,11 @@ public class CenterPaneController {
                     switchToSummaryScreen();
                 }
                 summaryScreen.updateTaskList(taskList);
+                if (!summaryScreen.isSummarising()) {
+                    if (!centerStackPane.getChildren().contains(splashOverlayNode)) {
+                        startScreenSwitchSequenceNoAnimation(mainScreenNode, mainScreen);
+                    }
+                }
                 break;
             }
 
@@ -270,6 +275,16 @@ public class CenterPaneController {
         outgoingScreenTransition.play();
     }
 
+    private void startScreenSwitchSequenceNoAnimation(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
+        SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
+        incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
+
+        centerStackPane.getChildren().remove(currentScreen.getNode());
+        centerStackPane.getChildren().add(nodeToSwitchIn);
+        incomingScreenTransition.jumpTo("end");
+        incomingScreenTransition.play();
+    }
+
     /**
      * Exception case for switching to SummaryScreen, which wouldn't show
      * correctly if the screen switch transition of the outgoing screen is
@@ -317,6 +332,9 @@ public class CenterPaneController {
         splashScreenTimeline.setOnFinished(e -> {
             centerStackPane.getChildren().remove(splashOverlayNode);
             currentOverlay = null;
+            if (!summaryScreen.isSummarising()) {
+                startScreenSwitchSequenceNoAnimation(mainScreenNode, mainScreen);
+            }
         });
     }
 
