@@ -88,12 +88,9 @@ public class CenterPaneController {
 
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
         switch (screenView) {
-
             case SCREEN_DONE: {
                 if (currentScreen != doneScreen) {
-                    centerStackPane.getChildren().remove(currentScreen.getNode());
-                    centerStackPane.getChildren().add(doneScreenNode);
-                    currentScreen = doneScreen;
+                    startScreenSwitchSequence(taskList, doneScreenNode, doneScreen);
                 }
                 doneScreen.updateTaskList(taskList);
                 break;
@@ -101,9 +98,7 @@ public class CenterPaneController {
 
             case SCREEN_MAIN: {
                 if (currentScreen != mainScreen) {
-                    centerStackPane.getChildren().remove(currentScreen.getNode());
-                    centerStackPane.getChildren().add(mainScreenNode);
-                    currentScreen = mainScreen;
+                    startScreenSwitchSequence(taskList, mainScreenNode, mainScreen);
                 }
                 mainScreen.updateTaskList(taskList);
                 break;
@@ -111,9 +106,7 @@ public class CenterPaneController {
 
             case SCREEN_SEARCH: {
                 if (currentScreen != searchScreen) {
-                    centerStackPane.getChildren().remove(currentScreen.getNode());
-                    centerStackPane.getChildren().add(searchScreenNode);
-                    currentScreen = searchScreen;
+                    startScreenSwitchSequence(taskList, searchScreenNode, searchScreen);
                 }
                 searchScreen.updateTaskList(taskList);
                 break;
@@ -121,8 +114,11 @@ public class CenterPaneController {
 
             case SCREEN_SUMMARY: {
                 if (currentScreen != summaryScreen) {
-                    centerStackPane.getChildren().remove(currentScreen.getNode());
+                    // Special exception for summary screen, which requires the
+                    // entire screen to be loaded before summarising can start.
                     centerStackPane.getChildren().add(summaryScreenNode);
+                    summaryScreen.getScreenSwitchInSequence().play();
+                    centerStackPane.getChildren().remove(currentScreen.getNode());
                     currentScreen = summaryScreen;
                 }
                 summaryScreen.updateTaskList(taskList);
@@ -226,23 +222,16 @@ public class CenterPaneController {
     }
 
     private void startScreenSwitchSequence(List<Task> taskList, Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
+        SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
+        incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
 
-        SequentialTransition screenSwitchSequence;
-
-        SequentialTransition screenSwitchInSequence = screenToSwitchIn.getScreenSwitchInSequence();
-        screenToSwitchIn.updateTaskList(taskList);
-        screenSwitchInSequence.setOnFinished(switchInFinish -> {
-            currentScreen = screenToSwitchIn;
-        });
-
-        screenSwitchSequence = currentScreen.getScreenSwitchOutSequence();
-        screenSwitchSequence.setOnFinished(switchOutFinish -> {
-            centerStackPane.getChildren().clear();
+        SequentialTransition outgoingScreenTransition = currentScreen.getScreenSwitchOutSequence();
+        outgoingScreenTransition.setOnFinished(outgoing -> {
+            centerStackPane.getChildren().remove(currentScreen.getNode());
             centerStackPane.getChildren().add(nodeToSwitchIn);
-            screenSwitchInSequence.play();
+            incomingScreenTransition.play();
         });
-
-        screenSwitchSequence.play();
+        outgoingScreenTransition.play();
     }
 
     private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
