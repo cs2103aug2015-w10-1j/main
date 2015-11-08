@@ -1,7 +1,7 @@
 //@@author A0124321Y
 package procrastinate.command;
 
-public interface CrudFeedback extends Feedback {
+public interface FeedbackCrud extends Feedback {
     public static final String ADD_DREAM = "New dream: %1$s";
     public static final String ADD_DEADLINE = "New deadline: %1$s due %2$s";
     public static final String ADD_EVENT = "New event: %1$s %2$s to %3$s";

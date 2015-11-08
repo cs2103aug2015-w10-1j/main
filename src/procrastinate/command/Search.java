@@ -3,7 +3,7 @@ package procrastinate.command;
 
 import java.util.Date;
 
-public abstract class Search extends CleanCommand implements SearchFeedback {
+public abstract class Search extends CleanCommand implements FeedbackSearch {
     protected String description;
 
     protected String searchTerm,searchString;

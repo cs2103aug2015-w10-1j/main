@@ -1,7 +1,7 @@
 //@@author A0124321Y
 package procrastinate.command;
 
-public interface SearchFeedback extends Feedback {
+public interface FeedbackSearch extends Feedback {
     public static final String SEARCH = "Searching for tasks";
     public static final String SEARCH_CONTAINING = " containing '%1$s'";
     public static final String SEARCH_ON = " on %1$s";
