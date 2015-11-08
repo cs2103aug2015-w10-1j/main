@@ -30,6 +30,7 @@ public class EditEvent extends Edit {
 
         if (isInvalid(lineNum, taskEngine)) {
             feedback = String.format(INVALID_LINE_NUMBER, lineNum);
+            return feedback;
         }
 
         if (endDate.before(startDate)) {

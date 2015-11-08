@@ -22,6 +22,7 @@ public class EditDream extends Edit {
 
         if (isInvalid(lineNum, taskEngine)) {
             feedback = String.format(INVALID_LINE_NUMBER, lineNum);
+            return feedback;
         }
 
         // make feedback for preview zone
