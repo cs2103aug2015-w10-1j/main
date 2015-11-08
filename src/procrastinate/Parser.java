@@ -597,8 +597,8 @@ public class Parser {
         } else {
             dateList.add(0, dateGroups.get(0).getDates().get(0));
             if (dateGroups.get(0).getDates().size() > 1) {
-                System.out.println(dateGroups.get(0).getDates().get(0));
-                System.out.println(dateGroups.get(0).getDates().get(1));
+//                System.out.println(dateGroups.get(0).getDates().get(0));
+//                System.out.println(dateGroups.get(0).getDates().get(1));
                 dateList.add(1, dateGroups.get(0).getDates().get(1));
             }
         }
