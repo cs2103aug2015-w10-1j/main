@@ -105,4 +105,17 @@ public abstract class SingleCategoryScreen extends CenterScreen {
 
         today = getToday();
     }
+
+    // ================================================================================
+    // Getter Methods
+    // ================================================================================
+
+    // @@author A0121597B generated
+    protected Node getCategoryNode() {
+        return thisCategoryNode;
+    }
+
+    protected VBox getCategoryTaskList() {
+        return thisCategoryTaskList;
+    }
 }

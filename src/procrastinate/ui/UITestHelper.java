@@ -1,14 +1,12 @@
 //@@author A0121597B
 package procrastinate.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import procrastinate.task.Dream;
 import procrastinate.task.Task;
 import procrastinate.ui.UI.ScreenView;
 
@@ -16,7 +14,7 @@ public class UITestHelper {
 
     // Some test variables that are utilised multiple times in a test body
     public CenterPaneController centerPaneController;
-    public MultiCategoryScreen mainScreen;
+
     public TaskEntry dreamTask;
     public TaskEntry otherTask;
 
@@ -90,35 +88,60 @@ public class UITestHelper {
     }
 
     // ================================================================================
+    // CenterScreen methods
+    // ================================================================================
+
+    public Node getCenterScreenNode(CenterScreen centerScreen) {
+        return centerScreen.getNode();
+    }
+
+    public VBox getCenterScreenVBox(CenterScreen centerScreen) {
+        return centerScreen.getMainVBox();
+    }
+
+    public void updateScreenTaskList(CenterScreen centerScreen, List<Task> taskList) {
+        centerScreen.updateTaskList(taskList);
+    }
+
+    // ================================================================================
+    // MultiCategoryScreen methods
+    // ================================================================================
+
+    public MultiCategoryScreen getNewMainScreen() {
+        return new MainScreen();
+    }
+
+    public MultiCategoryScreen getNewSearchScreen() {
+        return new SearchScreen();
+    }
+
+    public MultiCategoryScreen getNewSummaryScreen() {
+        return new SummaryScreen();
+    }
+
+
+    // ================================================================================
+    // SingleCategoryScreen methods
+    // ================================================================================
+
+    public SingleCategoryScreen getNewDoneScreen() {
+        return new DoneScreen();
+    }
+
+    public Node getSingleCategoryNode(SingleCategoryScreen singleCategoryScreen) {
+        return singleCategoryScreen.getCategoryNode();
+    }
+
+    public VBox getSingleCategoryTaskList(SingleCategoryScreen singleCategoryScreen) {
+        return singleCategoryScreen.getCategoryTaskList();
+    }
+
+    // ================================================================================
     // HelpScreen methods
     // ================================================================================
 
     public ImageOverlay getNewHelpScreen() {
         return new HelpOverlay();
-    }
-
-    // ================================================================================
-    // MainScreen methods
-    // ================================================================================
-
-    public MultiCategoryScreen getNewMainScreen() {
-        mainScreen = new MainScreen();
-        return mainScreen;
-    }
-
-    public VBox getMainScreenVBox() {
-        return mainScreen.getMainVBox();
-    }
-
-    public void addDreamToMainScreen(Dream dream) {
-        List<Task> taskList = new ArrayList<>();
-        taskList.add(dream);
-        mainScreen.updateTaskList(taskList);
-    }
-
-    public VBox getDreamsTaskList() {
-        // Dreams is the last category box added
-        return (VBox) mainScreen.getMainVBox().getChildren().get(3);
     }
 
     // ================================================================================

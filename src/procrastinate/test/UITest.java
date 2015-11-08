@@ -2,6 +2,8 @@ package procrastinate.test;
 
 import static org.junit.Assert.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -14,8 +16,9 @@ import org.junit.Test;
 
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import procrastinate.task.Deadline;
 import procrastinate.task.Dream;
+import procrastinate.task.Event;
 import procrastinate.task.Task;
 import procrastinate.ui.CenterPaneController;
 import procrastinate.ui.DoneScreen;
@@ -126,38 +129,66 @@ public class UITest {
     }
 
     // ================================================================================
+    // CenterScreen Testing
+    // ================================================================================
+    // DoneScreen related
+    @Test
+    public void doneScreen_InitChildrenShouldBeEmpty() {
+        DoneScreen doneScreen = (DoneScreen) uiTestHelper.getNewDoneScreen();
+        assertNotNull(doneScreen);
+        assertEquals(uiTestHelper.getSingleCategoryTaskList(doneScreen).getChildren().size(), 0);
+    }
+
+    @Test
+    public void doneScreen_UpdateShouldIgnoreUndoneTasks() throws ParseException {
+        DoneScreen doneScreen = (DoneScreen) uiTestHelper.getNewDoneScreen();
+        List<Task> taskList = new ArrayList<Task>();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+
+        Deadline undoneDeadline = new Deadline("An Undone Deadline", sdf.parse("11/11/16"));
+        taskList.add(undoneDeadline);
+        uiTestHelper.updateScreenTaskList(doneScreen, taskList);
+        assertEquals(uiTestHelper.getSingleCategoryTaskList(doneScreen).getChildren().size(), 0);
+
+        Deadline doneDeadline = new Deadline("A Done Deadline", sdf.parse("12/12/16"));
+        doneDeadline.setDone(true);
+        taskList.add(doneDeadline);
+        uiTestHelper.updateScreenTaskList(doneScreen, taskList);
+        assertEquals(uiTestHelper.getSingleCategoryTaskList(doneScreen).getChildren().size(), 1);
+
+
+        Event undoneEvent = new Event("An Undone Event", sdf.parse("11/14/17"), sdf.parse("11/15/17"));
+        Event doneEvent = new Event("A Done Event", sdf.parse("11/14/17"), sdf.parse("11/15/17"));
+        doneEvent.setDone(true);
+        taskList.add(undoneEvent);
+        taskList.add(doneEvent);
+        uiTestHelper.updateScreenTaskList(doneScreen, taskList);
+        assertEquals(uiTestHelper.getSingleCategoryTaskList(doneScreen).getChildren().size(), 2);
+
+        Dream undoneDream = new Dream("A Undone Dream");
+        Dream doneDream = new Dream("A Done Dream");
+        doneDream.setDone(true);
+        taskList.add(undoneDream);
+        taskList.add(doneDream);
+        uiTestHelper.updateScreenTaskList(doneScreen, taskList);
+        assertEquals(uiTestHelper.getSingleCategoryTaskList(doneScreen).getChildren().size(), 3);
+    }
+
+    // MainScreen related
+    @Test
+    public void mainScreen_InitChildrenShouldBeEmpty() {
+        DoneScreen doneScreen = (DoneScreen) uiTestHelper.getNewDoneScreen();
+        assertNotNull(doneScreen);
+        assertEquals(uiTestHelper.getSingleCategoryTaskList(doneScreen).getChildren().size(), 0);
+    }
+
+    // ================================================================================
     // HelpScreen Testing
     // ================================================================================
     // @Test
     public void HelpScreen_InitTest() {
         UITestHelper uiTestHelper = new UITestHelper();
         assertTrue(uiTestHelper.getNewHelpScreen() != null);
-    }
-
-    // ================================================================================
-    // MainScreen Testing
-    // ================================================================================
-    // @Test
-    public void MainScreen_InitTest() {
-        UITestHelper uiTestHelper = new UITestHelper();
-        assertTrue(uiTestHelper.getNewMainScreen() != null);
-        assertTrue(uiTestHelper.getMainScreenVBox() != null);
-
-        assertTrue(uiTestHelper.getMainScreenVBox().getChildren().size() == 4);
-
-    }
-
-    // @Test
-    public void MainScreen_UpdateTest() {
-        UITestHelper uiTestHelper = new UITestHelper();
-        uiTestHelper.getNewMainScreen();
-
-        VBox dreamCategoryBox = uiTestHelper.getDreamsTaskList();
-        VBox dreamTaskList = (VBox) dreamCategoryBox.getChildren().get(1);
-        assertTrue(dreamTaskList.getChildren().size() == 0);
-
-        uiTestHelper.addDreamToMainScreen(new Dream("A Dream"));
-        assertTrue(dreamTaskList.getChildren().size() == 1);
     }
 
     // ================================================================================

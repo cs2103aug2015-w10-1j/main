@@ -924,4 +924,49 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         this.mainVBox = getMainVBox();
     }
 
+    // ================================================================================
+    // Getter Methods
+    // ================================================================================
+
+    // @@author A0121597B generated
+    protected Node getOverdueNode() {
+        return overdueNode;
+    }
+
+    protected Node getUpcomingNode() {
+        return upcomingNode;
+    }
+
+    protected Node getFutureNode() {
+        return futureNode;
+    }
+
+    protected Node getDreamsNode() {
+        return dreamsNode;
+    }
+
+    protected Node getDoneNode() {
+        return doneNode;
+    }
+
+    protected VBox getOverdueTaskList() {
+        return overdueTaskList;
+    }
+
+    protected VBox getUpcomingTaskList() {
+        return upcomingTaskList;
+    }
+
+    protected VBox getFutureTaskList() {
+        return futureTaskList;
+    }
+
+    protected VBox getDreamsTaskList() {
+        return dreamsTaskList;
+    }
+
+    protected VBox getDoneTaskList() {
+        return doneTaskList;
+    }
+
 }
