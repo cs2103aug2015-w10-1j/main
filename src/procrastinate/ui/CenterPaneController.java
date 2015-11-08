@@ -61,7 +61,7 @@ public class CenterPaneController {
     // Class Variables
     // ================================================================================
 
-    private static double xOffset, yOffset;
+    private static double xOffset_, yOffset_;
 
     protected CenterScreen currentScreen;
     protected ImageOverlay currentOverlay;
@@ -443,13 +443,13 @@ public class CenterPaneController {
         Node scrollPaneNode = ((ScrollPane) screenNode.lookup(SELECTOR_SCROLL_PANE)).getContent();
 
         scrollPaneNode.setOnMousePressed((mouseEvent) -> {
-            xOffset = mouseEvent.getSceneX();
-            yOffset = mouseEvent.getSceneY();
+            xOffset_ = mouseEvent.getSceneX();
+            yOffset_ = mouseEvent.getSceneY();
         });
 
         scrollPaneNode.setOnMouseDragged((mouseEvent) -> {
-            centerStackPane_.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
-            centerStackPane_.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+            centerStackPane_.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset_);
+            centerStackPane_.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset_);
         });
     }
 
