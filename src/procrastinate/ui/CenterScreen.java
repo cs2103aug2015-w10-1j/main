@@ -127,8 +127,10 @@ public abstract class CenterScreen extends VBox {
      */
     protected abstract void updateTaskList(List<Task> taskList);
 
+    // SequentialTransition used to provide a node by node fade out effect
     protected abstract SequentialTransition getScreenSwitchOutSequence();
 
+    // ParallelTransition used to prevent animation clashing
     protected abstract ParallelTransition getScreenSwitchInSequence();
 
     protected void setMainVBoxBackgroundImage(VBox mainVBox, String value) {
@@ -276,13 +278,7 @@ public abstract class CenterScreen extends VBox {
         return friendlyDayFormatter_.format(date);
     }
 
-    /**
-     * Generates the date of the end of the week for task date comparisons
-     *
-     * @param today    Current date at 0000hrs
-     * @return Date    that is a week from now at 0000hrs for comparing tasks
-     *                 to be placed in the 'Upcoming' category
-     */
+    // Generates the date comparing tasks to be placed in the 'Upcoming' category
     private Date getEndOfWeekDate(Date today) {
         Calendar calendar = Calendar.getInstance();
 
