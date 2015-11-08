@@ -126,7 +126,7 @@ public class UI {
     }
 
     public void nextHelpPage() {
-        centerPaneController.nextHelpPage();
+        centerPaneController.showNextHelpPage();
     }
 
     private void showSplashOverlay() {

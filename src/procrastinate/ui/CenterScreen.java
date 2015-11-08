@@ -29,6 +29,10 @@ import java.util.List;
 
 public abstract class CenterScreen extends VBox {
 
+    // ================================================================================
+    // Message Strings
+    // ================================================================================
+
     protected static final String MESSAGE_UNABLE_TO_DETERMINE_TYPE = "Unable to determine TaskType for adding.";
     protected static final String MESSAGE_UNABLE_TO_RECOGNISE_NODE = "Unable to recognise Node.";
 
@@ -40,16 +44,22 @@ public abstract class CenterScreen extends VBox {
 
     protected static final String FX_BACKGROUND_IMAGE_NULL = "-fx-background-image: null;";
 
-    protected static final double OPACITY_ZERO = 0;
-    protected static final double OPACITY_FULL = 1;
-
     private static final String UI_NUMBER_SEPARATOR = ". ";
 
     private static final String DATE_TODAY = "Today";
     private static final String DATE_TOMORROW = "Tomorrow";
 
     // ================================================================================
-    // Class variables
+    // Constants
+    // ================================================================================
+
+    protected static final double OPACITY_ZERO = 0;
+    protected static final double OPACITY_FULL = 1;
+
+    private static final int NUMBER_OF_DAYS_TO_SHOW_IN_UPCOMING = 7;
+
+    // ================================================================================
+    // Class Variables
     // ================================================================================
 
     protected IntegerProperty taskCount = new SimpleIntegerProperty(1);
@@ -58,6 +68,7 @@ public abstract class CenterScreen extends VBox {
 
     protected SimpleDateFormat dateFormatWithFriendlyDayAndYear = new SimpleDateFormat("EEE d MMM''yy h:mma");
     protected SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
+    protected SimpleDateFormat friendlyDayFormat = new SimpleDateFormat("EEE");
     protected SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
     protected SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
 
@@ -68,7 +79,7 @@ public abstract class CenterScreen extends VBox {
     private Date endOfWeek;
 
     // ================================================================================
-    // FXML field variables
+    // FXML Field Variables
     // ================================================================================
 
     @FXML
@@ -84,7 +95,7 @@ public abstract class CenterScreen extends VBox {
     }
 
     // ================================================================================
-    // Init methods
+    // CenterScreen Methods
     // ================================================================================
 
     /**
@@ -109,27 +120,22 @@ public abstract class CenterScreen extends VBox {
 
     protected abstract SequentialTransition getScreenSwitchInSequence();
 
-    private void loadLayout(String filePath) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(filePath));
-        loader.setController(this); // Required due to different package
-                                    // declaration from Main
-        try {
-            node = loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    protected void setMainVBoxBackgroundImage(VBox mainVBox, String value) {
+        mainVBox.setStyle(value);
     }
 
     /**
-     * Creates a formatted task counter for use when adding tasks onto screen
+     * Updates the class variable Dates that are used to compare the event dates
+     * and generate subcategories for 'Upcoming'
      */
-    private void setupBinding() {
-        taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
-        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
+    protected void updateDates() {
+        today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));
+        currentDate = new Date();
+        endOfWeek = getEndOfWeekDate(today);
     }
 
     // ================================================================================
-    // Animation methods
+    // Animation Methods
     // ================================================================================
 
     protected FadeTransition generateFadeInTransition(Node nodeToFade, int fadeInTime) {
@@ -149,7 +155,7 @@ public abstract class CenterScreen extends VBox {
     }
 
     // ================================================================================
-    // Date Format methods
+    // Date Format Methods
     // ================================================================================
 
     protected String getDateFormatForDeadlineWithDifferentYear(Date date) {
@@ -157,70 +163,82 @@ public abstract class CenterScreen extends VBox {
     }
 
     protected String getDateFormatForEventWithDifferentYearButInOneDay(Date date, Date endDate) {
-        return dateFormatWithFriendlyDayAndYear.format(date) + EVENT_DATE_SEPARATOR_SAME_DAY
+        return dateFormatWithFriendlyDayAndYear.format(date)
+                + EVENT_DATE_SEPARATOR_SAME_DAY
                 + timeFormat.format(endDate);
     }
 
     protected String getDateFormatForEventWithDifferentYearAndDifferentDays(Date date, Date endDate) {
-        return dateFormatWithFriendlyDayAndYear.format(date) + EVENT_DATE_SEPARATOR_GENERAL
+        return dateFormatWithFriendlyDayAndYear.format(date)
+                + EVENT_DATE_SEPARATOR_GENERAL
                 + dateFormatWithFriendlyDayAndYear.format(endDate);
     }
 
     protected String getDateFormatForDeadlineWithSameYear(Date date) {
-        return getDayOfWeek(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(date);
+        return getDayOfWeek(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(date);
     }
 
     protected String getDateFormatForEventWithSameYearAndInOneDay(Date date, Date endDate) {
-        return getDayOfWeek(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(date) + EVENT_DATE_SEPARATOR_SAME_DAY
+        return getDayOfWeek(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(date)
+                + EVENT_DATE_SEPARATOR_SAME_DAY
                 + timeFormat.format(endDate);
     }
 
     protected String getDateFormatForEventWithSameYearAndDifferentDays(Date date, Date endDate) {
-        return getDayOfWeek(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(date) + EVENT_DATE_SEPARATOR_GENERAL
-                + getDayOfWeek(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(endDate);
+        return getDayOfWeek(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(date)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(date)
+                + EVENT_DATE_SEPARATOR_GENERAL
+                + getDayOfWeek(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventAndInOneDay(Date startDate, Date endDate) {
-        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_SAME_DAY + timeFormat.format(endDate);
+        return timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_SAME_DAY
+                + timeFormat.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventButDifferentDays(Date startDate, Date endDate) {
-        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL + getFriendlyDayFormatForUpcoming(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR + timeFormat.format(endDate);
+        return timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_GENERAL
+                + getFriendlyDayFormatForUpcoming(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + timeFormat.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventButDifferentWeek(Date startDate, Date endDate) {
-        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL + getDayOfWeek(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR + dateFormat.format(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR
+        return timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_GENERAL
+                + getDayOfWeek(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
+                + dateFormat.format(endDate)
+                + FRIENDLY_DATE_OR_TIME_SEPARATOR
                 + timeFormat.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventButDifferentYear(Date startDate, Date endDate) {
-        return timeFormat.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL
+        return timeFormat.format(startDate)
+                + EVENT_DATE_SEPARATOR_GENERAL
                 + dateFormatWithFriendlyDayAndYear.format(endDate);
     }
 
     // ================================================================================
     // Utility methods
     // ================================================================================
-
-    protected void setMainVBoxBackgroundImage(VBox mainVBox, String value) {
-        mainVBox.setStyle(value);
-    }
-
-    /**
-     * Updates the class variable Dates that are used to compare the event dates
-     * and generate subcategories for 'Upcoming'
-     */
-    protected void updateDates() {
-        today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));
-        currentDate = new Date();
-        endOfWeek = getEndOfWeekDate(today);
-    }
 
     /**
      * Creates a LocalDateTime that reflects today's date at 0000hrs, to be used
@@ -256,20 +274,8 @@ public abstract class CenterScreen extends VBox {
         return firstDay == secondDay;
     }
 
-    protected String getFriendlyDayFormatForUpcoming(Date date) {
-        LocalDateTime startingDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-        if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().getDayOfMonth()) {
-            return DATE_TODAY;
-        } else if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().plusDays(1).getDayOfMonth()) {
-            return DATE_TOMORROW;
-        } else {
-            return getDayOfWeek(date);
-        }
-    }
-
-    protected String getDayOfWeek(Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE");
-        return dateFormat.format(date);
+    private String getDayOfWeek(Date date) {
+        return friendlyDayFormat.format(date);
     }
 
     /**
@@ -283,12 +289,46 @@ public abstract class CenterScreen extends VBox {
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.setTime(today);
-        calendar.add(Calendar.DAY_OF_WEEK, 7);
+        calendar.add(Calendar.DAY_OF_WEEK, NUMBER_OF_DAYS_TO_SHOW_IN_UPCOMING);
         return calendar.getTime();
     }
 
+    private String getFriendlyDayFormatForUpcoming(Date date) {
+        LocalDateTime startingDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().getDayOfMonth()) {
+            return DATE_TODAY;
+        } else if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().plusDays(1).getDayOfMonth()) {
+            return DATE_TOMORROW;
+        } else {
+            return getDayOfWeek(date);
+        }
+    }
+
     // ================================================================================
-    // Getter methods
+    // Init Methods
+    // ================================================================================
+
+    private void loadLayout(String filePath) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(filePath));
+        loader.setController(this); // Required due to different package
+                                    // declaration from Main
+        try {
+            node = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Creates a formatted task counter for use when adding tasks onto screen.
+     */
+    private void setupBinding() {
+        taskCountString.bindBidirectional(taskCount, new NumberStringConverter());
+        taskCountFormatted.bind(Bindings.concat(taskCountString).concat(UI_NUMBER_SEPARATOR));
+    }
+
+    // ================================================================================
+    // Getter Methods
     // ================================================================================
 
     // @@author A0121597B generated

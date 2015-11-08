@@ -15,19 +15,19 @@ import java.io.IOException;
 public class CategoryBox extends VBox {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String LOCATION_CATEGORYBOX_FXML = "views/CategoryBox.fxml";
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
-    private Node categoryBox;
+    private Node categoryBox_;
 
     // ================================================================================
-    // FXML field variables
+    // FXML Field Variables
     // ================================================================================
 
     @FXML
@@ -36,45 +36,56 @@ public class CategoryBox extends VBox {
     private VBox categoryVBox;
 
     // ================================================================================
-    // CategoryBox methods
+    // CategoryBox Constructor
     // ================================================================================
 
     /**
-     * Creates a category with the given labelString as header for tasks to go
-     * into
+     * Creates a CategoryBox that encloses a Label as the header text and a VBox
+     * that contain the list of tasks.
      *
      * @param labelString
      *            string to be used as the header text of the category
      */
     protected CategoryBox(String labelString) {
         loadLayout();
-        setLabel(labelString);
+        setLabelTextWithDropShadowEffect(labelString);
     }
+
+    // ================================================================================
+    // Init Methods
+    // ================================================================================
 
     private void loadLayout() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_CATEGORYBOX_FXML));
         loader.setController(this); // Required due to different package
                                     // declaration from Main
         try {
-            this.categoryBox = loader.load();
+            categoryBox_ = loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void setLabel(String label) {
-        this.categoryLabel.setText(label);
+    /**
+     * Sets the categoryLabel which acts as the header for a CategoryBox. This
+     * method also adds a DropShadow effect to the label after the text is set.
+     *
+     * @param labelString
+     *            to be set as the category header text
+     */
+    private void setLabelTextWithDropShadowEffect(String labelString) {
+        this.categoryLabel.setText(labelString);
         DropShadow ds = new DropShadow(BlurType.GAUSSIAN, Color.GRAY, 6, 0, 0, 2.0f);
         categoryLabel.setEffect(ds);
     }
 
     // ================================================================================
-    // Getter methods
+    // Getter Methods
     // ================================================================================
 
     // @@author A0121597B generated
     protected Node getCategoryBox() {
-        return this.categoryBox;
+        return categoryBox_;
     }
 
     /**
