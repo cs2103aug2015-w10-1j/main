@@ -119,6 +119,45 @@ public class UITestHelper {
         return new SummaryScreen();
     }
 
+    public Node getOverdueNode(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getOverdueNode();
+    }
+
+    public Node getUpcomingNode(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getUpcomingNode();
+    }
+
+    public Node getFutureNode(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getFutureNode();
+    }
+
+    public Node getDreamsNode(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getDreamsNode();
+    }
+
+    public Node getDoneNode(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getDoneNode();
+    }
+
+    public VBox getOverdueTaskList(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getOverdueTaskList();
+    }
+
+    public VBox getUpcomingTaskList(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getUpcomingTaskList();
+    }
+
+    public VBox getFutureTaskList(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getFutureTaskList();
+    }
+
+    public VBox getDreamsTaskList(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getDreamsTaskList();
+    }
+
+    public VBox getDoneTaskList(MultiCategoryScreen multiCategoryScreen) {
+        return multiCategoryScreen.getDoneTaskList();
+    }
 
     // ================================================================================
     // SingleCategoryScreen methods
