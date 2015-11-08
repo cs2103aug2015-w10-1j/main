@@ -8,6 +8,12 @@ import javafx.animation.SequentialTransition;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 
+/**
+ * <h1>A subclass of CenterScreen and contain only a single CategoryBox.</h1>
+ *
+ * The constructor takes in a string to be used as the text of the CategoryBox
+ * header.
+ */
 public abstract class SingleCategoryScreen extends CenterScreen {
 
     // ================================================================================
@@ -15,6 +21,7 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     // ================================================================================
 
     protected Node thisCategoryNode;
+
     protected VBox thisCategoryTaskList;
 
     protected Date today;

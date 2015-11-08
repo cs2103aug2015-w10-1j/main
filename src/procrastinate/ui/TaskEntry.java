@@ -12,6 +12,22 @@ import javafx.scene.layout.HBox;
 
 import java.io.IOException;
 
+/**
+ * <h1>A GridPane wrapper structure used to display the different Tasks.</h1>
+ *
+ * It is laid out in 3 columns and displays the information of the Task
+ * in the order of:
+ * <li>Line Number,
+ * <li>Task Description
+ * <li>Date/Time String
+ * <br>
+ * Text wrapping also is enabled for long task descriptions while the date/time strings
+ * are to be properly formatted before being passed in.
+ *
+ * <p><b>Note:</b>
+ * A tick will be displayed for Tasks that are marked as done and will be placed beside
+ * the line number of the Task displayed.
+ */
 public class TaskEntry extends GridPane {
 
     // ================================================================================

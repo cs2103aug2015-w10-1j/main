@@ -14,6 +14,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+/**
+ * <h1>SystemTrayHandler class handles the tray icon operation and hiding or showing
+ * of the main window.</h1>
+ */
 public class SystemTrayHandler {
 
     // ================================================================================

@@ -22,7 +22,6 @@ import java.io.IOException;
  *
  * <br>The CSS style class for CategoryBox is 'categoryBox' and the styling applied
  * differentiates CategoryBox from SubcategoryBox.
- *
  */
 public class CategoryBox extends VBox {
 

@@ -76,13 +76,13 @@ public class CenterPaneController {
     private Node helpOverlayNode_;
     private Node splashOverlayNode_;
 
-    private HelpOverlay helpOverlay_;
-    private SplashOverlay splashOverlay_;
-
     private DoneScreen doneScreen_;
     private MainScreen mainScreen_;
     private SearchScreen searchScreen_;
     private SummaryScreen summaryScreen_;
+
+    private HelpOverlay helpOverlay_;
+    private SplashOverlay splashOverlay_;
 
     private StackPane centerStackPane_;
 
@@ -179,19 +179,14 @@ public class CenterPaneController {
         }
     }
 
+    // Used at startup so that highlighting can start immediately from the first very operation
     protected void initialUpdateMainScreen(List<Task> taskList) {
         mainScreen_.updateTaskList(taskList);
     }
 
-
-    /**
-     * A handle to pass the search string from Logic to the SearchScreen.
-     *
-     * @param searchString    that the user searched for, to be used as the search
-     *                        query header on the SearchScreen.
-     */
+    // Handle to pass search string between classes
     protected void receiveSearchStringAndPassToSearchScreen(String searchString) {
-        searchScreen_.updateSearchStringLabel(searchString);
+        searchScreen_.updateSearchHeaderLabelText(searchString);
     }
 
     // Methods below for scrolling current screen with key input. Scroll bar
@@ -216,10 +211,8 @@ public class CenterPaneController {
     // ImageOverlay Methods
     // ================================================================================
 
-    /**
-     * A handle to help switch between pages of the HelpOverlay if it is
-     * currently being shown.
-     */
+    // A handle to help switch between pages of the HelpOverlay if it is
+    // currently being shown.
     protected void showNextHelpPage() {
         if (currentOverlay != helpOverlay_) {
             return;
@@ -247,8 +240,8 @@ public class CenterPaneController {
     }
 
     /**
-     * Fast-forwards the fade animation if user starts typing. The splash screen
-     * is automatically removed from the centerStackPane once it has finished
+     * Fast-forwards the fade animation if user starts typing before TIME_SPLASH_SCREEN_INTERRUPT.
+     * The splash screen is automatically removed from the centerStackPane once it has finished
      * playing.
      */
     protected void hideSplashOverlay() {
@@ -376,11 +369,10 @@ public class CenterPaneController {
         incomingScreenTransition.play();
     }
 
-    /**
-     * Exception case for switching to SummaryScreen, which wouldn't show
-     * correctly if the screen switch transition of the outgoing screen is
-     * played together.
-     */
+
+    // Exception case for switching to SummaryScreen, which wouldn't show
+    // correctly if the screen switch transition of the outgoing screen is
+    // played together.
     private void switchToSummaryScreen() {
         centerStackPane_.getChildren().add(summaryScreenNode_);
         centerStackPane_.getChildren().remove(currentScreen.getNode());

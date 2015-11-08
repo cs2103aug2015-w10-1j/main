@@ -26,6 +26,16 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
+/**
+ * <h1>A subclass of CenterScreen and contains multiple categories in their
+ * respective CategoryBox.</h1>
+ *
+ * There are 5 different categories - Overdue, Upcoming, Future, Dreams and Done.
+ *
+ * <p>It is important to note that the 'Upcoming' CategoryBox contains
+ * SubcategoryBox as its children and the different TaskEntry should be
+ * added into the SubcategoryBox instead.
+ */
 public abstract class MultiCategoryScreen extends CenterScreen {
 
     // ================================================================================
@@ -75,7 +85,9 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     protected ArrayList<Node> nodeList = new ArrayList<>();
     protected ArrayList<VBox> upcomingSubcategories = new ArrayList<>();
 
-    // used to determine if the subcategory is to be faded in or out.
+    // Used to determine if the subcategory is to be faded in or out.
+    // Each element of subcategoryVisibilityTracker corresponds to the subcategory at a particular index,
+    // '0' indicates visible/faded in and '1' indicates it has been faded out previously.
     protected int[] subcategoryVisibilityTracker;
 
     // The main variables to call when adding tasks since they act as a task
@@ -188,6 +200,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         }
     }
 
+    // After tasks are filtered by type, it is filtered by the year of the (start) date
     private void addDeadlineOrEvent(Task task, Date taskDate) {
         boolean isSameStartYear = isSameYear(today, taskDate);
 
@@ -299,14 +312,9 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         }
     }
 
-    /**
-     * Iterates through the list of subcategories and find the corresponding
-     * date of the task to go into. If it is unable to find one, it will add the
-     * task into the 'Future' category instead.
-     *
-     * @param taskEntry    to be added
-     * @param date         of the task due
-     */
+    // Iterates through the list of subcategories and find the corresponding
+    // date of the task to go into. If it is unable to find one, it will add the
+    // task into the 'Future' category instead.
     private void addUpcomingTask(Task task, Date startDate, String taskCount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
@@ -417,7 +425,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // ================================================================================
 
     /**
-     * Updates the display using fade transitions. When the program is first
+     * Updates the display using fade transitions. When the screen is first
      * initialised, all categories are faded in and shown. After the user
      * executes a command, empty categories are faded out and non-empty
      * categories are faded in.
@@ -451,7 +459,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     }
 
     /**
-     * Determines the correct position for each node to be added back to.
+     * Determines the correct position for each node and adds it back.
      *
      * @param node    to be added
      */
@@ -551,13 +559,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         }
     }
 
-    /**
-     * Each element of subcategoryVisibilityTracker corresponds to the subcategory at a particular index,
-     * '0' indicates visible/faded in and '1' indicates it has been faded out previously.
-     *
-     * @param parallelTransition    to store all the transitions of the subcategories
-     * @param currSubcategoryIndex  to check the visibility from the subcategoryVisibilityTracker
-     */
     private void addOrRemoveUpcomingSubcategories(ParallelTransition parallelTransition, int currSubcategoryIndex) {
         // 2 cases, either it has been faded in or not faded in previously.
         if (upcomingSubcategories.get(currSubcategoryIndex).getChildren().isEmpty()) {
@@ -720,7 +721,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         }
     }
 
-  //@@author A0121597B-reused
+    //@@author A0121597B-reused
     private Timeline generateHighlightTimeline(GridPane newTaskEntry) {
         Timeline highlightTimeline = new Timeline();
 
@@ -748,6 +749,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             currTaskListTask = taskList.get(i);
             prevTaskListTask = prevTaskList.get(i);
 
+            // Check for the task at an index that differs between the
+            // two task lists
             if (currTaskListTask.equals(prevTaskListTask) &&
                 currTaskListTask.getId().equals(prevTaskListTask.getId())) {
                     continue;
@@ -762,7 +765,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     private int findIndexOfAddedOrEditedTask(List<Task> taskList) {
         List<Task> filteredTaskList = new ArrayList<>(taskList);
 
-        // To retrieve the newly added/edited task
+        // To retrieve the newly added/edited task, filter
+        // the new task list to get the new task that has changed.
         for (Task task : prevTaskList) {
             filteredTaskList = filteredTaskList.stream()
                                .filter(filterTask -> (!filterTask.getId().equals(task.getId())))
@@ -829,8 +833,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     }
 
     /**
-     * Generates the relative date sub-headers for the remaining days of the
-     * week and places them in the task list for 'This Week'.
+     * Generates the relative date sub-headers for the 'Upcoming' category
+     * and places them in the upcomingTaskList.
      */
     private void generateThisWeekSubcategories() {
         ArrayList<Node> thisWeekDateBoxes = new ArrayList<>();
@@ -885,9 +889,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // Init Methods
     // ================================================================================
 
-    /**
-     * Setup the various categories that tasks can fall under
-     */
     @Override
     protected void createCategories() {
         CategoryBox overdueBox = new CategoryBox(CATEGORY_OVERDUE);

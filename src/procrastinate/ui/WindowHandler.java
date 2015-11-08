@@ -21,6 +21,10 @@ import javafx.stage.StageStyle;
 import java.awt.SystemTray;
 import java.io.IOException;
 
+/**
+ * <h1>WindowHandler handles the configuration and Scene settings of the primary Stage.</h1>
+ * It also instantiates the SystemTrayHandler class if SystemTray is supported.
+ */
 public class WindowHandler {
 
     // ================================================================================
@@ -147,11 +151,11 @@ public class WindowHandler {
         setStyleAndMouseEvents();
     }
 
+    // @@author A0121597B-reused
     /**
      * Removes all window decorations sets mouse events to enable dragging of
      * window
      */
-    // @@author A0121597B-reused
     private void setStyleAndMouseEvents() {
         primaryStage_.initStyle(StageStyle.TRANSPARENT);
 
@@ -186,6 +190,7 @@ public class WindowHandler {
         root_ = wrapperPane;
     }
 
+    //@@author A0121597B
     /**
      * Creates a title bar for minimising and closing of Procrastinate.
      */
