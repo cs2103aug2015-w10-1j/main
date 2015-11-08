@@ -12,6 +12,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
 
+/**
+ * <h1>DialogPopupHandler class handles the creation and showing of all the error
+ * dialogs used.</h1>
+ */
 public class DialogPopupHandler {
 
     // ================================================================================
@@ -33,7 +37,6 @@ public class DialogPopupHandler {
     // ================================================================================
 
     protected DialogPopupHandler(Stage primaryStage) {
-        // Set up the parent stage to retrieve information if required
         this.primaryStage_ = primaryStage;
     }
 

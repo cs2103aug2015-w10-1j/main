@@ -12,6 +12,18 @@ import javafx.scene.paint.Color;
 
 import java.io.IOException;
 
+/**
+ * <h1>A VBox wrapper structure that models a category list.</h1>
+ * It contains a Label that acts as the header and another VBox, to contain all the TaskEntry added.
+ *
+ * <p><b>Note:</b>
+ * <br>It should be the main element to be added into the mainVBox of any screen before
+ * any SubcategoryBox or TaskEntry.
+ *
+ * <br>The CSS style class for CategoryBox is 'categoryBox' and the styling applied
+ * differentiates CategoryBox from SubcategoryBox.
+ *
+ */
 public class CategoryBox extends VBox {
 
     // ================================================================================

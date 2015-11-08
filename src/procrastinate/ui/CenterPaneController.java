@@ -18,6 +18,17 @@ import procrastinate.ui.UI.ScreenView;
 
 import java.util.List;
 
+/**
+ * <h1>This class controls the StackPane in the main window's BorderPane center region.</h1>
+ *
+ * It is also in-charge of all the different screens and overlays, including the:
+ * <li>     Creation of all the different screens/overlays
+ * <li>     Showing/Hiding of overlays
+ * <li>     Switching of screens
+ * <li>     Updating of screens
+ * <li>     Transitions that occur in the center region of the window
+ *
+ */
 public class CenterPaneController {
 
     // ================================================================================
@@ -99,6 +110,7 @@ public class CenterPaneController {
      * @param screenView  corresponding to the screen to switch to upon update
      */
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
+        assert(taskList != null);
         updateSummaryAndMainScreens(taskList, screenView);
 
         switch (screenView) {

@@ -9,6 +9,13 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
+/**
+ * <h1>DoneScreen is a subclass of the SingleCategoryScreen that shows all
+ * tasks which are done in a single CategoryBox.</h1>
+ *
+ * It will only add tasks which are done into its CategoryBox while ignoring all
+ * other tasks passed in via the updateTaskList method.
+ */
 public class DoneScreen extends SingleCategoryScreen {
 
     // ================================================================================

@@ -28,6 +28,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * <h1>This class is the parent class of all the Screens implemented which loads the layout
+ * required and applies the CSS styling.</h1>
+ *
+ * It contains mostly utility methods to be used by its subclasses which are fully implemented
+ * and some abstract methods for its subclasses.
+ */
 public abstract class CenterScreen extends VBox {
 
     // ================================================================================
