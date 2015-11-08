@@ -9,6 +9,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Task;
 
+/**
+ * <h1>SearchScreen is a subclass of MultiCategoryScreen and is used to show the search results
+ * of a user's query.</h1>
+ *
+ * On top of the different categories present, it creates an additional Label that remains above
+ * the categories to show the user's search query.
+ */
 public class SearchScreen extends MultiCategoryScreen {
 
     // ================================================================================
@@ -81,7 +88,7 @@ public class SearchScreen extends MultiCategoryScreen {
         }
     }
 
-    protected void updateSearchStringLabel(String searchString) {
+    protected void updateSearchHeaderLabelText(String searchString) {
         searchHeader_.setText(SEARCH_HEADER + searchString.trim());
     }
 
@@ -93,21 +100,25 @@ public class SearchScreen extends MultiCategoryScreen {
         searchHeader_.setWrapText(true);
         searchHeader_.setFocusTraversable(false);
         searchHeader_.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY +
-                              STYLE_SEARCH_HEADER_FONT_WEIGHT +
-                              STYLE_SEARCH_HEADER_FONT_SIZE +
-                              STYLE_SEARCH_HEADER_PADDING);
+                               STYLE_SEARCH_HEADER_FONT_WEIGHT +
+                               STYLE_SEARCH_HEADER_FONT_SIZE +
+                               STYLE_SEARCH_HEADER_PADDING);
     }
 
+    /**
+     * Wraps the searchHeader label with the current mainVBox within a new VBox to
+     * maintain the current workings of the mainVBox.
+     */
     private void wrapSearchHeaderLabelWithMainVBox() {
         ScrollPane parentOfMainVBox = (ScrollPane) this.getNode().lookup(SELECTOR_PARENT_OF_MAIN_VBOX);
 
-        adjustMainVBoxForWrapping();
+        setMainVBoxSizeForWrapping();
 
         VBox wrapper = buildWrapper();
         parentOfMainVBox.setContent(wrapper);
     }
 
-    private void adjustMainVBoxForWrapping() {
+    private void setMainVBoxSizeForWrapping() {
         mainVBox.setPrefSize(MAIN_VBOX_PREF_WIDTH, MAIN_VBOX_PREF_HEIGHT);
     }
 

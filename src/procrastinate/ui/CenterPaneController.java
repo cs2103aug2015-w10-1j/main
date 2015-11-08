@@ -1,10 +1,13 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.util.List;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.scene.Node;
@@ -15,8 +18,17 @@ import javafx.util.Duration;
 import procrastinate.task.Task;
 import procrastinate.ui.UI.ScreenView;
 
-import java.util.List;
-
+/**
+ * <h1>This class controls the StackPane in the main window's BorderPane center region.</h1>
+ *
+ * It is also in-charge of all the different screens and overlays, including the:
+ * <li>     Creation of all the different screens/overlays
+ * <li>     Showing/Hiding of overlays
+ * <li>     Switching of screens
+ * <li>     Updating of screens
+ * <li>     Transitions that occur in the center region of the window
+ *
+ */
 public class CenterPaneController {
 
     // ================================================================================
@@ -64,13 +76,13 @@ public class CenterPaneController {
     private Node helpOverlayNode_;
     private Node splashOverlayNode_;
 
-    private HelpOverlay helpOverlay_;
-    private SplashOverlay splashOverlay_;
-
     private DoneScreen doneScreen_;
     private MainScreen mainScreen_;
     private SearchScreen searchScreen_;
     private SummaryScreen summaryScreen_;
+
+    private HelpOverlay helpOverlay_;
+    private SplashOverlay splashOverlay_;
 
     private StackPane centerStackPane_;
 
@@ -98,8 +110,11 @@ public class CenterPaneController {
      * @param screenView  corresponding to the screen to switch to upon update
      */
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
+        assert(taskList != null);
+        updateSummaryAndMainScreens(taskList, screenView);
+
         switch (screenView) {
-            case SCREEN_DONE: {
+            case SCREEN_DONE : {
                 if (currentScreen != doneScreen_) {
                     startScreenSwitchSequence(doneScreenNode_, doneScreen_);
                 }
@@ -108,7 +123,7 @@ public class CenterPaneController {
                 break;
             }
 
-            case SCREEN_MAIN: {
+            case SCREEN_MAIN : {
                 if (currentScreen != mainScreen_) {
                     startScreenSwitchSequence(mainScreenNode_, mainScreen_);
                 }
@@ -117,7 +132,7 @@ public class CenterPaneController {
                 break;
             }
 
-            case SCREEN_SEARCH: {
+            case SCREEN_SEARCH : {
                 if (currentScreen != searchScreen_) {
                     startScreenSwitchSequence(searchScreenNode_, searchScreen_);
                 }
@@ -126,7 +141,7 @@ public class CenterPaneController {
                 break;
             }
 
-            case SCREEN_SUMMARY: {
+            case SCREEN_SUMMARY : {
                 if (currentScreen != summaryScreen_) {
                     // Special exception for summary screen, which requires the
                     // entire screen to be loaded before summarising can start.
@@ -149,19 +164,29 @@ public class CenterPaneController {
         }
     }
 
+    /**
+     * Used to keep both the Summary and Main screens up to date with one another.
+     *
+     * @param taskList     to update the screen with
+     * @param screenView   must correspond to currentScreen and be either SCREEN_MAIN
+     *                     or SCREEN_SUMMARY for any updates to take place.
+     */
+    private void updateSummaryAndMainScreens(List<Task> taskList, ScreenView screenView) {
+        if (currentScreen == mainScreen_ && screenView == ScreenView.SCREEN_MAIN) {
+            summaryScreen_.updateTaskList(taskList);
+        } else if (currentScreen == summaryScreen_ && screenView == ScreenView.SCREEN_SUMMARY) {
+            mainScreen_.updateTaskList(taskList);
+        }
+    }
+
+    // Used at startup so that highlighting can start immediately from the first very operation
     protected void initialUpdateMainScreen(List<Task> taskList) {
         mainScreen_.updateTaskList(taskList);
     }
 
-
-    /**
-     * A handle to pass the search string from Logic to the SearchScreen.
-     *
-     * @param searchString    that the user searched for, to be used as the search
-     *                        query header on the SearchScreen.
-     */
+    // Handle to pass search string between classes
     protected void receiveSearchStringAndPassToSearchScreen(String searchString) {
-        searchScreen_.updateSearchStringLabel(searchString);
+        searchScreen_.updateSearchHeaderLabelText(searchString);
     }
 
     // Methods below for scrolling current screen with key input. Scroll bar
@@ -186,10 +211,8 @@ public class CenterPaneController {
     // ImageOverlay Methods
     // ================================================================================
 
-    /**
-     * A handle to help switch between pages of the HelpOverlay if it is
-     * currently being shown.
-     */
+    // A handle to help switch between pages of the HelpOverlay if it is
+    // currently being shown.
     protected void showNextHelpPage() {
         if (currentOverlay != helpOverlay_) {
             return;
@@ -217,8 +240,8 @@ public class CenterPaneController {
     }
 
     /**
-     * Fast-forwards the fade animation if user starts typing. The splash screen
-     * is automatically removed from the centerStackPane once it has finished
+     * Fast-forwards the fade animation if user starts typing before TIME_SPLASH_SCREEN_INTERRUPT.
+     * The splash screen is automatically removed from the centerStackPane once it has finished
      * playing.
      */
     protected void hideSplashOverlay() {
@@ -266,7 +289,7 @@ public class CenterPaneController {
     }
 
     // ================================================================================
-    // Utility Methods
+    // Transition Methods
     // ================================================================================
 
     /**
@@ -323,7 +346,7 @@ public class CenterPaneController {
      *                          within the centerStackPane.
      */
     private void startScreenSwitchSequence(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
-        SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
+        ParallelTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
         incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
 
         SequentialTransition outgoingScreenTransition = currentScreen.getScreenSwitchOutSequence();
@@ -336,7 +359,7 @@ public class CenterPaneController {
     }
 
     private void startScreenSwitchSequenceNoAnimation(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
-        SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
+        ParallelTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
         incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
 
         centerStackPane_.getChildren().remove(currentScreen.getNode());
@@ -346,11 +369,10 @@ public class CenterPaneController {
         incomingScreenTransition.play();
     }
 
-    /**
-     * Exception case for switching to SummaryScreen, which wouldn't show
-     * correctly if the screen switch transition of the outgoing screen is
-     * played together.
-     */
+
+    // Exception case for switching to SummaryScreen, which wouldn't show
+    // correctly if the screen switch transition of the outgoing screen is
+    // played together.
     private void switchToSummaryScreen() {
         centerStackPane_.getChildren().add(summaryScreenNode_);
         centerStackPane_.getChildren().remove(currentScreen.getNode());

@@ -5,6 +5,12 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 
+/**
+ * <h1>HelpOverlay contain the reference sheets to be shown as a 'help' screen.</h1>
+ *
+ * The reference sheets are pictures set within a ImageView and there are currently
+ * 2 different pictures to be shown/switched.
+ */
 public class HelpOverlay extends ImageOverlay {
 
     // ================================================================================
@@ -67,6 +73,9 @@ public class HelpOverlay extends ImageOverlay {
         imageView.fitWidthProperty().set(400);
     }
 
+    /**
+     * Fits the loaded image into the center of the screen with the specified side padding.
+     */
     private void adjustStylesAndAddWrapper() {
         container.setStyle(STYLE_CONTAINER_PADDING);
 
@@ -75,8 +84,9 @@ public class HelpOverlay extends ImageOverlay {
     }
 
     /**
-     * A wrapper is required as the background color and box surrounding the help commands are rendered within Java
-     * and not just from the background image provided.
+     * Creates the wrapper required to keep the reference sheet in the center of the screen.
+     * It is required as the background color and box surrounding the help commands are rendered
+     * within Java and not just from the background image provided.
      *
      * @return VBox    to wrap the present ImageView and provide it with customised styling and sizing.
      */

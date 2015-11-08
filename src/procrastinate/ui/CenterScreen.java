@@ -1,8 +1,19 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -17,16 +28,13 @@ import javafx.util.Duration;
 import javafx.util.converter.NumberStringConverter;
 import procrastinate.task.Task;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
+/**
+ * <h1>This class is the parent class of all the Screens implemented which loads the layout
+ * required and applies the CSS styling.</h1>
+ *
+ * It contains mostly utility methods to be used by its subclasses which are fully implemented
+ * and some abstract methods for its subclasses.
+ */
 public abstract class CenterScreen extends VBox {
 
     // ================================================================================
@@ -121,7 +129,7 @@ public abstract class CenterScreen extends VBox {
 
     protected abstract SequentialTransition getScreenSwitchOutSequence();
 
-    protected abstract SequentialTransition getScreenSwitchInSequence();
+    protected abstract ParallelTransition getScreenSwitchInSequence();
 
     protected void setMainVBoxBackgroundImage(VBox mainVBox, String value) {
         mainVBox.setStyle(value);

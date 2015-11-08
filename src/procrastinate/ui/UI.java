@@ -1,6 +1,12 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -13,12 +19,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import procrastinate.task.Task;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+/**
+ * <h1>The main class of the UI component which follows the Facade Pattern.</h1>
+ * It instantiates all the other UI components required and provides
+ * handle methods for the Logic component to call upon.
+ */
 public class UI {
 
     public static enum ScreenView {
@@ -96,15 +101,16 @@ public class UI {
         centerPaneController_.updateScreen(taskList, screenView);
     }
 
+    //@@author A0080485B
     public void initialUpdateTaskList(List<Task> taskList) {
         centerPaneController_.initialUpdateMainScreen(taskList);
     }
 
+    //@@author A0121597B
     public void resetIsExit() {
         isExit_.set(false);
     }
 
-    // Attaches KeyHandler and Listener to the TextField to dynamically update the 'Status' Label upon input.
     public void attachHandlersAndListeners(EventHandler<KeyEvent> keyPressHandler,
                                            ChangeListener<String> userInputListener,
                                            ChangeListener<Boolean> isExitListener) {
@@ -159,28 +165,15 @@ public class UI {
     // DialogPopupHandler Methods
     // ================================================================================
 
-    /**
-     * Used by Logic to create an Error Dialog with a given message in the popup body
-     * @param message to be shown in popup body
-     */
     public void createErrorDialog(String header, String message) {
         dialogPopupHandler_.createErrorDialogPopup(header, message);
     }
 
-    /**
-     * Used by Logic to create an Error Dialog that displays the Exception message and its stack trace
-     * @param e Exception whose trace should be shown
-     */
     public void createErrorDialogWithTrace(Exception e) {
         dialogPopupHandler_.createErrorDialogPopupWithTrace(e);
     }
 
-    /**
-     * Used by Logic to create an Error Dialog with a given message and
-     * choice for confirmation: 'OK' or 'Cancel'
-     * @param message to be shown in popup body
-     * @return true if 'OK', false if 'Cancel'
-     */
+    //@@author A0080485B
     public boolean createErrorDialogWithConfirmation(String header, String message, String okLabel) {
         boolean result = false;
         if (!Platform.isFxApplicationThread()) {
@@ -208,6 +201,7 @@ public class UI {
     // Init Methods
     // ================================================================================
 
+    //@@author A0121597B
     private void initWindow() {
         windowHandler_ = new WindowHandler(primaryStage_);
         windowHandler_.loadWindowConfigurations(showTray_);
@@ -217,9 +211,6 @@ public class UI {
         dialogPopupHandler_ = new DialogPopupHandler(primaryStage_);
     }
 
-    /**
-     * Sets up controller for center pane and overlays a splash screen on top of the main screen display.
-     */
     private void initTaskDisplay() {
         this.centerPaneController_ = new CenterPaneController(windowHandler_.getCenterScreen());
     }

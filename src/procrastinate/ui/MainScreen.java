@@ -7,6 +7,13 @@ import javafx.animation.FadeTransition;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Task;
 
+/**
+ * <h1>MainScreen is a subclass of the MultiCategoryScreen and is used to show all
+ * the outstanding tasks or all the different tasks.</h1>
+ *
+ * The MainScreen is the most frequently used screen which will be shown and updated
+ * after most commands are executed.
+ */
 public class MainScreen extends MultiCategoryScreen {
 
     // ================================================================================

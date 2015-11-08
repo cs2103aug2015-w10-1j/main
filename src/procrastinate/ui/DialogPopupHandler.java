@@ -1,6 +1,10 @@
 //@@author A0121597B-reused
 package procrastinate.ui;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Optional;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -8,10 +12,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Optional;
-
+/**
+ * <h1>DialogPopupHandler class handles the creation and showing of all the error
+ * dialogs used.</h1>
+ */
 public class DialogPopupHandler {
 
     // ================================================================================
@@ -33,7 +37,6 @@ public class DialogPopupHandler {
     // ================================================================================
 
     protected DialogPopupHandler(Stage primaryStage) {
-        // Set up the parent stage to retrieve information if required
         this.primaryStage_ = primaryStage;
     }
 

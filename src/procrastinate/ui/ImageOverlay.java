@@ -1,14 +1,21 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-
+/**
+ * <h1>ImageOverlay contains an ImageView wrapped in a VBox that is placed on top of
+ * a white translucent background to provide an overlay effect.</h1>
+ *
+ * Different images can be set in the ImageView and additional nodes can be added into
+ * the VBox provided.
+ */
 public abstract class ImageOverlay {
 
     // ================================================================================

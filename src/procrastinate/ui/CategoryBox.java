@@ -1,6 +1,8 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -10,8 +12,17 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.io.IOException;
-
+/**
+ * <h1>A VBox wrapper structure that models a category list.</h1>
+ * It contains a Label that acts as the header and another VBox, to contain all the TaskEntry added.
+ *
+ * <p><b>Note:</b>
+ * <br>It should be the main element to be added into the mainVBox of any screen before
+ * any SubcategoryBox or TaskEntry.
+ *
+ * <br>The CSS style class for CategoryBox is 'categoryBox' and the styling applied
+ * differentiates CategoryBox from SubcategoryBox.
+ */
 public class CategoryBox extends VBox {
 
     // ================================================================================
@@ -86,9 +97,6 @@ public class CategoryBox extends VBox {
         return this.categoryBox_;
     }
 
-    /**
-     * Retrieves the VBox that acts as a task list for a TaskEntry to go into
-     */
     protected VBox getTaskListVBox() {
         return this.categoryVBox;
     }

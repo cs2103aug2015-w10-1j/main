@@ -9,6 +9,13 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
+/**
+ * <h1>DoneScreen is a subclass of the SingleCategoryScreen that shows all
+ * tasks which are done in a single CategoryBox.</h1>
+ *
+ * It will only add tasks which are done into its CategoryBox while ignoring all
+ * other tasks passed in via the updateTaskList method.
+ */
 public class DoneScreen extends SingleCategoryScreen {
 
     // ================================================================================
@@ -46,7 +53,7 @@ public class DoneScreen extends SingleCategoryScreen {
 
                 switch (task.getType()) {
 
-                    case DEADLINE: {
+                    case DEADLINE : {
                         Date date =((Deadline) task).getDate();
 
                         dateString = getDateFormatForDateline(date);
@@ -55,7 +62,7 @@ public class DoneScreen extends SingleCategoryScreen {
                         break;
                     }
 
-                    case EVENT: {
+                    case EVENT : {
                         Date startDate = ((Event) task).getStartDate();
                         Date endDate = ((Event) task).getEndDate();
 
@@ -65,7 +72,7 @@ public class DoneScreen extends SingleCategoryScreen {
                         break;
                     }
 
-                    case DREAM: {
+                    case DREAM : {
                         addDoneTask(taskCountFormatted.get(), task, null);
                         break;
                     }

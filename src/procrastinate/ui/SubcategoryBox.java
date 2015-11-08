@@ -1,14 +1,25 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-
+/**
+ * <h1>Another VBox wrapper structure that is similar to CategoryBox.</h1>
+ * It is mainly used as a child of CategoryBox to contain the TaskEntry instead.
+ *
+ * <p><b>Note:</b>
+ * <br>It is used in the 'Upcoming' category of the MultiCategoryScreen to provide
+ * subheaders.
+ *
+ * <br>The CSS style class for SubcategoryBox is 'subcategoryBox' and the styling
+ * applied differentiates it from CategoryBox.
+ */
 public class SubcategoryBox extends VBox {
 
     // ================================================================================
@@ -75,9 +86,6 @@ public class SubcategoryBox extends VBox {
         return this.subcategoryBox_;
     }
 
-    /**
-     * Retrieves the VBox that acts as a task list for a TaskEntry to go into
-     */
     protected VBox getTaskListVBox() {
         return this.subcategoryVBox;
     }

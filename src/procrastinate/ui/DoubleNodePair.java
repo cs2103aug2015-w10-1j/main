@@ -3,6 +3,13 @@ package procrastinate.ui;
 
 import javafx.scene.Node;
 
+/**
+ * <h1>DoubleNodePair is a class created specially for the SummaryScreen, to allow
+ * pairing of a Node and it's height value, a double.</h1>
+ *
+ * It allows the sorting by the double value (height) to allow the SummaryScreen to
+ * make more efficient use of space by handling smaller height Nodes first.
+ */
 public class DoubleNodePair implements Comparable<DoubleNodePair> {
 
     // ================================================================================
