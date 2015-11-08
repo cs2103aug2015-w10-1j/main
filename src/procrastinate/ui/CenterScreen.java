@@ -305,7 +305,7 @@ public abstract class CenterScreen extends VBox {
         loader.setController(this); // Required due to different package
                                     // declaration from Main
         try {
-            node_ = loader.load();
+            this.node_ = loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

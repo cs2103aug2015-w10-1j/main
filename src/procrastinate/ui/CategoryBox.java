@@ -60,7 +60,7 @@ public class CategoryBox extends VBox {
         loader.setController(this); // Required due to different package
                                     // declaration from Main
         try {
-            categoryBox_ = loader.load();
+            this.categoryBox_ = loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -85,7 +85,7 @@ public class CategoryBox extends VBox {
 
     // @@author A0121597B generated
     protected Node getCategoryBox() {
-        return categoryBox_;
+        return this.categoryBox_;
     }
 
     /**

@@ -82,7 +82,7 @@ public class CenterPaneController {
 
     protected CenterPaneController(StackPane centerStackPane) {
         assert(centerStackPane != null);
-        centerStackPane_ = centerStackPane;
+        this.centerStackPane_ = centerStackPane;
         createScreens();
         createOverlays();
         setToSummaryScreen();

@@ -20,13 +20,13 @@ public abstract class SingleCategoryScreen extends CenterScreen {
 
     protected VBox mainVBox;
 
-    private String headerName;
+    private String headerName_;
 
     // ================================================================================
     // Animation Values
     // ================================================================================
     // Time values used are in milliseconds
-  private static final int TIME_TRANSITION_FADE = 250;
+    private static final int TIME_TRANSITION_FADE = 250;
 
     // ================================================================================
     // SingleCategoryScreen Constructor
@@ -62,13 +62,15 @@ public abstract class SingleCategoryScreen extends CenterScreen {
 
     @Override
     protected void createCategories() {
-        CategoryBox categoryBox = new CategoryBox(headerName);
+        CategoryBox categoryBox = new CategoryBox(headerName_);
+
         this.thisCategoryNode = categoryBox.getCategoryBox();
         this.thisCategoryTaskList = categoryBox.getTaskListVBox();
     }
 
     private void createCategories(String headerName) {
-        this.headerName = headerName;
+        this.headerName_ = headerName;
+
         createCategories();
     }
 
@@ -85,12 +87,14 @@ public abstract class SingleCategoryScreen extends CenterScreen {
      */
     protected void clearTaskList() {
         taskCount.set(0);
+
         mainVBox.getChildren().clear();
         thisCategoryTaskList.getChildren().clear();
     }
 
     protected void getUpdatedDates() {
         updateDates();
+
         today = getToday();
     }
 }
