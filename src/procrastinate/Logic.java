@@ -28,6 +28,10 @@ import procrastinate.ui.UI.ScreenView;
 
 public class Logic {
 
+    // ================================================================================
+    // Class variables
+    // ================================================================================
+
     private static final Logger logger = Logger.getLogger(Logic.class.getName());
 
     private static enum ViewType {
@@ -98,7 +102,7 @@ public class Logic {
     private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
 
     // ================================================================================
-    // Class variables
+    // Instance variables
     // ================================================================================
 
     protected TaskEngine taskEngine;
