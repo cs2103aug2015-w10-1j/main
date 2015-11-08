@@ -102,7 +102,7 @@ public class CenterPaneController {
         updateSummaryAndMainScreens(taskList, screenView);
 
         switch (screenView) {
-            case SCREEN_DONE: {
+            case SCREEN_DONE : {
                 if (currentScreen != doneScreen_) {
                     startScreenSwitchSequence(doneScreenNode_, doneScreen_);
                 }
@@ -111,7 +111,7 @@ public class CenterPaneController {
                 break;
             }
 
-            case SCREEN_MAIN: {
+            case SCREEN_MAIN : {
                 if (currentScreen != mainScreen_) {
                     startScreenSwitchSequence(mainScreenNode_, mainScreen_);
                 }
@@ -120,7 +120,7 @@ public class CenterPaneController {
                 break;
             }
 
-            case SCREEN_SEARCH: {
+            case SCREEN_SEARCH : {
                 if (currentScreen != searchScreen_) {
                     startScreenSwitchSequence(searchScreenNode_, searchScreen_);
                 }
@@ -129,7 +129,7 @@ public class CenterPaneController {
                 break;
             }
 
-            case SCREEN_SUMMARY: {
+            case SCREEN_SUMMARY : {
                 if (currentScreen != summaryScreen_) {
                     // Special exception for summary screen, which requires the
                     // entire screen to be loaded before summarising can start.

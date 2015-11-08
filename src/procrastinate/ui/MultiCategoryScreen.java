@@ -163,19 +163,19 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         Date taskDate;
         switch (task.getType()) {
 
-            case DEADLINE: {
+            case DEADLINE : {
                 taskDate = ((Deadline) task).getDate();
                 addDeadlineOrEvent(task, taskDate);
                 break;
             }
 
-            case EVENT: {
+            case EVENT : {
                 taskDate = ((Event) task).getStartDate();
                 addDeadlineOrEvent(task, taskDate);
                 break;
             }
 
-            case DREAM: {
+            case DREAM : {
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), task.isDone());
                 addDream(task, taskEntry);
                 break;
@@ -211,7 +211,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
         switch (task.getType()) {
 
-            case DEADLINE: {
+            case DEADLINE : {
                 dateString = getDateFormatForDeadlineWithSameYear(date);
 
                 String taskCount = taskCountFormatted.get();
@@ -221,7 +221,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
                 break;
             }
 
-            case EVENT: {
+            case EVENT : {
                 Date endDate = ((Event) task).getEndDate();
                 boolean isSameEndYear = isSameYear(today, endDate);
                 dateString = getDateFormatForEventWithSameStartYear(date, endDate, isSameEndYear);
@@ -260,7 +260,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
         switch (task.getType()) {
 
-            case DEADLINE: {
+            case DEADLINE : {
                 dateString = getDateFormatForDeadlineWithDifferentYear(date);
 
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
@@ -269,7 +269,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
                 break;
             }
 
-            case EVENT: {
+            case EVENT : {
                 Date endDate = ((Event) task).getEndDate();
                 boolean isSameEndYear = isSameYear(date, endDate);
 
@@ -316,14 +316,14 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
         switch (task.getType()) {
 
-            case DEADLINE: {
+            case DEADLINE : {
                 TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), timeFormatter.format(startDate), task.isDone());
 
                 addThisUpcomingTaskToTaskList(startDate, calendar, deadline, taskEntry);
                 break;
             }
 
-            case EVENT: {
+            case EVENT : {
                 Date endDate = ((Event) task).getEndDate();
                 boolean isSameEndYear = isSameYear(endDate, today);
 
@@ -461,14 +461,14 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         switch (nodeName) {
 
             // This node is always at the top.
-            case CATEGORY_OVERDUE: {
+            case CATEGORY_OVERDUE : {
                 mainVBox.getChildren().add(0, node);
                 break;
             }
 
             // Check if the 'Overdue' node is on screen or not and adds this node after it.
             // Else this node would take precedence at the top.
-            case CATEGORY_UPCOMING: {
+            case CATEGORY_UPCOMING : {
                 if (mainVBox.getChildren().contains(overdueNode)) {
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
                 } else {
@@ -479,7 +479,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
             // Check if 'Overdue' and 'This Week' nodes are added before. This node takes position after them.
             // Then check if either one is available. Else it will go to the top.
-            case CATEGORY_FUTURE: {
+            case CATEGORY_FUTURE : {
                 if        (mainVBox.getChildren().contains(overdueNode) && mainVBox.getChildren().contains(upcomingNode)) {
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(upcomingNode) + 1, node);
 
@@ -496,7 +496,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             }
 
             // Only needs to check if the only Node that can be lower than it (doneNode) is on the screen.
-            case CATEGORY_DREAMS: {
+            case CATEGORY_DREAMS : {
                 if (mainVBox.getChildren().contains(doneNode)) {
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(doneNode), node);
                 } else {
@@ -506,7 +506,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             }
 
             // Takes position at the bottom of the list
-            case CATEGORY_DONE: {
+            case CATEGORY_DONE : {
                 mainVBox.getChildren().add(node);
                 break;
             }

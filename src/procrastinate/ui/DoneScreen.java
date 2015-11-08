@@ -46,7 +46,7 @@ public class DoneScreen extends SingleCategoryScreen {
 
                 switch (task.getType()) {
 
-                    case DEADLINE: {
+                    case DEADLINE : {
                         Date date =((Deadline) task).getDate();
 
                         dateString = getDateFormatForDateline(date);
@@ -55,7 +55,7 @@ public class DoneScreen extends SingleCategoryScreen {
                         break;
                     }
 
-                    case EVENT: {
+                    case EVENT : {
                         Date startDate = ((Event) task).getStartDate();
                         Date endDate = ((Event) task).getEndDate();
 
@@ -65,7 +65,7 @@ public class DoneScreen extends SingleCategoryScreen {
                         break;
                     }
 
-                    case DREAM: {
+                    case DREAM : {
                         addDoneTask(taskCountFormatted.get(), task, null);
                         break;
                     }
