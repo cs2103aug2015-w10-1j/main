@@ -11,8 +11,6 @@ public class EditDream extends Edit {
     public EditDream(int lineNum, String description) {
         super(CommandType.EDIT, lineNum);
 
-        assert description != null;
-
         this.description = description;
     }
 
@@ -35,7 +33,11 @@ public class EditDream extends Edit {
 
         // make task
         oldTask = getTask(lineNum, taskEngine);
-        newTask = new Dream(description);
+        if (description == null) {
+            newTask = new Dream(oldTask.getDescription());
+        } else {
+            newTask = new Dream(description);
+        }
 
         // replace old with new
         if (taskEngine.edit(oldTask.getId(), newTask)) {

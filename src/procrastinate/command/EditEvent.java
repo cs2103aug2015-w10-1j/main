@@ -15,10 +15,6 @@ public class EditEvent extends Edit {
     public EditEvent(int lineNum, String description, Date startDate, Date endDate) {
         super(CommandType.EDIT, lineNum);
 
-        assert description != null;
-        assert startDate != null;
-        assert endDate != null;
-
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -53,7 +49,11 @@ public class EditEvent extends Edit {
 
         // make task
         oldTask = getTask(lineNum, taskEngine);
-        newTask = new Event(description, startDate, endDate);
+        if (description == null) {
+            newTask = new Event(oldTask.getDescription(), startDate, endDate);
+        } else {
+            newTask = new Event(description, startDate, endDate);
+        }
 
         // replace old with new
         if (taskEngine.edit(oldTask.getId(), newTask)) {

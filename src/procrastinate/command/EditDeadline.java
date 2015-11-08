@@ -14,9 +14,6 @@ public class EditDeadline extends Edit {
     public EditDeadline(int lineNum, String description, Date date) {
         super(CommandType.EDIT, lineNum);
 
-        assert description != null;
-        assert date != null;
-
         this.date = date;
     }
 
@@ -41,7 +38,11 @@ public class EditDeadline extends Edit {
 
         // make task
         oldTask = getTask(lineNum, taskEngine);
-        newTask = new Deadline(description, date);
+        if (description == null) {
+            newTask = new Deadline(oldTask.getDescription(), date);
+        } else {
+            newTask = new Deadline(description, date);
+        }
 
         // replace old with new
         if (taskEngine.edit(oldTask.getId(), newTask)) {
