@@ -1,6 +1,10 @@
 package procrastinate.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,7 +21,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import procrastinate.task.Deadline;
 import procrastinate.task.Dream;
@@ -30,7 +38,9 @@ import procrastinate.ui.HelpOverlay;
 import procrastinate.ui.MainScreen;
 import procrastinate.ui.SearchScreen;
 import procrastinate.ui.SplashOverlay;
+import procrastinate.ui.SubcategoryBox;
 import procrastinate.ui.SummaryScreen;
+import procrastinate.ui.TaskEntry;
 import procrastinate.ui.UI.ScreenView;
 import procrastinate.ui.UITestHelper;
 
@@ -314,22 +324,67 @@ public class UITest {
     }
 
     // ================================================================================
+    // CategoryBox Testing
+    // ================================================================================
+    @Test
+    public void subcategoryBox_InitShouldNotBeNullAndCorrectLabelIsSet() {
+        SubcategoryBox subcategoryBox = uiTestHelper.getNewSubcategoryBox("Test header");
+        assertNotNull(subcategoryBox);
+
+        // Check if the correct header is set
+        assertEquals("Test header", uiTestHelper.getSubcategoryBoxLabel(subcategoryBox).textProperty().get());
+
+        // Check that the task list is empty
+        assertEquals(0, uiTestHelper.getSubcategoryBoxVBox(subcategoryBox).getChildren().size());
+    }
+
+    // ================================================================================
     // TaskEntry Testing
     // ================================================================================
     @Test
-    public void TaskEntryDream_InitTest() {
-        UITestHelper uiTestHelper = new UITestHelper();
-        uiTestHelper.getNewDreamTaskEntry("1", "test");
-        assertTrue(uiTestHelper.getDreamTaskEntryLineNum().getText().equals("1"));
-        assertTrue(uiTestHelper.getDreamTaskEntryDescription().getText().equals("test"));
+    public void taskEntryDream_LabelsShouldBeSetCorrectly() {
+        TaskEntry dreamTask = uiTestHelper.getNewDreamTaskEntry("1", "test");
+        assertEquals("1", uiTestHelper.getTaskEntryLineNum(dreamTask).getText());
+        assertEquals("test", uiTestHelper.getTaskEntryDescription(dreamTask).getText());
+        assertEquals("", uiTestHelper.getTaskEntryTime(dreamTask).getText());
     }
 
     @Test
-    public void TaskEntryOthers_InitTest() {
-        UITestHelper uiTestHelper = new UITestHelper();
-        uiTestHelper.getNewOthersTaskEntry("2", "test2", "time");
-        assertTrue(uiTestHelper.getOthersTaskEntryLineNum().getText().equals("2"));
-        assertTrue(uiTestHelper.getOthersTaskEntryDescription().getText().equals("test2"));
-        assertTrue(uiTestHelper.getOthersTaskEntryTime().getText().equals("time"));
+    public void taskEntryOthers_LabelsShouldBeSetCorrectly() {
+        TaskEntry otherTask =  uiTestHelper.getNewOthersTaskEntry("2", "test2", "time");
+        assertEquals("2", uiTestHelper.getTaskEntryLineNum(otherTask).getText());
+        assertEquals("test2", uiTestHelper.getTaskEntryDescription(otherTask).getText());
+        assertEquals("time", uiTestHelper.getTaskEntryTime(otherTask).getText());
+    }
+
+    @Test
+    public void taskEntry_DoneTasksShouldHaveTickSet() {
+        TaskEntry doneTask =  uiTestHelper.getNewDoneTaskEntry("3", "a done task", "time here");
+        assertEquals("3", uiTestHelper.getTaskEntryLineNum(doneTask).getText());
+        assertEquals("a done task", uiTestHelper.getTaskEntryDescription(doneTask).getText());
+        assertEquals("time here", uiTestHelper.getTaskEntryTime(doneTask).getText());
+
+        GridPane gridPane = (GridPane) uiTestHelper.getTaskEntryNode(doneTask);
+        // Since the tick is wrapped with line number and added back, it will be at the end of the children list
+        assertTrue(gridPane.getChildren().get(gridPane.getChildren().size()-1) instanceof HBox);
+
+        // The combined wrapper should contain an individual HBox for the tick and line number label
+        assertEquals(2, ((HBox)gridPane.getChildren().get(gridPane.getChildren().size()-1)).getChildren().size());
+        assertTrue(((HBox)gridPane.getChildren().get(gridPane.getChildren().size()-1)).getChildren().get(0) instanceof HBox);
+        assertTrue(((HBox)gridPane.getChildren().get(gridPane.getChildren().size()-1)).getChildren().get(1) instanceof HBox);
+
+        // This should be the wrapper for the tick image
+        HBox tickImageWrapper = (HBox)((HBox)gridPane.getChildren().get(gridPane.getChildren().size()-1)).getChildren().get(0);
+        assertEquals(1, tickImageWrapper.getChildren().size());
+        assertTrue(tickImageWrapper.getChildren().get(0) instanceof ImageView);
+        ImageView tickImage = (ImageView) tickImageWrapper.getChildren().get(0);
+        assertNotNull(tickImage.getImage());
+
+        // This should be the wrapper for the line number
+        HBox lineNumberWrapper = (HBox)((HBox)gridPane.getChildren().get(gridPane.getChildren().size()-1)).getChildren().get(1);
+        assertEquals(1, lineNumberWrapper.getChildren().size());
+        assertTrue(lineNumberWrapper.getChildren().get(0) instanceof Label);
+        Label lineNumberLabel = (Label) lineNumberWrapper.getChildren().get(0);
+        assertEquals("3", lineNumberLabel.getText());
     }
 }

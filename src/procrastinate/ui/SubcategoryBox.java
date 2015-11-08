@@ -82,11 +82,15 @@ public class SubcategoryBox extends VBox {
     // ================================================================================
 
     // @@author A0121597B generated
-    protected Node getDateBox() {
+    protected Node getSubcategoryBox() {
         return this.subcategoryBox_;
     }
 
     protected VBox getTaskListVBox() {
         return this.subcategoryVBox;
+    }
+
+    protected Label getSubcategoryLabel() {
+        return this.subcategoryLabel;
     }
 }

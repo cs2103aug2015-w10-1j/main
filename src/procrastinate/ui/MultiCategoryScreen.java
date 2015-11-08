@@ -860,7 +860,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             VBox newDateVBox = newDateBox.getTaskListVBox();
 
             upcomingSubcategories.add(newDateVBox);
-            thisWeekDateBoxes.add(newDateBox.getDateBox());
+            thisWeekDateBoxes.add(newDateBox.getSubcategoryBox());
 
             startingDateTime = startingDateTime.plusDays(1);
             count++;

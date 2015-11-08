@@ -15,8 +15,6 @@ public class UITestHelper {
 
     // Some test variables that are utilised multiple times in a test body
     public CenterPaneController centerPaneController;
-    public TaskEntry dreamTask;
-    public TaskEntry otherTask;
 
     // ================================================================================
     // CenterPaneController methods
@@ -24,7 +22,7 @@ public class UITestHelper {
 
     public CenterPaneController getNewCenterPaneController(StackPane stackPane) {
         centerPaneController = new CenterPaneController(stackPane);
-        return  centerPaneController;
+        return centerPaneController;
     }
 
     public CenterScreen getCPCCurrentScreen() {
@@ -216,36 +214,50 @@ public class UITestHelper {
     }
 
     // ================================================================================
+    // SubcategoryBox methods
+    // ================================================================================
+
+    public SubcategoryBox getNewSubcategoryBox(String headerText) {
+        return new SubcategoryBox(headerText);
+    }
+
+    public VBox getSubcategoryBoxVBox(SubcategoryBox subcategoryBox) {
+        return subcategoryBox.getTaskListVBox();
+    }
+
+    public Label getSubcategoryBoxLabel(SubcategoryBox subcategoryBox) {
+        return subcategoryBox.getSubcategoryLabel();
+    }
+
+    // ================================================================================
     // TaskEntry methods
     // ================================================================================
 
     public TaskEntry getNewDreamTaskEntry(String lineNum, String des) {
-        dreamTask = new TaskEntry(lineNum, des, false);
-        return dreamTask;
-    }
-
-    public Label getDreamTaskEntryLineNum() {
-        return dreamTask.getLineNum();
-    }
-
-    public Label getDreamTaskEntryDescription() {
-        return dreamTask.getDescription();
+        return new TaskEntry(lineNum, des, false);
     }
 
     public TaskEntry getNewOthersTaskEntry(String lineNum, String des, String time) {
-        otherTask = new TaskEntry(lineNum, des, time, false);
-        return otherTask;
+        return new TaskEntry(lineNum, des, time, false);
     }
 
-    public Label getOthersTaskEntryLineNum() {
-        return otherTask.getLineNum();
+    public TaskEntry getNewDoneTaskEntry(String lineNum, String des, String time) {
+        return new TaskEntry(lineNum, des, time, true);
     }
 
-    public Label getOthersTaskEntryDescription() {
-        return otherTask.getDescription();
+    public Label getTaskEntryLineNum(TaskEntry taskEntry) {
+        return taskEntry.getLineNum();
     }
 
-    public Label getOthersTaskEntryTime() {
-        return otherTask.getTime();
+    public Label getTaskEntryDescription(TaskEntry taskEntry) {
+        return taskEntry.getDescription();
+    }
+
+    public Label getTaskEntryTime(TaskEntry taskEntry) {
+        return taskEntry.getTime();
+    }
+
+    public Node getTaskEntryNode(TaskEntry taskEntry) {
+        return taskEntry.getEntryDisplay();
     }
 }
