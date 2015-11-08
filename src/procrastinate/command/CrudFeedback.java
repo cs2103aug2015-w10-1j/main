@@ -5,7 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public interface TaskAlterationFeedback extends Feedback {
+public interface CrudFeedback extends Feedback {
     public static final String ADD_DREAM = "New dream: %1$s";
     public static final String ADD_DEADLINE = "New deadline: %1$s due %2$s";
     public static final String ADD_EVENT = "New event: %1$s %2$s to %3$s";
@@ -28,9 +28,18 @@ public interface TaskAlterationFeedback extends Feedback {
     public static final DateFormat dateTimeFormatter = new SimpleDateFormat("d/MM/yy h:mma");
     public static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
 
-    public String formatDateTime(Date date);
+    public static String formatDateTime(Date date) {
+        return dateTimeFormatter.format(date);
+    }
 
-    public String formatDate(Date date);
+    public static String formatDate(Date date) {
+        return dateFormatter.format(date);
+    }
 
-    public String shorten(String description, int maxLength);
-}
+    public static String shorten(String description, int maxLength) {
+        if (description.length() <= maxLength) {
+            return description;
+        }
+
+        return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
+    }}

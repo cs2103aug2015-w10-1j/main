@@ -4,7 +4,7 @@ package procrastinate.command;
 import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
-public class EditPartial extends TaskAlterationCmd implements TaskAlterationFeedback {
+public class EditPartial extends CrudCmd implements CrudFeedback {
     protected int lineNum;
 
     public EditPartial(int lineNum) {

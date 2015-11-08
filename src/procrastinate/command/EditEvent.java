@@ -35,15 +35,16 @@ public class EditEvent extends Edit {
 
         if (endDate.before(startDate)) {
             feedback = String.format(INVALID_RANGE,
-                                     formatDateTime(startDate),
-                                     formatDateTime(endDate));
+                                     CrudFeedback.formatDateTime(startDate),
+                                     CrudFeedback.formatDateTime(endDate));
             return feedback;
         }
 
         // make feedback for preview zone
         feedback = String.format(EDIT_EVENT, lineNum,
-                                 shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
-                                 formatDateTime(startDate), formatDateTime(endDate));
+                                 CrudFeedback.shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
+                                 CrudFeedback.formatDateTime(startDate),
+                                 CrudFeedback.formatDateTime(endDate));
 
         if (isPreview()) {
             assert feedback != null;

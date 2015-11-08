@@ -4,18 +4,13 @@ package procrastinate.command;
 import procrastinate.task.Task;
 import procrastinate.task.TaskEngine;
 
-public abstract class Edit extends TaskAlterationCmd implements TaskAlterationFeedback {
-    protected int lineNum;
+public abstract class Edit extends CrudCmd implements CrudFeedback {
     protected Task oldTask;
     protected Task newTask;
 
     public Edit(CommandType type, int lineNum) {
         super(type);
         this.lineNum = lineNum;
-    }
-
-    public int getLineNum() {
-        return lineNum;
     }
 
     /**
