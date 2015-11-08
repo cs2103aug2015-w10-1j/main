@@ -11,7 +11,7 @@ public class Help extends CleanCommand implements FeedbackHelp {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
-        assert ui == null && taskEngine == null;
+        assert taskEngine == null;
 
         String feedback = null;
         feedback = HELP;
