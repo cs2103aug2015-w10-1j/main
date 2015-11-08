@@ -1,6 +1,8 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -9,8 +11,6 @@ import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-
-import java.io.IOException;
 
 /**
  * <h1>A VBox wrapper structure that models a category list.</h1>

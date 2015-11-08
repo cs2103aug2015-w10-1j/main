@@ -1,6 +1,9 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.awt.SystemTray;
+import java.io.IOException;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
@@ -17,9 +20,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import java.awt.SystemTray;
-import java.io.IOException;
 
 /**
  * <h1>WindowHandler handles the configuration and Scene settings of the primary Stage.</h1>

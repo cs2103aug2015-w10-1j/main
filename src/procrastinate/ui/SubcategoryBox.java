@@ -1,13 +1,13 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
-import java.io.IOException;
 
 /**
  * <h1>Another VBox wrapper structure that is similar to CategoryBox.</h1>

@@ -1,6 +1,8 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.util.List;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -15,8 +17,6 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import procrastinate.task.Task;
 import procrastinate.ui.UI.ScreenView;
-
-import java.util.List;
 
 /**
  * <h1>This class controls the StackPane in the main window's BorderPane center region.</h1>
