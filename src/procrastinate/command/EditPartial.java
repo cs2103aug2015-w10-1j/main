@@ -5,8 +5,6 @@ import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
 public class EditPartial extends CrudCmd implements FeedbackCrud {
-    protected int lineNum;
-
     public EditPartial(int lineNum) {
         super(CommandType.EDIT_PARTIAL);
         this.lineNum = lineNum;
