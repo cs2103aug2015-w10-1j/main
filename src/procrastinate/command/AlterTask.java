@@ -13,6 +13,8 @@ public interface AlterTask extends Feedback {
     public static final String FEEDBACK_ELLIPSIS = "...";
 
     public static final String EDIT_DREAM = "Edited #%1$s: %2$s";
+    public static final String EDIT_DEADLINE = "Edited #%1$s: %2$s due %3$s";
+    public static final String EDIT_EVENT = "Edited #%1$s: %2$s %3$s to %4$s";
     public static final String INVALID_LINE_NUMBER = "Invalid line number: %1$d";
 
     public static final String ERROR_SAVE_HEADER = "Could not save changes to file!";

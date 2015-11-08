@@ -1,0 +1,49 @@
+package procrastinate.command;
+
+import procrastinate.task.Dream;
+import procrastinate.task.TaskEngine;
+import procrastinate.ui.UI;
+
+public class EditDream extends Edit {
+    private String description;
+
+    public EditDream(int lineNum, String description) {
+        super(CommandType.EDIT, lineNum);
+
+        assert description != null;
+
+        this.description = description;
+    }
+
+    @Override
+    public String run(UI ui, TaskEngine taskEngine) {
+        String feedback = null;
+
+        if (isInvalid(lineNum, taskEngine)) {
+            feedback = String.format(INVALID_LINE_NUMBER, lineNum);
+        }
+
+        // make feedback for preview zone
+        feedback = String.format(EDIT_DREAM, lineNum, description);
+
+        if (isPreview()) {
+            assert feedback != null;
+            return feedback;
+        }
+
+        // make task
+        oldTask = getTask(lineNum, taskEngine);
+        newTask = new Dream(description);
+
+        // replace old with new
+        if (taskEngine.edit(oldTask.getId(), newTask)) {
+            return feedback;
+        } else {
+            // display error msg if add fails
+            ui.createErrorDialog(ERROR_SAVE_HEADER, ERROR_SAVE_MESSAGE);
+            feedback = FEEDBACK_TRY_AGAIN;
+            return feedback;
+        }
+    }
+
+}
