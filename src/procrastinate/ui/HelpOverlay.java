@@ -29,7 +29,7 @@ public class HelpOverlay extends ImageOverlay {
     // Class Variables
     // ================================================================================
 
-    private boolean isFirstPage = true;
+    private boolean isFirstPage_ = true;
 
     // ================================================================================
     // HelpOverlay Constructor
@@ -46,13 +46,13 @@ public class HelpOverlay extends ImageOverlay {
 
     //@@author A0080485B
     protected void nextPage() {
-        if (isFirstPage) {
+        if (isFirstPage_) {
             imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_REFERENCE_SHEET_2).toExternalForm()));
         } else {
             imageView.setImage(new Image(HelpOverlay.class.getResource(LOCATION_REFERENCE_SHEET).toExternalForm()));
         }
 
-        isFirstPage = !isFirstPage;
+        isFirstPage_ = !isFirstPage_;
     }
 
     // ================================================================================

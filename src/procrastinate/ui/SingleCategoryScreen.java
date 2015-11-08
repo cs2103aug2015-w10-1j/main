@@ -10,7 +10,7 @@ import javafx.scene.layout.VBox;
 public abstract class SingleCategoryScreen extends CenterScreen {
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
     protected Node thisCategoryNode;
@@ -39,7 +39,7 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     }
 
     // ================================================================================
-    // Screen Transition methods
+    // Screen Transition Methods
     // ================================================================================
 
     @Override
@@ -57,7 +57,7 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     }
 
     // ================================================================================
-    // Init methods
+    // Init Methods
     // ================================================================================
 
     @Override
@@ -79,7 +79,7 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     }
 
     // ================================================================================
-    // Utility methods
+    // Utility Methods
     // ================================================================================
 
     /**

@@ -9,16 +9,16 @@ public class DoubleNodePair implements Comparable<DoubleNodePair> {
     // Class Variables
     // ================================================================================
 
-    private double height;
-    private Node node;
+    private double height_;
+    private Node node_;
 
     // ================================================================================
     // DoubleNodePair Constructor
     // ================================================================================
 
     public DoubleNodePair(double height, Node node) {
-        this.height = height;
-        this.node = node;
+        this.height_ = height;
+        this.node_ = node;
     }
 
     // ================================================================================
@@ -27,7 +27,7 @@ public class DoubleNodePair implements Comparable<DoubleNodePair> {
 
     @Override
     public int compareTo(DoubleNodePair o) {
-        return Double.valueOf(this.height).compareTo(o.height);
+        return Double.valueOf(this.height_).compareTo(o.height_);
     }
 
     // ================================================================================
@@ -35,11 +35,11 @@ public class DoubleNodePair implements Comparable<DoubleNodePair> {
     // ================================================================================
 
     protected double getHeight() {
-        return height;
+        return height_;
     }
 
     protected Node getNode() {
-        return node;
+        return node_;
     }
 
 }

@@ -12,7 +12,7 @@ import procrastinate.task.Task;
 public class SearchScreen extends MultiCategoryScreen {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String FX_BACKGROUND_IMAGE_NO_SEARCH_RESULTS = "-fx-background-image: url('/procrastinate/ui/images/no-search-results.png')";
@@ -36,10 +36,10 @@ public class SearchScreen extends MultiCategoryScreen {
     private static final int MAIN_VBOX_PREF_WIDTH = 450;
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
-    private Label searchHeader = new Label();
+    private Label searchHeader_ = new Label();
 
     // ================================================================================
     // SearchScreen Constructor
@@ -82,7 +82,7 @@ public class SearchScreen extends MultiCategoryScreen {
     }
 
     protected void updateSearchStringLabel(String searchString) {
-        searchHeader.setText(SEARCH_HEADER + searchString.trim());
+        searchHeader_.setText(SEARCH_HEADER + searchString.trim());
     }
 
     // ================================================================================
@@ -90,9 +90,9 @@ public class SearchScreen extends MultiCategoryScreen {
     // ================================================================================
 
     private void adjustLabelStyle() {
-        searchHeader.setWrapText(true);
-        searchHeader.setFocusTraversable(false);
-        searchHeader.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY +
+        searchHeader_.setWrapText(true);
+        searchHeader_.setFocusTraversable(false);
+        searchHeader_.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY +
                               STYLE_SEARCH_HEADER_FONT_WEIGHT +
                               STYLE_SEARCH_HEADER_FONT_SIZE +
                               STYLE_SEARCH_HEADER_PADDING);
@@ -112,7 +112,7 @@ public class SearchScreen extends MultiCategoryScreen {
     }
 
     private VBox buildWrapper() {
-        VBox wrapper = new VBox(searchHeader, mainVBox);
+        VBox wrapper = new VBox(searchHeader_, mainVBox);
 
         wrapper.setStyle(STYLE_WRAPPER_BACKGROUND_COLOR);
 

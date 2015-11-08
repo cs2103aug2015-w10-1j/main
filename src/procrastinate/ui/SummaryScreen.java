@@ -15,7 +15,7 @@ import procrastinate.task.Task;
 public class SummaryScreen extends MultiCategoryScreen {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String DESCRIPTION_ELLIPSIS_STRING = "...";
@@ -36,15 +36,15 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private static final double MAINVBOX_CHILDREN_SPACING = 5.0;
 
+    private static final int DESCRIPTION_MAX_LENGTH = 50;
+    private static final int DESCRIPTION_ELLIPSIS_LENGTH = 3;
+
     private static final int PARTITION_COUNT_OVERDUE = 2;
     private static final int PARTITION_COUNT_UPCOMING = 3;
     private static final int PARTITION_COUNT_FUTURE = 1;
     private static final int PARTITION_COUNT_DREAMS = 1;
 
     private static final int TEST_ELLIPSIS_COUNT = 666;
-
-    private static final int DESCRIPTION_MAX_LENGTH = 50;
-    private static final int DESCRIPTION_ELLIPSIS_LENGTH = 3;
 
     // ================================================================================
     // Class variables

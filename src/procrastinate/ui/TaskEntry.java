@@ -15,7 +15,7 @@ import java.io.IOException;
 public class TaskEntry extends GridPane {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String EMPTY_STRING = "";
@@ -27,27 +27,44 @@ public class TaskEntry extends GridPane {
     private static final String STYLE_REMOVE_PADDING = "-fx-padding: 0;";
 
     // ================================================================================
-    // Class variables
+    // Constants
     // ================================================================================
 
-    private Node taskEntry;
+    private static final int GRIDPANE_LINE_NUMBER_ROW_INDEX = 0;
+    private static final int GRIDPANE_LINE_NUMBER_COLUMN_INDEX = 0;
+    private static final int GRIDPANE_LINE_NUMBER_POSITION = 0;
+
+    private static final int STYLE_TICK_WIDTH = 10;
+    private static final int STYLE_TICK_HEIGHT = 10;
+    private static final int STYLE_NO_SPACING = 0;
 
     // ================================================================================
-    // FXML field variables
+    // Class Variables
     // ================================================================================
 
-    @FXML private Label lineNum;
-    @FXML private Label description;
-    @FXML private Label time;
+    private Node taskEntry_;
 
     // ================================================================================
-    // TaskEntry methods
+    // FXML Field Variables
+    // ================================================================================
+
+    @FXML
+    private Label lineNum;
+    @FXML
+    private Label description;
+    @FXML
+    private Label time;
+
+    // ================================================================================
+    // TaskEntry Constructor
     // ================================================================================
 
     /**
      * Constructor to be used for displaying "DREAMS"
-     * @param lineNum
-     * @param description
+     *
+     * @param lineNum        formatted line numbering of the corresponding task
+     * @param description    the entire task description
+     * @param isDone         if true, a tick will be displayed beside the line number
      */
     protected TaskEntry(String lineNum, String description, boolean isDone) {
         loadLayout();
@@ -59,8 +76,11 @@ public class TaskEntry extends GridPane {
 
     /**
      * Constructor to be used for displaying all other TaskTypes
-     * @param lineNum
-     * @param description
+     *
+     * @param lineNum        formatted line numbering of the corresponding task
+     * @param description    the entire task description
+     * @param time           formatted string to be displayed in the 'time' Label
+     * @param isDone         if true, a tick will be displayed beside the line number
      */
     protected TaskEntry(String lineNum, String description, String time, boolean isDone) {
         loadLayout();
@@ -70,13 +90,18 @@ public class TaskEntry extends GridPane {
         setLabels(lineNum, description, time);
     }
 
+    // ================================================================================
+    // Init Methods
+    // ================================================================================
+
     private void loadLayout() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_TASK_ENTRY_FXML));
-        loader.setController(this); // Required due to different package declaration from Main
+        loader.setController(this); // Required due to different package
+                                    // declaration from Main
         try {
-            this.taskEntry = loader.load();
+            this.taskEntry_ = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -84,68 +109,82 @@ public class TaskEntry extends GridPane {
         this.lineNum.setText(lineNum);
         this.description.setText(description);
         this.time.setText(time);
+
         if (time.equals(EMPTY_STRING)) {
             this.time.setMinWidth(0);
             this.time.setStyle(STYLE_REMOVE_PADDING);
         }
     }
 
+    /**
+     * Two HBoxes are created as wrapper for the line number and tick image individually,
+     * before they are wrapped again in another HBox to replace the current line number Label
+     * in the taskEntry.
+     */
     private void addTickBeforeLineNumber() {
         HBox lineNumberWrapper = getLabelWrapper();
         HBox tickWrapper = getTickWrapper();
+
         addTickAndLabelToTaskEntry(lineNumberWrapper, tickWrapper);
-    }
-
-    private void addTickAndLabelToTaskEntry(HBox lineNumberWrapper, HBox checkBoxWrapper) {
-        HBox combinedWrapper = new HBox(checkBoxWrapper, lineNumberWrapper);
-        ((GridPane)taskEntry).add(combinedWrapper, 0, 0);
-    }
-
-    private ImageView createNewTick() {
-        ImageView tickImage = new ImageView();
-        tickImage.setImage(new Image(TaskEntry.class.getResource(LOCATION_TICK_IMAGE).toExternalForm()));
-        tickImage.setFocusTraversable(false);
-        tickImage.setSmooth(true);
-        tickImage.setFitHeight(10);
-        tickImage.setFitWidth(10);
-        return tickImage;
-    }
-
-    private HBox createTickWrapper(ImageView tick) {
-        HBox tickWrapper = new HBox(tick);
-        tickWrapper.setSpacing(0);
-        tickWrapper.setStyle(STYLE_TICK_CENTERING_PADDING);
-        return tickWrapper;
-    }
-
-    private HBox createLabelWrapper(Label lineNumberLabel) {
-        HBox lineNumberWrapper = new HBox(lineNumberLabel);
-        lineNumberWrapper.setSpacing(0);
-        return lineNumberWrapper;
-    }
-
-    private HBox getTickWrapper() {
-        ImageView tick = createNewTick();
-        return createTickWrapper(tick);
     }
 
     private HBox getLabelWrapper() {
         Label lineNumberLabel = getLabelAndRemovePadding();
-        return createLabelWrapper(lineNumberLabel);
+        return wrapLabel(lineNumberLabel);
+    }
+
+    private HBox getTickWrapper() {
+        ImageView tick = getTick();
+        return wrapTick(tick);
     }
 
     private Label getLabelAndRemovePadding() {
-        Label lineNumberLabel = (Label) ((GridPane)taskEntry).getChildren().get(0);
+        Label lineNumberLabel = (Label) ((GridPane) taskEntry_).getChildren().get(GRIDPANE_LINE_NUMBER_POSITION);
         lineNumberLabel.setStyle(STYLE_REMOVE_PADDING);
+
         return lineNumberLabel;
     }
 
+    private void addTickAndLabelToTaskEntry(HBox lineNumberWrapper, HBox checkBoxWrapper) {
+        HBox combinedWrapper = new HBox(checkBoxWrapper, lineNumberWrapper);
+        ((GridPane) taskEntry_).add(combinedWrapper, GRIDPANE_LINE_NUMBER_COLUMN_INDEX, GRIDPANE_LINE_NUMBER_ROW_INDEX);
+    }
+
+    private HBox wrapTick(ImageView tick) {
+        HBox tickWrapper = new HBox(tick);
+
+        tickWrapper.setSpacing(STYLE_NO_SPACING);
+        tickWrapper.setStyle(STYLE_TICK_CENTERING_PADDING);
+
+        return tickWrapper;
+    }
+
+    private ImageView getTick() {
+        ImageView tickImage = new ImageView();
+
+        tickImage.setImage(new Image(TaskEntry.class.getResource(LOCATION_TICK_IMAGE).toExternalForm()));
+        tickImage.setFocusTraversable(false);
+        tickImage.setSmooth(true);
+        tickImage.setFitHeight(STYLE_TICK_HEIGHT);
+        tickImage.setFitWidth(STYLE_TICK_WIDTH);
+
+        return tickImage;
+    }
+
+
+    private HBox wrapLabel(Label lineNumberLabel) {
+        HBox lineNumberWrapper = new HBox(lineNumberLabel);
+        lineNumberWrapper.setSpacing(STYLE_NO_SPACING);
+
+        return lineNumberWrapper;
+    }
+
     // ================================================================================
-    // Getter methods
+    // Getter Methods
     // ================================================================================
-    //@@author A0121597B generated
+    // @@author A0121597B generated
     protected Node getEntryDisplay() {
-        return this.taskEntry;
+        return this.taskEntry_;
     }
 
     protected Label getLineNum() {
@@ -160,4 +199,3 @@ public class TaskEntry extends GridPane {
         return time;
     }
 }
-

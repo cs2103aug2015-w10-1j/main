@@ -23,13 +23,13 @@ public class DialogPopupHandler {
     private static final String BUTTON_MESSAGE_CANCEL = "Cancel";
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
     private Stage primaryStage_;
 
     // ================================================================================
-    // DialogPopupHandler methods
+    // DialogPopupHandler Constructor
     // ================================================================================
 
     protected DialogPopupHandler(Stage primaryStage) {
@@ -37,10 +37,15 @@ public class DialogPopupHandler {
         this.primaryStage_ = primaryStage;
     }
 
+    // ================================================================================
+    // DialogPopupHandler Methods
+    // ================================================================================
+
     /**
-     * Creates an error dialog that displays the given message string
+     * Creates an error dialog with a header and message.
      *
-     * @param message
+     * @param header     to be displayed as the title
+     * @param message    to be displayed in the body
      */
     protected void createErrorDialogPopup(String header, String message) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
@@ -56,7 +61,7 @@ public class DialogPopupHandler {
      * Creates an error dialog that takes in an Exception and displays the exception message with its stack trace
      * in an expandable region.
      *
-     * @param exception
+     * @param exception    whose stack trace should be shown in the expandable region
      */
     protected void createErrorDialogPopupWithTrace(Exception exception) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
@@ -81,6 +86,15 @@ public class DialogPopupHandler {
     }
 
     //@@author A0080485B-reused
+    /**
+     * Creates an error dialog which requires the user's action to either confirm or cancel,
+     * and returns the choice result.
+     *
+     * @param header     to be displayed as the title
+     * @param message    to be dispalyed in the body
+     * @param okLabel    to be displayed in place of the text of the 'OK' button
+     * @return           true if the result of the user's choice is 'OK', else false
+     */
     protected boolean createErrorDialogPopupWithConfirmation(String header, String message, String okLabel) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.initOwner(primaryStage_);

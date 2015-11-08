@@ -57,7 +57,7 @@ public abstract class ImageOverlay {
         try {
             this.node = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

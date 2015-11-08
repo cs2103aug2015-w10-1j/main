@@ -28,7 +28,7 @@ public class DoneScreen extends SingleCategoryScreen {
     }
 
     // ================================================================================
-    // DoneScreen methods
+    // DoneScreen Methods
     // ================================================================================
 
     @Override
@@ -127,7 +127,7 @@ public class DoneScreen extends SingleCategoryScreen {
     }
 
     // ================================================================================
-    // Utility methods
+    // Utility Methods
     // ================================================================================
 
     private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
