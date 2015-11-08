@@ -1,31 +1,41 @@
 package procrastinate.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
 
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
-import org.junit.Test;
-
 import procrastinate.task.Dream;
+import procrastinate.task.Task;
+import procrastinate.ui.CenterPaneController;
+import procrastinate.ui.DoneScreen;
+import procrastinate.ui.MainScreen;
+import procrastinate.ui.SearchScreen;
+import procrastinate.ui.SummaryScreen;
+import procrastinate.ui.UI.ScreenView;
 import procrastinate.ui.UITestHelper;
 
 public class UITest {
 
+    public static UITestHelper uiTestHelper = new UITestHelper();
+    public static CenterPaneController centerPaneController;
+
     @BeforeClass
     // Needed to be initialised before testing JavaFX elements
     // http://stackoverflow.com/questions/28501307/javafx-toolkit-not-initialized-in-one-test-class-but-not-two-others-where-is
-    public static void initToolkit()
-        throws InterruptedException
-    {
+    public static void initToolkit() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         SwingUtilities.invokeLater(() -> {
             new JFXPanel();
@@ -34,43 +44,64 @@ public class UITest {
         if (!latch.await(5L, TimeUnit.SECONDS)) {
             throw new ExceptionInInitializerError();
         }
+
+        System.out.println("Setting up UITest...");
+
+        System.out.println("Setting up CenterPaneController...");
+        centerPaneController = uiTestHelper.getNewCenterPaneController(new StackPane());
+        assertNotNull(centerPaneController);
+        System.out.println("CenterPaneController initialised.");
     }
 
+    // @@author A0121597B
     // ================================================================================
     // CenterPaneController Testing
     // ================================================================================
-//    @Test
-    public void centerPaneController_InitTest() {
-        // Test for initialise and non-null initial screen.
-        StackPane sp = new StackPane();
-        UITestHelper uiTestHelper = new UITestHelper();
-        uiTestHelper.getNewCenterPaneController(sp);
+
+    @Test
+    public void centerPaneController_InitCurrentOverlayShouldBeNull() {
+        assertNull(uiTestHelper.getCPCCurrentOverlay());
+    }
+
+    @Test
+    public void centerPaneController_InitCurrentScreenShouldNotBeNullAndIsSummaryScreen() {
         assertTrue(uiTestHelper.getCPCCurrentScreen() != null);
+        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof SummaryScreen);
     }
 
-    // Test screen switching
-//    @Test
-    public void centerPaneController_testMainScreen() {
-        StackPane sp = new StackPane();
-        UITestHelper uiTestHelper = new UITestHelper();
-        uiTestHelper.getNewCenterPaneController(sp);
-        uiTestHelper.switchToMain();
-        assertTrue(uiTestHelper.getMainScreen().equals(uiTestHelper.getCPCCurrentScreen()));
+    @Test
+    public void centerPaneController_ShouldHaveCreatedAllScreens() {
+        assertNotNull(uiTestHelper.getDoneScreenNode());
+        assertNotNull(uiTestHelper.getMainScreenNode());
+        assertNotNull(uiTestHelper.getSearchScreenNode());
+        assertNotNull(uiTestHelper.getSummaryScreenNode());
+        assertNotNull(uiTestHelper.getHelpOverlayNode());
+        assertNotNull(uiTestHelper.getSplashOverlayNode());
     }
 
 //    @Test
-    public void centerPaneController_testHelpScreen() {
-        StackPane sp = new StackPane();
-        UITestHelper uiTestHelper = new UITestHelper();
-        uiTestHelper.getNewCenterPaneController(sp);
-        uiTestHelper.switchToHelp();
-        assertTrue(uiTestHelper.getHelpScreen().equals(uiTestHelper.getCPCCurrentScreen()));
+    public void centerPaneController_ShouldBeAbleToSwitchAllScreens() {
+        List<Task> emptyList = new ArrayList<Task>();
+        UITestHelper isolatedTestHelper = new UITestHelper();
+        isolatedTestHelper.getNewCenterPaneController(new StackPane());
+
+        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof SummaryScreen);
+
+        isolatedTestHelper.changeCPCScreen(emptyList, ScreenView.SCREEN_MAIN);
+
+        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof MainScreen);
+
+        isolatedTestHelper.changeCPCScreen(emptyList, ScreenView.SCREEN_SEARCH);
+        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof SearchScreen);
+
+        isolatedTestHelper.changeCPCScreen(emptyList, ScreenView.SCREEN_DONE);
+        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof DoneScreen);
     }
 
     // ================================================================================
     // HelpScreen Testing
     // ================================================================================
-//    @Test
+    // @Test
     public void HelpScreen_InitTest() {
         UITestHelper uiTestHelper = new UITestHelper();
         assertTrue(uiTestHelper.getNewHelpScreen() != null);
@@ -79,7 +110,7 @@ public class UITest {
     // ================================================================================
     // MainScreen Testing
     // ================================================================================
-//    @Test
+    // @Test
     public void MainScreen_InitTest() {
         UITestHelper uiTestHelper = new UITestHelper();
         assertTrue(uiTestHelper.getNewMainScreen() != null);
@@ -89,7 +120,7 @@ public class UITest {
 
     }
 
-//    @Test
+    // @Test
     public void MainScreen_UpdateTest() {
         UITestHelper uiTestHelper = new UITestHelper();
         uiTestHelper.getNewMainScreen();

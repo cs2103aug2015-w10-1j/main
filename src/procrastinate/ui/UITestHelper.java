@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Dream;
 import procrastinate.task.Task;
+import procrastinate.ui.UI.ScreenView;
 
 public class UITestHelper {
 
@@ -28,24 +29,40 @@ public class UITestHelper {
         return  centerPaneController;
     }
 
-    public ImageOverlay getCPCCurrentScreen() {
-        return centerPaneController.currentOverlay;
+    public CenterScreen getCPCCurrentScreen() {
+        return centerPaneController.getCurrentScreen();
     }
 
-    public void switchToMain() {
-//        centerPaneController.changeScreen(CenterPaneController.SCREEN_MAIN);
+    public ImageOverlay getCPCCurrentOverlay() {
+        return centerPaneController.getCurrentOverlay();
     }
 
-    public Node getMainScreen() {
-        return centerPaneController.getMainScreen();
+    public void changeCPCScreen(List<Task> taskList, ScreenView screenView) {
+        centerPaneController.updateScreen(taskList, screenView);
     }
 
-    public void switchToHelp() {
-//        centerPaneController.changeScreen(CenterPaneController.SCREEN_HELP);
+    public Node getDoneScreenNode() {
+        return centerPaneController.getDoneScreenNode();
     }
 
-    public Node getHelpScreen() {
-        return centerPaneController.getHelpOverlay();
+    public Node getMainScreenNode() {
+        return centerPaneController.getMainScreenNode();
+    }
+
+    public Node getSearchScreenNode() {
+        return centerPaneController.getSearchScreenNode();
+    }
+
+    public Node getSummaryScreenNode() {
+        return centerPaneController.getSummaryScreenNode();
+    }
+
+    public Node getHelpOverlayNode() {
+        return centerPaneController.getHelpOverlayNode();
+    }
+
+    public Node getSplashOverlayNode() {
+        return centerPaneController.getSplashOverlayNode();
     }
 
     // ================================================================================
