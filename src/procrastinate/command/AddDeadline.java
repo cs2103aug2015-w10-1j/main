@@ -24,8 +24,8 @@ public class AddDeadline extends Add {
         String feedback = null;
 
         // make feedback for preview zone
-        feedback = String.format(ADD_DEADLINE, CrudFeedback.shorten(description, MAX_LENGTH_DESCRIPTION),
-                CrudFeedback.formatDateTime(date));
+        feedback = String.format(ADD_DEADLINE, Feedback.shorten(description, MAX_LENGTH_DESCRIPTION),
+                Feedback.formatDateTime(date));
 
         if (isPreview()) {
             assert feedback != null;

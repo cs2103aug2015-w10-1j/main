@@ -31,8 +31,8 @@ public class EditDeadline extends Edit {
 
         // make feedback for preview zone
         feedback = String.format(EDIT_DEADLINE, lineNum,
-                                 CrudFeedback.shorten(description, MAX_LENGTH_DESCRIPTION),
-                                 CrudFeedback.formatDateTime(date));
+                                 Feedback.shorten(description, MAX_LENGTH_DESCRIPTION),
+                                 Feedback.formatDateTime(date));
 
         if (isPreview()) {
             assert feedback != null;

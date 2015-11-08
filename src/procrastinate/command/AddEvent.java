@@ -26,16 +26,16 @@ public class AddEvent extends Add {
 
         if (endDate.before(startDate)) {
             feedback = String.format(INVALID_RANGE,
-                                     CrudFeedback.formatDateTime(startDate),
-                                     CrudFeedback.formatDateTime(endDate));
+                                     Feedback.formatDateTime(startDate),
+                                     Feedback.formatDateTime(endDate));
             return feedback;
         }
 
         // make feedback for preview zone
         feedback = String.format(ADD_EVENT,
-                                 CrudFeedback.shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
-                                 CrudFeedback.formatDateTime(startDate),
-                                 CrudFeedback.formatDateTime(endDate));
+                                 Feedback.shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
+                                 Feedback.formatDateTime(startDate),
+                                 Feedback.formatDateTime(endDate));
 
         if (isPreview()) {
             assert feedback != null;
