@@ -19,8 +19,8 @@ public class MainScreen extends MultiCategoryScreen {
     // MainScreen Constructor
     // ================================================================================
 
-    protected MainScreen(String filePath) {
-        super(filePath);
+    protected MainScreen() {
+        super();
     }
 
     // ================================================================================

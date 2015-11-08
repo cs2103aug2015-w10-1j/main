@@ -41,8 +41,8 @@ public class SearchScreen extends MultiCategoryScreen {
     // SearchScreen Constructor
     // ================================================================================
 
-    protected SearchScreen(String filePath) {
-        super(filePath);
+    protected SearchScreen() {
+        super();
         adjustLabelStyle();
         wrapSearchHeaderLabelWithMainVBox();
     }

@@ -26,7 +26,7 @@ public class DialogPopupHandler {
     // Class variables
     // ================================================================================
 
-    private Stage primaryStage;
+    private Stage primaryStage_;
 
     // ================================================================================
     // DialogPopupHandler methods
@@ -34,7 +34,7 @@ public class DialogPopupHandler {
 
     protected DialogPopupHandler(Stage primaryStage) {
         // Set up the parent stage to retrieve information if required
-        this.primaryStage = primaryStage;
+        this.primaryStage_ = primaryStage;
     }
 
     /**
@@ -44,7 +44,7 @@ public class DialogPopupHandler {
      */
     protected void createErrorDialogPopup(String header, String message) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.initOwner(primaryStage);
+        dialog.initOwner(primaryStage_);
 
         dialog.setHeaderText(header);
         dialog.setContentText(message);
@@ -60,7 +60,7 @@ public class DialogPopupHandler {
      */
     protected void createErrorDialogPopupWithTrace(Exception exception) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.initOwner(primaryStage);
+        dialog.initOwner(primaryStage_);
 
         // Retrieve the stack trace as String
         StringWriter stringWriter = new StringWriter();
@@ -80,16 +80,19 @@ public class DialogPopupHandler {
         dialog.showAndWait();
     }
 
+    //@@author A0080485B-reused
     protected boolean createErrorDialogPopupWithConfirmation(String header, String message, String okLabel) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.initOwner(primaryStage);
+        dialog.initOwner(primaryStage_);
 
         dialog.setHeaderText(header);
         dialog.setContentText(message);
 
         ButtonType okBtn = new ButtonType(okLabel, ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelBtn = new ButtonType(BUTTON_MESSAGE_CANCEL, ButtonBar.ButtonData.CANCEL_CLOSE);
+
         dialog.getButtonTypes().setAll(okBtn, cancelBtn);
+
         ((Button) dialog.getDialogPane().lookupButton(okBtn)).setDefaultButton(false);
         ((Button) dialog.getDialogPane().lookupButton(cancelBtn)).setDefaultButton(true);
 

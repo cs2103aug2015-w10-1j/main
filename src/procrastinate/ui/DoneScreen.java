@@ -23,8 +23,8 @@ public class DoneScreen extends SingleCategoryScreen {
     // DoneScreen Constructor
     // ================================================================================
 
-    protected DoneScreen(String filePath) {
-        super(filePath, HEADER_TEXT);
+    protected DoneScreen() {
+        super(HEADER_TEXT);
     }
 
     // ================================================================================
@@ -35,6 +35,7 @@ public class DoneScreen extends SingleCategoryScreen {
     protected void updateTaskList(List<Task> taskList) {
         getUpdatedDates();
         clearTaskList();
+
         mainVBox.getChildren().add(thisCategoryNode);
 
         String dateString;
@@ -47,7 +48,9 @@ public class DoneScreen extends SingleCategoryScreen {
 
                     case DEADLINE: {
                         Date date =((Deadline) task).getDate();
+
                         dateString = getDateFormatForDateline(date);
+
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
@@ -55,7 +58,9 @@ public class DoneScreen extends SingleCategoryScreen {
                     case EVENT: {
                         Date startDate = ((Event) task).getStartDate();
                         Date endDate = ((Event) task).getEndDate();
+
                         dateString = getDateFormatForEvent(startDate, endDate);
+
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
@@ -72,42 +77,52 @@ public class DoneScreen extends SingleCategoryScreen {
                 }
             }
         }
+
         checkIfMainVBoxIsEmpty(mainVBox);
     }
 
     private void addDoneTask(String taskCount, Task task, String dateString) {
         TaskEntry taskEntry;
+
         if (dateString == null) {
             taskEntry = new TaskEntry(taskCount, task.getDescription(), task.isDone());
         } else {
             taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
         }
+
         thisCategoryTaskList.getChildren().add(taskEntry.getEntryDisplay());
     }
 
     private String getDateFormatForDateline(Date date) {
         String dateString;
+
         boolean isSameYear = isSameYear(date, today);
         if (isSameYear) {
             dateString = getDateFormatForDeadlineWithSameYear(date);
+
         } else {
             dateString = getDateFormatForDeadlineWithDifferentYear(date);
         }
+
         return dateString;
     }
 
     private String getDateFormatForEvent(Date startDate, Date endDate) {
         String dateString;
+
         boolean isStartSameYear = isSameYear(startDate, today);
         if (isStartSameYear) {
             if (isSameDay(startDate, endDate)) {
                 dateString = getDateFormatForEventWithSameYearAndInOneDay(startDate, endDate);
+
             } else {
                 dateString = getDateFormatForEventWithSameYearAndDifferentDays(startDate, endDate);
             }
+
         } else {
             dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(startDate, endDate);
         }
+
         return dateString;
     }
 
@@ -119,6 +134,7 @@ public class DoneScreen extends SingleCategoryScreen {
         if (thisCategoryTaskList.getChildren().isEmpty()) {
             mainVBox.getChildren().remove(thisCategoryNode);
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_DONE_TASKS);
+
         } else {
             setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
         }

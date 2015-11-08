@@ -97,8 +97,8 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // MultiCategoryScreen Constructor
     // ================================================================================
 
-    protected MultiCategoryScreen(String filePath) {
-        super(filePath);
+    protected MultiCategoryScreen() {
+        super();
         createCategories();
         retrieveFxmlElements();
     }

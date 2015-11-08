@@ -23,8 +23,6 @@ public class CenterPaneController {
     // Message Strings
     // ================================================================================
 
-    private static final String LOCATION_CENTER_SCREEN_LAYOUT = "views/CenterScreen.fxml";
-
     private static final String MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE = "Unable to recognise ScreenType";
 
     private static final String SELECTOR_SCROLL_BAR = ".scroll-bar";
@@ -389,25 +387,25 @@ public class CenterPaneController {
     }
 
     private void createMainScreen() {
-        this.mainScreen_ = new MainScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.mainScreen_ = new MainScreen();
         this.mainScreenNode_ = mainScreen_.getNode();
         addMouseDragListeners(mainScreenNode_);
     }
 
     private void createDoneScreen() {
-        this.doneScreen_ = new DoneScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.doneScreen_ = new DoneScreen();
         this.doneScreenNode_ = doneScreen_.getNode();
         addMouseDragListeners(doneScreenNode_);
     }
 
     private void createSearchScreen() {
-        this.searchScreen_ = new SearchScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.searchScreen_ = new SearchScreen();
         this.searchScreenNode_ = searchScreen_.getNode();
         addMouseDragListeners(searchScreenNode_);
     }
 
     private void createSummaryScreen() {
-        this.summaryScreen_ = new SummaryScreen(LOCATION_CENTER_SCREEN_LAYOUT);
+        this.summaryScreen_ = new SummaryScreen();
         this.summaryScreenNode_ = summaryScreen_.getNode();
         addMouseDragListeners(summaryScreenNode_);
     }

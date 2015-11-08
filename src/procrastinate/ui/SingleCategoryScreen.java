@@ -32,8 +32,8 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     // SingleCategoryScreen Constructor
     // ================================================================================
 
-    protected SingleCategoryScreen(String filePath, String headerName) {
-        super(filePath);
+    protected SingleCategoryScreen(String headerName) {
+        super();
         createCategories(headerName);
         retrieveFxmlElements();
     }

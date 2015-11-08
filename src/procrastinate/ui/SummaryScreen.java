@@ -54,8 +54,8 @@ public class SummaryScreen extends MultiCategoryScreen {
     // SummaryScreen Constructor
     // ================================================================================
 
-    protected SummaryScreen(String filePath) {
-        super(filePath);
+    protected SummaryScreen() {
+        super();
     }
 
     // ================================================================================
