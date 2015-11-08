@@ -36,9 +36,9 @@ public class Done extends CrudCmd {
 
         boolean success;
         if (done) {
-            success = taskEngine.done(task.getId());
-        } else {
             success = taskEngine.undone(task.getId());
+        } else {
+            success = taskEngine.done(task.getId());
         }
 
         if (!success) {
