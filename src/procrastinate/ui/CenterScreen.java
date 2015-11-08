@@ -56,6 +56,7 @@ public abstract class CenterScreen extends VBox {
     protected static final double OPACITY_ZERO = 0;
     protected static final double OPACITY_FULL = 1;
 
+    // Can be changed to adjust the number of subcategories shown in the 'Upcoming' category
     private static final int NUMBER_OF_DAYS_IN_A_WEEK = 7;
 
     // ================================================================================
@@ -112,8 +113,7 @@ public abstract class CenterScreen extends VBox {
      * Dreams are directly added via this method but Deadlines and Events are
      * passed to two different addTask methods depending on their (start) dates.
      *
-     * @param taskList
-     *            to be added onto the screen
+     * @param taskList    to be added onto the screen
      */
     protected abstract void updateTaskList(List<Task> taskList);
 
@@ -241,9 +241,8 @@ public abstract class CenterScreen extends VBox {
     /**
      * Converts a LocalDateTime to an Instant
      *
-     * @param localDateTime
-     *            to be converted
-     * @return Instant generated from the given LocalDateTime
+     * @param localDateTime    to be converted
+     * @return Instant         generated from the given LocalDateTime
      */
     protected Instant getInstantFromLocalDateTime(LocalDateTime localDateTime) {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
@@ -266,10 +265,9 @@ public abstract class CenterScreen extends VBox {
     /**
      * Generates the date of the end of the week for task date comparisons
      *
-     * @param today
-     *            Current date at 0000hrs
-     * @return Date that is a week from now at 0000hrs for comparing tasks due
-     *         this week
+     * @param today    Current date at 0000hrs
+     * @return Date    that is a week from now at 0000hrs for comparing tasks
+     *                 to be placed in the 'Upcoming' category
      */
     private Date getEndOfWeekDate(Date today) {
         Calendar calendar = Calendar.getInstance();
