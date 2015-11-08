@@ -35,11 +35,18 @@ public class UIStub extends UI {
     public void setPreviewStatus(String status) {
     }
     @Override
-    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
-        taskList_ = taskList;
+    public void setExecuteStatus(String status) {
+    }
+    @Override
+    public String fitToStatus(String before, String text, String after) {
+        return before + text + after;
     }
     @Override
     public void initialUpdateTaskList(List<Task> taskList) {
+    }
+    @Override
+    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
+        taskList_ = taskList;
     }
     @Override
     public void resetIsExit() {
@@ -49,10 +56,16 @@ public class UIStub extends UI {
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override
+    public void hide() {
+    }
+    @Override
     public void passSearchStringToSearchScreen(String searchTerm) {
     }
     @Override
     public void showHelpOverlay() {
+    }
+    @Override
+    public void nextHelpPage() {
     }
     @Override
     public void hideHelpOverlay() {
