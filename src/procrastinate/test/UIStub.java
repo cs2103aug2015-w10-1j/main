@@ -32,7 +32,7 @@ public class UIStub extends UI {
     public void clearInput() {
     }
     @Override
-    public void setStatus(String status) {
+    public void setPreviewStatus(String status) {
     }
     @Override
     public void updateTaskList(List<Task> taskList, ScreenView screenView) {

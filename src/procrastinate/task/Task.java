@@ -74,6 +74,8 @@ public abstract class Task implements Comparable<Task> {
 
 	public abstract boolean isWithin(Date startDate, Date endDate);
 
+	public abstract String getDateString();
+
 	// ================================================================================
     // Getter methods
     // ================================================================================

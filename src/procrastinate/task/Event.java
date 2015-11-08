@@ -1,6 +1,8 @@
 //@@author A0080485B
 package procrastinate.task;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -10,6 +12,10 @@ public class Event extends Task {
 
     protected static final String FIELD_START_DATE = "startDate";
     protected static final String FIELD_END_DATE = "endDate";
+
+    private static final String dateStringFormat = " from %1$s to %2$s";
+
+    private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy h:mma");
 
     @SerializedName(FIELD_START_DATE)
 	private Date startDate_;
@@ -37,6 +43,11 @@ public class Event extends Task {
 	public Date getEndDate() {
 		return endDate_;
 	}
+
+    @Override
+    public String getDateString() {
+        return String.format(dateStringFormat, dateFormatter.format(startDate_), dateFormatter.format(endDate_));
+    }
 
     @Override
     public boolean isWithin(Date startDate, Date endDate) {

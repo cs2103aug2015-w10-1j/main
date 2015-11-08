@@ -7,6 +7,8 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.javafx.tk.Toolkit;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,6 +16,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -40,6 +43,8 @@ public class UI {
 
     private static final String DEBUG_UI_INIT = "UI initialised.";
     private static final String DEBUG_UI_LOAD = "View is now loaded!";
+
+    private static final String ELLIPSIS = "...";
 
     // ================================================================================
     // Class Variables
@@ -92,21 +97,45 @@ public class UI {
         getUserInputField().clear();
     }
 
-    // Sets the text of the 'Status' Label directly.
-    public void setStatus(String status) {
-        Platform.runLater(() -> statusLabelText_.set(status));
-    }
-
-    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
-        centerPaneController_.updateScreen(taskList, screenView);
-    }
-
     //@@author A0080485B
+    public void setPreviewStatus(String status) {
+        Platform.runLater(() -> {
+            getStatusLabel().setStyle("-fx-text-fill: #365fac");
+            statusLabelText_.set(status);
+        });
+    }
+
+    public void setExecuteStatus(String status) {
+        Platform.runLater(() -> {
+            getStatusLabel().setStyle("-fx-text-fill: default");
+            statusLabelText_.set(status);
+        });
+    }
+
+    public String fitToStatus(String before, String text, String after) {
+        if (canFitStatus(before + text + after)) {
+            return before + text + after;
+        }
+        String grow = "";
+        for (int i = 0; i < text.length(); i++) {
+            char nextChar = text.charAt(i);
+            if (!canFitStatus(before + grow + nextChar + ELLIPSIS + after)) {
+                break;
+            }
+            grow += nextChar;
+        }
+        return before + grow + ELLIPSIS + after;
+    }
+
     public void initialUpdateTaskList(List<Task> taskList) {
         centerPaneController_.initialUpdateMainScreen(taskList);
     }
 
     //@@author A0121597B
+    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
+        centerPaneController_.updateScreen(taskList, screenView);
+    }
+
     public void resetIsExit() {
         isExit_.set(false);
     }
@@ -238,6 +267,17 @@ public class UI {
 
     private TextField getUserInputField() {
         return windowHandler_.getUserInputField();
+    }
+
+    //@@author A0080485B
+    private Label getStatusLabel() {
+        return windowHandler_.getStatusLabel();
+    }
+
+    private boolean canFitStatus(String status) {
+        double width = Toolkit.getToolkit().getFontLoader().computeStringWidth(status, getStatusLabel().getFont());
+        double maxWidth = getUserInputField().getWidth();
+        return width < maxWidth;
     }
 
 }

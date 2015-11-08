@@ -46,15 +46,9 @@ public class Logic {
 
     private static final String NATTY_WARMUP_STRING = "Natty starts up slowly due tomorrow";
 
-    private static final String STATUS_READY = "Ready!";
-    private static final String STATUS_PREVIEW_COMMAND = ">>";
-
-    private static final String FEEDBACK_ADD_DREAM = "New dream: ";
-    private static final String FEEDBACK_ADD_DEADLINE = "New deadline: %1$s due %2$s";
-    private static final String FEEDBACK_ADD_EVENT = "New event: %1$s %2$s to %3$s";
-    private static final String FEEDBACK_EDIT_DREAM = "Edited #%1$s: %2$s";
-    private static final String FEEDBACK_EDIT_DEADLINE = "Edited #%1$s: %2$s due %3$s";
-    private static final String FEEDBACK_EDIT_EVENT = "Edited #%1$s: %2$s %3$s to %4$s";
+    private static final String FEEDBACK_READY = "Ready!";
+    private static final String FEEDBACK_ADD = "New %1$s: ";
+    private static final String FEEDBACK_EDIT = "Edited #%1$s: ";
     private static final String FEEDBACK_EDIT_PARTIAL = "Please specify the new description/date(s) or press tab";
     private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
     private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
@@ -75,7 +69,6 @@ public class Logic {
     private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
     private static final String FEEDBACK_SHOW_SUMMARY = "Showing summary of outstanding tasks";
     private static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";
-    private static final String FEEDBACK_ELLIPSIS = "...";
     private static final String FEEDBACK_EXIT = "Goodbye!";
 
     private static final String ERROR_STARTUP_HEADER = "There was a problem accessing the directory";
@@ -94,10 +87,6 @@ public class Logic {
     private static final String SEARCH_STRING_DUE = " due ";
     private static final String SEARCH_STRING_FROM_TO = " from %1$s to %2$s";
 
-    private static final int MAX_LENGTH_DESCRIPTION = 20;
-    private static final int MAX_LENGTH_DESCRIPTION_SHORT = 10;
-    private static final int MAX_LENGTH_DESCRIPTION_TINY = 7;
-
     private static final DateFormat dateTimeFormatter = new SimpleDateFormat("d/MM/yy h:mma");
     private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
 
@@ -108,7 +97,7 @@ public class Logic {
     protected TaskEngine taskEngine;
     protected UI ui;
 
-    private boolean startupError = false;
+    private boolean hasStartupError = false;
 
     private Command lastPreviewedCommand = null;
 
@@ -210,7 +199,7 @@ public class Logic {
             case EXIT :
                 return runExit(execute);
 
-            default:
+            default :
                 return null;
 
         }
@@ -254,7 +243,7 @@ public class Logic {
                 newTask = new Event(description, startDate, endDate);
                 break;
 
-            default:
+            default :
                 break;
         }
 
@@ -267,22 +256,7 @@ public class Logic {
             }
         }
 
-        switch(command.getType()) {
-            case ADD_DREAM :
-                return FEEDBACK_ADD_DREAM + description;
-
-            case ADD_DEADLINE :
-                return String.format(FEEDBACK_ADD_DEADLINE, shorten(description, MAX_LENGTH_DESCRIPTION),
-                        formatDateTime(date));
-
-            case ADD_EVENT :
-                return String.format(FEEDBACK_ADD_EVENT, shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
-                        formatDateTime(startDate), formatDateTime(endDate));
-
-            default:
-                return null;
-        }
-
+        return ui.fitToStatus(String.format(FEEDBACK_ADD, newTask.getTypeString()), description, newTask.getDateString());
     }
 
     private String runEdit(Command command, boolean execute) {
@@ -335,26 +309,7 @@ public class Logic {
             }
         }
 
-        String description = newTask.getDescription();
-
-        switch (newTask.getType()) {
-            case DREAM :
-                return String.format(FEEDBACK_EDIT_DREAM, lineNumber, description);
-
-            case DEADLINE :
-                return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber,
-                        shorten(description, MAX_LENGTH_DESCRIPTION),
-                        formatDateTime(((Deadline) newTask).getDate()));
-
-            case EVENT :
-                return String.format(FEEDBACK_EDIT_EVENT, lineNumber,
-                        shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
-                        formatDateTime(((Event) newTask).getStartDate()),
-                        formatDateTime(((Event) newTask).getEndDate()));
-
-            default:
-                return null;
-        }
+        return ui.fitToStatus(String.format(FEEDBACK_EDIT, lineNumber), newTask.getDescription(), newTask.getDateString());
     }
 
     private String runEditPartial(Command command) {
@@ -605,19 +560,19 @@ public class Logic {
     public void initUi(Stage stage) {
         ui = new UI(stage);
         ui.attachHandlersAndListeners(createKeyPressHandler(), createUserInputListener(), createIsExitListener());
-        if (startupError) {
+        if (hasStartupError) {
             ui.createErrorDialog(ERROR_STARTUP_HEADER, ERROR_STARTUP_MESSAGE);
             exit();
         }
         initUiTaskList();
-        ui.setStatus(STATUS_READY);
+        ui.setPreviewStatus(FEEDBACK_READY);
     }
 
     protected void initTaskEngine() {
 		try {
             taskEngine = new TaskEngine();
         } catch (IOException e) {
-            startupError = true;
+            hasStartupError = true;
         }
     }
 
@@ -704,7 +659,7 @@ public class Logic {
                     // ClearInput must come before setStatus as user input listener
                     // resets status when input is cleared
                     ui.clearInput();
-                    ui.setStatus(feedback);
+                    ui.setExecuteStatus(feedback);
 
                     return;
                 }
@@ -744,7 +699,7 @@ public class Logic {
                 case F1 : {
                     ui.showHelpOverlay();
                     if (ui.getInput().isEmpty()) {
-                        ui.setStatus(FEEDBACK_HELP);
+                        ui.setPreviewStatus(FEEDBACK_HELP);
                     }
                     return;
                 }
@@ -763,12 +718,12 @@ public class Logic {
                 case ESCAPE : {
                     ui.hideHelpOverlay();
                     if (ui.getInput().trim().isEmpty()) {
-                        ui.setStatus(STATUS_READY);
+                        ui.setPreviewStatus(FEEDBACK_READY);
                     }
                     return;
                 }
 
-                default:
+                default :
                     break;
             }
         };
@@ -778,9 +733,9 @@ public class Logic {
     private ChangeListener<String> createUserInputListener() {
         return (observable, oldValue, newValue) -> {
             if (newValue.trim().isEmpty()) {
-                ui.setStatus(STATUS_READY);
+                ui.setPreviewStatus(FEEDBACK_READY);
             } else {
-                ui.setStatus(STATUS_PREVIEW_COMMAND + previewCommand(newValue));
+                ui.setPreviewStatus(previewCommand(newValue));
             }
         };
     }
@@ -791,7 +746,7 @@ public class Logic {
             if (newValue.booleanValue()) {
                 if (!exit()) {
                     ui.resetIsExit();
-                    ui.setStatus(FEEDBACK_TRY_AGAIN);
+                    ui.setPreviewStatus(FEEDBACK_TRY_AGAIN);
                 }
             }
         };
@@ -803,7 +758,7 @@ public class Logic {
 
     // Exit routine used by exit command, close button and system tray
     private boolean exit() {
-        if (startupError) {
+        if (hasStartupError) {
             hideAndTerminate();
         }
 
@@ -850,14 +805,6 @@ public class Logic {
 
     private static String formatDate(Date date) {
         return dateFormatter.format(date);
-    }
-
-    private static String shorten(String description, int maxLength) {
-        if (description.length() <= maxLength) {
-            return description;
-        }
-
-        return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
     }
 
 }

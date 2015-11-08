@@ -1,6 +1,8 @@
 //@@author A0080485B
 package procrastinate.task;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -9,6 +11,10 @@ import com.google.gson.annotations.SerializedName;
 public class Deadline extends Task {
 
     protected static final String FIELD_DATE = "date";
+
+    private static final String dateStringFormat = " due %1$s";
+
+    private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy h:mma");
 
     @SerializedName(FIELD_DATE)
 	private Date date_;
@@ -29,6 +35,11 @@ public class Deadline extends Task {
 
 	public Date getDate() {
 		return date_;
+	}
+
+	@Override
+    public String getDateString() {
+	    return String.format(dateStringFormat, dateFormatter.format(date_));
 	}
 
     @Override

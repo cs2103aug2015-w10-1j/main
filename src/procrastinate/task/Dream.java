@@ -15,6 +15,11 @@ public class Dream extends Task {
 	}
 
     @Override
+    public String getDateString() {
+        return "";
+    }
+
+    @Override
     public boolean isWithin(Date startDate, Date endDate) {
         return false;
     }
