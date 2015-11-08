@@ -201,10 +201,12 @@ public class SummaryScreen extends MultiCategoryScreen {
 
         rollOverHeight = 0;
         if        ((currCategoryHeight > maxCategoryHeight) && (currCategoryNode != upcomingNode)) {
-            rollOverHeight += resizeTaskListOfOtherCategoriesToFit(currCategoryNode, maxCategoryHeight);
+            resizeTaskListOfOtherCategoriesToFit(currCategoryNode, maxCategoryHeight);
+            rollOverHeight += (maxCategoryHeight - getHeightOfCategoryNode(currCategoryNode));
 
         } else if ((currCategoryHeight > maxCategoryHeight) && (currCategoryNode == upcomingNode)) {
-            rollOverHeight += resizeTaskListOfUpcomingCategoryToFit(currCategoryNode, maxCategoryHeight);
+            resizeTaskListOfUpcomingCategoryToFit(currCategoryNode, maxCategoryHeight);
+            rollOverHeight += (maxCategoryHeight - getHeightOfCategoryNode(currCategoryNode));
 
         } else {
             rollOverHeight += maxCategoryHeight - currCategoryHeight;
@@ -213,16 +215,11 @@ public class SummaryScreen extends MultiCategoryScreen {
         return rollOverHeight;
     }
 
-    /**
-     * Resizes the upcomingNode if it exceeds the given heightToFit by removing tasks from its
-     * subcategories, starting from the last subcategory and removing the SubcategoryBox from
-     * view when there are no more tasks contained within.
-     *
-     * @param upcomingNode      to be resized
-     * @param heightToFit       max height for the node
-     * @return                  the leftover height to be rolled over for other categories
-     */
-    private double resizeTaskListOfUpcomingCategoryToFit(Node upcomingNode, double heightToFit) {
+
+    // Resizes the upcomingNode if it exceeds the given heightToFit by removing tasks from its
+    // subcategories, starting from the last subcategory and removing the SubcategoryBox from
+    // view when there are no more tasks contained within.
+    private void resizeTaskListOfUpcomingCategoryToFit(Node upcomingNode, double heightToFit) {
         if (ellipsisBoxHeight_ == -1) {
             updateEllipsisBoxHeight(upcomingNode);
         }
@@ -260,18 +257,10 @@ public class SummaryScreen extends MultiCategoryScreen {
 
             mainVBox.getParent().layout();
         }
-        return (heightToFit - getHeightOfCategoryNode(upcomingNode));
     }
 
-    /**
-     * Resizes the given categoryNode by removing tasks from the category if it
-     * exceeds the given heightToFit.
-     *
-     * @param categoryNode      to be resized
-     * @param heightToFit       max height for the categoryNode
-     * @return                  the leftover height to be rolled over for other categories
-     */
-    private double resizeTaskListOfOtherCategoriesToFit(Node categoryNode, double heightToFit) {
+    // Resizes the given categoryNode by removing tasks from the category if it exceeds the given heightToFit.
+    private void resizeTaskListOfOtherCategoriesToFit(Node categoryNode, double heightToFit) {
         int numTasksRemoved = 0;
         if (ellipsisBoxHeight_ == -1) {
             updateEllipsisBoxHeight(categoryNode);
@@ -292,7 +281,6 @@ public class SummaryScreen extends MultiCategoryScreen {
 
             mainVBox.getParent().layout();
         }
-        return (heightToFit - getHeightOfCategoryNode(categoryNode));
     }
 
     /**

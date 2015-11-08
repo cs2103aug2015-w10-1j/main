@@ -156,7 +156,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         resetTaskCount();
         resetTaskList();
 
-        generateThisWeekSubcategories();
+        generateUpcomingSubcategories();
     }
 
     protected void getUpdatedDates() {
@@ -633,7 +633,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         int indexOfTaskEntry = -1;
 
         for (Node node : nodeList) {
-
+            // Need to check all the different nodes in order to get to the index
             if (node == upcomingNode) {
                 prevCount = currCount;
                 currCount = currCount + findNumberOfTasksInUpcomingSubcategories();
@@ -641,6 +641,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
                 if (currCount > index) {
                     indexOfTaskEntry = index - prevCount;
                     for (VBox vBox : upcomingSubcategories) {
+                        // Check each subcategory until the index is found
                         if (indexOfTaskEntry < vBox.getChildren().size()) {
                             GridPane newTaskEntry = (GridPane) vBox.getChildren().get(indexOfTaskEntry);
 
@@ -690,6 +691,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
                 if (currCount > index) {
                     indexOfTaskEntry = index - prevCount;
                     for (VBox vBox : upcomingSubcategories) {
+                        // Check each subcategory until the index is found
                         if (indexOfTaskEntry < vBox.getChildren().size()) {
                             GridPane newTaskEntry = (GridPane) vBox.getChildren().get(indexOfTaskEntry);
 
@@ -836,7 +838,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
      * Generates the relative date sub-headers for the 'Upcoming' category
      * and places them in the upcomingTaskList.
      */
-    private void generateThisWeekSubcategories() {
+    private void generateUpcomingSubcategories() {
         ArrayList<Node> thisWeekDateBoxes = new ArrayList<>();
         int count = 1;
 
