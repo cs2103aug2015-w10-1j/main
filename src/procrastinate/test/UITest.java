@@ -1,8 +1,6 @@
 package procrastinate.test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +63,7 @@ public class UITest {
 
     @Test
     public void centerPaneController_InitCurrentScreenShouldNotBeNullAndIsSummaryScreen() {
+        // The inital start screen should be a summary screen
         assertTrue(uiTestHelper.getCPCCurrentScreen() != null);
         assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof SummaryScreen);
     }
@@ -79,23 +78,51 @@ public class UITest {
         assertNotNull(uiTestHelper.getSplashOverlayNode());
     }
 
-//    @Test
-    public void centerPaneController_ShouldBeAbleToSwitchAllScreens() {
+    @Test
+    public void centerPaneController_ShouldBeAbleToSwitchAllScreens() throws InterruptedException {
         List<Task> emptyList = new ArrayList<Task>();
+        // Due to random nature of tests running, this test needs to be isolated so that the initial
+        // start point is always the same and would not have unwanted assertionErrors
         UITestHelper isolatedTestHelper = new UITestHelper();
         isolatedTestHelper.getNewCenterPaneController(new StackPane());
 
-        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof SummaryScreen);
+        assertTrue(isolatedTestHelper.getCPCCurrentScreen() instanceof SummaryScreen);
+        assertEquals(isolatedTestHelper.getCPCCurrentScreenNode(), isolatedTestHelper.getSummaryScreenNode());
 
+        // Each screen switch requires waiting of the screen switch animation to end before asserts can be carried out
         isolatedTestHelper.changeCPCScreen(emptyList, ScreenView.SCREEN_MAIN);
-
-        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof MainScreen);
+        Thread.sleep(1000);
+        assertTrue(isolatedTestHelper.getCPCCurrentScreen() instanceof MainScreen);
+        assertEquals(isolatedTestHelper.getCPCCurrentScreenNode(), isolatedTestHelper.getMainScreenNode());
 
         isolatedTestHelper.changeCPCScreen(emptyList, ScreenView.SCREEN_SEARCH);
-        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof SearchScreen);
+        Thread.sleep(1000);
+        assertTrue(isolatedTestHelper.getCPCCurrentScreen() instanceof SearchScreen);
+        assertEquals(isolatedTestHelper.getCPCCurrentScreenNode(), isolatedTestHelper.getSearchScreenNode());
 
         isolatedTestHelper.changeCPCScreen(emptyList, ScreenView.SCREEN_DONE);
-        assertTrue(uiTestHelper.getCPCCurrentScreen() instanceof DoneScreen);
+        Thread.sleep(1000);
+        assertTrue(isolatedTestHelper.getCPCCurrentScreen() instanceof DoneScreen);
+        assertEquals(isolatedTestHelper.getCPCCurrentScreenNode(), isolatedTestHelper.getDoneScreenNode());
+    }
+
+    @Test
+    public void centerPaneController_ShouldBeAbleToShowAllOverlays() throws InterruptedException {
+        // Splash overlay testing
+        uiTestHelper.showSplash();
+        assertEquals(uiTestHelper.getCPCCurrentOverlayNode(), uiTestHelper.getSplashOverlayNode());
+
+        uiTestHelper.hideSplash();
+        Thread.sleep(3000); // to wait for splash animation to end
+        assertNull(uiTestHelper.getCPCCurrentOverlay());
+
+        // Help overlay testing
+        uiTestHelper.showHelp();
+        assertEquals(uiTestHelper.getCPCCurrentOverlayNode(), uiTestHelper.getHelpOverlayNode());
+
+        uiTestHelper.hideHelp();
+        Thread.sleep(300);
+        assertNull(uiTestHelper.getCPCCurrentOverlay());
     }
 
     // ================================================================================

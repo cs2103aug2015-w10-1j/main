@@ -33,8 +33,16 @@ public class UITestHelper {
         return centerPaneController.getCurrentScreen();
     }
 
+    public Node getCPCCurrentScreenNode() {
+        return centerPaneController.getCurrentScreen().getNode();
+    }
+
     public ImageOverlay getCPCCurrentOverlay() {
         return centerPaneController.getCurrentOverlay();
+    }
+
+    public Node getCPCCurrentOverlayNode() {
+        return centerPaneController.getCurrentOverlay().getNode();
     }
 
     public void changeCPCScreen(List<Task> taskList, ScreenView screenView) {
@@ -63,6 +71,22 @@ public class UITestHelper {
 
     public Node getSplashOverlayNode() {
         return centerPaneController.getSplashOverlayNode();
+    }
+
+    public void showSplash() {
+        centerPaneController.showSplashOverlay();
+    }
+
+    public void hideSplash() {
+        centerPaneController.hideSplashOverlay();
+    }
+
+    public void showHelp() {
+        centerPaneController.showHelpOverlay();
+    }
+
+    public void hideHelp() {
+        centerPaneController.hideHelpOverlay();
     }
 
     // ================================================================================
