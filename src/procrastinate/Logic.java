@@ -161,7 +161,7 @@ public class Logic {
             case ADD_EVENT :
                 feedback = command.run(ui, taskEngine);
                 if (!command.isPreview()) {
-                    updateView();
+                    updateView(ViewType.SHOW_OUTSTANDING);
                 }
                 break;
 
@@ -699,6 +699,7 @@ public class Logic {
     }
 
     private void updateUiTaskList() {
+        System.out.println(currentView);
         switch (currentView) {
             case SHOW_OUTSTANDING:
                 ui.updateTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
