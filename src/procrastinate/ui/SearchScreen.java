@@ -28,6 +28,10 @@ public class SearchScreen extends MultiCategoryScreen {
 
     private static final String STYLE_WRAPPER_BACKGROUND_COLOR = "-fx-background-color: white;";
 
+    // ================================================================================
+    // Constants
+    // ================================================================================
+
     private static final int MAIN_VBOX_PREF_HEIGHT = 450;
     private static final int MAIN_VBOX_PREF_WIDTH = 450;
 
@@ -35,7 +39,7 @@ public class SearchScreen extends MultiCategoryScreen {
     // Class variables
     // ================================================================================
 
-    Label searchHeader = new Label();
+    private Label searchHeader = new Label();
 
     // ================================================================================
     // SearchScreen Constructor
@@ -48,12 +52,13 @@ public class SearchScreen extends MultiCategoryScreen {
     }
 
     // ================================================================================
-    // SearchScreen methods
+    // SearchScreen Methods
     // ================================================================================
 
     @Override
     protected void updateTaskList(List<Task> taskList) {
         FadeTransition fadeOutDeletedTaskEntry = fadeOutDeletedTaskEntry(taskList);
+
         fadeOutDeletedTaskEntry.setOnFinished(finish -> {
             getUpdatedDates();
             clearTaskList();
@@ -65,6 +70,7 @@ public class SearchScreen extends MultiCategoryScreen {
             }
             updateDisplay();
         });
+
         fadeOutDeletedTaskEntry.play();
     }
 
@@ -79,10 +85,25 @@ public class SearchScreen extends MultiCategoryScreen {
         searchHeader.setText(SEARCH_HEADER + searchString.trim());
     }
 
+    // ================================================================================
+    // Init Methods
+    // ================================================================================
+
+    private void adjustLabelStyle() {
+        searchHeader.setWrapText(true);
+        searchHeader.setFocusTraversable(false);
+        searchHeader.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY +
+                              STYLE_SEARCH_HEADER_FONT_WEIGHT +
+                              STYLE_SEARCH_HEADER_FONT_SIZE +
+                              STYLE_SEARCH_HEADER_PADDING);
+    }
+
     private void wrapSearchHeaderLabelWithMainVBox() {
         ScrollPane parentOfMainVBox = (ScrollPane) this.getNode().lookup(SELECTOR_PARENT_OF_MAIN_VBOX);
-        VBox wrapper = buildWrapper();
+
         adjustMainVBoxForWrapping();
+
+        VBox wrapper = buildWrapper();
         parentOfMainVBox.setContent(wrapper);
     }
 
@@ -92,16 +113,10 @@ public class SearchScreen extends MultiCategoryScreen {
 
     private VBox buildWrapper() {
         VBox wrapper = new VBox(searchHeader, mainVBox);
+
         wrapper.setStyle(STYLE_WRAPPER_BACKGROUND_COLOR);
+
         return wrapper;
     }
 
-    private void adjustLabelStyle() {
-        searchHeader.setWrapText(true);
-        searchHeader.setFocusTraversable(false);
-        searchHeader.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY
-                            + STYLE_SEARCH_HEADER_FONT_WEIGHT
-                            + STYLE_SEARCH_HEADER_FONT_SIZE
-                            + STYLE_SEARCH_HEADER_PADDING);
-    }
 }

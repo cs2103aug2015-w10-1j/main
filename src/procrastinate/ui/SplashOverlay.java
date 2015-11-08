@@ -41,7 +41,7 @@ public class SplashOverlay extends ImageOverlay {
     }
 
     // ================================================================================
-    // SplashOverlay methods
+    // Init methods
     // ================================================================================
 
     @Override

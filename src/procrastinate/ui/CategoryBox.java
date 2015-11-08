@@ -41,14 +41,13 @@ public class CategoryBox extends VBox {
 
     /**
      * Creates a CategoryBox that encloses a Label as the header text and a VBox
-     * that contain the list of tasks.
+     * to be used to contain the list of tasks.
      *
-     * @param labelString
-     *            string to be used as the header text of the category
+     * @param categoryHeader    string to be used as the header text of the category
      */
-    protected CategoryBox(String labelString) {
+    protected CategoryBox(String categoryHeader) {
         loadLayout();
-        setLabelTextWithDropShadowEffect(labelString);
+        setLabelTextWithDropShadowEffect(categoryHeader);
     }
 
     // ================================================================================
@@ -70,13 +69,12 @@ public class CategoryBox extends VBox {
      * Sets the categoryLabel which acts as the header for a CategoryBox. This
      * method also adds a DropShadow effect to the label after the text is set.
      *
-     * @param labelString
-     *            to be set as the category header text
+     * @param categoryHeader    to be set as the category header text
      */
-    private void setLabelTextWithDropShadowEffect(String labelString) {
-        this.categoryLabel.setText(labelString);
-        DropShadow ds = new DropShadow(BlurType.GAUSSIAN, Color.GRAY, 6, 0, 0, 2.0f);
-        categoryLabel.setEffect(ds);
+    private void setLabelTextWithDropShadowEffect(String categoryHeader) {
+        this.categoryLabel.setText(categoryHeader);
+        DropShadow dropShadow = new DropShadow(BlurType.GAUSSIAN, Color.GRAY, 6, 0, 0, 2.0f);
+        categoryLabel.setEffect(dropShadow);
     }
 
     // ================================================================================

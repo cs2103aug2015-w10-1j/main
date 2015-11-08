@@ -62,7 +62,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // ================================================================================
     // Class Variables
     // ================================================================================
-
     // Nodes are used to add them onto the screen
     protected Node overdueNode;
     protected Node upcomingNode;

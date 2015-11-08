@@ -21,7 +21,7 @@ public class SubcategoryBox extends VBox {
     // Class variables
     // ================================================================================
 
-    private Node subcategoryBox;
+    private Node subcategoryBox_;
 
     // ================================================================================
     // FXML field variables
@@ -37,28 +37,33 @@ public class SubcategoryBox extends VBox {
     // ================================================================================
 
     /**
-     * Creates a category with the given label for tasks to go into
+     * Creates a SubcategoryBox that encloses a Label as the header text and a VBox
+     * to be used to contain the list of tasks.
      *
-     * @param labelString
+     * @param subcategoryHeader    to be used as the header text of the subcategory
      */
-    protected SubcategoryBox(String labelString) {
+    protected SubcategoryBox(String subcategoryHeader) {
         loadLayout();
-        setLabel(labelString);
+        setLabelText(subcategoryHeader);
     }
+
+    // ================================================================================
+    // Init Methods
+    // ================================================================================
 
     private void loadLayout() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_DATEBOX_FXML));
         loader.setController(this); // Required due to different package
                                     // declaration from Main
         try {
-            this.subcategoryBox = loader.load();
+            this.subcategoryBox_ = loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void setLabel(String labelString) {
-        this.subcategoryLabel.setText(labelString);
+    private void setLabelText(String subcategoryHeader) {
+        this.subcategoryLabel.setText(subcategoryHeader);
     }
 
     // ================================================================================
@@ -67,7 +72,7 @@ public class SubcategoryBox extends VBox {
 
     // @@author A0121597B generated
     protected Node getDateBox() {
-        return this.subcategoryBox;
+        return this.subcategoryBox_;
     }
 
     /**

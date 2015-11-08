@@ -28,7 +28,7 @@ public class DoneScreen extends SingleCategoryScreen {
     }
 
     // ================================================================================
-    // Display methods
+    // DoneScreen methods
     // ================================================================================
 
     @Override

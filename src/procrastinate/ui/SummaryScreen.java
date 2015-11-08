@@ -28,6 +28,10 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private static final String SELECTOR_SCROLLPANE = "#scrollPane";
 
+    // ================================================================================
+    // Constants
+    // ================================================================================
+
     private static final double SCROLLPANE_TOTAL_TOP_BOTTOM_PADDING = 20.0;
 
     private static final double MAINVBOX_CHILDREN_SPACING = 5.0;
@@ -46,7 +50,7 @@ public class SummaryScreen extends MultiCategoryScreen {
     // Class variables
     // ================================================================================
 
-    private static double ellipsisBoxHeight = -1;
+    private static double ellipsisBoxHeight_ = -1;
 
     private boolean isSummarising = false;
 
@@ -72,14 +76,17 @@ public class SummaryScreen extends MultiCategoryScreen {
 
             addTaskByType(shortenTaskDescription(task));
         }
+
         updateDisplay();
         setupSummaryView();
     }
 
+    //@@author A0080485B
     protected boolean isSummarising() {
         return isSummarising;
     }
 
+    //@@author A0121597B
     @Override
     protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
         if (mainVBox.getChildren().isEmpty()) {
@@ -112,77 +119,87 @@ public class SummaryScreen extends MultiCategoryScreen {
      * the maxMainVBoxHeight and resizes each category to a given size depending
      * on their PartitionCount declared above.
      *
-     * @param maxMainVBoxHeight
-     *            the height to resize the screen to fit into
+     * @param maxMainVBoxHeight    the height to resize the screen to fit into
      */
     private void resizeScreenToFit(double maxMainVBoxHeight) {
         int numCategoriesPresent = calculateNumberOfCategoriesPresent();
         int numPartitionsToSplit = calculateNumberOfPartitionsToSplit();
 
-        double remainingHeightForTaskDisplay = maxMainVBoxHeight - SCROLLPANE_TOTAL_TOP_BOTTOM_PADDING
-                - ((numCategoriesPresent - 1) * MAINVBOX_CHILDREN_SPACING);
+        double remainingHeightForTaskDisplay = maxMainVBoxHeight -
+                                               SCROLLPANE_TOTAL_TOP_BOTTOM_PADDING -
+                                               ((numCategoriesPresent - 1) * MAINVBOX_CHILDREN_SPACING);
+        double rollOverHeight = 0;
         double singlePartitionHeight = remainingHeightForTaskDisplay / numPartitionsToSplit;
 
-        double rollOverHeight = 0;
-
-        HeightNodePair overdueCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(overdueNode), overdueNode);
-        HeightNodePair upcomingCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(upcomingNode), upcomingNode);
-        HeightNodePair futureCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(futureNode), futureNode);
-        HeightNodePair dreamsCategoryHeightNodePair = new HeightNodePair(getHeightOfCategoryNode(dreamsNode), dreamsNode);
-        HeightNodePair[] allCategoryHeightNodePair = { overdueCategoryHeightNodePair, upcomingCategoryHeightNodePair,
-                futureCategoryHeightNodePair, dreamsCategoryHeightNodePair };
+        DoubleNodePair overdueCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(overdueNode), overdueNode);
+        DoubleNodePair upcomingCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(upcomingNode), upcomingNode);
+        DoubleNodePair futureCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(futureNode), futureNode);
+        DoubleNodePair dreamsCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(dreamsNode), dreamsNode);
+        DoubleNodePair[] allCategoryHeightNodePair = { overdueCategoryHeightNodePair, upcomingCategoryHeightNodePair,
+                                                       futureCategoryHeightNodePair, dreamsCategoryHeightNodePair };
 
         Arrays.sort(allCategoryHeightNodePair);
 
-        for (HeightNodePair currHeightNodePair : allCategoryHeightNodePair) {
+        for (DoubleNodePair currHeightNodePair : allCategoryHeightNodePair) {
             double currCategoryHeight = currHeightNodePair.getHeight();
             Node currCategoryNode = currHeightNodePair.getNode();
+
             if (currCategoryHeight == 0) {
                 continue;
             }
-            if (currCategoryNode == overdueNode) {
+
+            if        (currCategoryNode == overdueNode) {
                 double maxOverdueCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_OVERDUE) + rollOverHeight;
-                rollOverHeight = 0;
-                if (currCategoryHeight > maxOverdueCategoryHeight) {
-                    rollOverHeight += resizeTaskListOfOtherCategoriesToFit(overdueNode, maxOverdueCategoryHeight);
-                } else {
-                    rollOverHeight += maxOverdueCategoryHeight - currCategoryHeight;
-                }
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxOverdueCategoryHeight, overdueNode);
+
             } else if (currCategoryNode == upcomingNode) {
                 double maxUpcomingCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_UPCOMING) + rollOverHeight;
-                rollOverHeight = 0;
-                if (currCategoryHeight > maxUpcomingCategoryHeight) {
-                    rollOverHeight += resizeTaskListOfUpcomingCategoryToFit(upcomingNode, maxUpcomingCategoryHeight);
-                } else {
-                    rollOverHeight += maxUpcomingCategoryHeight - currCategoryHeight;
-                }
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxUpcomingCategoryHeight, upcomingNode);
+
             } else if (currCategoryNode == futureNode) {
                 double maxFutureCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_FUTURE) + rollOverHeight;
-                rollOverHeight = 0;
-                if (currCategoryHeight > maxFutureCategoryHeight) {
-                    rollOverHeight += resizeTaskListOfOtherCategoriesToFit(futureNode, maxFutureCategoryHeight);
-                } else {
-                    rollOverHeight += maxFutureCategoryHeight - currCategoryHeight;
-                }
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxFutureCategoryHeight, futureNode);
+
             } else if (currCategoryNode == dreamsNode) {
                 double maxDreamsCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_DREAMS) + rollOverHeight;
-                rollOverHeight = 0;
-                if (currCategoryHeight > maxDreamsCategoryHeight) {
-                    rollOverHeight += resizeTaskListOfOtherCategoriesToFit(dreamsNode, maxDreamsCategoryHeight);
-                } else {
-                    rollOverHeight += maxDreamsCategoryHeight - currCategoryHeight;
-                }
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxDreamsCategoryHeight, dreamsNode);
+
             } else {
                 continue;
             }
         }
     }
 
+    private double getLeftoverHeightAfterResize(double rollOverHeight, double currCategoryHeight,
+                                                double maxCategoryHeight, Node currCategoryNode) {
+
+        rollOverHeight = 0;
+        if        ((currCategoryHeight > maxCategoryHeight) && (currCategoryNode != upcomingNode)) {
+            rollOverHeight += resizeTaskListOfOtherCategoriesToFit(currCategoryNode, maxCategoryHeight);
+
+        } else if ((currCategoryHeight > maxCategoryHeight) && (currCategoryNode == upcomingNode)) {
+            rollOverHeight += resizeTaskListOfUpcomingCategoryToFit(currCategoryNode, maxCategoryHeight);
+
+        }else {
+            rollOverHeight += maxCategoryHeight - currCategoryHeight;
+        }
+
+        return rollOverHeight;
+    }
+
     private double resizeTaskListOfUpcomingCategoryToFit(Node upcomingNode, double heightToFit) {
-        if (ellipsisBoxHeight == -1) {
+        if (ellipsisBoxHeight_ == -1) {
             updateEllipsisBoxHeight(upcomingNode);
         }
-        assert(ellipsisBoxHeight != -1);
+        assert(ellipsisBoxHeight_ != -1);
 
         int numTasksRemoved = 0;
         int totalSubcategoryCount = upcomingSubcategories.size() - 1;
@@ -192,16 +209,19 @@ public class SummaryScreen extends MultiCategoryScreen {
             if (currSubcategory.getChildren().isEmpty()) {
                 continue;
             }
-            while (!currSubcategory.getChildren().isEmpty()
-                    && (getHeightOfCategoryNode(upcomingNode) > (heightToFit - ellipsisBoxHeight))) {
+
+            while (!currSubcategory.getChildren().isEmpty() &&
+                   (getHeightOfCategoryNode(upcomingNode) > (heightToFit - ellipsisBoxHeight_))) {
                 currSubcategory.getChildren().remove(currSubcategory.getChildren().size() - 1);
                 numTasksRemoved++;
                 mainVBox.getParent().layout();
             }
+
             if (currSubcategory.getChildren().isEmpty()) {
                 upcomingTaskList.getChildren().remove(upcomingTaskList.getChildren().size() - 1);
             }
-            if (getHeightOfCategoryNode(upcomingNode) < (heightToFit - ellipsisBoxHeight)) {
+
+            if (getHeightOfCategoryNode(upcomingNode) < (heightToFit - ellipsisBoxHeight_)) {
                 break;
             }
         }
@@ -210,6 +230,7 @@ public class SummaryScreen extends MultiCategoryScreen {
             upcomingTaskList.getChildren().add(buildEllipsis(numTasksRemoved));
             upcomingTaskList.applyCss();
             upcomingTaskList.layout();
+
             mainVBox.getParent().layout();
         }
         return (heightToFit - getHeightOfCategoryNode(upcomingNode));
@@ -217,13 +238,13 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private double resizeTaskListOfOtherCategoriesToFit(Node categoryNode, double heightToFit) {
         int numTasksRemoved = 0;
-        if (ellipsisBoxHeight == -1) {
+        if (ellipsisBoxHeight_ == -1) {
             updateEllipsisBoxHeight(categoryNode);
         }
-        assert(ellipsisBoxHeight != -1);
+        assert(ellipsisBoxHeight_ != -1);
 
         VBox currCategoryTaskList = getCategoryTaskList(categoryNode);
-        while (getHeightOfCategoryNode(categoryNode) > (heightToFit - ellipsisBoxHeight)) {
+        while (getHeightOfCategoryNode(categoryNode) > (heightToFit - ellipsisBoxHeight_)) {
             currCategoryTaskList.getChildren().remove(currCategoryTaskList.getChildren().size() - 1);
             numTasksRemoved++;
             mainVBox.getParent().layout();
@@ -233,6 +254,7 @@ public class SummaryScreen extends MultiCategoryScreen {
             currCategoryTaskList.getChildren().add(buildEllipsis(numTasksRemoved));
             currCategoryTaskList.applyCss();
             currCategoryTaskList.layout();
+
             mainVBox.getParent().layout();
         }
         return (heightToFit - getHeightOfCategoryNode(categoryNode));
@@ -242,9 +264,8 @@ public class SummaryScreen extends MultiCategoryScreen {
      * Used to check the height of the ellipsis added which may differ from user
      * to user depending on hardware specifications.
      *
-     * @param categoryNode
-     *            any Node of a category that is not empty in order to calculate
-     *            the height difference when an ellipsis is added.
+     * @param categoryNode    any Node of a category that is not empty in order to calculate
+     *                        the height difference when an ellipsis is added.
      */
     private void updateEllipsisBoxHeight(Node categoryNode) {
         double currHeight = getHeightOfCategoryNode(categoryNode);
@@ -253,12 +274,13 @@ public class SummaryScreen extends MultiCategoryScreen {
         currCategoryTaskList.getChildren().add(buildEllipsis(TEST_ELLIPSIS_COUNT));
         currCategoryTaskList.applyCss();
         currCategoryTaskList.layout();
+
         mainVBox.getParent().layout();
 
         currCategoryTaskList.getChildren().remove(currCategoryTaskList.getChildren().size() - 1);
 
         double newHeight = getHeightOfCategoryNode(categoryNode);
-        ellipsisBoxHeight = newHeight - currHeight;
+        ellipsisBoxHeight_ = newHeight - currHeight;
     }
 
     private VBox getCategoryTaskList(Node categoryNode) {
@@ -267,28 +289,35 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private int calculateNumberOfPartitionsToSplit() {
         int numPartitions = 0;
+
         if (getHeightOfCategoryNode(overdueNode) != 0) {
             numPartitions += PARTITION_COUNT_OVERDUE;
         }
+
         if (getHeightOfCategoryNode(upcomingNode) != 0) {
             numPartitions += PARTITION_COUNT_UPCOMING;
         }
+
         if (getHeightOfCategoryNode(futureNode) != 0) {
             numPartitions += PARTITION_COUNT_FUTURE;
         }
+
         if (getHeightOfCategoryNode(dreamsNode) != 0) {
             numPartitions += PARTITION_COUNT_DREAMS;
         }
+
         return numPartitions;
     }
 
     private int calculateNumberOfCategoriesPresent() {
         int numCategories = 0;
+
         for (Node node : nodeList) {
             if (((VBox) node).getHeight() != 0) {
                 numCategories++;
             }
         }
+
         return numCategories;
     }
 
@@ -304,14 +333,18 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private HBox buildEllipsis(int numTaskLeft) {
         String message = ELLIPSIS_STRING + numTaskLeft;
+
         if (numTaskLeft > 1) {
             message += ELLIPSIS_MESSAGE_TASKS_HIDDEN;
         } else {
             message += ELLIPSIS_MESSAGE_TASK_HIDDEN;
         }
+
         Label ellipsisMessage = new Label(message);
+
         HBox ellipsisBox = new HBox(ellipsisMessage);
         ellipsisBox.setAlignment(Pos.CENTER);
+
         return ellipsisBox;
     }
 

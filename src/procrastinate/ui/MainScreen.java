@@ -10,7 +10,7 @@ import procrastinate.task.Task;
 public class MainScreen extends MultiCategoryScreen {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('/procrastinate/ui/images/no-tasks.png')";
@@ -24,12 +24,13 @@ public class MainScreen extends MultiCategoryScreen {
     }
 
     // ================================================================================
-    // MainScreen methods
+    // MainScreen Methods
     // ================================================================================
 
     @Override
     protected void updateTaskList(List<Task> taskList) {
         FadeTransition fadeOutDeletedTaskEntry = fadeOutDeletedTaskEntry(taskList);
+
         fadeOutDeletedTaskEntry.setOnFinished(finish -> {
             getUpdatedDates();
             clearTaskList();
@@ -39,9 +40,11 @@ public class MainScreen extends MultiCategoryScreen {
 
                 addTaskByType(task);
             }
+
             updateDisplay();
             highlightAddedOrEditedTaskEntry(taskList);
         });
+
         fadeOutDeletedTaskEntry.play();
     }
 

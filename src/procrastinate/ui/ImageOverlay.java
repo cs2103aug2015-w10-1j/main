@@ -12,41 +12,60 @@ import java.io.IOException;
 public abstract class ImageOverlay {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String LOCATION_HELP_OVERLAY_LAYOUT = "views/ImageOverlay.fxml";
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
     protected Node node;
 
     // ================================================================================
-    // FXML field variables
+    // FXML Field Variables
     // ================================================================================
 
-    @FXML protected ImageView imageView;
-    @FXML protected VBox container;
+    @FXML
+    protected ImageView imageView;
+    @FXML
+    protected VBox container;
 
     // ================================================================================
-    // Overlay Constructor
+    // ImageOverlay Constructor
     // ================================================================================
 
     protected ImageOverlay() {
+        loadLayout();
+    }
+
+    // ================================================================================
+    // ImageOverlay Methods
+    // ================================================================================
+
+    protected abstract void setImage();
+
+    // ================================================================================
+    // Init Methods
+    // ================================================================================
+
+    private void loadLayout() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_HELP_OVERLAY_LAYOUT));
-        loader.setController(this); // Required due to different package declaration from Main
+        loader.setController(this); // Required due to different package
+                                    // declaration from Main
         try {
-            node = loader.load();
+            this.node = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected abstract void setImage();
+    // ================================================================================
+    // Getter Methods
+    // ================================================================================
 
-    //@@author A0121597B generated
+    // @@author A0121597B generated
     protected Node getNode() {
         return this.node;
     }
