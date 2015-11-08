@@ -63,8 +63,9 @@ public class CenterPaneController {
 
     private static double xOffset_, yOffset_;
 
-    protected CenterScreen currentScreen;
-    protected ImageOverlay currentOverlay;
+    private CenterScreen currentScreen_;
+
+    private ImageOverlay currentOverlay_;
 
     private Timeline splashScreenTimeline_;
 
@@ -115,7 +116,7 @@ public class CenterPaneController {
 
         switch (screenView) {
             case SCREEN_DONE : {
-                if (currentScreen != doneScreen_) {
+                if (currentScreen_ != doneScreen_) {
                     startScreenSwitchSequence(doneScreenNode_, doneScreen_);
                 }
 
@@ -124,7 +125,7 @@ public class CenterPaneController {
             }
 
             case SCREEN_MAIN : {
-                if (currentScreen != mainScreen_) {
+                if (currentScreen_ != mainScreen_) {
                     startScreenSwitchSequence(mainScreenNode_, mainScreen_);
                 }
 
@@ -133,7 +134,7 @@ public class CenterPaneController {
             }
 
             case SCREEN_SEARCH : {
-                if (currentScreen != searchScreen_) {
+                if (currentScreen_ != searchScreen_) {
                     startScreenSwitchSequence(searchScreenNode_, searchScreen_);
                 }
 
@@ -142,7 +143,7 @@ public class CenterPaneController {
             }
 
             case SCREEN_SUMMARY : {
-                if (currentScreen != summaryScreen_) {
+                if (currentScreen_ != summaryScreen_) {
                     // Special exception for summary screen, which requires the
                     // entire screen to be loaded before summarising can start.
                     switchToSummaryScreen();
@@ -172,9 +173,9 @@ public class CenterPaneController {
      *                     or SCREEN_SUMMARY for any updates to take place.
      */
     private void updateSummaryAndMainScreens(List<Task> taskList, ScreenView screenView) {
-        if (currentScreen == mainScreen_ && screenView == ScreenView.SCREEN_MAIN) {
+        if (currentScreen_ == mainScreen_ && screenView == ScreenView.SCREEN_MAIN) {
             summaryScreen_.updateTaskList(taskList);
-        } else if (currentScreen == summaryScreen_ && screenView == ScreenView.SCREEN_SUMMARY) {
+        } else if (currentScreen_ == summaryScreen_ && screenView == ScreenView.SCREEN_SUMMARY) {
             mainScreen_.updateTaskList(taskList);
         }
     }
@@ -192,7 +193,7 @@ public class CenterPaneController {
     // Methods below for scrolling current screen with key input. Scroll bar
     // value is incremented/decremented twice to enable the user scroll faster
     protected void scrollDownCurrentScreen() {
-        ScrollPane currScrollPane = ((ScrollPane) (currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
+        ScrollPane currScrollPane = ((ScrollPane) (currentScreen_.getNode().lookup(SELECTOR_SCROLL_PANE)));
 
         ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
         currScrollBar.increment();
@@ -200,7 +201,7 @@ public class CenterPaneController {
     }
 
     protected void scrollUpCurrentScreen() {
-        ScrollPane currScrollPane = ((ScrollPane) (currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
+        ScrollPane currScrollPane = ((ScrollPane) (currentScreen_.getNode().lookup(SELECTOR_SCROLL_PANE)));
 
         ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
         currScrollBar.decrement();
@@ -214,7 +215,7 @@ public class CenterPaneController {
     // A handle to help switch between pages of the HelpOverlay if it is
     // currently being shown.
     protected void showNextHelpPage() {
-        if (currentOverlay != helpOverlay_) {
+        if (currentOverlay_ != helpOverlay_) {
             return;
         }
         helpOverlay_.nextPage();
@@ -227,14 +228,14 @@ public class CenterPaneController {
      * overlay out.
      */
     protected void hideHelpOverlay() {
-        if (currentOverlay != helpOverlay_ || !centerStackPane_.getChildren().contains(helpOverlayNode_)) {
+        if (currentOverlay_ != helpOverlay_ || !centerStackPane_.getChildren().contains(helpOverlayNode_)) {
             return;
         }
 
         FadeTransition helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode_);
         helpOverlayFadeOut.setOnFinished(e -> {
             centerStackPane_.getChildren().remove(helpOverlayNode_);
-            currentOverlay = null;
+            currentOverlay_ = null;
         });
         helpOverlayFadeOut.play();
     }
@@ -245,7 +246,7 @@ public class CenterPaneController {
      * playing.
      */
     protected void hideSplashOverlay() {
-        if (currentOverlay == splashOverlay_ && centerStackPane_.getChildren().contains(splashOverlayNode_)) {
+        if (currentOverlay_ == splashOverlay_ && centerStackPane_.getChildren().contains(splashOverlayNode_)) {
             Duration interruptTime = Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT);
             // Only fast forward the timeline if the current time of the
             // animation is smaller than the given interrupt time. Else, just
@@ -263,11 +264,11 @@ public class CenterPaneController {
      * creates a new FadeTransition to be used for fading the overlay in.
      */
     protected void showHelpOverlay() {
-        if (currentOverlay == helpOverlay_ || centerStackPane_.getChildren().contains(helpOverlay_)) {
+        if (currentOverlay_ == helpOverlay_ || centerStackPane_.getChildren().contains(helpOverlay_)) {
             return;
         }
 
-        currentOverlay = helpOverlay_;
+        currentOverlay_ = helpOverlay_;
         centerStackPane_.getChildren().add(helpOverlayNode_);
         helpOverlayNode_.toFront();
 
@@ -281,7 +282,7 @@ public class CenterPaneController {
      * buildSplashScreenAnimation method.
      */
     protected void showSplashOverlay() {
-        currentOverlay = splashOverlay_;
+        currentOverlay_ = splashOverlay_;
         centerStackPane_.getChildren().add(splashOverlayNode_);
 
         buildSplashScreenAnimation();
@@ -310,7 +311,7 @@ public class CenterPaneController {
         splashScreenTimeline_ = new Timeline(fullOpacityFrame, zeroOpacityFrame);
         splashScreenTimeline_.setOnFinished(e -> {
                                               centerStackPane_.getChildren().remove(splashOverlayNode_);
-                                              currentOverlay = null;
+                                              currentOverlay_ = null;
                                               if (!summaryScreen_.isSummarising()) {
                                                   startScreenSwitchSequenceNoAnimation(mainScreenNode_, mainScreen_);
                                               }
@@ -347,11 +348,11 @@ public class CenterPaneController {
      */
     private void startScreenSwitchSequence(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
         ParallelTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
-        incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
+        incomingScreenTransition.setOnFinished(incoming -> currentScreen_ = screenToSwitchIn);
 
-        SequentialTransition outgoingScreenTransition = currentScreen.getScreenSwitchOutSequence();
+        SequentialTransition outgoingScreenTransition = currentScreen_.getScreenSwitchOutSequence();
         outgoingScreenTransition.setOnFinished(outgoing -> {
-            centerStackPane_.getChildren().remove(currentScreen.getNode());
+            centerStackPane_.getChildren().remove(currentScreen_.getNode());
             centerStackPane_.getChildren().add(nodeToSwitchIn);
             incomingScreenTransition.play();
         });
@@ -360,9 +361,9 @@ public class CenterPaneController {
 
     private void startScreenSwitchSequenceNoAnimation(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
         ParallelTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
-        incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
+        incomingScreenTransition.setOnFinished(incoming -> currentScreen_ = screenToSwitchIn);
 
-        centerStackPane_.getChildren().remove(currentScreen.getNode());
+        centerStackPane_.getChildren().remove(currentScreen_.getNode());
         centerStackPane_.getChildren().add(nodeToSwitchIn);
 
         incomingScreenTransition.jumpTo(TRANSITION_CUE_POINT_END);
@@ -375,11 +376,11 @@ public class CenterPaneController {
     // played together.
     private void switchToSummaryScreen() {
         centerStackPane_.getChildren().add(summaryScreenNode_);
-        centerStackPane_.getChildren().remove(currentScreen.getNode());
+        centerStackPane_.getChildren().remove(currentScreen_.getNode());
 
         summaryScreen_.getScreenSwitchInSequence().play();
 
-        currentScreen = summaryScreen_;
+        currentScreen_ = summaryScreen_;
     }
 
     // ================================================================================
@@ -434,7 +435,7 @@ public class CenterPaneController {
 
     private void setToSummaryScreen() {
         centerStackPane_.getChildren().add(summaryScreenNode_);
-        currentScreen = summaryScreen_;
+        currentScreen_ = summaryScreen_;
     }
 
     // @@author A0121597B-reused
@@ -458,11 +459,36 @@ public class CenterPaneController {
     // ================================================================================
 
     // @@author A0121597B generated
-    protected Node getMainScreen() {
+    protected Node getDoneScreenNode() {
+        return doneScreenNode_;
+    }
+
+    protected Node getMainScreenNode() {
         return mainScreenNode_;
     }
 
-    protected Node getHelpOverlay() {
+    protected Node getSearchScreenNode() {
+        return searchScreenNode_;
+    }
+
+    protected Node getSummaryScreenNode() {
+        return summaryScreenNode_;
+    }
+
+    protected Node getHelpOverlayNode() {
         return helpOverlayNode_;
     }
+
+    protected Node getSplashOverlayNode() {
+        return splashOverlayNode_;
+    }
+
+    protected CenterScreen getCurrentScreen() {
+        return currentScreen_;
+    }
+
+    protected ImageOverlay getCurrentOverlay() {
+        return currentOverlay_;
+    }
+
 }
