@@ -81,11 +81,11 @@ public class SummaryScreen extends MultiCategoryScreen {
         for (Task task : taskList) {
             taskCount.set(taskCount.get() + 1);
 
-            addTaskByType(shortenTaskDescription(task));
+            addTaskByType(task);
         }
 
         updateDisplay();
-        setupSummaryView();
+        setupSummaryView(taskList);
     }
 
     //@@author A0080485B
@@ -108,7 +108,7 @@ public class SummaryScreen extends MultiCategoryScreen {
      * present and the ellipses shows the number of tasks hidden in each
      * category.
      */
-    private void setupSummaryView() {
+    private void setupSummaryView(List<Task> taskList) {
         double currMainVBoxHeight = getCurrentMainVBoxHeight();
         double maxMainVBoxHeight = ((ScrollPane) getNode().lookup(SELECTOR_SCROLLPANE)).getHeight();
 
@@ -118,6 +118,19 @@ public class SummaryScreen extends MultiCategoryScreen {
         }
 
         isSummarising_ = true;
+
+        // shortenTaskDescription is the first step
+        clearTaskList();
+        for (Task task : taskList) {
+            taskCount.set(taskCount.get() + 1);
+            addTaskByType(shortenTaskDescription(task));
+        }
+        updateDisplay();
+
+        if (getCurrentMainVBoxHeight() < maxMainVBoxHeight) {
+            return;
+        }
+
         resizeScreenToFit(maxMainVBoxHeight);
     }
 
