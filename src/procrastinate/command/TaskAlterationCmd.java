@@ -3,9 +3,9 @@ package procrastinate.command;
 
 import java.util.Date;
 
-public abstract class Alter extends CleanCommand implements AlterTask {
+public abstract class TaskAlterationCmd extends CleanCommand implements TaskAlterationFeedback {
 
-    public Alter(CommandType type) {
+    public TaskAlterationCmd(CommandType type) {
         super(type);
     }
 

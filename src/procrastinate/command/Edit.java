@@ -4,7 +4,7 @@ package procrastinate.command;
 import procrastinate.task.Task;
 import procrastinate.task.TaskEngine;
 
-public abstract class Edit extends Alter implements AlterTask {
+public abstract class Edit extends TaskAlterationCmd implements TaskAlterationFeedback {
     protected int lineNum;
     protected Task oldTask;
     protected Task newTask;

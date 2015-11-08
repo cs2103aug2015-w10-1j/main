@@ -3,7 +3,7 @@ package procrastinate.command;
 
 import procrastinate.task.Task;
 
-public abstract class Add extends Alter implements AlterTask {
+public abstract class Add extends TaskAlterationCmd implements TaskAlterationFeedback {
     protected Task task;
     protected String description;
 

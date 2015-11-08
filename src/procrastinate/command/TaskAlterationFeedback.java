@@ -5,7 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public interface AlterTask extends Feedback {
+public interface TaskAlterationFeedback extends Feedback {
     public static final String ADD_DREAM = "New dream: %1$s";
     public static final String ADD_DEADLINE = "New deadline: %1$s due %2$s";
     public static final String ADD_EVENT = "New event: %1$s %2$s to %3$s";
@@ -15,6 +15,7 @@ public interface AlterTask extends Feedback {
     public static final String EDIT_DREAM = "Edited #%1$s: %2$s";
     public static final String EDIT_DEADLINE = "Edited #%1$s: %2$s due %3$s";
     public static final String EDIT_EVENT = "Edited #%1$s: %2$s %3$s to %4$s";
+    public static final String EDIT_PARTIAL = "Please specify the new description/date(s) or press tab";
     public static final String INVALID_LINE_NUMBER = "Invalid line number: %1$d";
 
     public static final String ERROR_SAVE_HEADER = "Could not save changes to file!";
