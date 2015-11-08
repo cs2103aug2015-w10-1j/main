@@ -107,7 +107,7 @@ public class UI {
 
     public void setExecuteStatus(String status) {
         Platform.runLater(() -> {
-            getStatusLabel().setStyle("-fx-text-fill: default");
+            getStatusLabel().setStyle("-fx-text-fill: black");
             statusLabelText_.set(status);
         });
     }
