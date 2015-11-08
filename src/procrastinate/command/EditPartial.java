@@ -14,7 +14,7 @@ public class EditPartial extends CrudCmd implements FeedbackCrud {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
-        assert ui == null && taskEngine == null;
+        assert ui == null;
 
         String feedback = null;
 
