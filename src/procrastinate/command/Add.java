@@ -5,7 +5,7 @@ import java.util.Date;
 
 import procrastinate.task.Task;
 
-public abstract class Add extends CleanCommand implements FeedbackAdd {
+public abstract class Add extends CleanCommand implements AlterTask {
     protected Task task;
     protected String description;
 
