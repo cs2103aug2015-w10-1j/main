@@ -16,6 +16,7 @@ import procrastinate.command.EditPartial;
 import procrastinate.command.Exit;
 import procrastinate.command.Help;
 import procrastinate.command.Invalid;
+import procrastinate.command.SearchDesc;
 import procrastinate.command.SearchDue;
 import procrastinate.command.SearchOn;
 import procrastinate.command.SearchRange;
@@ -407,23 +408,32 @@ public class Parser {
         return new Done(lineNumber);
     }
 
-    private static CleanCommand constructSearchCommand(String userCommand, CommandStringType commandInputType,
-            List<Date> dateArray) {
+    private static CleanCommand constructSearchCommand(String userCommand,
+                                                       CommandStringType commandInputType,
+                                                       List<Date> dateArray) {
+
         CleanCommand command = null;
         String[] argument = userCommand.split(WHITESPACE_STRING, 2);
         String searchDescription = removeEscapeCharacters(argument[1]);
 
         if (commandInputType.equals(CommandStringType.ON_DATE)) {
+
             command = new SearchOn(searchDescription, getStartDate(dateArray));
+
         } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+
             command = new SearchDue(searchDescription, getStartDate(dateArray));
+
         } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
-            command = new SearchRange(searchDescription,
-                                      getStartDate(dateArray),
-                                      getEndDate(dateArray));
+
+            command = new SearchRange(searchDescription, getStartDate(dateArray), getEndDate(dateArray));
+
+        } else {
+
+            command = new SearchDesc(searchDescription);
+
         }
 
-        assert command != null;
         return command;
     }
 

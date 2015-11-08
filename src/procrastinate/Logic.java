@@ -156,56 +156,59 @@ public class Logic {
 
         switch (command.getType()) {
 
-            case ADD_DREAM:
-            case ADD_DEADLINE:
-            case ADD_EVENT:
+            case ADD_DREAM :
+            case ADD_DEADLINE :
+            case ADD_EVENT :
                 feedback = command.run(ui, taskEngine);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
-            case EDIT:
-            case EDIT_TO_DREAM:
+            case EDIT :
+            case EDIT_TO_DREAM :
                 feedback = command.run(ui, taskEngine);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
-            case EDIT_PARTIAL:
-                feedback = command.run(ui, taskEngine);
+            case EDIT_PARTIAL :
+                feedback = command.run(null, taskEngine);
                 break;
 
-            case DELETE:
-                feedback = command.run(ui, taskEngine);
-                if (!command.isPreview()) {
-                    updateView();
-                }
-                break;
-
-            case DONE:
+            case DELETE :
                 feedback = command.run(ui, taskEngine);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
-            case UNDO:
+            case DONE :
                 feedback = command.run(ui, taskEngine);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
+            case UNDO :
+                feedback = command.run(ui, taskEngine);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
+
+            case SEARCH :
             case SEARCH_ON :
+            case SEARCH_DUE :
+            case SEARCH_RANGE :
                 feedback = command.run(null, null);
                 if (!command.isPreview()) {
-//                    searchString = command.getsearch();
-//                    searchTerm = term;
-//                    searchEndDate = end;
-//                    searchStartDate = start;
-//                    searchShowDone = showDone;
+                    searchString = command.getSearchStr();
+                    searchTerm = command.getSearchTerm();
+                    searchStartDate = command.getSearchStartDate();
+                    searchEndDate = command.getSearchEndDate();
+                    searchShowDone = command.getSearchShowDone();
 
                     updateView(ViewType.SHOW_SEARCH_RESULTS);
                 }
@@ -244,7 +247,7 @@ public class Logic {
                 break;
 
             case HELP :
-                feedback = command.run(null, null);
+                feedback = command.run(ui, null);
                 break;
 
             case INVALID :
