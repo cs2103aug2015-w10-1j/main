@@ -4,26 +4,32 @@ package procrastinate.task;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 public class TaskState {
 
-    private List<Task> tasks;
+    protected static final String FIELD_TASKS = "tasks";
+
+    @SerializedName(FIELD_TASKS)
+    private List<Task> tasks_;
 
     public TaskState() {
-        this.tasks = new ArrayList<Task>();
+        this.tasks_ = new ArrayList<Task>();
     }
 
     public TaskState(List<Task> tasks) {
-        this.tasks = tasks;
+        this.tasks_ = tasks;
     }
 
-    public static TaskState copy(TaskState state) {
-        return new TaskState(new ArrayList<Task>(state.tasks));
+    public static TaskState copy(TaskState other) {
+        return new TaskState(new ArrayList<Task>(other.tasks_));
     }
 
     public List<Task> getTasks() {
-        return tasks;
+        return tasks_;
     }
 
+    //@@author A0124321Y
     /**
      * Checks if every task in the list is equal.
      * Equality is defined in Task class
@@ -41,12 +47,12 @@ public class TaskState {
     	}
 
     	TaskState ts = (TaskState)o;
-    	List<Task> t = ts.tasks;
+    	List<Task> t = ts.tasks_;
 
-    	if (this.tasks.size() != ts.tasks.size()) {
+    	if (this.tasks_.size() != ts.tasks_.size()) {
     		return false;
     	}
 
-    	return tasks.equals(t);
+    	return tasks_.equals(t);
     }
 }

@@ -79,8 +79,8 @@ public class LogicTest {
         List<Task> expected = new ArrayList<Task>();
         expected.add(new Dream("c"));
         expected.add(new Dream("d"));
-        expected.get(0).setDone();
-        expected.get(1).setDone();
+        expected.get(0).setDone(true);
+        expected.get(1).setDone(true);
         assertEquals(expected, getTaskList());
 
         execute("show");
@@ -97,8 +97,8 @@ public class LogicTest {
         expected.add(new Dream("e"));
         expected.add(new Dream("c"));
         expected.add(new Dream("d"));
-        expected.get(3).setDone(); // done c
-        expected.get(4).setDone(); // done d
+        expected.get(3).setDone(true); // done c
+        expected.get(4).setDone(true); // done d
         assertEquals(expected, getTaskList());
     }
 

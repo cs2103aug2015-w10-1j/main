@@ -1,17 +1,6 @@
 //@@author A0080485B
 package procrastinate;
 
-import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
-import org.apache.commons.lang.time.DateUtils;
-
-import procrastinate.Command.CommandType;
-import procrastinate.task.*;
-import procrastinate.ui.UI;
-import procrastinate.ui.UI.ScreenView;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -21,6 +10,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.lang.time.DateUtils;
+
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
+import procrastinate.Command.CommandType;
+import procrastinate.task.Deadline;
+import procrastinate.task.Dream;
+import procrastinate.task.Event;
+import procrastinate.task.Task;
+import procrastinate.task.TaskEngine;
+import procrastinate.ui.UI;
+import procrastinate.ui.UI.ScreenView;
 
 public class Logic {
 
@@ -153,53 +157,53 @@ public class Logic {
 
         switch (command.getType()) {
 
-            case ADD_DREAM:
-            case ADD_DEADLINE:
-            case ADD_EVENT:
+            case ADD_DREAM :
+            case ADD_DEADLINE :
+            case ADD_EVENT :
                 return runAdd(command, execute);
 
-            case EDIT:
-            case EDIT_TO_DREAM:
+            case EDIT :
+            case EDIT_TO_DREAM :
                 return runEdit(command, execute);
 
-            case EDIT_PARTIAL:
+            case EDIT_PARTIAL :
                 return runEditPartial(command);
 
-            case DELETE:
+            case DELETE :
                 return runDelete(command, execute);
 
-            case DONE:
+            case DONE :
                 return runDone(command, execute);
 
-            case UNDO:
+            case UNDO :
                 return runUndo(execute);
 
-            case SEARCH:
-            case SEARCH_ON:
+            case SEARCH :
+            case SEARCH_ON :
                 return runSearch(command, execute);
 
-            case SET_PATH:
+            case SET_PATH :
                 return runSetPath(command, execute);
 
-            case SHOW_OUTSTANDING:
+            case SHOW_OUTSTANDING :
                 return runShowOutstanding(execute);
 
-            case SHOW_DONE:
+            case SHOW_DONE :
                 return runShowDone(execute);
 
-            case SHOW_ALL:
+            case SHOW_ALL :
                 return runShowAll(execute);
 
-            case SHOW_SUMMARY:
+            case SHOW_SUMMARY :
                 return runShowSummary(execute);
 
-            case HELP:
+            case HELP :
                 return runHelp(execute);
 
-            case INVALID:
+            case INVALID :
                 return runInvalid(command);
 
-            case EXIT:
+            case EXIT :
                 return runExit(execute);
 
             default:
@@ -223,18 +227,18 @@ public class Logic {
         Date endDate = null;
 
         switch(command.getType()) {
-            case ADD_DREAM:
+            case ADD_DREAM :
                 newTask = new Dream(description);
                 break;
 
-            case ADD_DEADLINE:
+            case ADD_DEADLINE :
                 date = command.getDate();
                 assert(date != null);
 
                 newTask = new Deadline(description, date);
                 break;
 
-            case ADD_EVENT:
+            case ADD_EVENT :
                 startDate = command.getStartDate();
                 endDate = command.getEndDate();
                 assert(startDate != null && endDate != null);
@@ -260,14 +264,14 @@ public class Logic {
         }
 
         switch(command.getType()) {
-            case ADD_DREAM:
+            case ADD_DREAM :
                 return FEEDBACK_ADD_DREAM + description;
 
-            case ADD_DEADLINE:
+            case ADD_DEADLINE :
                 return String.format(FEEDBACK_ADD_DEADLINE, shorten(description, MAX_LENGTH_DESCRIPTION),
                         formatDateTime(date));
 
-            case ADD_EVENT:
+            case ADD_EVENT :
                 return String.format(FEEDBACK_ADD_EVENT, shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
                         formatDateTime(startDate), formatDateTime(endDate));
 
@@ -330,15 +334,15 @@ public class Logic {
         String description = newTask.getDescription();
 
         switch (newTask.getType()) {
-            case DREAM:
+            case DREAM :
                 return String.format(FEEDBACK_EDIT_DREAM, lineNumber, description);
 
-            case DEADLINE:
+            case DEADLINE :
                 return String.format(FEEDBACK_EDIT_DEADLINE, lineNumber,
                         shorten(description, MAX_LENGTH_DESCRIPTION),
                         formatDateTime(((Deadline) newTask).getDate()));
 
-            case EVENT:
+            case EVENT :
                 return String.format(FEEDBACK_EDIT_EVENT, lineNumber,
                         shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
                         formatDateTime(((Event) newTask).getStartDate()),
@@ -401,12 +405,7 @@ public class Logic {
         }
 
         if (execute) {
-            boolean success;
-            if (!task.isDone()) {
-                success = taskEngine.done(task.getId());
-            } else {
-                success = taskEngine.undone(task.getId());
-            }
+            boolean success = taskEngine.done(task.getId());
             updateView();
             if (!success) {
                 ui.createErrorDialog(ERROR_SAVE_HEADER, ERROR_SAVE_MESSAGE);
@@ -640,23 +639,23 @@ public class Logic {
 
     private void updateUiTaskList() {
         switch (currentView) {
-            case SHOW_OUTSTANDING:
+            case SHOW_OUTSTANDING :
                 ui.updateTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
                 break;
 
-            case SHOW_DONE:
+            case SHOW_DONE :
                 ui.updateTaskList(taskEngine.getCompletedTasks(), ScreenView.SCREEN_DONE);
                 break;
 
-            case SHOW_ALL:
+            case SHOW_ALL :
                 ui.updateTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
                 break;
 
-            case SHOW_SUMMARY:
+            case SHOW_SUMMARY :
                 ui.updateTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_SUMMARY);
                 break;
 
-            case SHOW_SEARCH_RESULTS:
+            case SHOW_SEARCH_RESULTS :
                 ui.passSearchStringToSearchScreen(searchString);
                 ui.updateTaskList(taskEngine.search(searchTerm, searchStartDate, searchEndDate, searchShowDone),
                                   ScreenView.SCREEN_SEARCH);
@@ -679,7 +678,7 @@ public class Logic {
             switch (keyEvent.getCode()) {
 
                 // Main command execution flow
-                case ENTER: {
+                case ENTER : {
 
                     // Whitespace command
                     if (ui.getInput().trim().isEmpty()) {
@@ -707,7 +706,7 @@ public class Logic {
                 }
 
                 // Edit description autocompletion
-                case TAB: {
+                case TAB : {
                     if (!hasLastPreviewedCommand()) {
                         return;
                     }
@@ -728,17 +727,17 @@ public class Logic {
                 }
 
                 // Scrolling
-                case UP: {
+                case UP : {
                     ui.scrollUpScreen();
                     return;
                 }
-                case DOWN: {
+                case DOWN : {
                     ui.scrollDownScreen();
                     return;
                 }
 
                 // Show help
-                case F1: {
+                case F1 : {
                     ui.showHelpOverlay();
                     if (ui.getInput().isEmpty()) {
                         ui.setStatus(FEEDBACK_HELP);
@@ -748,8 +747,8 @@ public class Logic {
 
                 // Activate next help page using left/right keys
                 // (but only when the input box is empty)
-                case LEFT:
-                case RIGHT: {
+                case LEFT :
+                case RIGHT : {
                     if (ui.getInput().isEmpty()) {
                         ui.nextHelpPage();
                     }
@@ -757,7 +756,7 @@ public class Logic {
                 }
 
                 // Hide help
-                case ESCAPE: {
+                case ESCAPE : {
                     ui.hideHelpOverlay();
                     if (ui.getInput().trim().isEmpty()) {
                         ui.setStatus(STATUS_READY);

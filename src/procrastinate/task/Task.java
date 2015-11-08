@@ -1,9 +1,17 @@
+//@@author A0080485B
 package procrastinate.task;
 
 import java.util.Date;
 import java.util.UUID;
 
+import com.google.gson.annotations.SerializedName;
+
 public abstract class Task implements Comparable<Task> {
+
+    protected static final String FIELD_TYPE = "type";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_DESCRIPTION = "description";
+    protected static final String FIELD_DONE = "done";
 
     private static final String ERROR_UNKNOWN_TYPE = "Error: unknown task type";
 
@@ -11,40 +19,44 @@ public abstract class Task implements Comparable<Task> {
 		DEADLINE, EVENT, DREAM;
 	}
 
-	private final TaskType type; // Cannot change type; subclass object already created
-    private UUID id;
-	private String description;
-	private boolean done;
+	@SerializedName(FIELD_TYPE)
+	private final TaskType type_; // Cannot change type; subclass object already created
+    @SerializedName(FIELD_ID)
+    private UUID id_;
+    @SerializedName(FIELD_DESCRIPTION)
+	private String description_;
+    @SerializedName(FIELD_DONE)
+	private boolean isDone_;
 
 	//@@author A0124321Y
 	public Task(TaskType type, String description) {
 	    this(type, description, false, UUID.randomUUID());
 	}
-	//@@author A0124321Y
+	//@@author
 
-	protected Task(TaskType type, String description, boolean done, UUID id) {
-        this.type = type;
-        this.description = description;
-        this.done = done;
-        this.id = id;
+	protected Task(TaskType type, String description, boolean isDone, UUID id) {
+        this.type_ = type;
+        this.description_ = description;
+        this.isDone_ = isDone;
+        this.id_ = id;
     }
 
 	public static Task copy(Task task) {
 	    switch (task.getType()) {
-	        case DEADLINE: {
+	        case DEADLINE : {
 	            Deadline other = (Deadline) task;
                 return new Deadline(other.getDescription(), other.getDate(), other.isDone(), other.getId());
 	        }
-	        case EVENT: {
+	        case EVENT : {
 	            Event other = (Event) task;
                 return new Event(other.getDescription(), other.getStartDate(), other.getEndDate(),
                         other.isDone(), other.getId());
 	        }
-	        case DREAM: {
+	        case DREAM : {
 	            Dream other = (Dream) task;
 	            return new Dream(other.getDescription(), other.isDone(), other.getId());
 	        }
-	        default: {
+	        default : {
 	            throw new Error(ERROR_UNKNOWN_TYPE);
 	        }
 	    }
@@ -52,12 +64,12 @@ public abstract class Task implements Comparable<Task> {
 
     public static Task copyWithNewId(Task task) {
         Task newTask = copy(task);
-        newTask.id = UUID.randomUUID();
+        newTask.id_ = UUID.randomUUID();
         return newTask;
     }
 
 	public boolean contains(String term) { // case insensitive
-	    return description.toLowerCase().contains(term.toLowerCase());
+	    return description_.toLowerCase().contains(term.toLowerCase());
 	}
 
 	public abstract boolean isWithin(Date startDate, Date endDate);
@@ -67,23 +79,23 @@ public abstract class Task implements Comparable<Task> {
     // ================================================================================
 
 	public TaskType getType() {
-		return type;
+		return type_;
 	}
 
     public String getTypeString() {
-        return type.toString().toLowerCase();
+        return type_.toString().toLowerCase();
     }
 
 	public String getDescription() {
-		return description;
+		return description_;
 	}
 
 	public UUID getId() {
-	    return id;
+	    return id_;
 	}
 
 	public boolean isDone() {
-	    return done;
+	    return isDone_;
 	}
 
 	// ================================================================================
@@ -91,23 +103,19 @@ public abstract class Task implements Comparable<Task> {
     // ================================================================================
 
 	public void setDescription(String description) {
-		this.description = description;
+		description_ = description;
 	}
 
-	public void setDone() {
-	    done = true;
-	}
-
-	public void clearDone() {
-	    done = false;
+	public void setDone(boolean isDone) {
+	    isDone_ = isDone;
 	}
 
     @Override
     public int compareTo(Task other) {
-        if (this.isDone() == other.isDone()) {
+        if (isDone_ == other.isDone_) {
             return 0;
         } else {
-            if (this.isDone()) {
+            if (isDone_) {
                 return 1;
             } else {
                 return -1;
@@ -132,9 +140,9 @@ public abstract class Task implements Comparable<Task> {
 			return false;
 		}
 		Task t = (Task) o;
-		if (t.getType() == this.getType()
-				&& t.getDescription().equals(this.getDescription())
-				&& t.isDone() == this.isDone()) {
+		if (t.type_ == type_
+				&& t.description_.equals(description_)
+				&& t.isDone_ == isDone_) {
 			return true;
 		} else {
 			return false;
