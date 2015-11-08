@@ -5,6 +5,7 @@ import java.util.List;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Task;
@@ -14,7 +15,6 @@ public class UITestHelper {
 
     // Some test variables that are utilised multiple times in a test body
     public CenterPaneController centerPaneController;
-
     public TaskEntry dreamTask;
     public TaskEntry otherTask;
 
@@ -176,28 +176,42 @@ public class UITestHelper {
     }
 
     // ================================================================================
-    // HelpScreen methods
+    // ImageOverlay methods
     // ================================================================================
 
-    public ImageOverlay getNewHelpScreen() {
+    public ImageOverlay getNewHelpOverlay() {
         return new HelpOverlay();
+    }
+
+    public void switchHelpOverlayPage(HelpOverlay helpOverlay) {
+        helpOverlay.nextPage();
+    }
+
+    public ImageOverlay getNewSplashOverlay() {
+        return new SplashOverlay();
+    }
+
+    public ImageView getOverlayImageView(ImageOverlay imageOverlay) {
+        return imageOverlay.getImageView();
+    }
+
+    public VBox getOverlayContainer(ImageOverlay imageOverlay) {
+        return imageOverlay.getContainer();
     }
 
     // ================================================================================
     // CategoryBox methods
     // ================================================================================
 
-    public CategoryBox getNewCategoryBox() {
-        return new CategoryBox("Test");
+    public CategoryBox getNewCategoryBox(String headerText) {
+        return new CategoryBox(headerText);
     }
 
-    public VBox getNewCategoryBoxVBox() {
-        CategoryBox categoryBox = new CategoryBox("Test");
+    public VBox getCategoryBoxVBox(CategoryBox categoryBox) {
         return categoryBox.getTaskListVBox();
     }
 
-    public Label getNewCategoryBoxLabel(String label) {
-        CategoryBox categoryBox = new CategoryBox(label);
+    public Label getCategoryBoxLabel(CategoryBox categoryBox) {
         return categoryBox.getCategoryLabel();
     }
 

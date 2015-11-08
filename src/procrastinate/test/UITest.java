@@ -17,15 +17,19 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import procrastinate.task.Deadline;
 import procrastinate.task.Dream;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
+import procrastinate.ui.CategoryBox;
 import procrastinate.ui.CenterPaneController;
 import procrastinate.ui.DoneScreen;
+import procrastinate.ui.HelpOverlay;
 import procrastinate.ui.MainScreen;
 import procrastinate.ui.SearchScreen;
+import procrastinate.ui.SplashOverlay;
 import procrastinate.ui.SummaryScreen;
 import procrastinate.ui.UI.ScreenView;
 import procrastinate.ui.UITestHelper;
@@ -198,7 +202,7 @@ public class UITest {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
 
         taskList.add(new Deadline("overdue", sdf.parse("11/11/11")));
-        taskList.add(new Deadline("today", Date.from(Instant.now().plusSeconds(60))));
+        taskList.add(new Deadline("today", Date.from(Instant.now().plusSeconds(60))));  // else it will go into overdue
         taskList.add(new Event("tomorrow", Date.from(Instant.now().plusSeconds(86400)), sdf.parse("11/11/16")));
         taskList.add(new Event("future", sdf.parse("12/12/16"), sdf.parse("11/11/17")));
         taskList.add(new Dream("dream"));
@@ -271,23 +275,42 @@ public class UITest {
     // Unable to test summary screen
 
     // ================================================================================
-    // HelpScreen Testing
+    // ImageOverlay Testing
     // ================================================================================
-    // @Test
-    public void HelpScreen_InitTest() {
-        UITestHelper uiTestHelper = new UITestHelper();
-        assertTrue(uiTestHelper.getNewHelpScreen() != null);
+    @Test
+    public void helpOverlay_InitShouldNotBeNullAndContainRequiredPages() {
+        HelpOverlay helpOverlay = (HelpOverlay) uiTestHelper.getNewHelpOverlay();
+        assertNotNull(helpOverlay);
+        // Should only contain the image view
+        assertEquals(1, uiTestHelper.getOverlayContainer(helpOverlay).getChildren().size());
+
+        Image firstPage = uiTestHelper.getOverlayImageView(helpOverlay).getImage();
+        uiTestHelper.switchHelpOverlayPage(helpOverlay);
+        Image secondPage = uiTestHelper.getOverlayImageView(helpOverlay).getImage();
+        assertNotEquals(firstPage, secondPage);
+    }
+
+    @Test
+    public void splashOverlay_InitShouldNotBeNullAndLabelsSetUp() {
+        SplashOverlay splashOverlay = (SplashOverlay) uiTestHelper.getNewSplashOverlay();
+        assertNotNull(splashOverlay);
+        // Should contain 2 extra labels
+        assertEquals(3, uiTestHelper.getOverlayContainer(splashOverlay).getChildren().size());
     }
 
     // ================================================================================
     // CategoryBox Testing
     // ================================================================================
     @Test
-    public void CategoryBox_InitTest() {
-        UITestHelper uiTestHelper = new UITestHelper();
-        assertTrue(uiTestHelper.getNewCategoryBox() != null);
-        assertTrue(uiTestHelper.getNewCategoryBoxVBox() != null);
-        assertTrue(uiTestHelper.getNewCategoryBoxLabel("THIS LABEL").textProperty().get().equals("THIS LABEL"));
+    public void categoryBox_InitShouldNotBeNullAndCorrectLabelIsSet() {
+        CategoryBox categoryBox = uiTestHelper.getNewCategoryBox("Test header");
+        assertNotNull(categoryBox);
+
+        // Check if the correct header is set
+        assertEquals("Test header", uiTestHelper.getCategoryBoxLabel(categoryBox).textProperty().get());
+
+        // Check that the task list is empty
+        assertEquals(0, uiTestHelper.getCategoryBoxVBox(categoryBox).getChildren().size());
     }
 
     // ================================================================================
