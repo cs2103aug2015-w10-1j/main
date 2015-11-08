@@ -12,6 +12,8 @@ public class ShowOutstanding extends Show {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
+        assert ui == null && taskEngine == null;
+
         return SHOW_OUTSTANDING;
     }
 }

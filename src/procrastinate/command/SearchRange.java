@@ -60,14 +60,11 @@ public class SearchRange extends Search {
                                  Feedback.formatDate(endDate));
         }
 
-        // Set the variables only if executing search command
-        if (!isPreview()) {
-            searchString = str;
-            searchTerm = term;
-            searchEndDate = end;
-            searchStartDate = start;
-            searchShowDone = showDone;
-        }
+        searchString = str;
+        searchTerm = term;
+        searchEndDate = end;
+        searchStartDate = start;
+        searchShowDone = showDone;
 
         return feedback;
     }

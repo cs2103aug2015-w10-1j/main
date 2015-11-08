@@ -50,14 +50,11 @@ public class SearchDue extends Search {
             str += SEARCH_STRING_DUE + Feedback.formatDate(date);
         }
 
-        // Set the variables only if executing search command
-        if (!isPreview()) {
-            searchString = str;
-            searchTerm = term;
-            searchEndDate = end;
-            searchStartDate = start;
-            searchShowDone = showDone;
-        }
+        searchString = str;
+        searchTerm = term;
+        searchEndDate = end;
+        searchStartDate = start;
+        searchShowDone = showDone;
 
         return feedback;
     }

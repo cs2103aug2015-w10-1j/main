@@ -20,6 +20,8 @@ public class SearchOn extends Search {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
+        assert ui == null && taskEngine == null;
+
         String str = "";
         String term = null;
         Date start = null;
@@ -50,14 +52,11 @@ public class SearchOn extends Search {
             str += SEARCH_STRING_ON + Feedback.formatDate(date);
         }
 
-        // Set the variables only if executing search command
-        if (!isPreview()) {
-            searchString = str;
-            searchTerm = term;
-            searchEndDate = end;
-            searchStartDate = start;
-            searchShowDone = showDone;
-        }
+        searchString = str;
+        searchTerm = term;
+        searchEndDate = end;
+        searchStartDate = start;
+        searchShowDone = showDone;
 
         return feedback;
     }

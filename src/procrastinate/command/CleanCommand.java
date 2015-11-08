@@ -11,7 +11,7 @@ public abstract class CleanCommand implements Preview, Feedback {
         SET_PATH, EXIT, HELP, INVALID;
     }
 
-    // Required field for all command types
+    protected int lineNum;
     private CommandType type;
     private boolean preview;
 
@@ -22,6 +22,10 @@ public abstract class CleanCommand implements Preview, Feedback {
     }
 
     public abstract String run(UI ui, TaskEngine taskEngine);
+
+    public int getLineNumber() {
+        return lineNum;
+    }
 
     @Override
     public boolean isPreview() {

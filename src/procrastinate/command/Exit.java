@@ -11,10 +11,6 @@ public class Exit extends CleanCommand implements FeedbackExit {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
-        if (isPreview()) {
-            return EXIT;
-        } else {
-            return FEEDBACK_TRY_AGAIN;
-        }
+        return null;
     }
 }

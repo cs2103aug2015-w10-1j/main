@@ -5,14 +5,9 @@ import procrastinate.task.Task;
 import procrastinate.task.TaskEngine;
 
 public abstract class CrudCmd extends CleanCommand implements FeedbackCrud {
-    protected int lineNum;
 
     public CrudCmd(CommandType type) {
         super(type);
-    }
-
-    public int getLineNum() {
-        return lineNum;
     }
 
     /**

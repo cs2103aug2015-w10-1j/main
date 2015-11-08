@@ -14,6 +14,8 @@ public class EditPartial extends CrudCmd implements FeedbackCrud {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
+        assert ui == null && taskEngine == null;
+
         String feedback = null;
 
         if (isInvalid(lineNum, taskEngine)) {
@@ -24,19 +26,4 @@ public class EditPartial extends CrudCmd implements FeedbackCrud {
         feedback = EDIT_PARTIAL;
         return feedback;
     }
-
-    public int getLineNum() {
-        return lineNum;
-    }
-
-    /**
-     * Checks for line number validity
-     * @param lineNum
-     * @param taskEngine
-     * @return
-     */
-    public boolean isInvalid(int lineNum, TaskEngine taskEngine) {
-        return !(lineNum >= 1 && lineNum <= taskEngine.getCurrentTaskList().size());
-    }
-
 }
