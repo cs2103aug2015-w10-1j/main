@@ -336,20 +336,18 @@ public class Parser {
     private static CleanCommand constructAddCommand(CommandStringType commandInputType, List<Date> dateArray,
             String description) {
         CleanCommand command;
-        Date start = getStartDate(dateArray);
-        Date end = getEndDate(dateArray);
 
         switch (commandInputType) {
             case DUE_DATE:
             case ON_DATE:
 //                command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
-                command = new AddDeadline(description, start);
+                command = new AddDeadline(description, getStartDate(dateArray));
                 break;
 
             case FROM_TO_DATE:
 //                command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
 //                .addEndDate(getEndDate(dateArray));
-                command = new AddEvent(description, start, end);
+                command = new AddEvent(description, getStartDate(dateArray), getEndDate(dateArray));
                 break;
 
             default: // NO_DATE
@@ -382,13 +380,17 @@ public class Parser {
                 break;
 
             default: // NO_DATE
+                System.out.println("des " + description);
                 if (description.equals(KEYWORD_EVENTUALLY)) {
-                    command = new EditDream(lineNumber, description);
+                    System.out.println("has even");
+                    command = new EditDream(lineNumber, "");
                 }
                 break;
         }
 
-        command = new EditDream(lineNumber, description);
+        if (!description.isEmpty() && command == null) {
+            command = new EditDream(lineNumber, description);
+        }
 
         return command;
     }
