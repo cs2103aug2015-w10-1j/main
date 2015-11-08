@@ -38,7 +38,7 @@ public class EditDeadline extends Edit {
 
         // make task
         oldTask = getTask(lineNum, taskEngine);
-        if (description == null) {
+        if (description.isEmpty()) {
             newTask = new Deadline(oldTask.getDescription(), date);
         } else {
             newTask = new Deadline(description, date);

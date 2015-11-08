@@ -49,7 +49,7 @@ public class EditEvent extends Edit {
 
         // make task
         oldTask = getTask(lineNum, taskEngine);
-        if (description == null) {
+        if (description.isEmpty()) {
             newTask = new Event(oldTask.getDescription(), startDate, endDate);
         } else {
             newTask = new Event(description, startDate, endDate);

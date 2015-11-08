@@ -33,7 +33,7 @@ public class EditDream extends Edit {
 
         // make task
         oldTask = getTask(lineNum, taskEngine);
-        if (description == null) {
+        if (description.isEmpty()) {
             newTask = new Dream(oldTask.getDescription());
         } else {
             newTask = new Dream(description);
