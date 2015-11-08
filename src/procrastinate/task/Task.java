@@ -8,16 +8,16 @@ import com.google.gson.annotations.SerializedName;
 
 public abstract class Task implements Comparable<Task> {
 
+    public static enum TaskType {
+        DEADLINE, EVENT, DREAM;
+    }
+
     protected static final String FIELD_TYPE = "type";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_DESCRIPTION = "description";
     protected static final String FIELD_DONE = "done";
 
     private static final String ERROR_UNKNOWN_TYPE = "Error: unknown task type";
-
-	public static enum TaskType {
-		DEADLINE, EVENT, DREAM;
-	}
 
 	@SerializedName(FIELD_TYPE)
 	private final TaskType type_; // Cannot change type; subclass object already created

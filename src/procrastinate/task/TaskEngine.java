@@ -15,6 +15,10 @@ import procrastinate.FileHandler;
 
 public class TaskEngine {
 
+    // ================================================================================
+    // Class variables
+    // ================================================================================
+
     private static final Logger logger = Logger.getLogger(TaskEngine.class.getName());
 
     // ================================================================================
@@ -32,8 +36,10 @@ public class TaskEngine {
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
     // ================================================================================
-    // Class variables
+    // Instance variables
     // ================================================================================
+
+    protected FileHandler fileHandler;
 
     private TaskState previousState_ = null;
     private TaskState currentState_ = null;
@@ -43,7 +49,9 @@ public class TaskEngine {
     private String previousSaveDirectory_ = null;
     private String previousSaveFilename_ = null;
 
-    protected FileHandler fileHandler;
+    // ================================================================================
+    // Constructor
+    // ================================================================================
 
     public TaskEngine() throws IOException {
         initFileHandler();
