@@ -5,6 +5,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.scene.Node;
@@ -98,6 +99,8 @@ public class CenterPaneController {
      * @param screenView  corresponding to the screen to switch to upon update
      */
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
+        updateSummaryAndMainScreens(taskList, screenView);
+
         switch (screenView) {
             case SCREEN_DONE: {
                 if (currentScreen != doneScreen_) {
@@ -146,6 +149,21 @@ public class CenterPaneController {
             default:
                 System.out.println(MESSAGE_UNABLE_RECOGNISE_SCREEN_TYPE);
                 break;
+        }
+    }
+
+    /**
+     * Used to keep both the Summary and Main screens up to date with one another.
+     *
+     * @param taskList     to update the screen with
+     * @param screenView   must correspond to currentScreen and be either SCREEN_MAIN
+     *                     or SCREEN_SUMMARY for any updates to take place.
+     */
+    private void updateSummaryAndMainScreens(List<Task> taskList, ScreenView screenView) {
+        if (currentScreen == mainScreen_ && screenView == ScreenView.SCREEN_MAIN) {
+            summaryScreen_.updateTaskList(taskList);
+        } else if (currentScreen == summaryScreen_ && screenView == ScreenView.SCREEN_SUMMARY) {
+            mainScreen_.updateTaskList(taskList);
         }
     }
 
@@ -266,7 +284,7 @@ public class CenterPaneController {
     }
 
     // ================================================================================
-    // Utility Methods
+    // Transition Methods
     // ================================================================================
 
     /**
@@ -323,7 +341,7 @@ public class CenterPaneController {
      *                          within the centerStackPane.
      */
     private void startScreenSwitchSequence(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
-        SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
+        ParallelTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
         incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
 
         SequentialTransition outgoingScreenTransition = currentScreen.getScreenSwitchOutSequence();
@@ -336,7 +354,7 @@ public class CenterPaneController {
     }
 
     private void startScreenSwitchSequenceNoAnimation(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
-        SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
+        ParallelTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
         incomingScreenTransition.setOnFinished(incoming -> currentScreen = screenToSwitchIn);
 
         centerStackPane_.getChildren().remove(currentScreen.getNode());

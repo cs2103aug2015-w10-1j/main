@@ -86,9 +86,6 @@ public class CategoryBox extends VBox {
         return this.categoryBox_;
     }
 
-    /**
-     * Retrieves the VBox that acts as a task list for a TaskEntry to go into
-     */
     protected VBox getTaskListVBox() {
         return this.categoryVBox;
     }

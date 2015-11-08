@@ -3,6 +3,7 @@ package procrastinate.ui;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -121,7 +122,7 @@ public abstract class CenterScreen extends VBox {
 
     protected abstract SequentialTransition getScreenSwitchOutSequence();
 
-    protected abstract SequentialTransition getScreenSwitchInSequence();
+    protected abstract ParallelTransition getScreenSwitchInSequence();
 
     protected void setMainVBoxBackgroundImage(VBox mainVBox, String value) {
         mainVBox.setStyle(value);

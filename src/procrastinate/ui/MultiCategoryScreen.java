@@ -52,6 +52,9 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     private static final int TIME_TRANSITION_TASK_ENTRY_FADE_OUT = 100;
 
+    private static final int TIME_TRANSITION_SCREEN_SWITCH_IN = 500;
+    private static final int TIME_TRANSITION_SCREEN_SWITCH_OUT = 150;
+
     private static final int STYLE_BACKGROUND_HIGHLIGHT_FRAME_TIME = 10;
     private static final int STYLE_BACKGROUND_HIGHLIGHT_FULL_OPACITY = 100;
 
@@ -110,28 +113,28 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     @Override
     protected SequentialTransition getScreenSwitchOutSequence() {
-        SequentialTransition sequentialTransition = new SequentialTransition();
+        SequentialTransition switchOutTransition = new SequentialTransition();
 
         for (Node node : nodeList) {
             if (mainVBox.getChildren().contains(node)) {
-                sequentialTransition.getChildren().add(0, generateFadeOutTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT));
+                switchOutTransition.getChildren().add(0, generateFadeOutTransition(node, TIME_TRANSITION_SCREEN_SWITCH_OUT));
             }
         }
 
-        return sequentialTransition;
+        return switchOutTransition;
     }
 
     @Override
-    protected SequentialTransition getScreenSwitchInSequence() {
-        SequentialTransition sequentialTransition = new SequentialTransition();
+    protected ParallelTransition getScreenSwitchInSequence() {
+        ParallelTransition switchInTransition = new ParallelTransition();
 
         for (Node node : nodeList) {
             if (mainVBox.getChildren().contains(node)) {
-                sequentialTransition.getChildren().add(generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_IN));
+                switchInTransition.getChildren().add(generateFadeInTransition(node, TIME_TRANSITION_SCREEN_SWITCH_IN));
             }
         }
 
-        return sequentialTransition;
+        return switchInTransition;
     }
 
     /**
