@@ -5,18 +5,18 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import org.apache.commons.lang.time.DateUtils;
-
-import procrastinate.Command.CommandType;
+//import procrastinate.Command.CommandType;
+import procrastinate.command.CleanCommand;
+import procrastinate.command.CleanCommand.CommandType;
+import procrastinate.command.Feedback;
+import procrastinate.command.FeedbackExit;
 import procrastinate.task.*;
 import procrastinate.ui.UI;
 import procrastinate.ui.UI.ScreenView;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -102,7 +102,7 @@ public class Logic {
 
     private boolean startupError = false;
 
-    private Command lastPreviewedCommand = null;
+    private CleanCommand lastPreviewedCommand = null;
 
     private ViewType currentView;
 
@@ -137,82 +137,139 @@ public class Logic {
 
     public String previewCommand(String userCommand) {
     	lastPreviewedCommand = Parser.parse(userCommand);
-        return runCommand(lastPreviewedCommand, false);
+    	lastPreviewedCommand.setPreview(true);
+        return runCommand(lastPreviewedCommand);
     }
 
     public String executeLastPreviewedCommand() {
     	assert(lastPreviewedCommand != null);
-        return runCommand(lastPreviewedCommand, true);
+    	lastPreviewedCommand.setPreview(false);
+        return runCommand(lastPreviewedCommand);
     }
 
     public boolean hasLastPreviewedCommand() {
     	return lastPreviewedCommand != null;
     }
 
-    private String runCommand(Command command, boolean execute) {
+    private String runCommand(CleanCommand command) {
+        String feedback = null;
 
         switch (command.getType()) {
 
             case ADD_DREAM:
             case ADD_DEADLINE:
             case ADD_EVENT:
-                return runAdd(command, execute);
+                feedback = command.run(ui, taskEngine);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case EDIT:
             case EDIT_TO_DREAM:
-                return runEdit(command, execute);
+                feedback = command.run(ui, taskEngine);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case EDIT_PARTIAL:
-                return runEditPartial(command);
+                feedback = command.run(ui, taskEngine);
+                break;
 
             case DELETE:
-                return runDelete(command, execute);
+                feedback = command.run(ui, taskEngine);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case DONE:
-                return runDone(command, execute);
+                feedback = command.run(ui, taskEngine);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case UNDO:
-                return runUndo(execute);
+                feedback = command.run(ui, taskEngine);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
-            case SEARCH:
-            case SEARCH_ON:
-                return runSearch(command, execute);
+            case SEARCH_ON :
+                feedback = command.run(null, null);
+                if (!command.isPreview()) {
+//                    searchString = command.getsearch();
+//                    searchTerm = term;
+//                    searchEndDate = end;
+//                    searchStartDate = start;
+//                    searchShowDone = showDone;
 
-            case SET_PATH:
-                return runSetPath(command, execute);
+                    updateView(ViewType.SHOW_SEARCH_RESULTS);
+                }
+                break;
 
-            case SHOW_OUTSTANDING:
-                return runShowOutstanding(execute);
+            case SET_PATH :
+                feedback = command.run(ui, taskEngine);
+                break;
 
-            case SHOW_DONE:
-                return runShowDone(execute);
+            case SHOW_OUTSTANDING :
+                feedback = command.run(null, null);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_OUTSTANDING);
+                }
+                break;
 
-            case SHOW_ALL:
-                return runShowAll(execute);
+            case SHOW_DONE :
+                feedback = command.run(null, null);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_DONE);
+                }
+                break;
 
-            case SHOW_SUMMARY:
-                return runShowSummary(execute);
+            case SHOW_ALL :
+                feedback = command.run(null, null);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_ALL);
+                }
+                break;
 
-            case HELP:
-                return runHelp(execute);
+            case SHOW_SUMMARY :
+                feedback = command.run(null, null);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_SUMMARY);
+                }
+                break;
 
-            case INVALID:
-                return runInvalid(command);
+            case HELP :
+                feedback = command.run(null, null);
+                break;
 
-            case EXIT:
-                return runExit(execute);
+            case INVALID :
+                feedback = command.run(null, null);
+                break;
 
-            default:
-                return null;
+            case EXIT :
+                if (!command.isPreview() && !exit()) {
+                    feedback = Feedback.FEEDBACK_TRY_AGAIN;
+                } else {
+                    feedback = FeedbackExit.EXIT;
+                }
+                break;
 
+            default :
+                break;
         }
+        return feedback;
 
     }
 
     // ================================================================================
     // Command handling methods
     // ================================================================================
-
+/*
     private String runAdd(Command command, boolean execute) {
         String description = command.getDescription();
         assert(description != null);
@@ -593,7 +650,7 @@ public class Logic {
         }
         return FEEDBACK_EXIT;
     }
-
+*/
     // ================================================================================
     // Init methods
     // ================================================================================
@@ -712,7 +769,7 @@ public class Logic {
                         return;
                     }
 
-                    Command command = lastPreviewedCommand;
+                    CleanCommand command = lastPreviewedCommand;
                     if (command.getType() != CommandType.EDIT_PARTIAL) {
                         return;
                     }
@@ -841,20 +898,20 @@ public class Logic {
         return taskEngine.getCurrentTaskList();
     }
 
-    private static String formatDateTime(Date date) {
-        return dateTimeFormatter.format(date);
-    }
-
-    private static String formatDate(Date date) {
-        return dateFormatter.format(date);
-    }
-
-    private static String shorten(String description, int maxLength) {
-        if (description.length() <= maxLength) {
-            return description;
-        }
-
-        return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
-    }
+//    private static String formatDateTime(Date date) {
+//        return dateTimeFormatter.format(date);
+//    }
+//
+//    private static String formatDate(Date date) {
+//        return dateFormatter.format(date);
+//    }
+//
+//    private static String shorten(String description, int maxLength) {
+//        if (description.length() <= maxLength) {
+//            return description;
+//        }
+//
+//        return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
+//    }
 
 }
