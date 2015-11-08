@@ -12,11 +12,14 @@ import procrastinate.task.Task;
 import procrastinate.ui.UI;
 
 public class UIStub extends UI {
-    public List<Task> taskList;
+    private List<Task> taskList_;
     public UIStub() {
-        taskList = new ArrayList<Task>();
+        taskList_ = new ArrayList<Task>();
     }
     public UIStub(Stage stage) {
+    }
+    public List<Task> getTaskList() {
+        return taskList_;
     }
     @Override
     public String getInput() {
@@ -33,7 +36,7 @@ public class UIStub extends UI {
     }
     @Override
     public void updateTaskList(List<Task> taskList, ScreenView screenView) {
-        this.taskList = taskList;
+        taskList_ = taskList;
     }
     @Override
     public void initialUpdateTaskList(List<Task> taskList) {

@@ -1,7 +1,7 @@
 //@@author A0080485B
 package procrastinate.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,7 +35,7 @@ public class LogicTest {
     @After
     public void tearDown() throws Exception {
         System.out.println("Tearing down. Final state:");
-        System.out.println(getTaskList());
+        System.out.println(getResults());
         System.out.println("Test completed!\n");
     }
 
@@ -62,7 +62,7 @@ public class LogicTest {
         expected.add(new Event("event", sdf.parse("10/14/17"), sdf.parse("10/15/17")));
         expected.add(new Dream("another dream"));
         expected.add(new Dream("dream"));
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
     }
 
     @Test
@@ -81,14 +81,14 @@ public class LogicTest {
         expected.add(new Dream("d"));
         expected.get(0).setDone(true);
         expected.get(1).setDone(true);
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
 
         execute("show");
         expected.clear();
         expected.add(new Dream("a"));
         expected.add(new Dream("b"));
         expected.add(new Dream("e"));
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
 
         execute("show all");
         expected.clear();
@@ -99,7 +99,7 @@ public class LogicTest {
         expected.add(new Dream("d"));
         expected.get(3).setDone(true); // done c
         expected.get(4).setDone(true); // done d
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
     }
 
     //@@author A0124321Y
@@ -116,7 +116,7 @@ public class LogicTest {
         expected.add(new Event("foo 3", sdf.parse("1/2/14"), sdf.parse("2/2/14")));
         expected.add(new Dream("foo 1"));
 
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
     }
 
     //@@author A0124321Y
@@ -132,7 +132,7 @@ public class LogicTest {
         expected.add(new Dream("foo has bar"));
         expected.add(new Dream("foo has baz"));
         expected.add(new Dream("foo is not bar"));
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
     }
 
     //@@author A0124321Y
@@ -150,7 +150,7 @@ public class LogicTest {
         expected.add(new Deadline("b", sdf.parse("1/3/14")));
         expected.add(new Deadline("c", sdf.parse("10/1/14")));
 
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
     }
 
     //@@author A0124321Y
@@ -166,11 +166,11 @@ public class LogicTest {
         execute("search due 1/2/14 12:00am");
         expected.add(new Deadline("a", sdf.parse("1/2/14")));
         expected.add(new Event("a", sdf.parse("1/2/14"), sdf.parse("1/3/14")));
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
 
         execute("search due 1/3/14 12:00am");
         expected.add(new Event("a", sdf.parse("1/5/14"), sdf.parse("1/6/14")));
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
     }
 
     //@@author A0124321Y
@@ -186,7 +186,7 @@ public class LogicTest {
 
         expected.add(new Deadline("c", sdf.parse("2/1/14")));
 
-        assertEquals(expected, getTaskList());
+        assertEquals(expected, getResults());
     }
     //@@author
 
@@ -195,8 +195,8 @@ public class LogicTest {
         logic.executeLastPreviewedCommand();
     }
 
-    private List<Task> getTaskList() {
-        return uiStub.taskList;
+    private List<Task> getResults() {
+        return uiStub.getTaskList();
     }
 
 }
