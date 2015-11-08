@@ -56,7 +56,7 @@ public abstract class CenterScreen extends VBox {
     protected static final double OPACITY_ZERO = 0;
     protected static final double OPACITY_FULL = 1;
 
-    private static final int NUMBER_OF_DAYS_TO_SHOW_IN_UPCOMING = 7;
+    private static final int NUMBER_OF_DAYS_IN_A_WEEK = 7;
 
     // ================================================================================
     // Class Variables
@@ -66,17 +66,18 @@ public abstract class CenterScreen extends VBox {
     protected StringProperty taskCountFormatted = new SimpleStringProperty();
     protected StringProperty taskCountString = new SimpleStringProperty();
 
-    protected SimpleDateFormat dateFormatWithFriendlyDayAndYear = new SimpleDateFormat("EEE d MMM''yy h:mma");
-    protected SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM");
-    protected SimpleDateFormat friendlyDayFormat = new SimpleDateFormat("EEE");
-    protected SimpleDateFormat timeFormat = new SimpleDateFormat("h:mma");
-    protected SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+    protected SimpleDateFormat dateFormatter = new SimpleDateFormat("d MMM");
+    protected SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mma");
 
-    private Node node;
+    private SimpleDateFormat dateFormatterWithFriendlyDayAndYear_ = new SimpleDateFormat("EEE d MMM''yy h:mma");
+    private SimpleDateFormat friendlyDayFormatter_ = new SimpleDateFormat("EEE");
+    private SimpleDateFormat yearFormatter_ = new SimpleDateFormat("yyyy");
 
-    private Date today;
-    private Date currentDate;
-    private Date endOfWeek;
+    private Node node_;
+
+    private Date today_;
+    private Date currentDate_;
+    private Date endOfWeek_;
 
     // ================================================================================
     // FXML Field Variables
@@ -129,9 +130,9 @@ public abstract class CenterScreen extends VBox {
      * and generate subcategories for 'Upcoming'
      */
     protected void updateDates() {
-        today = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));
-        currentDate = new Date();
-        endOfWeek = getEndOfWeekDate(today);
+        today_ = Date.from(getInstantFromLocalDateTime(getDateTimeStartOfToday()));
+        currentDate_ = new Date();
+        endOfWeek_ = getEndOfWeekDate(today_);
     }
 
     // ================================================================================
@@ -159,95 +160,82 @@ public abstract class CenterScreen extends VBox {
     // ================================================================================
 
     protected String getDateFormatForDeadlineWithDifferentYear(Date date) {
-        return dateFormatWithFriendlyDayAndYear.format(date);
+        return dateFormatterWithFriendlyDayAndYear_.format(date);
     }
 
     protected String getDateFormatForEventWithDifferentYearButInOneDay(Date date, Date endDate) {
-        return dateFormatWithFriendlyDayAndYear.format(date)
-                + EVENT_DATE_SEPARATOR_SAME_DAY
-                + timeFormat.format(endDate);
+        return dateFormatterWithFriendlyDayAndYear_.format(date) + EVENT_DATE_SEPARATOR_SAME_DAY +
+               timeFormatter.format(endDate);
     }
 
     protected String getDateFormatForEventWithDifferentYearAndDifferentDays(Date date, Date endDate) {
-        return dateFormatWithFriendlyDayAndYear.format(date)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + dateFormatWithFriendlyDayAndYear.format(endDate);
+        return dateFormatterWithFriendlyDayAndYear_.format(date) + EVENT_DATE_SEPARATOR_GENERAL +
+               dateFormatterWithFriendlyDayAndYear_.format(endDate);
     }
 
     protected String getDateFormatForDeadlineWithSameYear(Date date) {
-        return getDayOfWeek(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(date);
+        return getFriendlyDayFormat(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               dateFormatter.format(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               timeFormatter.format(date);
     }
 
     protected String getDateFormatForEventWithSameYearAndInOneDay(Date date, Date endDate) {
-        return getDayOfWeek(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(date)
-                + EVENT_DATE_SEPARATOR_SAME_DAY
-                + timeFormat.format(endDate);
+        return getFriendlyDayFormat(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               dateFormatter.format(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               timeFormatter.format(date) + EVENT_DATE_SEPARATOR_SAME_DAY +
+               timeFormatter.format(endDate);
     }
 
     protected String getDateFormatForEventWithSameYearAndDifferentDays(Date date, Date endDate) {
-        return getDayOfWeek(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(date)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(date)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + getDayOfWeek(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(endDate);
+        return getFriendlyDayFormat(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               dateFormatter.format(date) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               timeFormatter.format(date) + EVENT_DATE_SEPARATOR_GENERAL +
+               getFriendlyDayFormat(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               dateFormatter.format(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               timeFormatter.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventAndInOneDay(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_SAME_DAY
-                + timeFormat.format(endDate);
+        return timeFormatter.format(startDate) + EVENT_DATE_SEPARATOR_SAME_DAY +
+               timeFormatter.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventButDifferentDays(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + getFriendlyDayFormatForUpcoming(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(endDate);
+        return timeFormatter.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL +
+               getFriendlyDayFormatForUpcomingCategory(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               timeFormatter.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventButDifferentWeek(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + getDayOfWeek(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + dateFormat.format(endDate)
-                + FRIENDLY_DATE_OR_TIME_SEPARATOR
-                + timeFormat.format(endDate);
+        return timeFormatter.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL +
+               getFriendlyDayFormat(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               dateFormatter.format(endDate) + FRIENDLY_DATE_OR_TIME_SEPARATOR +
+               timeFormatter.format(endDate);
     }
 
     protected String getDateFormatForUpcomingEventButDifferentYear(Date startDate, Date endDate) {
-        return timeFormat.format(startDate)
-                + EVENT_DATE_SEPARATOR_GENERAL
-                + dateFormatWithFriendlyDayAndYear.format(endDate);
+        return timeFormatter.format(startDate) + EVENT_DATE_SEPARATOR_GENERAL +
+               dateFormatterWithFriendlyDayAndYear_.format(endDate);
     }
 
     // ================================================================================
     // Utility methods
     // ================================================================================
 
-    /**
-     * Creates a LocalDateTime that reflects today's date at 0000hrs, to be used
-     * for more accurate comparison of the date of tasks.
-     *
-     * @return LocalDateTime of today at 0000hrs
-     */
-    protected LocalDateTime getDateTimeStartOfToday() {
-        return LocalDate.now().atStartOfDay();
+    protected boolean isSameYear(Date firstDate, Date secondDate) {
+        return yearFormatter_.format(firstDate).equals(yearFormatter_.format(secondDate));
+    }
+
+    protected boolean isSameDay(Date firstDate, Date secondDate) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(firstDate);
+        int firstDay = calendar.get(Calendar.DAY_OF_YEAR);
+
+        calendar.setTime(secondDate);
+        int secondDay = calendar.get(Calendar.DAY_OF_YEAR);
+
+        return firstDay == secondDay;
     }
 
     /**
@@ -261,21 +249,18 @@ public abstract class CenterScreen extends VBox {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
     }
 
-    protected boolean checkIfTwoDatesAreOfTheSameYear(Date date1, Date date2) {
-        return yearFormat.format(date1).equals(yearFormat.format(date2));
+    /**
+     * Creates a LocalDateTime that reflects today's date at 0000hrs, to be used
+     * for more accurate comparison of the date of tasks.
+     *
+     * @return LocalDateTime of today at 0000hrs
+     */
+    protected LocalDateTime getDateTimeStartOfToday() {
+        return LocalDate.now().atStartOfDay();
     }
 
-    protected boolean checkIfStartTwoDatesAreOnSameDay(Date firstDate, Date secondDate) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(firstDate);
-        int firstDay = calendar.get(Calendar.DAY_OF_YEAR);
-        calendar.setTime(secondDate);
-        int secondDay = calendar.get(Calendar.DAY_OF_YEAR);
-        return firstDay == secondDay;
-    }
-
-    private String getDayOfWeek(Date date) {
-        return friendlyDayFormat.format(date);
+    private String getFriendlyDayFormat(Date date) {
+        return friendlyDayFormatter_.format(date);
     }
 
     /**
@@ -283,24 +268,25 @@ public abstract class CenterScreen extends VBox {
      *
      * @param today
      *            Current date at 0000hrs
-     * @return Date that is a week from now at 0000hrs for comparing tasks due this week
+     * @return Date that is a week from now at 0000hrs for comparing tasks due
+     *         this week
      */
     private Date getEndOfWeekDate(Date today) {
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.setTime(today);
-        calendar.add(Calendar.DAY_OF_WEEK, NUMBER_OF_DAYS_TO_SHOW_IN_UPCOMING);
+        calendar.add(Calendar.DAY_OF_WEEK, NUMBER_OF_DAYS_IN_A_WEEK);
         return calendar.getTime();
     }
 
-    private String getFriendlyDayFormatForUpcoming(Date date) {
+    private String getFriendlyDayFormatForUpcomingCategory(Date date) {
         LocalDateTime startingDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().getDayOfMonth()) {
             return DATE_TODAY;
         } else if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().plusDays(1).getDayOfMonth()) {
             return DATE_TOMORROW;
         } else {
-            return getDayOfWeek(date);
+            return getFriendlyDayFormat(date);
         }
     }
 
@@ -313,7 +299,7 @@ public abstract class CenterScreen extends VBox {
         loader.setController(this); // Required due to different package
                                     // declaration from Main
         try {
-            node = loader.load();
+            node_ = loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -333,7 +319,7 @@ public abstract class CenterScreen extends VBox {
 
     // @@author A0121597B generated
     protected Node getNode() {
-        return this.node;
+        return this.node_;
     }
 
     protected VBox getMainVBox() {
@@ -341,14 +327,14 @@ public abstract class CenterScreen extends VBox {
     }
 
     protected Date getToday() {
-        return today;
+        return today_;
     }
 
     protected Date getCurrentDate() {
-        return currentDate;
+        return currentDate_;
     }
 
     protected Date getEndOfWeek() {
-        return endOfWeek;
+        return endOfWeek_;
     }
 }

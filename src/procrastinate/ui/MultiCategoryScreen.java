@@ -251,7 +251,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     private void addDeadlineOrEvent(Task task, Date taskDate) {
         boolean isSameYear;
-        isSameYear = checkIfTwoDatesAreOfTheSameYear(today, taskDate);
+        isSameYear = isSameYear(today, taskDate);
         if (isSameYear) {
             addTaskWithSameYear(task, taskDate);
         } else {
@@ -282,7 +282,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
-                boolean isSameEndYear = checkIfTwoDatesAreOfTheSameYear(endDate, today);
+                boolean isSameEndYear = isSameYear(endDate, today);
                 dateString = getDateFormatForEventWithSameStartYear(date, endDate, isSameEndYear);
                 String taskCount = taskCountFormatted.get();
                 TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
@@ -325,7 +325,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
                 // if same day also should be in same line.
-                boolean isSameEndYear = checkIfTwoDatesAreOfTheSameYear(date, endDate);
+                boolean isSameEndYear = isSameYear(date, endDate);
                 dateString = getDateFormatForEventWithDifferentStartYear(date, endDate, isSameEndYear);
                 TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString,
                         task.isDone());
@@ -343,7 +343,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     private String getDateFormatForEventWithSameStartYear(Date date, Date endDate, boolean isSameEndYear) {
         String dateString;
         if (isSameEndYear) {
-            if (checkIfStartTwoDatesAreOnSameDay(date, endDate)) {
+            if (isSameDay(date, endDate)) {
                 dateString = getDateFormatForEventWithSameYearAndInOneDay(date, endDate);
             } else {
                 dateString = getDateFormatForEventWithSameYearAndDifferentDays(date, endDate);
@@ -356,7 +356,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     private String getDateFormatForEventWithDifferentStartYear(Date date, Date endDate, boolean isSameEndYear) {
         String dateString;
-        if (isSameEndYear && checkIfStartTwoDatesAreOnSameDay(date, endDate)) {
+        if (isSameEndYear && isSameDay(date, endDate)) {
             dateString = getDateFormatForEventWithDifferentYearButInOneDay(date, endDate);
         } else {
             dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(date, endDate);
@@ -394,7 +394,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         switch (task.getType()) {
 
             case DEADLINE: {
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), timeFormat.format(startDate),
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), timeFormatter.format(startDate),
                         task.isDone());
                 addThisWeekTaskToTaskList(startDate, calendar, deadline, isAdded, taskEntry);
                 break;
@@ -403,7 +403,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             case EVENT: {
                 Date endDate = ((Event) task).getEndDate();
                 String dateString;
-                boolean isSameEndYear = checkIfTwoDatesAreOfTheSameYear(endDate, today);
+                boolean isSameEndYear = isSameYear(endDate, today);
                 dateString = getDateFormatForEventThisWeek(startDate, endDate, isSameEndYear);
                 TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
                 addThisWeekTaskToTaskList(startDate, calendar, deadline, isAdded, taskEntry);
@@ -419,7 +419,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     private String getDateFormatForEventThisWeek(Date startDate, Date endDate, boolean isSameEndYear) {
         String dateString;
         if (isSameEndYear) {
-            if (checkIfStartTwoDatesAreOnSameDay(startDate, endDate)) {
+            if (isSameDay(startDate, endDate)) {
                 dateString = getDateFormatForUpcomingEventAndInOneDay(startDate, endDate);
             } else if (endDate.before(endOfWeek)) {
                 dateString = getDateFormatForUpcomingEventButDifferentDays(startDate, endDate);
@@ -804,7 +804,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         int count = 1;
         while (!(getInstantFromLocalDateTime(startingDateTime)).equals(endOfWeek.toInstant())) {
             SubcategoryBox newDateBox;
-            String shortDate = ", " + startingDateTime.format(DateTimeFormatter.ofPattern(dateFormat.toPattern()));
+            String shortDate = ", " + startingDateTime.format(DateTimeFormatter.ofPattern(dateFormatter.toPattern()));
             if (count == 1) {
                 newDateBox = new SubcategoryBox(SUBCATEGORY_TODAY + shortDate);
             } else if (count == 2) {
