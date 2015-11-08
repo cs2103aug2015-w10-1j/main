@@ -40,13 +40,14 @@ public class LogicTest {
     }
 
     @Test
-    public void trivialTest() {
-        assertEquals(logic.previewCommand("exit"), "Goodbye!");
-        assertEquals(logic.previewCommand("help"), "Showing help screen (use left/right keys to navigate)");
-        assertEquals(logic.previewCommand("show"), "Showing outstanding tasks");
-        assertEquals(logic.previewCommand("show done"), "Showing completed tasks");
-        assertEquals(logic.previewCommand("show all"), "Showing all tasks");
-        assertEquals(logic.previewCommand("search abc"), "Searching for tasks containing 'abc'");
+    public void previewTest() {
+        assertEquals(preview("exit"), "Goodbye!");
+        assertEquals(preview("help"), "Showing help screen (use left/right keys to navigate)");
+        assertEquals(preview("show"), "Showing outstanding tasks");
+        assertEquals(preview("show done"), "Showing completed tasks");
+        assertEquals(preview("show all"), "Showing all tasks");
+        assertEquals(preview("show summary"), "Showing summary of outstanding tasks");
+        assertEquals(preview("search abc"), "Searching for tasks containing 'abc'");
     }
 
     @Test
@@ -62,6 +63,90 @@ public class LogicTest {
         expected.add(new Event("event", sdf.parse("10/14/17"), sdf.parse("10/15/17")));
         expected.add(new Dream("another dream"));
         expected.add(new Dream("dream"));
+        assertEquals(expected, getResults());
+    }
+
+    @Test
+    public void editTest() throws ParseException {
+        assertEquals(preview("edit 1"), "Invalid line number: 1");
+
+        execute("dream");
+        assertEquals(preview("edit 1"), "Please specify the new description/date(s) or press tab");
+
+        // edit description
+        execute("edit 1 dream edited");
+        List<Task> expected = new ArrayList<Task>();
+        expected.add(new Dream("dream edited"));
+        assertEquals(expected, getResults());
+
+        // edit to event
+        execute("edit 1 from 10/14/17 to 10/15/17 0");
+        expected.clear();
+        expected.add(new Event("dream edited", sdf.parse("10/14/17"), sdf.parse("10/15/17")));
+        assertEquals(expected, getResults());
+
+        // edit to event with new description
+        execute("edit 1 event from 10/14/17 to 10/15/17 0");
+        expected.clear();
+        expected.add(new Event("event", sdf.parse("10/14/17"), sdf.parse("10/15/17")));
+        assertEquals(expected, getResults());
+
+        // edit to deadline
+        execute("edit 1 due 10/13/17 0");
+        expected.clear();
+        expected.add(new Deadline("event", sdf.parse("10/13/17")));
+        assertEquals(expected, getResults());
+
+        // edit to deadline with new description
+        execute("edit 1 deadline due 10/13/17 0");
+        expected.clear();
+        expected.add(new Deadline("deadline", sdf.parse("10/13/17")));
+        assertEquals(expected, getResults());
+
+        // edit back to dream
+        execute("edit 1 eventually");
+        expected.clear();
+        expected.add(new Dream("deadline"));
+        assertEquals(expected, getResults());
+    }
+
+    @Test
+    public void deleteUndoTest() {
+        assertEquals(preview("undo"), "Nothing to undo");
+
+        execute("a");
+        execute("b");
+        execute("c");
+
+        assertEquals(preview("delete 3"), "Deleted dream: c");
+        assertEquals(preview("delete 4"), "Invalid line number: 4");
+
+        execute("delete 2");
+        List<Task> expected = new ArrayList<Task>();
+        expected.add(new Dream("a"));
+        expected.add(new Dream("c"));
+        assertEquals(expected, getResults());
+        assertEquals(preview("delete 3"), "Invalid line number: 3");
+
+        execute("undo");
+        expected.add(1, new Dream("b"));
+        assertEquals(expected, getResults());
+        assertEquals(preview("delete 3"), "Deleted dream: c");
+    }
+
+    @Test
+    public void doneTest() {
+        execute("a");
+        execute("show all");
+
+        execute("done 1");
+        List<Task> expected = new ArrayList<Task>();
+        expected.add(new Dream("a"));
+        expected.get(0).setDone(true);
+        assertEquals(expected, getResults());
+
+        execute("done 1");
+        expected.get(0).setDone(false);
         assertEquals(expected, getResults());
     }
 
@@ -190,9 +275,13 @@ public class LogicTest {
     }
     //@@author
 
-    private void execute(String userCommand) {
+    private String execute(String userCommand) {
         logic.previewCommand(userCommand);
-        logic.executeLastPreviewedCommand();
+        return logic.executeLastPreviewedCommand();
+    }
+
+    private String preview(String userCommand) {
+        return logic.previewCommand(userCommand);
     }
 
     private List<Task> getResults() {
