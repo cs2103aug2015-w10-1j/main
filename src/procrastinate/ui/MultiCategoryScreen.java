@@ -112,22 +112,26 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     @Override
     protected SequentialTransition getScreenSwitchOutSequence() {
         SequentialTransition sequentialTransition = new SequentialTransition();
+
         for (Node node : nodeList) {
             if (mainVBox.getChildren().contains(node)) {
                 sequentialTransition.getChildren().add(0, generateFadeOutTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT));
             }
         }
+
         return sequentialTransition;
     }
 
     @Override
     protected SequentialTransition getScreenSwitchInSequence() {
         SequentialTransition sequentialTransition = new SequentialTransition();
+
         for (Node node : nodeList) {
             if (mainVBox.getChildren().contains(node)) {
                 sequentialTransition.getChildren().add(generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_IN));
             }
         }
+
         return sequentialTransition;
     }
 
@@ -235,7 +239,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     }
 
     private void addSameStartYearTaskToTaskList(Task task, Date date, String taskCount, TaskEntry taskEntry) {
-        if (task.isDone()) {
+        if        (task.isDone()) {
             doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
 
         } else if (date.before(currentDate)) {
@@ -282,7 +286,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     }
 
     private void addDifferentStartYearTaskToTaskList(Task task, Date date, TaskEntry taskEntry) {
-        if (task.isDone()) {
+        if        (task.isDone()) {
             doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
 
         } else if (date.before(today)) {
@@ -336,6 +340,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     private void addThisUpcomingTaskToTaskList(Date startDate, Calendar calendar, Date deadline, TaskEntry taskEntry) {
         boolean isAdded = false;
+
         for (VBox vBox : upcomingSubcategories) {
             if (startDate.before(deadline)) {
                 vBox.getChildren().add(taskEntry.getEntryDisplay());
@@ -388,7 +393,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
         if (isSameEndYear) {
 
-            if (isSameDay(startDate, endDate)) {
+            if        (isSameDay(startDate, endDate)) {
                 dateString = getDateFormatForUpcomingEventAndInOneDay(startDate, endDate);
 
             } else if (endDate.before(endOfWeek)) {
@@ -473,7 +478,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             // Check if 'Overdue' and 'This Week' nodes are added before. This node takes position after them.
             // Then check if either one is available. Else it will go to the top.
             case CATEGORY_FUTURE: {
-                if (mainVBox.getChildren().contains(overdueNode) && mainVBox.getChildren().contains(upcomingNode)) {
+                if        (mainVBox.getChildren().contains(overdueNode) && mainVBox.getChildren().contains(upcomingNode)) {
                     mainVBox.getChildren().add(mainVBox.getChildren().indexOf(upcomingNode) + 1, node);
 
                 } else if (mainVBox.getChildren().contains(overdueNode) && !mainVBox.getChildren().contains(upcomingNode)) {
@@ -526,6 +531,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
         if (totalUpcomingTasks == 0 && mainVBox.getChildren().contains(upcomingNode)) {
             FadeTransition fadeOut = generateFadeOutTransition(upcomingNode, TIME_TRANSITION_CATEGORY_FADE_OUT);
+
             fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(upcomingNode));
 
             sequentialTransition.getChildren().add(parallelTransition);
@@ -735,6 +741,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     private int findIndexOfDeletedTask(List<Task> taskList) {
         Task prevTaskListTask;
         Task currTaskListTask;
+
         for (int i = 0; i < taskList.size(); i++) {
             currTaskListTask = taskList.get(i);
             prevTaskListTask = prevTaskList.get(i);
@@ -779,9 +786,11 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     private int findNumberOfTasksInUpcomingSubcategories() {
         int numTasks = 0;
+
         for (VBox vBox : upcomingSubcategories) {
             numTasks += vBox.getChildren().size();
         }
+
         return numTasks;
     }
 
@@ -806,7 +815,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // ================================================================================
 
     private String determineNodeName(Node node) {
-        if (node.equals(overdueNode)) {
+        if        (node.equals(overdueNode)) {
             return CATEGORY_OVERDUE;
         } else if (node.equals(upcomingNode)) {
             return CATEGORY_UPCOMING;
@@ -830,7 +839,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
             SubcategoryBox newDateBox;
             String shortDate = ", " + startingDateTime.format(DateTimeFormatter.ofPattern(dateFormatter.toPattern()));
 
-            if (count == 1) {
+            if        (count == 1) {
                 newDateBox = new SubcategoryBox(SUBCATEGORY_TODAY + shortDate);
             } else if (count == 2) {
                 newDateBox = new SubcategoryBox(SUBCATEGORY_TOMORROW + shortDate);

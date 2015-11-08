@@ -141,17 +141,21 @@ public abstract class CenterScreen extends VBox {
 
     protected FadeTransition generateFadeInTransition(Node nodeToFade, int fadeInTime) {
         FadeTransition transition = new FadeTransition(Duration.millis(fadeInTime), nodeToFade);
+
         transition.setFromValue(OPACITY_ZERO);
         transition.setToValue(OPACITY_FULL);
         transition.setInterpolator(Interpolator.EASE_IN);
+
         return transition;
     }
 
     protected FadeTransition generateFadeOutTransition(Node nodeToFade, int fadeOutTime) {
         FadeTransition transition = new FadeTransition(Duration.millis(fadeOutTime), nodeToFade);
+
         transition.setFromValue(OPACITY_FULL);
         transition.setToValue(OPACITY_ZERO);
         transition.setInterpolator(Interpolator.EASE_IN);
+
         return transition;
     }
 
@@ -271,9 +275,11 @@ public abstract class CenterScreen extends VBox {
      */
     private Date getEndOfWeekDate(Date today) {
         Calendar calendar = Calendar.getInstance();
+
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.setTime(today);
         calendar.add(Calendar.DAY_OF_WEEK, NUMBER_OF_DAYS_IN_A_WEEK);
+
         return calendar.getTime();
     }
 
@@ -281,8 +287,10 @@ public abstract class CenterScreen extends VBox {
         LocalDateTime startingDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().getDayOfMonth()) {
             return DATE_TODAY;
+
         } else if (startingDateTime.getDayOfMonth() == getDateTimeStartOfToday().plusDays(1).getDayOfMonth()) {
             return DATE_TOMORROW;
+
         } else {
             return getFriendlyDayFormat(date);
         }

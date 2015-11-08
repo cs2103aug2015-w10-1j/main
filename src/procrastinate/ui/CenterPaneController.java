@@ -96,10 +96,8 @@ public class CenterPaneController {
      * Switches the current screen in the StackPane that is set within the
      * center region of the BorderPane of the main window.
      *
-     * @param taskList
-     *            that contains the tasks related to each screen
-     * @param screenView
-     *            corresponding to the screen to switch to upon update
+     * @param taskList    that contains the tasks related to each screen
+     * @param screenView  corresponding to the screen to switch to upon update
      */
     protected void updateScreen(List<Task> taskList, ScreenView screenView) {
         switch (screenView) {
@@ -107,6 +105,7 @@ public class CenterPaneController {
                 if (currentScreen != doneScreen_) {
                     startScreenSwitchSequence(doneScreenNode_, doneScreen_);
                 }
+
                 doneScreen_.updateTaskList(taskList);
                 break;
             }
@@ -115,6 +114,7 @@ public class CenterPaneController {
                 if (currentScreen != mainScreen_) {
                     startScreenSwitchSequence(mainScreenNode_, mainScreen_);
                 }
+
                 mainScreen_.updateTaskList(taskList);
                 break;
             }
@@ -123,6 +123,7 @@ public class CenterPaneController {
                 if (currentScreen != searchScreen_) {
                     startScreenSwitchSequence(searchScreenNode_, searchScreen_);
                 }
+
                 searchScreen_.updateTaskList(taskList);
                 break;
             }
@@ -133,7 +134,9 @@ public class CenterPaneController {
                     // entire screen to be loaded before summarising can start.
                     switchToSummaryScreen();
                 }
+
                 summaryScreen_.updateTaskList(taskList);
+
                 if (!summaryScreen_.isSummarising()) {
                     if (!centerStackPane_.getChildren().contains(splashOverlayNode_)) {
                         startScreenSwitchSequenceNoAnimation(mainScreenNode_, mainScreen_);
@@ -156,9 +159,8 @@ public class CenterPaneController {
     /**
      * A handle to pass the search string from Logic to the SearchScreen.
      *
-     * @param searchString
-     *            that the user searched for, to be used as the search query
-     *            header on the SearchScreen.
+     * @param searchString    that the user searched for, to be used as the search
+     *                        query header on the SearchScreen.
      */
     protected void receiveSearchStringAndPassToSearchScreen(String searchString) {
         searchScreen_.updateSearchStringLabel(searchString);
@@ -168,6 +170,7 @@ public class CenterPaneController {
     // value is incremented/decremented twice to enable the user scroll faster
     protected void scrollDownCurrentScreen() {
         ScrollPane currScrollPane = ((ScrollPane) (currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
+
         ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
         currScrollBar.increment();
         currScrollBar.increment();
@@ -175,6 +178,7 @@ public class CenterPaneController {
 
     protected void scrollUpCurrentScreen() {
         ScrollPane currScrollPane = ((ScrollPane) (currentScreen.getNode().lookup(SELECTOR_SCROLL_PANE)));
+
         ScrollBar currScrollBar = (ScrollBar) currScrollPane.lookup(SELECTOR_SCROLL_BAR);
         currScrollBar.decrement();
         currScrollBar.decrement();
@@ -205,6 +209,7 @@ public class CenterPaneController {
         if (currentOverlay != helpOverlay_ || !centerStackPane_.getChildren().contains(helpOverlayNode_)) {
             return;
         }
+
         FadeTransition helpOverlayFadeOut = getFadeOutTransition(TIME_HELP_SCREEN_FADEOUT, helpOverlayNode_);
         helpOverlayFadeOut.setOnFinished(e -> {
             centerStackPane_.getChildren().remove(helpOverlayNode_);
@@ -227,6 +232,7 @@ public class CenterPaneController {
             if (splashScreenTimeline_.getCurrentTime().lessThan(interruptTime)) {
                 splashScreenTimeline_.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_INTERRUPT));
             }
+
             splashScreenTimeline_.jumpTo(Duration.millis(TIME_SPLASH_SCREEN_FADE));
         }
     }
@@ -239,6 +245,7 @@ public class CenterPaneController {
         if (currentOverlay == helpOverlay_ || centerStackPane_.getChildren().contains(helpOverlay_)) {
             return;
         }
+
         currentOverlay = helpOverlay_;
         centerStackPane_.getChildren().add(helpOverlayNode_);
         helpOverlayNode_.toFront();
@@ -281,27 +288,31 @@ public class CenterPaneController {
 
         splashScreenTimeline_ = new Timeline(fullOpacityFrame, zeroOpacityFrame);
         splashScreenTimeline_.setOnFinished(e -> {
-            centerStackPane_.getChildren().remove(splashOverlayNode_);
-            currentOverlay = null;
-            if (!summaryScreen_.isSummarising()) {
-                startScreenSwitchSequenceNoAnimation(mainScreenNode_, mainScreen_);
-            }
+                                              centerStackPane_.getChildren().remove(splashOverlayNode_);
+                                              currentOverlay = null;
+                                              if (!summaryScreen_.isSummarising()) {
+                                                  startScreenSwitchSequenceNoAnimation(mainScreenNode_, mainScreen_);
+                                              }
         });
     }
 
     private FadeTransition getFadeOutTransition(double timeInMs, Node transitingNode) {
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
+
         fadeTransition.setFromValue(OPACITY_FULL);
         fadeTransition.setToValue(OPACITY_ZERO);
         fadeTransition.setInterpolator(Interpolator.EASE_OUT);
+
         return fadeTransition;
     }
 
     private FadeTransition getFadeInTransition(double timeInMs, Node transitingNode) {
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(timeInMs), transitingNode);
+
         fadeTransition.setFromValue(OPACITY_ZERO);
         fadeTransition.setToValue(OPACITY_FULL);
         fadeTransition.setInterpolator(Interpolator.EASE_IN);
+
         return fadeTransition;
     }
 
@@ -309,11 +320,9 @@ public class CenterPaneController {
      * Combines the screen changing transitions of the outgoing and incoming
      * screens by playing them in sequence.
      *
-     * @param nodeToSwitchIn
-     *            must be the corresponding Node of the CenterScreen passed in.
-     * @param screenToSwitchIn
-     *            the CenterScreen to be switched in and should not be contained
-     *            within the centerStackPane.
+     * @param nodeToSwitchIn    must be the corresponding Node of the CenterScreen passed in.
+     * @param screenToSwitchIn  the CenterScreen to be switched in and should not be contained
+     *                          within the centerStackPane.
      */
     private void startScreenSwitchSequence(Node nodeToSwitchIn, CenterScreen screenToSwitchIn) {
         SequentialTransition incomingScreenTransition = screenToSwitchIn.getScreenSwitchInSequence();
@@ -334,6 +343,7 @@ public class CenterPaneController {
 
         centerStackPane_.getChildren().remove(currentScreen.getNode());
         centerStackPane_.getChildren().add(nodeToSwitchIn);
+
         incomingScreenTransition.jumpTo(TRANSITION_CUE_POINT_END);
         incomingScreenTransition.play();
     }
@@ -346,7 +356,9 @@ public class CenterPaneController {
     private void switchToSummaryScreen() {
         centerStackPane_.getChildren().add(summaryScreenNode_);
         centerStackPane_.getChildren().remove(currentScreen.getNode());
+
         summaryScreen_.getScreenSwitchInSequence().play();
+
         currentScreen = summaryScreen_;
     }
 
@@ -409,10 +421,12 @@ public class CenterPaneController {
     // Required since each screen node is wrapped inside a scrollPane.
     private void addMouseDragListeners(Node screenNode) {
         Node scrollPaneNode = ((ScrollPane) screenNode.lookup(SELECTOR_SCROLL_PANE)).getContent();
+
         scrollPaneNode.setOnMousePressed((mouseEvent) -> {
             xOffset = mouseEvent.getSceneX();
             yOffset = mouseEvent.getSceneY();
         });
+
         scrollPaneNode.setOnMouseDragged((mouseEvent) -> {
             centerStackPane_.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
             centerStackPane_.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
