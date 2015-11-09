@@ -329,7 +329,7 @@ public abstract class CenterScreen extends VBox {
     // Getter Methods
     // ================================================================================
 
-    // @@author A0121597B generated
+    // @@author generated
     protected Node getNode() {
         return this.node_;
     }

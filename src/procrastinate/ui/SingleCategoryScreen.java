@@ -110,7 +110,7 @@ public abstract class SingleCategoryScreen extends CenterScreen {
     // Getter Methods
     // ================================================================================
 
-    // @@author A0121597B generated
+    // @@author generated
     protected Node getCategoryNode() {
         return thisCategoryNode;
     }

@@ -227,7 +227,7 @@ public class WindowHandler {
     // Getter Methods
     // ================================================================================
 
-    // @@author A0121597B generated
+    // @@author generated
     protected Label getStatusLabel() {
         return statusLabel;
     }

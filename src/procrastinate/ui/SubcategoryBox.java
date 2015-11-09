@@ -81,7 +81,7 @@ public class SubcategoryBox extends VBox {
     // Getter methods
     // ================================================================================
 
-    // @@author A0121597B generated
+    // @@author generated
     protected Node getSubcategoryBox() {
         return this.subcategoryBox_;
     }

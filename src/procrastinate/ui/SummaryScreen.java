@@ -108,6 +108,7 @@ public class SummaryScreen extends MultiCategoryScreen {
      * present and the ellipses shows the number of tasks hidden in each
      * category.
      */
+    //@@author A0080485B
     private void setupSummaryView(List<Task> taskList) {
         double currMainVBoxHeight = getCurrentMainVBoxHeight();
         double maxMainVBoxHeight = ((ScrollPane) getNode().lookup(SELECTOR_SCROLLPANE)).getHeight();
@@ -141,6 +142,7 @@ public class SummaryScreen extends MultiCategoryScreen {
      *
      * @param maxMainVBoxHeight    the height to resize the screen to fit into
      */
+    //@@author A0121597B
     private void resizeScreenToFit(double maxMainVBoxHeight) {
         int numCategoriesPresent = calculateNumberOfCategoriesPresent();
         int numPartitionsToSplit = calculateNumberOfPartitionsToSplit();

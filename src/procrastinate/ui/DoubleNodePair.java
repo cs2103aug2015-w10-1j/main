@@ -1,4 +1,4 @@
-//@@author A0121597B
+//@@author A0121597B-reused
 package procrastinate.ui;
 
 import javafx.scene.Node;
@@ -41,6 +41,7 @@ public class DoubleNodePair implements Comparable<DoubleNodePair> {
     // Getter Methods
     // ================================================================================
 
+    //@@author generated
     protected double getHeight() {
         return height_;
     }

@@ -72,7 +72,7 @@ public abstract class ImageOverlay {
     // Getter Methods
     // ================================================================================
 
-    // @@author A0121597B generated
+    // @@author generated
     protected Node getNode() {
         return this.node;
     }

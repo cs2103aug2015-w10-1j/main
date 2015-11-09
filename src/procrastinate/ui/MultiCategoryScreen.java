@@ -928,7 +928,7 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // Getter Methods
     // ================================================================================
 
-    // @@author A0121597B generated
+    // @@author generated
     protected Node getOverdueNode() {
         return overdueNode;
     }
