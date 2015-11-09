@@ -117,7 +117,7 @@ public class Logic {
             case ADD_DREAM :
             case ADD_DEADLINE :
             case ADD_EVENT :
-                feedback = command.run(ui, taskEngine);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_OUTSTANDING);
                 }
@@ -125,32 +125,32 @@ public class Logic {
 
             case EDIT :
             case EDIT_TO_DREAM :
-                feedback = command.run(ui, taskEngine);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
             case EDIT_PARTIAL :
-                feedback = command.run(null, taskEngine);
+                feedback = exec(command);
                 break;
 
             case DELETE :
-                feedback = command.run(ui, taskEngine);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
             case DONE :
-                feedback = command.run(ui, taskEngine);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
             case UNDO :
-                feedback = command.run(ui, taskEngine);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
@@ -160,7 +160,7 @@ public class Logic {
             case SEARCH_ON :
             case SEARCH_DUE :
             case SEARCH_RANGE :
-                feedback = command.run(null, null);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     searchString = command.getSearchStr();
                     searchTerm = command.getSearchTerm();
@@ -173,43 +173,43 @@ public class Logic {
                 break;
 
             case SET_PATH :
-                feedback = command.run(ui, taskEngine);
+                feedback = exec(command);
                 break;
 
             case SHOW_OUTSTANDING :
-                feedback = command.run(null, null);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_OUTSTANDING);
                 }
                 break;
 
             case SHOW_DONE :
-                feedback = command.run(null, null);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_DONE);
                 }
                 break;
 
             case SHOW_ALL :
-                feedback = command.run(null, null);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_ALL);
                 }
                 break;
 
             case SHOW_SUMMARY :
-                feedback = command.run(null, null);
+                feedback = exec(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_SUMMARY);
                 }
                 break;
 
             case HELP :
-                feedback = command.run(ui, null);
+                feedback = exec(command);
                 break;
 
             case INVALID :
-                feedback = command.run(null, null);
+                feedback = exec(command);
                 break;
 
             case EXIT :
@@ -820,4 +820,9 @@ public class Logic {
     private List<Task> getCurrentTaskList() {
         return taskEngine.getCurrentTaskList();
     }
+
+    private String exec(CleanCommand cmd) {
+        return cmd.run(ui, taskEngine);
+    }
+
 }
