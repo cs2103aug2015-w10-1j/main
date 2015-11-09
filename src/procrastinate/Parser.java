@@ -3,8 +3,29 @@ package procrastinate;
 
 import com.joestelmach.natty.DateGroup;
 
-import procrastinate.Command.CommandType;
-
+import procrastinate.command.AddDeadline;
+import procrastinate.command.AddDream;
+import procrastinate.command.AddEvent;
+import procrastinate.command.Command;
+import procrastinate.command.Delete;
+import procrastinate.command.Done;
+import procrastinate.command.EditDeadline;
+import procrastinate.command.EditDream;
+import procrastinate.command.EditEvent;
+import procrastinate.command.EditPartial;
+import procrastinate.command.Exit;
+import procrastinate.command.Help;
+import procrastinate.command.Invalid;
+import procrastinate.command.SearchDesc;
+import procrastinate.command.SearchDue;
+import procrastinate.command.SearchOn;
+import procrastinate.command.SearchRange;
+import procrastinate.command.SetPath;
+import procrastinate.command.ShowAll;
+import procrastinate.command.ShowDone;
+import procrastinate.command.ShowOutstanding;
+import procrastinate.command.ShowSummary;
+import procrastinate.command.Undo;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -118,6 +139,7 @@ public class Parser {
     private static Command constructCommand(String userInput, String userCommand, CommandStringType commandInputType,
             List<Date> dateArray) {
         String firstWord = getFirstWord(userCommand).toLowerCase(); // Case insensitive
+        Command command = null;
 
         switch (firstWord) {
             case COMMAND_ADD : {
@@ -136,7 +158,7 @@ public class Parser {
                     return constructInvalidCommand(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-                Command command = constructAddCommand(commandInputType, dateArray, description);
+                command = constructAddCommand(commandInputType, dateArray, description);
 
                 return command;
             }
@@ -162,15 +184,13 @@ public class Parser {
 
                 if (argument.length <= 2 && commandInputType == CommandStringType.NO_DATE) { // Too few arguments
                     // Treat "edit 1" as a partial edit command
-                    return new Command(CommandType.EDIT_PARTIAL).addLineNumber(lineNumber);
+                    return new EditPartial(lineNumber);
                 }
 
                 String description = "";
                 if (argument.length > 2) {
                     description = argument[2];
                 }
-
-                Command command;
 
                 command = constructEditCommand(commandInputType, dateArray, lineNumber, description);
 
@@ -240,7 +260,6 @@ public class Parser {
                     return constructInvalidCommand(MESSAGE_INVALID_NO_DESCRIPTION);
                 }
 
-                Command command;
                 command = constructSearchCommand(userCommand, commandInputType, dateArray);
 
                 return command;
@@ -291,8 +310,8 @@ public class Parser {
                     return Parser.parse(putAddInFront(userInput));
                 }
 
-                Command command;
                 command = constructSetPathCommand(userCommand);
+
                 return command;
             }
 
@@ -317,133 +336,127 @@ public class Parser {
     private static Command constructAddCommand(CommandStringType commandInputType, List<Date> dateArray,
             String description) {
         Command command;
+
         switch (commandInputType) {
-            case DUE_DATE :
-            case ON_DATE :
-                command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
+            case DUE_DATE:
+            case ON_DATE:
+                command = new AddDeadline(description, getStartDate(dateArray));
                 break;
 
-            case FROM_TO_DATE :
-                command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
-                .addEndDate(getEndDate(dateArray));
+            case FROM_TO_DATE:
+                command = new AddEvent(description, getStartDate(dateArray), getEndDate(dateArray));
                 break;
 
-            default : // NO_DATE
-                command = new Command(CommandType.ADD_DREAM);
+            default: // NO_DATE
+                command = new AddDream(description);
                 break;
         }
 
-        command.addDescription(description);
         return command;
     }
 
     private static Command constructEditCommand(CommandStringType commandInputType, List<Date> dateArray,
             int lineNumber, String description) {
-        Command command;
-        command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
+        Command command = null;
+        description = removeEscapeCharacters(description);
 
         switch (commandInputType) {
             case DUE_DATE :
             case ON_DATE :
-                command.addDate(getStartDate(dateArray));
+                command = new EditDeadline(lineNumber, description, getStartDate(dateArray));
                 break;
 
             case FROM_TO_DATE :
-                command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+                command = new EditEvent(lineNumber, description,
+                                        getStartDate(dateArray), getEndDate(dateArray));
                 break;
 
             default : // NO_DATE
                 if (description.equals(KEYWORD_EVENTUALLY)) {
-                    command = new Command(CommandType.EDIT_TO_DREAM).addLineNumber(lineNumber);
+                    command = new EditDream(lineNumber, "");
                 }
                 break;
         }
 
-        if (!description.isEmpty() && !command.getType().equals(CommandType.EDIT_TO_DREAM)) {
-            description = removeEscapeCharacters(description);
-            command.addDescription(description);
+        if (!description.isEmpty() && command == null) {
+            command = new EditDream(lineNumber, description);
         }
+
         return command;
     }
 
     private static Command constructDeleteCommand(int lineNumber) {
-        return new Command(CommandType.DELETE).addLineNumber(lineNumber);
+        return new Delete(lineNumber);
     }
 
     private static Command constructUndoCommand() {
-        return new Command(CommandType.UNDO);
+        return new Undo();
     }
 
     private static Command constructDoneCommand(int lineNumber) {
-        return new Command(CommandType.DONE).addLineNumber(lineNumber);
+        return new Done(lineNumber);
     }
 
-    private static Command constructSearchCommand(String userCommand, CommandStringType commandInputType,
-            List<Date> dateArray) {
-        Command command;
+    private static Command constructSearchCommand(String userCommand,
+                                                       CommandStringType commandInputType,
+                                                       List<Date> dateArray) {
+
+        Command command = null;
         String[] argument = userCommand.split(WHITESPACE_STRING, 2);
-        String searchDescription = argument[1];
+        String searchDescription = removeEscapeCharacters(argument[1]);
 
         if (commandInputType.equals(CommandStringType.ON_DATE)) {
-            command = new Command(CommandType.SEARCH_ON);
 
-            command.addDate(getStartDate(dateArray));
+            command = new SearchOn(searchDescription, getStartDate(dateArray));
+
+        } else if (commandInputType.equals(CommandStringType.DUE_DATE)) {
+
+            command = new SearchDue(searchDescription, getStartDate(dateArray));
+
+        } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
+
+            command = new SearchRange(searchDescription, getStartDate(dateArray), getEndDate(dateArray));
 
         } else {
-            command = new Command(CommandType.SEARCH);
-
-            if (commandInputType.equals(CommandStringType.DUE_DATE)) {
-                command.addDate(getStartDate(dateArray));
-            } else if (commandInputType.equals(CommandStringType.FROM_TO_DATE)) {
-                command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
-            }
+            command = new SearchDesc(searchDescription);
 
         }
 
-        if (!searchDescription.isEmpty()) {
-            searchDescription = removeEscapeCharacters(searchDescription);
-            command.addDescription(searchDescription);
-        }
         return command;
     }
 
     private static Command constructShowOutstandingCommand() {
-        return new Command(CommandType.SHOW_OUTSTANDING);
+        return new ShowOutstanding();
     }
 
     private static Command constructShowDoneCommand() {
-        return new Command(CommandType.SHOW_DONE);
+        return new ShowDone();
     }
 
     private static Command constructShowAllCommand() {
-        return new Command(CommandType.SHOW_ALL);
+        return new ShowAll();
     }
 
     private static Command constructShowSummaryCommand() {
-        return new Command(CommandType.SHOW_SUMMARY);
+        return new ShowSummary();
     }
 
     private static Command constructHelpCommand() {
-        return new Command(CommandType.HELP);
+        return new Help();
     }
 
     private static Command constructSetPathCommand(String userCommand) {
-        Command command;
-        String[] pathArguments = extractSetPathArguments(userCommand);
-        command = new Command(CommandType.SET_PATH).addPathDirectory(pathArguments[0]);
-
-        if (pathArguments[1] != null) {
-            command.addPathFilename(pathArguments[1]);
-        }
-        return command;
+        String[] pathArgs = extractSetPathArguments(userCommand);
+        return new SetPath(pathArgs[0], pathArgs[1]);
     }
 
     private static Command constructExitCommand() {
-        return new Command(CommandType.EXIT);
+        return new Exit();
     }
 
     private static Command constructInvalidCommand (String invalidMessage) {
-        return new Command(CommandType.INVALID).addDescription(invalidMessage);
+//        return new Command(CommandType.INVALID).addDescription(invalidMessage);
+        return new Invalid(invalidMessage);
     }
 
     // ================================================================================

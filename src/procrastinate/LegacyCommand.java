@@ -1,9 +1,12 @@
-//@@author A0080485B
+//@@author A0080485B-unused
+// Was refactored into individual procrastinate.command classes by A0124321Y
+// Skeleton code for the Command class
 package procrastinate;
 
 import java.util.Date;
 
-public class Command {
+@Deprecated
+public class LegacyCommand {
 
     public static enum CommandType {
         ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, EDIT_PARTIAL, EDIT_TO_DREAM, DELETE, UNDO, DONE,
@@ -23,7 +26,7 @@ public class Command {
     private String pathDirectory_;
     private String pathFilename_;
 
-    public Command(CommandType type) {
+    public LegacyCommand(CommandType type) {
         this.type_ = type;
     }
 
@@ -31,37 +34,37 @@ public class Command {
     // Setter methods (using chaining)
     // ================================================================================
 
-    public Command addDescription(String description) {
+    public LegacyCommand addDescription(String description) {
         description_ = description.trim();
         return this;
     }
 
-    public Command addDate(Date date) {
+    public LegacyCommand addDate(Date date) {
         date_ = date;
         return this;
     }
 
-    public Command addStartDate(Date startDate) {
+    public LegacyCommand addStartDate(Date startDate) {
         startDate_ = startDate;
         return this;
     }
 
-    public Command addEndDate(Date endDate) {
+    public LegacyCommand addEndDate(Date endDate) {
         endDate_ = endDate;
         return this;
     }
 
-    public Command addLineNumber(int lineNumber) {
+    public LegacyCommand addLineNumber(int lineNumber) {
         lineNumber_ = lineNumber;
         return this;
     }
 
-    public Command addPathDirectory(String pathDirectory) {
+    public LegacyCommand addPathDirectory(String pathDirectory) {
         pathDirectory_ = pathDirectory;
         return this;
     }
 
-    public Command addPathFilename(String fileName) {
+    public LegacyCommand addPathFilename(String fileName) {
         pathFilename_ = fileName;
         return this;
     }

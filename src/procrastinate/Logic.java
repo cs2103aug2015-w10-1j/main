@@ -1,30 +1,26 @@
 //@@author A0080485B
 package procrastinate;
 
-import java.io.File;
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
+import procrastinate.command.Command;
+import procrastinate.command.Command.CommandType;
+import procrastinate.command.Feedback;
+import procrastinate.command.FeedbackExit;
+import procrastinate.command.FeedbackHelp;
+import procrastinate.ui.UI;
+import procrastinate.ui.UI.ScreenView;
+
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang.time.DateUtils;
-
-import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
-import procrastinate.Command.CommandType;
-import procrastinate.task.Deadline;
-import procrastinate.task.Dream;
-import procrastinate.task.Event;
 import procrastinate.task.Task;
 import procrastinate.task.TaskEngine;
-import procrastinate.ui.UI;
-import procrastinate.ui.UI.ScreenView;
 
 public class Logic {
 
@@ -47,48 +43,12 @@ public class Logic {
     private static final String NATTY_WARMUP_STRING = "Natty starts up slowly due tomorrow";
 
     private static final String FEEDBACK_READY = "Ready!";
-    private static final String FEEDBACK_ADD = "New %1$s: ";
-    private static final String FEEDBACK_EDIT = "Edited #%1$s: ";
-    private static final String FEEDBACK_EDIT_PARTIAL = "Please specify the new description/date(s) or press tab";
-    private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
-    private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
-    private static final String FEEDBACK_UNDONE = "Undone %1$s: %2$s";
-    private static final String FEEDBACK_SEARCH = "Searching for tasks";
-    private static final String FEEDBACK_SEARCH_CONTAINING = " containing '%1$s'";
-    private static final String FEEDBACK_SEARCH_ON = " on %1$s";
-    private static final String FEEDBACK_SEARCH_DUE = " due by %1$s";
-    private static final String FEEDBACK_SEARCH_FROM_TO = " from %1$s to %2$s";
-    private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
-    private static final String FEEDBACK_INVALID_RANGE = "Invalid dates: %2$s is before %1$s";
-    private static final String FEEDBACK_UNDO = "Undid last operation";
-    private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
-    private static final String FEEDBACK_SET_LOCATION = "Set save location to ";
-    private static final String FEEDBACK_HELP = "Showing help screen (use left/right keys to navigate)";
-    private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
-    private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
-    private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
-    private static final String FEEDBACK_SHOW_SUMMARY = "Showing summary of outstanding tasks";
-    private static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";
-    private static final String FEEDBACK_EXIT = "Goodbye!";
 
     private static final String ERROR_STARTUP_HEADER = "There was a problem accessing the directory";
     private static final String ERROR_STARTUP_MESSAGE = "Please startup Procrastinate from a different working directory";
-    private static final String ERROR_SAVE_HEADER = "Could not save changes to file!";
-    private static final String ERROR_SAVE_MESSAGE = FEEDBACK_TRY_AGAIN;
     private static final String ERROR_EXIT_HEADER = "Could not save changes! Your data will be LOST!";
     private static final String ERROR_EXIT_MESSAGE = "Discard unsaved changes and exit?";
     private static final String ERROR_EXIT_BUTTON_LABEL = "Discard and exit";
-    private static final String ERROR_SET_LOCATION_HEADER = "Could not set save location:";
-    private static final String ERROR_SET_LOCATION_MESSAGE = "%1$s%2$s\n\n" + FEEDBACK_TRY_AGAIN;
-
-    private static final String SEARCH_STRING_DESCRIPTION = "'%1$s'";
-    private static final String SEARCH_STRING_NO_DESCRIPTION = "all tasks";
-    private static final String SEARCH_STRING_ON = " on ";
-    private static final String SEARCH_STRING_DUE = " due ";
-    private static final String SEARCH_STRING_FROM_TO = " from %1$s to %2$s";
-
-    private static final DateFormat dateTimeFormatter = new SimpleDateFormat("d/MM/yy h:mma");
-    private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
 
     // ================================================================================
     // Instance variables
@@ -134,82 +94,146 @@ public class Logic {
 
     public String previewCommand(String userCommand) {
     	lastPreviewedCommand = Parser.parse(userCommand);
-        return runCommand(lastPreviewedCommand, false);
+    	lastPreviewedCommand.setPreview(true);
+        return runCommand(lastPreviewedCommand);
     }
 
     public String executeLastPreviewedCommand() {
     	assert(lastPreviewedCommand != null);
-        return runCommand(lastPreviewedCommand, true);
+    	lastPreviewedCommand.setPreview(false);
+        return runCommand(lastPreviewedCommand);
     }
 
     public boolean hasLastPreviewedCommand() {
     	return lastPreviewedCommand != null;
     }
 
-    private String runCommand(Command command, boolean execute) {
+    //@@author A0124321Y
+    private String runCommand(Command command) {
+        String feedback = null;
 
         switch (command.getType()) {
 
             case ADD_DREAM :
             case ADD_DEADLINE :
             case ADD_EVENT :
-                return runAdd(command, execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_OUTSTANDING);
+                }
+                break;
 
             case EDIT :
             case EDIT_TO_DREAM :
-                return runEdit(command, execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case EDIT_PARTIAL :
-                return runEditPartial(command);
+                feedback = execute(command);
+                break;
 
             case DELETE :
-                return runDelete(command, execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case DONE :
-                return runDone(command, execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case UNDO :
-                return runUndo(execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView();
+                }
+                break;
 
             case SEARCH :
             case SEARCH_ON :
-                return runSearch(command, execute);
+            case SEARCH_DUE :
+            case SEARCH_RANGE :
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    searchString = command.getSearchStr();
+                    searchTerm = command.getSearchTerm();
+                    searchStartDate = command.getSearchStartDate();
+                    searchEndDate = command.getSearchEndDate();
+                    searchShowDone = command.getSearchShowDone();
+
+                    updateView(ViewType.SHOW_SEARCH_RESULTS);
+                }
+                break;
 
             case SET_PATH :
-                return runSetPath(command, execute);
+                feedback = execute(command);
+                break;
 
             case SHOW_OUTSTANDING :
-                return runShowOutstanding(execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_OUTSTANDING);
+                }
+                break;
 
             case SHOW_DONE :
-                return runShowDone(execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_DONE);
+                }
+                break;
 
             case SHOW_ALL :
-                return runShowAll(execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_ALL);
+                }
+                break;
 
             case SHOW_SUMMARY :
-                return runShowSummary(execute);
+                feedback = execute(command);
+                if (!command.isPreview()) {
+                    updateView(ViewType.SHOW_SUMMARY);
+                }
+                break;
 
             case HELP :
-                return runHelp(execute);
+                feedback = execute(command);
+                break;
 
             case INVALID :
-                return runInvalid(command);
+                feedback = execute(command);
+                break;
 
             case EXIT :
-                return runExit(execute);
+                if (!command.isPreview() && !exit()) {
+                    feedback = Feedback.FEEDBACK_TRY_AGAIN;
+                } else {
+                    feedback = FeedbackExit.EXIT;
+                }
+                break;
 
             default :
-                return null;
-
+                break;
         }
+        return feedback;
 
     }
 
+    //@@author A0080485B-unused
+    // Was refactored into individual procrastinate.command classes by A0124321Y
+    // Provided the structure for Command class
     // ================================================================================
     // Command handling methods
     // ================================================================================
-
+/*
     private String runAdd(Command command, boolean execute) {
         String description = command.getDescription();
         assert(description != null);
@@ -551,7 +575,9 @@ public class Logic {
         }
         return FEEDBACK_EXIT;
     }
+//*/
 
+    //@@author A0080485B
     // ================================================================================
     // Init methods
     // ================================================================================
@@ -699,7 +725,7 @@ public class Logic {
                 case F1 : {
                     ui.showHelpOverlay();
                     if (ui.getInput().isEmpty()) {
-                        ui.setPreviewStatus(FEEDBACK_HELP);
+                        ui.setPreviewStatus(FeedbackHelp.HELP);
                     }
                     return;
                 }
@@ -746,7 +772,7 @@ public class Logic {
             if (newValue.booleanValue()) {
                 if (!exit()) {
                     ui.resetIsExit();
-                    ui.setPreviewStatus(FEEDBACK_TRY_AGAIN);
+                    ui.setPreviewStatus(Feedback.FEEDBACK_TRY_AGAIN);
                 }
             }
         };
@@ -755,6 +781,10 @@ public class Logic {
     // ================================================================================
     // Utility methods
     // ================================================================================
+
+    private String execute(Command command) {
+        return command.run(ui, taskEngine);
+    }
 
     // Exit routine used by exit command, close button and system tray
     private boolean exit() {
@@ -797,14 +827,6 @@ public class Logic {
 
     private List<Task> getCurrentTaskList() {
         return taskEngine.getCurrentTaskList();
-    }
-
-    private static String formatDateTime(Date date) {
-        return dateTimeFormatter.format(date);
-    }
-
-    private static String formatDate(Date date) {
-        return dateFormatter.format(date);
     }
 
 }
