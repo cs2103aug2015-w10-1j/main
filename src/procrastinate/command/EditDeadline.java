@@ -8,12 +8,12 @@ import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
 public class EditDeadline extends Edit {
-    private String description;
     private Date date;
 
     public EditDeadline(int lineNum, String description, Date date) {
         super(CommandType.EDIT, lineNum);
 
+        addDescription(description);
         this.date = date;
     }
 

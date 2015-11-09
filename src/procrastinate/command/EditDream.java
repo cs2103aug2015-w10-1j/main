@@ -6,12 +6,10 @@ import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
 public class EditDream extends Edit {
-    private String description;
-
     public EditDream(int lineNum, String description) {
         super(CommandType.EDIT, lineNum);
 
-        this.description = description;
+        addDescription(description);
     }
 
     @Override

@@ -8,14 +8,13 @@ import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
 public class EditEvent extends Edit {
-    private String description;
     private Date startDate;
     private Date endDate;
 
     public EditEvent(int lineNum, String description, Date startDate, Date endDate) {
         super(CommandType.EDIT, lineNum);
 
-        this.description = description;
+        addDescription(description);
         this.startDate = startDate;
         this.endDate = endDate;
     }
