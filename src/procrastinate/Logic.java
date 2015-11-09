@@ -10,12 +10,11 @@ import procrastinate.command.CleanCommand;
 import procrastinate.command.CleanCommand.CommandType;
 import procrastinate.command.Feedback;
 import procrastinate.command.FeedbackExit;
+import procrastinate.command.FeedbackHelp;
 import procrastinate.ui.UI;
 import procrastinate.ui.UI.ScreenView;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,48 +44,12 @@ public class Logic {
     private static final String NATTY_WARMUP_STRING = "Natty starts up slowly due tomorrow";
 
     private static final String FEEDBACK_READY = "Ready!";
-    private static final String FEEDBACK_ADD = "New %1$s: ";
-    private static final String FEEDBACK_EDIT = "Edited #%1$s: ";
-    private static final String FEEDBACK_EDIT_PARTIAL = "Please specify the new description/date(s) or press tab";
-    private static final String FEEDBACK_DELETED = "Deleted %1$s: %2$s";
-    private static final String FEEDBACK_DONE = "Done %1$s: %2$s";
-    private static final String FEEDBACK_UNDONE = "Undone %1$s: %2$s";
-    private static final String FEEDBACK_SEARCH = "Searching for tasks";
-    private static final String FEEDBACK_SEARCH_CONTAINING = " containing '%1$s'";
-    private static final String FEEDBACK_SEARCH_ON = " on %1$s";
-    private static final String FEEDBACK_SEARCH_DUE = " due by %1$s";
-    private static final String FEEDBACK_SEARCH_FROM_TO = " from %1$s to %2$s";
-    private static final String FEEDBACK_INVALID_LINE_NUMBER = "Invalid line number: ";
-    private static final String FEEDBACK_INVALID_RANGE = "Invalid dates: %2$s is before %1$s";
-    private static final String FEEDBACK_UNDO = "Undid last operation";
-    private static final String FEEDBACK_NOTHING_TO_UNDO = "Nothing to undo";
-    private static final String FEEDBACK_SET_LOCATION = "Set save location to ";
-    private static final String FEEDBACK_HELP = "Showing help screen (use left/right keys to navigate)";
-    private static final String FEEDBACK_SHOW_ALL = "Showing all tasks";
-    private static final String FEEDBACK_SHOW_DONE = "Showing completed tasks";
-    private static final String FEEDBACK_SHOW_OUTSTANDING = "Showing outstanding tasks";
-    private static final String FEEDBACK_SHOW_SUMMARY = "Showing summary of outstanding tasks";
-    private static final String FEEDBACK_TRY_AGAIN = "Please set a different save location and try again";
-    private static final String FEEDBACK_EXIT = "Goodbye!";
 
     private static final String ERROR_STARTUP_HEADER = "There was a problem accessing the directory";
     private static final String ERROR_STARTUP_MESSAGE = "Please startup Procrastinate from a different working directory";
-    private static final String ERROR_SAVE_HEADER = "Could not save changes to file!";
-    private static final String ERROR_SAVE_MESSAGE = FEEDBACK_TRY_AGAIN;
     private static final String ERROR_EXIT_HEADER = "Could not save changes! Your data will be LOST!";
     private static final String ERROR_EXIT_MESSAGE = "Discard unsaved changes and exit?";
     private static final String ERROR_EXIT_BUTTON_LABEL = "Discard and exit";
-    private static final String ERROR_SET_LOCATION_HEADER = "Could not set save location:";
-    private static final String ERROR_SET_LOCATION_MESSAGE = "%1$s%2$s\n\n" + FEEDBACK_TRY_AGAIN;
-
-    private static final String SEARCH_STRING_DESCRIPTION = "'%1$s'";
-    private static final String SEARCH_STRING_NO_DESCRIPTION = "all tasks";
-    private static final String SEARCH_STRING_ON = " on ";
-    private static final String SEARCH_STRING_DUE = " due ";
-    private static final String SEARCH_STRING_FROM_TO = " from %1$s to %2$s";
-
-    private static final DateFormat dateTimeFormatter = new SimpleDateFormat("d/MM/yy h:mma");
-    private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy");
 
     // ================================================================================
     // Instance variables
@@ -758,7 +721,7 @@ public class Logic {
                 case F1 : {
                     ui.showHelpOverlay();
                     if (ui.getInput().isEmpty()) {
-                        ui.setPreviewStatus(FEEDBACK_HELP);
+                        ui.setPreviewStatus(FeedbackHelp.HELP);
                     }
                     return;
                 }
@@ -805,7 +768,7 @@ public class Logic {
             if (newValue.booleanValue()) {
                 if (!exit()) {
                     ui.resetIsExit();
-                    ui.setPreviewStatus(FEEDBACK_TRY_AGAIN);
+                    ui.setPreviewStatus(Feedback.FEEDBACK_TRY_AGAIN);
                 }
             }
         };
@@ -857,20 +820,4 @@ public class Logic {
     private List<Task> getCurrentTaskList() {
         return taskEngine.getCurrentTaskList();
     }
-
-//    private static String formatDateTime(Date date) {
-//        return dateTimeFormatter.format(date);
-//    }
-//
-//    private static String formatDate(Date date) {
-//        return dateFormatter.format(date);
-//    }
-//
-//    private static String shorten(String description, int maxLength) {
-//        if (description.length() <= maxLength) {
-//            return description;
-//        }
-//
-//        return description.substring(0, maxLength - 1) + FEEDBACK_ELLIPSIS;
-//    }
 }
