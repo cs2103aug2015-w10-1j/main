@@ -23,17 +23,16 @@ public class AddDeadline extends Add {
     public String run(UI ui, TaskEngine taskEngine) {
         String feedback = null;
 
+        // make task
+        task = new Deadline(description, date);
+
         // make feedback for preview zone
-        feedback = String.format(ADD_DEADLINE, Feedback.shorten(description, MAX_LENGTH_DESCRIPTION),
-                Feedback.formatDateTime(date));
+        feedback = ui.fitToStatus(String.format(ADD, task.getTypeString()), description, task.getDateString());
 
         if (isPreview()) {
             assert feedback != null;
             return feedback;
         }
-
-        // make task
-        task = new Deadline(description, date);
 
         // add to task engine
         if (taskEngine.add(task)) {

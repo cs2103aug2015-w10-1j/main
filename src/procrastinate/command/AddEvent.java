@@ -31,19 +31,16 @@ public class AddEvent extends Add {
             return feedback;
         }
 
+        // make task
+        task = new Event(description, startDate, endDate);
+
         // make feedback for preview zone
-        feedback = String.format(ADD_EVENT,
-                                 Feedback.shorten(description, MAX_LENGTH_DESCRIPTION_SHORT),
-                                 Feedback.formatDateTime(startDate),
-                                 Feedback.formatDateTime(endDate));
+        feedback = ui.fitToStatus(String.format(ADD, task.getTypeString()), description, task.getDateString());
 
         if (isPreview()) {
             assert feedback != null;
             return feedback;
         }
-
-        // make task
-        task = new Event(description, startDate, endDate);
 
         // add to task engine
         if (taskEngine.add(task)) {

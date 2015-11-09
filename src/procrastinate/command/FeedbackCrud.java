@@ -2,10 +2,12 @@
 package procrastinate.command;
 
 public interface FeedbackCrud extends Feedback {
+    public static final String ADD = "New %1$s: ";
     public static final String ADD_DREAM = "New dream: %1$s";
     public static final String ADD_DEADLINE = "New deadline: %1$s due %2$s";
     public static final String ADD_EVENT = "New event: %1$s %2$s to %3$s";
 
+    public static final String EDIT = "Edited #%1$s: ";
     public static final String EDIT_DREAM = "Edited #%1$s: %2$s";
     public static final String EDIT_DEADLINE = "Edited #%1$s: %2$s due %3$s";
     public static final String EDIT_EVENT = "Edited #%1$s: %2$s %3$s to %4$s";

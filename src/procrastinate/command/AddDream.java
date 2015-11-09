@@ -15,16 +15,16 @@ public class AddDream extends Add {
     public String run(UI ui, TaskEngine taskEngine) {
         String feedback = null;
 
+        // make task
+        task = new Dream(description);
+
         // make feedback for preview zone
-        feedback = String.format(ADD_DREAM, getDescription());
+        feedback = ui.fitToStatus(String.format(ADD, task.getTypeString()), description, task.getDateString());
 
         if (isPreview()) {
             assert feedback != null;
             return feedback;
         }
-
-        // make task
-        task = new Dream(description);
 
         if (taskEngine.add(task)) {
             return feedback;

@@ -26,22 +26,22 @@ public class EditDeadline extends Edit {
             return feedback;
         }
 
-        // make feedback for preview zone
-        feedback = String.format(EDIT_DEADLINE, lineNum,
-                                 Feedback.shorten(description, MAX_LENGTH_DESCRIPTION),
-                                 Feedback.formatDateTime(date));
-
-        if (isPreview()) {
-            assert feedback != null;
-            return feedback;
-        }
-
         // make task
         oldTask = getTask(lineNum, taskEngine);
         if (description.isEmpty()) {
             newTask = new Deadline(oldTask.getDescription(), date);
         } else {
             newTask = new Deadline(description, date);
+        }
+
+        // make feedback for preview zone
+        feedback = ui.fitToStatus(String.format(EDIT, getLineNumber()),
+                                  newTask.getDescription(),
+                                  newTask.getDateString());
+
+        if (isPreview()) {
+            assert feedback != null;
+            return feedback;
         }
 
         // replace old with new

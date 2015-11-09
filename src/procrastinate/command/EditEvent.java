@@ -35,17 +35,6 @@ public class EditEvent extends Edit {
             return feedback;
         }
 
-        // make feedback for preview zone
-        feedback = String.format(EDIT_EVENT, lineNum,
-                                 Feedback.shorten(description, MAX_LENGTH_DESCRIPTION_TINY),
-                                 Feedback.formatDateTime(startDate),
-                                 Feedback.formatDateTime(endDate));
-
-        if (isPreview()) {
-            assert feedback != null;
-            return feedback;
-        }
-
         // make task
         oldTask = getTask(lineNum, taskEngine);
         if (description.isEmpty()) {
@@ -53,6 +42,17 @@ public class EditEvent extends Edit {
         } else {
             newTask = new Event(description, startDate, endDate);
         }
+
+        // make feedback for preview zone
+        feedback = ui.fitToStatus(String.format(EDIT, getLineNumber()),
+                                  newTask.getDescription(),
+                                  newTask.getDateString());
+
+        if (isPreview()) {
+            assert feedback != null;
+            return feedback;
+        }
+
 
         // replace old with new
         if (taskEngine.edit(oldTask.getId(), newTask)) {
