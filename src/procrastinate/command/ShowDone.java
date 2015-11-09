@@ -7,7 +7,7 @@ import procrastinate.ui.UI;
 public class ShowDone extends Show {
 
     public ShowDone() {
-        super(CommandType.SHOW_OUTSTANDING);
+        super(CommandType.SHOW_DONE);
     }
 
     @Override

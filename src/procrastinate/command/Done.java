@@ -13,6 +13,7 @@ public class Done extends CrudCmd {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
+        assert ui != null && taskEngine != null;
         String feedback = null;
 
         if (isInvalid(lineNum, taskEngine)) {
