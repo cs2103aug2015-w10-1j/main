@@ -158,12 +158,7 @@ public class SummaryScreen extends MultiCategoryScreen {
         double rollOverHeight = 0;
         double singlePartitionHeight = remainingHeightForTaskDisplay / numPartitionsToSplit;
 
-        DoubleNodePair overdueCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(overdueNode), overdueNode);
-        DoubleNodePair upcomingCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(upcomingNode), upcomingNode);
-        DoubleNodePair futureCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(futureNode), futureNode);
-        DoubleNodePair dreamsCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(dreamsNode), dreamsNode);
-        DoubleNodePair[] allCategoryHeightNodePair = { overdueCategoryHeightNodePair, upcomingCategoryHeightNodePair,
-                                                       futureCategoryHeightNodePair, dreamsCategoryHeightNodePair };
+        DoubleNodePair[] allCategoryHeightNodePair = getHeightNodePairings();
 
         Arrays.sort(allCategoryHeightNodePair);
 
@@ -203,6 +198,16 @@ public class SummaryScreen extends MultiCategoryScreen {
                 continue;
             }
         }
+    }
+
+    private DoubleNodePair[] getHeightNodePairings() {
+        DoubleNodePair overdueCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(overdueNode), overdueNode);
+        DoubleNodePair upcomingCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(upcomingNode), upcomingNode);
+        DoubleNodePair futureCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(futureNode), futureNode);
+        DoubleNodePair dreamsCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(dreamsNode), dreamsNode);
+        DoubleNodePair[] allCategoryHeightNodePair = { overdueCategoryHeightNodePair, upcomingCategoryHeightNodePair,
+                                                       futureCategoryHeightNodePair, dreamsCategoryHeightNodePair };
+        return allCategoryHeightNodePair;
     }
 
     /**

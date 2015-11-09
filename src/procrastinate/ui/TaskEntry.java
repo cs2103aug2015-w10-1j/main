@@ -178,13 +178,17 @@ public class TaskEntry extends GridPane {
     private ImageView getTick() {
         ImageView tickImage = new ImageView();
 
+        setTickImage(tickImage);
+
+        return tickImage;
+    }
+
+    private void setTickImage(ImageView tickImage) {
         tickImage.setImage(new Image(TaskEntry.class.getResource(LOCATION_TICK_IMAGE).toExternalForm()));
         tickImage.setFocusTraversable(false);
         tickImage.setSmooth(true);
         tickImage.setFitHeight(STYLE_TICK_HEIGHT);
         tickImage.setFitWidth(STYLE_TICK_WIDTH);
-
-        return tickImage;
     }
 
 
