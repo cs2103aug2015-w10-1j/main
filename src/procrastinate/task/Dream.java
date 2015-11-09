@@ -10,9 +10,14 @@ public class Dream extends Task {
 		super(TaskType.DREAM, description);
 	}
 
-	protected Dream(String description, boolean done, UUID id) {
-		super(TaskType.DREAM, description, done, id);
+	protected Dream(String description, boolean isDone, UUID id) {
+		super(TaskType.DREAM, description, isDone, id);
 	}
+
+    @Override
+    public String getDateString() {
+        return "";
+    }
 
     @Override
     public boolean isWithin(Date startDate, Date endDate) {
@@ -33,17 +38,17 @@ public class Dream extends Task {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null) {
+    public boolean equals(Object other) {
+        if (other == null) {
             return false;
         }
-        if (o == this) {
+        if (other == this) {
             return true;
         }
-        if (!(o instanceof Dream)) {
+        if (!(other instanceof Dream)) {
             return false;
         }
-        if (!super.equals(o)) {
+        if (!super.equals(other)) {
             return false;
         }
         return true;

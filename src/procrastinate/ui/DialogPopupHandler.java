@@ -1,6 +1,10 @@
 //@@author A0121597B-reused
 package procrastinate.ui;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Optional;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -8,10 +12,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Optional;
-
+/**
+ * <h1>DialogPopupHandler class handles the creation and showing of all the error
+ * dialogs used.</h1>
+ */
 public class DialogPopupHandler {
 
     // ================================================================================
@@ -23,28 +27,32 @@ public class DialogPopupHandler {
     private static final String BUTTON_MESSAGE_CANCEL = "Cancel";
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
-    private Stage primaryStage;
+    private Stage primaryStage_;
 
     // ================================================================================
-    // DialogPopupHandler methods
+    // DialogPopupHandler Constructor
     // ================================================================================
 
     protected DialogPopupHandler(Stage primaryStage) {
-        // Set up the parent stage to retrieve information if required
-        this.primaryStage = primaryStage;
+        this.primaryStage_ = primaryStage;
     }
 
+    // ================================================================================
+    // DialogPopupHandler Methods
+    // ================================================================================
+
     /**
-     * Creates an error dialog that displays the given message string
+     * Creates an error dialog with a header and message.
      *
-     * @param message
+     * @param header     to be displayed as the title
+     * @param message    to be displayed in the body
      */
     protected void createErrorDialogPopup(String header, String message) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.initOwner(primaryStage);
+        dialog.initOwner(primaryStage_);
 
         dialog.setHeaderText(header);
         dialog.setContentText(message);
@@ -56,11 +64,11 @@ public class DialogPopupHandler {
      * Creates an error dialog that takes in an Exception and displays the exception message with its stack trace
      * in an expandable region.
      *
-     * @param exception
+     * @param exception    whose stack trace should be shown in the expandable region
      */
     protected void createErrorDialogPopupWithTrace(Exception exception) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.initOwner(primaryStage);
+        dialog.initOwner(primaryStage_);
 
         // Retrieve the stack trace as String
         StringWriter stringWriter = new StringWriter();
@@ -80,16 +88,28 @@ public class DialogPopupHandler {
         dialog.showAndWait();
     }
 
+    //@@author A0080485B-reused
+    /**
+     * Creates an error dialog which requires the user's action to either confirm or cancel,
+     * and returns the choice result.
+     *
+     * @param header     to be displayed as the title
+     * @param message    to be dispalyed in the body
+     * @param okLabel    to be displayed in place of the text of the 'OK' button
+     * @return           true if the result of the user's choice is 'OK', else false
+     */
     protected boolean createErrorDialogPopupWithConfirmation(String header, String message, String okLabel) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.initOwner(primaryStage);
+        dialog.initOwner(primaryStage_);
 
         dialog.setHeaderText(header);
         dialog.setContentText(message);
 
         ButtonType okBtn = new ButtonType(okLabel, ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelBtn = new ButtonType(BUTTON_MESSAGE_CANCEL, ButtonBar.ButtonData.CANCEL_CLOSE);
+
         dialog.getButtonTypes().setAll(okBtn, cancelBtn);
+
         ((Button) dialog.getDialogPane().lookupButton(okBtn)).setDefaultButton(false);
         ((Button) dialog.getDialogPane().lookupButton(cancelBtn)).setDefaultButton(true);
 

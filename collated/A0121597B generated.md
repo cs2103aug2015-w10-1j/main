@@ -2,12 +2,9 @@
 ###### Procrastinate/src/procrastinate/ui/CategoryBox.java
 ``` java
     protected Node getCategoryBox() {
-        return this.categoryBox;
+        return this.categoryBox_;
     }
 
-    /**
-     * Retrieves the VBox that acts as a task list for a TaskEntry to go into
-     */
     protected VBox getTaskListVBox() {
         return this.categoryVBox;
     }
@@ -20,18 +17,18 @@
 ###### Procrastinate/src/procrastinate/ui/CenterPaneController.java
 ``` java
     protected Node getMainScreen() {
-        return mainScreenNode;
+        return mainScreenNode_;
     }
 
     protected Node getHelpOverlay() {
-        return helpOverlayNode;
+        return helpOverlayNode_;
     }
 }
 ```
 ###### Procrastinate/src/procrastinate/ui/CenterScreen.java
 ``` java
     protected Node getNode() {
-        return this.node;
+        return this.node_;
     }
 
     protected VBox getMainVBox() {
@@ -39,32 +36,17 @@
     }
 
     protected Date getToday() {
-        return today;
+        return today_;
     }
 
     protected Date getCurrentDate() {
-        return currentDate;
+        return currentDate_;
     }
 
     protected Date getEndOfWeek() {
-        return endOfWeek;
+        return endOfWeek_;
     }
 }
-```
-###### Procrastinate/src/procrastinate/ui/DateBox.java
-``` java
-    protected Node getDateBox() {
-        return this.dateBox;
-    }
-
-    /**
-     * Retrieves the VBox that acts as a task list for a TaskEntry to go into
-     */
-    protected VBox getTaskListVBox() {
-        return this.dateVBox;
-    }
-}
-
 ```
 ###### Procrastinate/src/procrastinate/ui/ImageOverlay.java
 ``` java
@@ -81,10 +63,21 @@
     }
 }
 ```
+###### Procrastinate/src/procrastinate/ui/SubcategoryBox.java
+``` java
+    protected Node getDateBox() {
+        return this.subcategoryBox_;
+    }
+
+    protected VBox getTaskListVBox() {
+        return this.subcategoryVBox;
+    }
+}
+```
 ###### Procrastinate/src/procrastinate/ui/TaskEntry.java
 ``` java
     protected Node getEntryDisplay() {
-        return this.taskEntry;
+        return this.taskEntry_;
     }
 
     protected Label getLineNum() {
@@ -99,14 +92,9 @@
         return time;
     }
 }
-
 ```
 ###### Procrastinate/src/procrastinate/ui/WindowHandler.java
 ``` java
-    private boolean isSysTraySupported() {
-        return  SystemTray.isSupported();
-    }
-
     protected Label getStatusLabel() {
         return statusLabel;
     }

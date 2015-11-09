@@ -9,10 +9,17 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Task;
 
+/**
+ * <h1>SearchScreen is a subclass of MultiCategoryScreen and is used to show the search results
+ * of a user's query.</h1>
+ *
+ * On top of the different categories present, it creates an additional Label that remains above
+ * the categories to show the user's search query.
+ */
 public class SearchScreen extends MultiCategoryScreen {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String FX_BACKGROUND_IMAGE_NO_SEARCH_RESULTS = "-fx-background-image: url('/procrastinate/ui/images/no-search-results.png')";
@@ -28,32 +35,37 @@ public class SearchScreen extends MultiCategoryScreen {
 
     private static final String STYLE_WRAPPER_BACKGROUND_COLOR = "-fx-background-color: white;";
 
+    // ================================================================================
+    // Constants
+    // ================================================================================
+
     private static final int MAIN_VBOX_PREF_HEIGHT = 450;
     private static final int MAIN_VBOX_PREF_WIDTH = 450;
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
-    Label searchHeader = new Label();
+    private Label searchHeader_ = new Label();
 
     // ================================================================================
     // SearchScreen Constructor
     // ================================================================================
 
-    protected SearchScreen(String filePath) {
-        super(filePath);
+    protected SearchScreen() {
+        super();
         adjustLabelStyle();
         wrapSearchHeaderLabelWithMainVBox();
     }
 
     // ================================================================================
-    // SearchScreen methods
+    // SearchScreen Methods
     // ================================================================================
 
     @Override
     protected void updateTaskList(List<Task> taskList) {
         FadeTransition fadeOutDeletedTaskEntry = fadeOutDeletedTaskEntry(taskList);
+
         fadeOutDeletedTaskEntry.setOnFinished(finish -> {
             getUpdatedDates();
             clearTaskList();
@@ -65,6 +77,7 @@ public class SearchScreen extends MultiCategoryScreen {
             }
             updateDisplay();
         });
+
         fadeOutDeletedTaskEntry.play();
     }
 
@@ -75,33 +88,46 @@ public class SearchScreen extends MultiCategoryScreen {
         }
     }
 
-    protected void updateSearchStringLabel(String searchString) {
-        searchHeader.setText(SEARCH_HEADER + searchString.trim());
+    protected void updateSearchHeaderLabelText(String searchString) {
+        searchHeader_.setText(SEARCH_HEADER + searchString.trim());
     }
 
+    // ================================================================================
+    // Init Methods
+    // ================================================================================
+
+    private void adjustLabelStyle() {
+        searchHeader_.setWrapText(true);
+        searchHeader_.setFocusTraversable(false);
+        searchHeader_.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY +
+                               STYLE_SEARCH_HEADER_FONT_WEIGHT +
+                               STYLE_SEARCH_HEADER_FONT_SIZE +
+                               STYLE_SEARCH_HEADER_PADDING);
+    }
+
+    /**
+     * Wraps the searchHeader label with the current mainVBox within a new VBox to
+     * maintain the current workings of the mainVBox.
+     */
     private void wrapSearchHeaderLabelWithMainVBox() {
         ScrollPane parentOfMainVBox = (ScrollPane) this.getNode().lookup(SELECTOR_PARENT_OF_MAIN_VBOX);
+
+        setMainVBoxSizeForWrapping();
+
         VBox wrapper = buildWrapper();
-        adjustMainVBoxForWrapping();
         parentOfMainVBox.setContent(wrapper);
     }
 
-    private void adjustMainVBoxForWrapping() {
+    private void setMainVBoxSizeForWrapping() {
         mainVBox.setPrefSize(MAIN_VBOX_PREF_WIDTH, MAIN_VBOX_PREF_HEIGHT);
     }
 
     private VBox buildWrapper() {
-        VBox wrapper = new VBox(searchHeader, mainVBox);
+        VBox wrapper = new VBox(searchHeader_, mainVBox);
+
         wrapper.setStyle(STYLE_WRAPPER_BACKGROUND_COLOR);
+
         return wrapper;
     }
 
-    private void adjustLabelStyle() {
-        searchHeader.setWrapText(true);
-        searchHeader.setFocusTraversable(false);
-        searchHeader.setStyle(STYLE_SEARCH_HEADER_FONT_FAMILY
-                            + STYLE_SEARCH_HEADER_FONT_WEIGHT
-                            + STYLE_SEARCH_HEADER_FONT_SIZE
-                            + STYLE_SEARCH_HEADER_PADDING);
-    }
 }

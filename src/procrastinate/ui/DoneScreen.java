@@ -9,6 +9,13 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
+/**
+ * <h1>DoneScreen is a subclass of the SingleCategoryScreen that shows all
+ * tasks which are done in a single CategoryBox.</h1>
+ *
+ * It will only add tasks which are done into its CategoryBox while ignoring all
+ * other tasks passed in via the updateTaskList method.
+ */
 public class DoneScreen extends SingleCategoryScreen {
 
     // ================================================================================
@@ -23,18 +30,19 @@ public class DoneScreen extends SingleCategoryScreen {
     // DoneScreen Constructor
     // ================================================================================
 
-    protected DoneScreen(String filePath) {
-        super(filePath, HEADER_TEXT);
+    protected DoneScreen() {
+        super(HEADER_TEXT);
     }
 
     // ================================================================================
-    // Display methods
+    // DoneScreen Methods
     // ================================================================================
 
     @Override
     protected void updateTaskList(List<Task> taskList) {
         getUpdatedDates();
         clearTaskList();
+
         mainVBox.getChildren().add(thisCategoryNode);
 
         String dateString;
@@ -45,22 +53,26 @@ public class DoneScreen extends SingleCategoryScreen {
 
                 switch (task.getType()) {
 
-                    case DEADLINE: {
+                    case DEADLINE : {
                         Date date =((Deadline) task).getDate();
+
                         dateString = getDateFormatForDateline(date);
+
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
 
-                    case EVENT: {
+                    case EVENT : {
                         Date startDate = ((Event) task).getStartDate();
                         Date endDate = ((Event) task).getEndDate();
+
                         dateString = getDateFormatForEvent(startDate, endDate);
+
                         addDoneTask(taskCountFormatted.get(), task, dateString);
                         break;
                     }
 
-                    case DREAM: {
+                    case DREAM : {
                         addDoneTask(taskCountFormatted.get(), task, null);
                         break;
                     }
@@ -72,53 +84,64 @@ public class DoneScreen extends SingleCategoryScreen {
                 }
             }
         }
+
         checkIfMainVBoxIsEmpty(mainVBox);
     }
 
     private void addDoneTask(String taskCount, Task task, String dateString) {
         TaskEntry taskEntry;
+
         if (dateString == null) {
             taskEntry = new TaskEntry(taskCount, task.getDescription(), task.isDone());
         } else {
             taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
         }
+
         thisCategoryTaskList.getChildren().add(taskEntry.getEntryDisplay());
     }
 
     private String getDateFormatForDateline(Date date) {
         String dateString;
-        boolean isSameYear = checkIfTwoDatesAreOfTheSameYear(date, today);
+
+        boolean isSameYear = isSameYear(date, today);
         if (isSameYear) {
             dateString = getDateFormatForDeadlineWithSameYear(date);
+
         } else {
             dateString = getDateFormatForDeadlineWithDifferentYear(date);
         }
+
         return dateString;
     }
 
     private String getDateFormatForEvent(Date startDate, Date endDate) {
         String dateString;
-        boolean isStartSameYear = checkIfTwoDatesAreOfTheSameYear(startDate, today);
+
+        boolean isStartSameYear = isSameYear(startDate, today);
         if (isStartSameYear) {
-            if (checkIfStartTwoDatesAreOnSameDay(startDate, endDate)) {
+            if (isSameDay(startDate, endDate)) {
                 dateString = getDateFormatForEventWithSameYearAndInOneDay(startDate, endDate);
+
             } else {
                 dateString = getDateFormatForEventWithSameYearAndDifferentDays(startDate, endDate);
             }
+
         } else {
             dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(startDate, endDate);
         }
+
         return dateString;
     }
 
     // ================================================================================
-    // Utility methods
+    // Utility Methods
     // ================================================================================
 
     private void checkIfMainVBoxIsEmpty(VBox mainVBox) {
         if (thisCategoryTaskList.getChildren().isEmpty()) {
             mainVBox.getChildren().remove(thisCategoryNode);
             mainVBox.setStyle(FX_BACKGROUND_IMAGE_NO_DONE_TASKS);
+
         } else {
             setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
         }

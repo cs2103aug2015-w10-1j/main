@@ -13,19 +13,19 @@ public class Command {
     }
 
     // Required field for all command types
-    private CommandType type;
+    private CommandType type_;
 
     // Optional fields; availability depends on command type
-    private String description;
-    private Date date;
-    private Date startDate;
-    private Date endDate;
-    private int lineNumber;
-    private String pathDirectory;
-    private String pathFilename;
+    private String description_;
+    private Date date_;
+    private Date startDate_;
+    private Date endDate_;
+    private int lineNumber_;
+    private String pathDirectory_;
+    private String pathFilename_;
 
     public Command(CommandType type) {
-        this.type = type;
+        this.type_ = type;
     }
 
     // ================================================================================
@@ -33,37 +33,37 @@ public class Command {
     // ================================================================================
 
     public Command addDescription(String description) {
-        this.description = description.trim();
+        description_ = description.trim();
         return this;
     }
 
     public Command addDate(Date date) {
-        this.date = date;
+        date_ = date;
         return this;
     }
 
     public Command addStartDate(Date startDate) {
-        this.startDate = startDate;
+        startDate_ = startDate;
         return this;
     }
 
     public Command addEndDate(Date endDate) {
-        this.endDate = endDate;
+        endDate_ = endDate;
         return this;
     }
 
     public Command addLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
+        lineNumber_ = lineNumber;
         return this;
     }
 
     public Command addPathDirectory(String pathDirectory) {
-        this.pathDirectory = pathDirectory;
+        pathDirectory_ = pathDirectory;
         return this;
     }
 
     public Command addPathFilename(String fileName) {
-        this.pathFilename = fileName;
+        pathFilename_ = fileName;
         return this;
     }
 
@@ -72,35 +72,35 @@ public class Command {
     // ================================================================================
 
     public CommandType getType() {
-        return type;
+        return type_;
     }
 
     public String getDescription() {
-        return description;
+        return description_;
     }
 
     public Date getDate() {
-        return date;
+        return date_;
     }
 
     public Date getStartDate() {
-        return startDate;
+        return startDate_;
     }
 
     public Date getEndDate() {
-        return endDate;
+        return endDate_;
     }
 
     public int getLineNumber() {
-        return lineNumber;
+        return lineNumber_;
     }
 
     public String getPathDirectory() {
-        return pathDirectory;
+        return pathDirectory_;
     }
 
     public String getPathFilename() {
-        return pathFilename;
+        return pathFilename_;
     }
 
 }

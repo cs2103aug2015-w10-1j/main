@@ -12,11 +12,14 @@ import procrastinate.task.Task;
 import procrastinate.ui.UI;
 
 public class UIStub extends UI {
-    public List<Task> taskList;
+    private List<Task> taskList_;
     public UIStub() {
-        taskList = new ArrayList<Task>();
+        taskList_ = new ArrayList<Task>();
     }
     public UIStub(Stage stage) {
+    }
+    public List<Task> getTaskList() {
+        return taskList_;
     }
     @Override
     public String getInput() {
@@ -29,14 +32,21 @@ public class UIStub extends UI {
     public void clearInput() {
     }
     @Override
-    public void setStatus(String status) {
+    public void setPreviewStatus(String status) {
     }
     @Override
-    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
-        this.taskList = taskList;
+    public void setExecuteStatus(String status) {
+    }
+    @Override
+    public String fitToStatus(String before, String text, String after) {
+        return before + text + after;
     }
     @Override
     public void initialUpdateTaskList(List<Task> taskList) {
+    }
+    @Override
+    public void updateTaskList(List<Task> taskList, ScreenView screenView) {
+        taskList_ = taskList;
     }
     @Override
     public void resetIsExit() {
@@ -46,10 +56,16 @@ public class UIStub extends UI {
             ChangeListener<String> userInputListener, ChangeListener<Boolean> isExitListener) {
     }
     @Override
+    public void hide() {
+    }
+    @Override
     public void passSearchStringToSearchScreen(String searchTerm) {
     }
     @Override
     public void showHelpOverlay() {
+    }
+    @Override
+    public void nextHelpPage() {
     }
     @Override
     public void hideHelpOverlay() {

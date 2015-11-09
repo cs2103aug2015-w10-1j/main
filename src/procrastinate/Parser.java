@@ -142,7 +142,7 @@ public class Parser {
         CleanCommand command = null;
 
         switch (firstWord) {
-            case COMMAND_ADD: {
+            case COMMAND_ADD : {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "add" as an invalid command
                     // Display a helpful message (no description)
@@ -163,8 +163,8 @@ public class Parser {
                 return command;
             }
 
-            case COMMAND_EDIT:
-            case COMMAND_SHORT_EDIT: {
+            case COMMAND_EDIT :
+            case COMMAND_SHORT_EDIT : {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "edit" as an invalid command
                     // Display a helpful message (no line number given)
@@ -184,7 +184,6 @@ public class Parser {
 
                 if (argument.length <= 2 && commandInputType == CommandStringType.NO_DATE) { // Too few arguments
                     // Treat "edit 1" as a partial edit command
-//                    return new Command(CommandType.EDIT_PARTIAL).addLineNumber(lineNumber);
                     return new EditPartial(lineNumber);
                 }
 
@@ -198,8 +197,8 @@ public class Parser {
                 return command;
             }
 
-            case COMMAND_DELETE:
-            case COMMAND_SHORT_DELETE: {
+            case COMMAND_DELETE :
+            case COMMAND_SHORT_DELETE : {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "delete" as an invalid command
                     // Display a helpful message (no line number given)
@@ -220,8 +219,8 @@ public class Parser {
                 return constructDeleteCommand(lineNumber);
             }
 
-            case COMMAND_UNDO:
-            case COMMAND_SHORT_UNDO: {
+            case COMMAND_UNDO :
+            case COMMAND_SHORT_UNDO : {
                 if (!userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
                     // Treat "undo something" as an add command
                     // Inject add to the front of command and recurse
@@ -231,8 +230,8 @@ public class Parser {
                 return constructUndoCommand();
             }
 
-            case COMMAND_DONE:
-            case COMMAND_SHORT_DONE: {
+            case COMMAND_DONE :
+            case COMMAND_SHORT_DONE : {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "done" as an invalid command
                     // Display a helpful message (no line number given)
@@ -253,8 +252,8 @@ public class Parser {
                 return constructDoneCommand(lineNumber);
             }
 
-            case COMMAND_SEARCH:
-            case COMMAND_SHORT_SEARCH: {
+            case COMMAND_SEARCH :
+            case COMMAND_SHORT_SEARCH : {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "search" as an invalid command
                     // Display a helpful message (no description)
@@ -266,8 +265,8 @@ public class Parser {
                 return command;
             }
 
-            case COMMAND_SHOW:
-            case COMMAND_SHORT_SHOW: {
+            case COMMAND_SHOW :
+            case COMMAND_SHORT_SHOW : {
                 if (userCommand.equalsIgnoreCase(firstWord)) {
                     return constructShowOutstandingCommand();
                 }
@@ -290,7 +289,7 @@ public class Parser {
                 }
             }
 
-            case COMMAND_HELP: {
+            case COMMAND_HELP : {
                 if (!userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
                     // Treat "help something" as an add command
                     // Inject add to the front of command and recurse
@@ -300,7 +299,7 @@ public class Parser {
                 return constructHelpCommand();
             }
 
-            case COMMAND_SET_PATH: {
+            case COMMAND_SET_PATH : {
                 if (userCommand.equalsIgnoreCase(firstWord)) { // No arguments
                     // Treat "set" as an invalid command
                     // Display a helpful message (no path)
@@ -316,8 +315,8 @@ public class Parser {
                 return command;
             }
 
-            case COMMAND_EXIT:
-            case COMMAND_SHORT_EXIT: {
+            case COMMAND_EXIT :
+            case COMMAND_SHORT_EXIT : {
                 if (!userCommand.equalsIgnoreCase(firstWord)) { // Extra arguments
                     // Treat "procrastinate something" as an add command
                     // Inject add to the front of command and recurse
@@ -341,49 +340,39 @@ public class Parser {
         switch (commandInputType) {
             case DUE_DATE:
             case ON_DATE:
-//                command = new Command(CommandType.ADD_DEADLINE).addDate(getStartDate(dateArray));
                 command = new AddDeadline(description, getStartDate(dateArray));
                 break;
 
             case FROM_TO_DATE:
-//                command = new Command(CommandType.ADD_EVENT).addStartDate(getStartDate(dateArray))
-//                .addEndDate(getEndDate(dateArray));
                 command = new AddEvent(description, getStartDate(dateArray), getEndDate(dateArray));
                 break;
 
             default: // NO_DATE
-//                command = new Command(CommandType.ADD_DREAM);
                 command = new AddDream(description);
                 break;
         }
 
-//        command.addDescription(description);
         return command;
     }
 
     private static CleanCommand constructEditCommand(CommandStringType commandInputType, List<Date> dateArray,
             int lineNumber, String description) {
         CleanCommand command = null;
-//        command = new Command(CommandType.EDIT).addLineNumber(lineNumber);
         description = removeEscapeCharacters(description);
 
         switch (commandInputType) {
-            case DUE_DATE:
-            case ON_DATE:
-//                command.addDate(getStartDate(dateArray));
+            case DUE_DATE :
+            case ON_DATE :
                 command = new EditDeadline(lineNumber, description, getStartDate(dateArray));
                 break;
 
-            case FROM_TO_DATE:
-//                command.addStartDate(getStartDate(dateArray)).addEndDate(getEndDate(dateArray));
+            case FROM_TO_DATE :
                 command = new EditEvent(lineNumber, description,
                                         getStartDate(dateArray), getEndDate(dateArray));
                 break;
 
-            default: // NO_DATE
-                System.out.println("des " + description);
+            default : // NO_DATE
                 if (description.equals(KEYWORD_EVENTUALLY)) {
-                    System.out.println("has even");
                     command = new EditDream(lineNumber, "");
                 }
                 break;
@@ -622,8 +611,8 @@ public class Parser {
         } else {
             dateList.add(0, dateGroups.get(0).getDates().get(0));
             if (dateGroups.get(0).getDates().size() > 1) {
-                System.out.println(dateGroups.get(0).getDates().get(0));
-                System.out.println(dateGroups.get(0).getDates().get(1));
+//                System.out.println(dateGroups.get(0).getDates().get(0));
+//                System.out.println(dateGroups.get(0).getDates().get(1));
                 dateList.add(1, dateGroups.get(0).getDates().get(1));
             }
         }
@@ -680,7 +669,9 @@ public class Parser {
             try {
                 result[0] = pathArguments[1];
                 result[1] = pathArguments[2];
-            } catch (Exception e) {}
+            } catch (Exception e) {
+
+            }
         } else if (arguments.length == 2) {
             // We need to take care two situations
             // 1) set <path dir> "<filename>"

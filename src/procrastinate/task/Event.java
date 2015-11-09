@@ -1,41 +1,59 @@
 //@@author A0080485B
 package procrastinate.task;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Event extends Task {
 
-	private Date startDate;
-	private Date endDate;
+    protected static final String FIELD_START_DATE = "startDate";
+    protected static final String FIELD_END_DATE = "endDate";
+
+    private static final String dateStringFormat = " from %1$s to %2$s";
+
+    private static final DateFormat dateFormatter = new SimpleDateFormat("d/MM/yy h:mma");
+
+    @SerializedName(FIELD_START_DATE)
+	private Date startDate_;
+    @SerializedName(FIELD_END_DATE)
+	private Date endDate_;
 
 	public Event(String description, Date startDate, Date endDate) {
 		super(TaskType.EVENT, description);
         assert(endDate.compareTo(startDate) >= 0);
-		this.startDate = startDate;
-		this.endDate = endDate;
+		this.startDate_ = startDate;
+		this.endDate_ = endDate;
 	}
 
-	protected Event(String description, Date startDate, Date endDate, boolean done, UUID id) {
-		super(TaskType.EVENT, description, done, id);
+	protected Event(String description, Date startDate, Date endDate, boolean isDone, UUID id) {
+		super(TaskType.EVENT, description, isDone, id);
         assert(endDate.compareTo(startDate) >= 0);
-		this.startDate = startDate;
-		this.endDate = endDate;
+		this.startDate_ = startDate;
+		this.endDate_ = endDate;
 	}
 
 	public Date getStartDate() {
-		return startDate;
+		return startDate_;
 	}
 
 	public Date getEndDate() {
-		return endDate;
+		return endDate_;
 	}
+
+    @Override
+    public String getDateString() {
+        return String.format(dateStringFormat, dateFormatter.format(startDate_), dateFormatter.format(endDate_));
+    }
 
     @Override
     public boolean isWithin(Date startDate, Date endDate) {
         assert (endDate.compareTo(startDate) >= 0);
-        return this.startDate.compareTo(startDate) >= 0 && this.startDate.compareTo(endDate) < 0
-                || this.endDate.compareTo(startDate) >= 0 && this.endDate.compareTo(endDate) < 0;
+        return startDate_.compareTo(startDate) >= 0 && startDate_.compareTo(endDate) < 0
+                || endDate_.compareTo(startDate) >= 0 && endDate_.compareTo(endDate) < 0;
     }
 
 	@Override
@@ -52,38 +70,38 @@ public class Event extends Task {
 	        if (other.getType() == TaskType.DEADLINE) {
 	            otherDate = ((Deadline) other).getDate();
 	        } else {
-	            otherDate = ((Event) other).getStartDate();
-	            otherEndDate = ((Event) other).getEndDate();
+	            otherDate = ((Event) other).startDate_;
+	            otherEndDate = ((Event) other).endDate_;
 	        }
-	        if (!this.getStartDate().equals(otherDate)) {
-                if (this.isDone()) {
-                    return -1 * this.getStartDate().compareTo(otherDate); // flip order for done tasks
+	        if (!startDate_.equals(otherDate)) {
+                if (isDone()) {
+                    return -1 * startDate_.compareTo(otherDate); // flip order for done tasks
                 } else {
-                    return this.getStartDate().compareTo(otherDate);
+                    return startDate_.compareTo(otherDate);
                 }
-	        } else if (otherEndDate != null && !this.getEndDate().equals(otherEndDate)) {
-	            return this.getEndDate().compareTo(otherEndDate);
+	        } else if (otherEndDate != null && !endDate_.equals(otherEndDate)) {
+	            return endDate_.compareTo(otherEndDate);
 	        } else {
-	            return this.getDescription().compareTo(other.getDescription());
+	            return getDescription().compareTo(other.getDescription());
 	        }
 	    }
 	}
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null) {
+    public boolean equals(Object other) {
+        if (other == null) {
             return false;
         }
-        if (o == this) {
+        if (other == this) {
             return true;
         }
-        if (!(o instanceof Event)) {
+        if (!(other instanceof Event)) {
             return false;
         }
-        if (!super.equals(o)) {
+        if (!super.equals(other)) {
             return false;
         }
-        Event t = (Event) o;
-        return t.getStartDate().equals(this.getStartDate()) && t.getEndDate().equals(this.getEndDate());
+        Event otherEvent = (Event) other;
+        return otherEvent.startDate_.equals(startDate_) && otherEvent.endDate_.equals(endDate_);
     }
 }

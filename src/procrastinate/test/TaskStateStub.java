@@ -32,7 +32,7 @@ public class TaskStateStub extends TaskState{
 		}
 
 		Dream doneDream = new Dream("bar bee");
-		doneDream.setDone();
+		doneDream.setDone(true);
 		stub.add(doneDream);
 
 		return stub;

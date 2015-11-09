@@ -26,10 +26,20 @@ import procrastinate.task.Deadline;
 import procrastinate.task.Event;
 import procrastinate.task.Task;
 
+/**
+ * <h1>A subclass of CenterScreen and contains multiple categories in their
+ * respective CategoryBox.</h1>
+ *
+ * There are 5 different categories - Overdue, Upcoming, Future, Dreams and Done.
+ *
+ * <p>It is important to note that the 'Upcoming' CategoryBox contains
+ * SubcategoryBox as its children and the different TaskEntry should be
+ * added into the SubcategoryBox instead.
+ */
 public abstract class MultiCategoryScreen extends CenterScreen {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String CATEGORY_OVERDUE = "Overdue";
@@ -52,15 +62,19 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
     private static final int TIME_TRANSITION_TASK_ENTRY_FADE_OUT = 100;
 
+    private static final int TIME_TRANSITION_SCREEN_SWITCH_IN = 500;
+    private static final int TIME_TRANSITION_SCREEN_SWITCH_OUT = 150;
+
     private static final int STYLE_BACKGROUND_HIGHLIGHT_FRAME_TIME = 10;
     private static final int STYLE_BACKGROUND_HIGHLIGHT_FULL_OPACITY = 100;
+
+    private static final double STYLE_BACKGROUND_HIGHLIGHT_RATE = 0.8;
 
     private static final String STYLE_BACKGROUND_HIGHLIGHT_FORMAT = "-fx-background-color: rgb(250,221,177, %.2f);";
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
-
     // Nodes are used to add them onto the screen
     protected Node overdueNode;
     protected Node upcomingNode;
@@ -71,9 +85,10 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     protected ArrayList<Node> nodeList = new ArrayList<>();
     protected ArrayList<VBox> upcomingSubcategories = new ArrayList<>();
 
-    protected int[] subcategoryVisibilityTracker; // used to determine if the
-                                                  // subcategory is to be faded
-                                                  // in or out.
+    // Used to determine if the subcategory is to be faded in or out.
+    // Each element of subcategoryVisibilityTracker corresponds to the subcategory at a particular index,
+    // '0' indicates visible/faded in and '1' indicates it has been faded out previously.
+    protected int[] subcategoryVisibilityTracker;
 
     // The main variables to call when adding tasks since they act as a task
     // list for a TaskEntry to be displayed
@@ -96,23 +111,788 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // MultiCategoryScreen Constructor
     // ================================================================================
 
-    protected MultiCategoryScreen(String filePath) {
-        super(filePath);
+    protected MultiCategoryScreen() {
+        super();
         createCategories();
         retrieveFxmlElements();
     }
 
     // ================================================================================
-    // Init methods
+    // MultiCategoryScreen Methods
+    // ================================================================================
+
+    protected abstract void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox);
+
+    @Override
+    protected SequentialTransition getScreenSwitchOutSequence() {
+        SequentialTransition switchOutTransition = new SequentialTransition();
+
+        for (Node node : nodeList) {
+            if (mainVBox.getChildren().contains(node)) {
+                switchOutTransition.getChildren().add(0, generateFadeOutTransition(node, TIME_TRANSITION_SCREEN_SWITCH_OUT));
+            }
+        }
+
+        return switchOutTransition;
+    }
+
+    @Override
+    protected ParallelTransition getScreenSwitchInSequence() {
+        ParallelTransition switchInTransition = new ParallelTransition();
+
+        for (Node node : nodeList) {
+            if (mainVBox.getChildren().contains(node)) {
+                switchInTransition.getChildren().add(generateFadeInTransition(node, TIME_TRANSITION_SCREEN_SWITCH_IN));
+            }
+        }
+
+        return switchInTransition;
+    }
+
+    /**
+     * Used when updating the task list, removes all tasks and resets the task counter
+     */
+    protected void clearTaskList() {
+        resetTaskCount();
+        resetTaskList();
+
+        generateUpcomingSubcategories();
+    }
+
+    protected void getUpdatedDates() {
+        updateDates();
+
+        today = getToday();
+        endOfWeek = getEndOfWeek();
+        currentDate = getCurrentDate();
+    }
+
+    // ================================================================================
+    // Task Adding Methods
+    // ================================================================================
+
+    protected void addTaskByType(Task task) {
+        Date taskDate;
+        switch (task.getType()) {
+
+            case DEADLINE : {
+                taskDate = ((Deadline) task).getDate();
+                addDeadlineOrEvent(task, taskDate);
+                break;
+            }
+
+            case EVENT : {
+                taskDate = ((Event) task).getStartDate();
+                addDeadlineOrEvent(task, taskDate);
+                break;
+            }
+
+            case DREAM : {
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), task.isDone());
+                addDream(task, taskEntry);
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
+            }
+        }
+    }
+
+    // After tasks are filtered by type, it is filtered by the year of the (start) date
+    private void addDeadlineOrEvent(Task task, Date taskDate) {
+        boolean isSameStartYear = isSameYear(today, taskDate);
+
+        if (isSameStartYear) {
+            addSameStartYearTask(task, taskDate);
+        } else {
+            addDifferentStartYearTask(task, taskDate);
+        }
+    }
+
+    private void addDream(Task task, TaskEntry taskEntry) {
+        if (task.isDone()) {
+            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        } else {
+            dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        }
+    }
+
+    private void addSameStartYearTask(Task task, Date date) {
+        String dateString;
+
+        switch (task.getType()) {
+
+            case DEADLINE : {
+                dateString = getDateFormatForDeadlineWithSameYear(date);
+
+                String taskCount = taskCountFormatted.get();
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
+
+                addSameStartYearTaskToTaskList(task, date, taskCount, taskEntry);
+                break;
+            }
+
+            case EVENT : {
+                Date endDate = ((Event) task).getEndDate();
+                boolean isSameEndYear = isSameYear(today, endDate);
+                dateString = getDateFormatForEventWithSameStartYear(date, endDate, isSameEndYear);
+
+                String taskCount = taskCountFormatted.get();
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
+
+                addSameStartYearTaskToTaskList(task, date, taskCount, taskEntry);
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
+            }
+        }
+    }
+
+    private void addSameStartYearTaskToTaskList(Task task, Date date, String taskCount, TaskEntry taskEntry) {
+        if        (task.isDone()) {
+            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+
+        } else if (date.before(currentDate)) {
+            overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+
+        } else if (date.before(endOfWeek)) {
+            addUpcomingTask(task, date, taskCount);
+
+        } else {
+            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        }
+    }
+
+    private void addDifferentStartYearTask(Task task, Date date) {
+        String dateString;
+
+        switch (task.getType()) {
+
+            case DEADLINE : {
+                dateString = getDateFormatForDeadlineWithDifferentYear(date);
+
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
+
+                addDifferentStartYearTaskToTaskList(task, date, taskEntry);
+                break;
+            }
+
+            case EVENT : {
+                Date endDate = ((Event) task).getEndDate();
+                boolean isSameEndYear = isSameYear(date, endDate);
+
+                dateString = getDateFormatForEventWithDifferentStartYear(date, endDate, isSameEndYear);
+                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString, task.isDone());
+
+                addDifferentStartYearTaskToTaskList(task, date, taskEntry);
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
+            }
+        }
+    }
+
+    private void addDifferentStartYearTaskToTaskList(Task task, Date date, TaskEntry taskEntry) {
+        if        (task.isDone()) {
+            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
+
+        } else if (date.before(today)) {
+            overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
+
+        } else {
+            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        }
+    }
+
+    // Iterates through the list of subcategories and find the corresponding
+    // date of the task to go into. If it is unable to find one, it will add the
+    // task into the 'Future' category instead.
+    private void addUpcomingTask(Task task, Date startDate, String taskCount) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DATE, 1);
+
+        Date deadline = calendar.getTime();
+
+        switch (task.getType()) {
+
+            case DEADLINE : {
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), timeFormatter.format(startDate), task.isDone());
+
+                addThisUpcomingTaskToTaskList(startDate, calendar, deadline, taskEntry);
+                break;
+            }
+
+            case EVENT : {
+                Date endDate = ((Event) task).getEndDate();
+                boolean isSameEndYear = isSameYear(endDate, today);
+
+                String dateString = getDateFormatForEventThisWeek(startDate, endDate, isSameEndYear);
+                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
+
+                addThisUpcomingTaskToTaskList(startDate, calendar, deadline, taskEntry);
+                break;
+            }
+
+            default:
+                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
+                break;
+        }
+    }
+
+    private void addThisUpcomingTaskToTaskList(Date startDate, Calendar calendar, Date deadline, TaskEntry taskEntry) {
+        boolean isAdded = false;
+
+        for (VBox vBox : upcomingSubcategories) {
+            if (startDate.before(deadline)) {
+                vBox.getChildren().add(taskEntry.getEntryDisplay());
+                isAdded = true;
+                break;
+
+            } else {
+                calendar.add(Calendar.DATE, 1);
+                deadline = calendar.getTime();
+            }
+        }
+
+        if (!isAdded) {
+            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
+        }
+    }
+
+    private String getDateFormatForEventWithSameStartYear(Date date, Date endDate, boolean isSameEndYear) {
+        String dateString;
+
+        if (isSameEndYear) {
+
+            if (isSameDay(date, endDate)) {
+                dateString = getDateFormatForEventWithSameYearAndInOneDay(date, endDate);
+            } else {
+                dateString = getDateFormatForEventWithSameYearAndDifferentDays(date, endDate);
+            }
+
+        } else {
+            dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(date, endDate);
+        }
+
+        return dateString;
+    }
+
+    private String getDateFormatForEventWithDifferentStartYear(Date date, Date endDate, boolean isSameEndYear) {
+        String dateString;
+
+        if (isSameEndYear && isSameDay(date, endDate)) {
+            dateString = getDateFormatForEventWithDifferentYearButInOneDay(date, endDate);
+        } else {
+            dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(date, endDate);
+        }
+
+        return dateString;
+    }
+
+    private String getDateFormatForEventThisWeek(Date startDate, Date endDate, boolean isSameEndYear) {
+        String dateString;
+
+        if (isSameEndYear) {
+
+            if        (isSameDay(startDate, endDate)) {
+                dateString = getDateFormatForUpcomingEventAndInOneDay(startDate, endDate);
+
+            } else if (endDate.before(endOfWeek)) {
+                dateString = getDateFormatForUpcomingEventButDifferentDays(startDate, endDate);
+
+            } else {
+                dateString = getDateFormatForUpcomingEventButDifferentWeek(startDate, endDate);
+            }
+
+        } else {
+            dateString = getDateFormatForUpcomingEventButDifferentYear(startDate, endDate);
+        }
+
+        return dateString;
+    }
+
+    // ================================================================================
+    // Task Display methods
     // ================================================================================
 
     /**
-     * Setup the various categories that tasks can fall under
+     * Updates the display using fade transitions. When the screen is first
+     * initialised, all categories are faded in and shown. After the user
+     * executes a command, empty categories are faded out and non-empty
+     * categories are faded in.
      */
+    protected void updateDisplay() {
+        setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
+
+        SequentialTransition sequentialTransition = new SequentialTransition();
+        for (Node node : nodeList) {
+            // Need to take care of special case with 'Upcoming' category
+            if (node.equals(upcomingNode)) {
+                ParallelTransition parallelTransition = new ParallelTransition();
+
+                int totalUpcomingTasks = 0;
+                for (int i = 0; i < upcomingSubcategories.size(); i++) {
+                    totalUpcomingTasks += upcomingSubcategories.get(i).getChildren().size();
+                    addOrRemoveUpcomingSubcategories(parallelTransition, i);
+                }
+
+                // Next, to settle the main parent node for all the subcategories
+                addOrRemoveUpcomingNode(sequentialTransition, parallelTransition, totalUpcomingTasks);
+
+            } else if (((VBox) node.lookup(SELECTOR_CATEGORY_VBOX)).getChildren().isEmpty()) {
+                removeNodeIfEmptyAndInDisplay(sequentialTransition, node);
+            } else {
+                addNodeIfNotEmptyAndNotInDisplay(sequentialTransition, node);
+            }
+        }
+        sequentialTransition.setOnFinished(checkEmpty -> setBackgroundImageIfMainVBoxIsEmpty(mainVBox));
+        sequentialTransition.play();
+    }
+
+    /**
+     * Determines the correct position for each node and adds it back.
+     *
+     * @param node    to be added
+     */
+    private void addNodeBackToScreen(Node node) {
+        String nodeName = determineNodeName(node);
+
+        switch (nodeName) {
+
+            // This node is always at the top.
+            case CATEGORY_OVERDUE : {
+                mainVBox.getChildren().add(0, node);
+                break;
+            }
+
+            // Check if the 'Overdue' node is on screen or not and adds this node after it.
+            // Else this node would take precedence at the top.
+            case CATEGORY_UPCOMING : {
+                if (mainVBox.getChildren().contains(overdueNode)) {
+                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
+                } else {
+                    mainVBox.getChildren().add(0, node);
+                }
+                break;
+            }
+
+            // Check if 'Overdue' and 'This Week' nodes are added before. This node takes position after them.
+            // Then check if either one is available. Else it will go to the top.
+            case CATEGORY_FUTURE : {
+                if        (mainVBox.getChildren().contains(overdueNode) && mainVBox.getChildren().contains(upcomingNode)) {
+                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(upcomingNode) + 1, node);
+
+                } else if (mainVBox.getChildren().contains(overdueNode) && !mainVBox.getChildren().contains(upcomingNode)) {
+                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
+
+                } else if (mainVBox.getChildren().contains(upcomingNode)) {
+                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(upcomingNode) + 1, node);
+
+                } else {
+                    mainVBox.getChildren().add(0, node);
+                }
+                break;
+            }
+
+            // Only needs to check if the only Node that can be lower than it (doneNode) is on the screen.
+            case CATEGORY_DREAMS : {
+                if (mainVBox.getChildren().contains(doneNode)) {
+                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(doneNode), node);
+                } else {
+                    mainVBox.getChildren().add(node);
+                }
+                break;
+            }
+
+            // Takes position at the bottom of the list
+            case CATEGORY_DONE : {
+                mainVBox.getChildren().add(node);
+                break;
+            }
+
+            default: {
+                System.out.println(MESSAGE_UNABLE_TO_RECOGNISE_NODE);
+                break;
+            }
+        }
+    }
+
+    private void addNodeIfNotEmptyAndNotInDisplay(SequentialTransition sequentialTransition, Node node) {
+        if (!mainVBox.getChildren().contains(node)) {
+            FadeTransition fadeIn = generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_IN);
+
+            addNodeBackToScreen(node);
+
+            sequentialTransition.getChildren().add(fadeIn);
+        }
+    }
+
+    private void addOrRemoveUpcomingNode(SequentialTransition sequentialTransition,
+                                         ParallelTransition parallelTransition, int totalUpcomingTasks) {
+
+        if (totalUpcomingTasks == 0 && mainVBox.getChildren().contains(upcomingNode)) {
+            FadeTransition fadeOut = generateFadeOutTransition(upcomingNode, TIME_TRANSITION_CATEGORY_FADE_OUT);
+
+            fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(upcomingNode));
+
+            sequentialTransition.getChildren().add(parallelTransition);
+            sequentialTransition.getChildren().add(fadeOut);
+
+        } else if (totalUpcomingTasks != 0 && !mainVBox.getChildren().contains(upcomingNode)) {
+            FadeTransition fadeIn = generateFadeInTransition(upcomingNode, TIME_TRANSITION_CATEGORY_FADE_IN);
+
+            addNodeBackToScreen(upcomingNode);
+
+            sequentialTransition.getChildren().add(fadeIn);
+
+        } else {
+            sequentialTransition.getChildren().add(parallelTransition);
+        }
+    }
+
+    private void addOrRemoveUpcomingSubcategories(ParallelTransition parallelTransition, int currSubcategoryIndex) {
+        // 2 cases, either it has been faded in or not faded in previously.
+        if (upcomingSubcategories.get(currSubcategoryIndex).getChildren().isEmpty()) {
+
+            // If faded out previously/not faded in yet, just remove away from the view
+            if (subcategoryVisibilityTracker[currSubcategoryIndex] == 0) {
+                upcomingTaskList.getChildren().remove(upcomingSubcategories.get(currSubcategoryIndex).getParent());
+
+            // If faded in, set it up to fade out since it has been emptied.
+            } else {
+                Node parentNode = upcomingSubcategories.get(currSubcategoryIndex).getParent();
+
+                FadeTransition fadeOut = generateFadeOutTransition(parentNode, TIME_TRANSITION_SUBCATEGORY_FADE_OUT);
+                fadeOut.setOnFinished(done -> upcomingTaskList.getChildren().remove(parentNode));
+
+                parallelTransition.getChildren().add(fadeOut);
+                subcategoryVisibilityTracker[currSubcategoryIndex] = 0;
+            }
+
+        // All non-empty and faded out should be faded back in.
+        } else if (!(upcomingSubcategories.get(currSubcategoryIndex).getChildren().isEmpty()) &&
+                    (subcategoryVisibilityTracker[currSubcategoryIndex] == 0)) {
+            FadeTransition fadeIn = generateFadeInTransition(upcomingSubcategories.get(currSubcategoryIndex).getParent(),
+                                                             TIME_TRANSITION_SUBCATEGORY_FADE_IN);
+            parallelTransition.getChildren().add(fadeIn);
+            subcategoryVisibilityTracker[currSubcategoryIndex] = 1;
+
+        // Other cases can just ignore.
+        } else {
+        }
+    }
+
+    private void removeNodeIfEmptyAndInDisplay(SequentialTransition sequentialTransition, Node node) {
+        if (mainVBox.getChildren().contains(node)) {
+            FadeTransition fadeOut = generateFadeOutTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT);
+            fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(node));
+            sequentialTransition.getChildren().add(fadeOut);
+        }
+    }
+
+    // ================================================================================
+    // TaskList Change Animation Methods
+    // ================================================================================
+
+    protected FadeTransition fadeOutDeletedTaskEntry(List<Task> taskList) {
+        boolean isInitialised = initialisePrevTaskList(taskList);
+        boolean isDelete = isTaskChangeDelete(taskList);
+
+        if (isInitialised && isDelete) {
+            int index = findIndexOfDeletedTask(taskList);
+            prevTaskList = (ArrayList<Task>) taskList;
+            return fadeOutDeletedTask(index);
+        }
+
+        return new FadeTransition();
+    }
+
+    protected void highlightAddedOrEditedTaskEntry(List<Task> taskList) {
+        boolean isInitialised = initialisePrevTaskList(taskList);
+        boolean isDelete = isTaskChangeDelete(taskList);
+
+        if (isInitialised && !isDelete) {
+            int index = findIndexOfAddedOrEditedTask(taskList);
+            highlightTask(index);
+            prevTaskList = (ArrayList<Task>) taskList;
+        }
+    }
+
+    private FadeTransition fadeOutDeletedTask(int index) {
+        int prevCount = 0;
+        int currCount = 0;
+        int indexOfTaskEntry = -1;
+
+        for (Node node : nodeList) {
+            // Need to check all the different nodes in order to get to the index
+            if (node == upcomingNode) {
+                prevCount = currCount;
+                currCount = currCount + findNumberOfTasksInUpcomingSubcategories();
+
+                if (currCount > index) {
+                    indexOfTaskEntry = index - prevCount;
+                    for (VBox vBox : upcomingSubcategories) {
+                        // Check each subcategory until the index is found
+                        if (indexOfTaskEntry < vBox.getChildren().size()) {
+                            GridPane newTaskEntry = (GridPane) vBox.getChildren().get(indexOfTaskEntry);
+
+                            return generateFadeOutTransition(newTaskEntry, TIME_TRANSITION_TASK_ENTRY_FADE_OUT);
+                        }
+
+                        indexOfTaskEntry -= vBox.getChildren().size();
+                    }
+                    break;
+                }
+
+            } else {
+                prevCount = currCount;
+                VBox currTaskList = ((VBox) node.lookup(SELECTOR_CATEGORY_VBOX));
+                currCount = currCount + currTaskList.getChildren().size();
+
+                if (currCount > index) {
+                    indexOfTaskEntry = index - prevCount;
+
+                    GridPane newTaskEntry = (GridPane) currTaskList.getChildren().get(indexOfTaskEntry);
+
+                    return generateFadeOutTransition(newTaskEntry, TIME_TRANSITION_TASK_ENTRY_FADE_OUT);
+                }
+            }
+        }
+        return new FadeTransition();
+    }
+
+    private void highlightTask(int index) {
+        if (index == -1) {
+            return;
+        }
+
+        int prevCount = 0;
+        int currCount = 0;
+        int indexOfTaskEntry = -1;
+
+        for (Node node : nodeList) {
+            if (node == doneNode) {
+                break;
+            }
+
+            if (node == upcomingNode) {
+                prevCount = currCount;
+                currCount = currCount + findNumberOfTasksInUpcomingSubcategories();
+
+                if (currCount > index) {
+                    indexOfTaskEntry = index - prevCount;
+                    for (VBox vBox : upcomingSubcategories) {
+                        // Check each subcategory until the index is found
+                        if (indexOfTaskEntry < vBox.getChildren().size()) {
+                            GridPane newTaskEntry = (GridPane) vBox.getChildren().get(indexOfTaskEntry);
+
+                            Timeline highlightTimeline = generateHighlightTimeline(newTaskEntry);
+                            highlightTimeline.play();
+                            break;
+                        }
+
+                        indexOfTaskEntry -= vBox.getChildren().size();
+                    }
+                    break;
+                }
+
+            } else {
+                prevCount = currCount;
+                VBox currTaskList = ((VBox) node.lookup(SELECTOR_CATEGORY_VBOX));
+                currCount = currCount + currTaskList.getChildren().size();
+
+                if (currCount > index) {
+                    indexOfTaskEntry = index - prevCount;
+
+                    GridPane newTaskEntry = (GridPane) currTaskList.getChildren().get(indexOfTaskEntry);
+
+                    Timeline highlightTimeline = generateHighlightTimeline(newTaskEntry);
+                    highlightTimeline.play();
+                    break;
+                }
+            }
+        }
+    }
+
+    //@@author A0121597B-reused
+    private Timeline generateHighlightTimeline(GridPane newTaskEntry) {
+        Timeline highlightTimeline = new Timeline();
+
+        for (int i = STYLE_BACKGROUND_HIGHLIGHT_FULL_OPACITY; i >= 0; i--) {
+            float backgroundColorOpacity = (float) i / STYLE_BACKGROUND_HIGHLIGHT_FULL_OPACITY;
+            String styleBackgroundColor = String.format(STYLE_BACKGROUND_HIGHLIGHT_FORMAT, backgroundColorOpacity);
+
+            Duration duration = highlightTimeline.getTotalDuration().add(Duration.millis(STYLE_BACKGROUND_HIGHLIGHT_FRAME_TIME));
+            KeyValue keyValue = new KeyValue(newTaskEntry.styleProperty(), styleBackgroundColor, Interpolator.EASE_IN);
+            KeyFrame keyFrame = new KeyFrame(duration, keyValue);
+
+            highlightTimeline.getKeyFrames().add(keyFrame);
+        }
+
+        highlightTimeline.setRate(STYLE_BACKGROUND_HIGHLIGHT_RATE);
+        return highlightTimeline;
+    }
+
+    //@@author A0121597B
+    private int findIndexOfDeletedTask(List<Task> taskList) {
+        Task prevTaskListTask;
+        Task currTaskListTask;
+
+        for (int i = 0; i < taskList.size(); i++) {
+            currTaskListTask = taskList.get(i);
+            prevTaskListTask = prevTaskList.get(i);
+
+            // Check for the task at an index that differs between the
+            // two task lists
+            if (currTaskListTask.equals(prevTaskListTask) &&
+                currTaskListTask.getId().equals(prevTaskListTask.getId())) {
+                    continue;
+
+            } else {
+                return i;
+            }
+        }
+        return taskList.size();
+    }
+
+    private int findIndexOfAddedOrEditedTask(List<Task> taskList) {
+        List<Task> filteredTaskList = new ArrayList<>(taskList);
+
+        // To retrieve the newly added/edited task, filter
+        // the new task list to get the new task that has changed.
+        for (Task task : prevTaskList) {
+            filteredTaskList = filteredTaskList.stream()
+                               .filter(filterTask -> (!filterTask.getId().equals(task.getId())))
+                               .collect(Collectors.toList());
+        }
+
+        // To catch an edit that does not do any changes
+        if (filteredTaskList.isEmpty()) {
+            return -1;
+        }
+
+        Task newTask = filteredTaskList.get(0);
+        for (int i = 0; i < taskList.size(); i++) {
+            Task currTask = taskList.get(i);
+            if (currTask.equals(newTask) && currTask.getId().equals(newTask.getId())) {
+                return i;
+            }
+        }
+
+        // Should be another 'show' command
+        return -1;
+    }
+
+    private int findNumberOfTasksInUpcomingSubcategories() {
+        int numTasks = 0;
+
+        for (VBox vBox : upcomingSubcategories) {
+            numTasks += vBox.getChildren().size();
+        }
+
+        return numTasks;
+    }
+
+    private boolean initialisePrevTaskList(List<Task> taskList) {
+        if (prevTaskList == null) {
+            prevTaskList = (ArrayList<Task>) taskList;
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isTaskChangeDelete(List<Task> taskList) {
+        if (taskList.size() < prevTaskList.size()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // ================================================================================
+    // Utility methods
+    // ================================================================================
+
+    private String determineNodeName(Node node) {
+        if        (node.equals(overdueNode)) {
+            return CATEGORY_OVERDUE;
+        } else if (node.equals(upcomingNode)) {
+            return CATEGORY_UPCOMING;
+        } else if (node.equals(futureNode)) {
+            return CATEGORY_FUTURE;
+        } else {
+            return CATEGORY_DREAMS;
+        }
+    }
+
+    /**
+     * Generates the relative date sub-headers for the 'Upcoming' category
+     * and places them in the upcomingTaskList.
+     */
+    private void generateUpcomingSubcategories() {
+        ArrayList<Node> thisWeekDateBoxes = new ArrayList<>();
+        int count = 1;
+
+        LocalDateTime startingDateTime = getDateTimeStartOfToday();
+        while (!(getInstantFromLocalDateTime(startingDateTime)).equals(endOfWeek.toInstant())) {
+            SubcategoryBox newDateBox;
+            String shortDate = ", " + startingDateTime.format(DateTimeFormatter.ofPattern(dateFormatter.toPattern()));
+
+            if        (count == 1) {
+                newDateBox = new SubcategoryBox(SUBCATEGORY_TODAY + shortDate);
+            } else if (count == 2) {
+                newDateBox = new SubcategoryBox(SUBCATEGORY_TOMORROW + shortDate);
+            } else {
+                newDateBox = new SubcategoryBox(startingDateTime.getDayOfWeek()
+                                                .getDisplayName(TextStyle.FULL, Locale.getDefault()) +
+                                                shortDate);
+            }
+
+            VBox newDateVBox = newDateBox.getTaskListVBox();
+
+            upcomingSubcategories.add(newDateVBox);
+            thisWeekDateBoxes.add(newDateBox.getSubcategoryBox());
+
+            startingDateTime = startingDateTime.plusDays(1);
+            count++;
+        }
+
+        if (subcategoryVisibilityTracker == null || (subcategoryVisibilityTracker.length != thisWeekDateBoxes.size())) {
+            subcategoryVisibilityTracker = new int[thisWeekDateBoxes.size()];
+        }
+
+        upcomingTaskList.getChildren().addAll(thisWeekDateBoxes);
+    }
+
+    private void resetTaskCount() {
+        taskCount.set(0);
+    }
+
+    private void resetTaskList() {
+        overdueTaskList.getChildren().clear();
+        upcomingTaskList.getChildren().clear();
+        futureTaskList.getChildren().clear();
+        dreamsTaskList.getChildren().clear();
+        doneTaskList.getChildren().clear();
+
+        upcomingSubcategories.clear();
+    }
+
+    // ================================================================================
+    // Init Methods
+    // ================================================================================
+
     @Override
     protected void createCategories() {
-        // Create all the different categories(by time frame) for entries to go
-        // into
         CategoryBox overdueBox = new CategoryBox(CATEGORY_OVERDUE);
         CategoryBox upcomingBox = new CategoryBox(CATEGORY_UPCOMING);
         CategoryBox futureBox = new CategoryBox(CATEGORY_FUTURE);
@@ -145,697 +925,48 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     }
 
     // ================================================================================
-    // Methods to be overridden by Child
+    // Getter Methods
     // ================================================================================
 
-    protected abstract void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox);
-
-    // ================================================================================
-    // Screen Transition methods
-    // ================================================================================
-
-    @Override
-    protected SequentialTransition getScreenSwitchOutSequence() {
-        SequentialTransition sequentialTransition = new SequentialTransition();
-        for (Node node : nodeList) {
-            if (mainVBox.getChildren().contains(node)) {
-                sequentialTransition.getChildren().add(0,
-                        generateFadeOutTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT));
-            }
-        }
-        return sequentialTransition;
+    // @@author generated
+    protected Node getOverdueNode() {
+        return overdueNode;
     }
 
-    @Override
-    protected SequentialTransition getScreenSwitchInSequence() {
-        SequentialTransition sequentialTransition = new SequentialTransition();
-        for (Node node : nodeList) {
-            if (mainVBox.getChildren().contains(node)) {
-                sequentialTransition.getChildren().add(generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_IN));
-            }
-        }
-        return sequentialTransition;
+    protected Node getUpcomingNode() {
+        return upcomingNode;
     }
 
-    // ================================================================================
-    // TaskDisplay methods
-    // ================================================================================
-
-    /**
-     * Updates the display using fade transitions. When the program is first
-     * initialised, all categories are faded in and shown. After the user
-     * executes a command, empty categories are faded out and non-empty
-     * categories are faded in.
-     */
-    protected void updateDisplay() {
-        // Background image will be reset back to null after each update and
-        // changed to the
-        // corresponding image set in the Child class after checking that there
-        // are no tasks left on screen.
-        setMainVBoxBackgroundImage(mainVBox, FX_BACKGROUND_IMAGE_NULL);
-
-        SequentialTransition sequentialTransition = new SequentialTransition();
-        for (Node node : nodeList) {
-            // Remove empty nodes if it is on screen, else add non-empty nodes
-            // back into screen.
-            if (node.equals(upcomingNode)) {
-                // Need to take care of special case with 'This Week' category
-                ParallelTransition parallelTransition = new ParallelTransition();
-                int totalTasksThisWeek = 0;
-                for (int i = 0; i < upcomingSubcategories.size(); i++) {
-                    totalTasksThisWeek += upcomingSubcategories.get(i).getChildren().size();
-                    addOrRemoveThisWeekSubcategories(parallelTransition, i);
-                }
-                // Next, to settle the main parent node for all the
-                // subcategories
-                addOrRemoveThisWeekNode(sequentialTransition, parallelTransition, totalTasksThisWeek);
-                // Next, settle all the other nodes
-            } else if (((VBox) node.lookup(SELECTOR_CATEGORY_VBOX)).getChildren().isEmpty()) {
-                removeNodeIfEmptyAndInDisplay(sequentialTransition, node);
-            } else {
-                addNodeIfNotEmptyAndNotInDisplay(sequentialTransition, node);
-            }
-        }
-        sequentialTransition.setOnFinished(checkEmpty -> setBackgroundImageIfMainVBoxIsEmpty(mainVBox));
-        sequentialTransition.play();
+    protected Node getFutureNode() {
+        return futureNode;
     }
 
-    protected void addTaskByType(Task task) {
-        Date taskDate;
-        switch (task.getType()) {
-
-            case DEADLINE: {
-                taskDate = ((Deadline) task).getDate();
-                addDeadlineOrEvent(task, taskDate);
-                break;
-            }
-
-            case EVENT: {
-                taskDate = ((Event) task).getStartDate();
-                addDeadlineOrEvent(task, taskDate);
-                break;
-            }
-
-            case DREAM: {
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), task.isDone());
-                addDream(task, taskEntry);
-                break;
-            }
-
-            default: {
-                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
-                break;
-            }
-        }
+    protected Node getDreamsNode() {
+        return dreamsNode;
     }
 
-    private void addDeadlineOrEvent(Task task, Date taskDate) {
-        boolean isSameYear;
-        isSameYear = checkIfTwoDatesAreOfTheSameYear(today, taskDate);
-        if (isSameYear) {
-            addTaskWithSameYear(task, taskDate);
-        } else {
-            addTaskWithDifferentYear(task, taskDate);
-        }
+    protected Node getDoneNode() {
+        return doneNode;
     }
 
-    private void addDream(Task task, TaskEntry taskEntry) {
-        if (task.isDone()) {
-            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        } else {
-            dreamsTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        }
+    protected VBox getOverdueTaskList() {
+        return overdueTaskList;
     }
 
-    private void addTaskWithSameYear(Task task, Date date) {
-        String dateString;
-
-        switch (task.getType()) {
-
-            case DEADLINE: {
-                dateString = getDateFormatForDeadlineWithSameYear(date);
-                String taskCount = taskCountFormatted.get();
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
-                addTaskWithSameYearToTaskList(task, date, taskCount, taskEntry);
-                break;
-            }
-
-            case EVENT: {
-                Date endDate = ((Event) task).getEndDate();
-                boolean isSameEndYear = checkIfTwoDatesAreOfTheSameYear(endDate, today);
-                dateString = getDateFormatForEventWithSameStartYear(date, endDate, isSameEndYear);
-                String taskCount = taskCountFormatted.get();
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
-                addTaskWithSameYearToTaskList(task, date, taskCount, taskEntry);
-                break;
-            }
-
-            default: {
-                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
-                break;
-            }
-        }
+    protected VBox getUpcomingTaskList() {
+        return upcomingTaskList;
     }
 
-    private void addTaskWithSameYearToTaskList(Task task, Date date, String taskCount, TaskEntry taskEntry) {
-        if (task.isDone()) {
-            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        } else if (date.before(currentDate)) {
-            overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        } else if (date.before(endOfWeek)) {
-            addThisWeekTask(task, date, taskCount);
-        } else {
-            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        }
+    protected VBox getFutureTaskList() {
+        return futureTaskList;
     }
 
-    private void addTaskWithDifferentYear(Task task, Date date) {
-        String dateString;
-
-        switch (task.getType()) {
-
-            case DEADLINE: {
-                dateString = getDateFormatForDeadlineWithDifferentYear(date);
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString,
-                        task.isDone());
-                addTaskWithDifferentYearToTaskList(task, date, taskEntry);
-                break;
-            }
-
-            case EVENT: {
-                Date endDate = ((Event) task).getEndDate();
-                // if same day also should be in same line.
-                boolean isSameEndYear = checkIfTwoDatesAreOfTheSameYear(date, endDate);
-                dateString = getDateFormatForEventWithDifferentStartYear(date, endDate, isSameEndYear);
-                TaskEntry taskEntry = new TaskEntry(taskCountFormatted.get(), task.getDescription(), dateString,
-                        task.isDone());
-                addTaskWithDifferentYearToTaskList(task, date, taskEntry);
-                break;
-            }
-
-            default: {
-                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
-                break;
-            }
-        }
+    protected VBox getDreamsTaskList() {
+        return dreamsTaskList;
     }
 
-    private String getDateFormatForEventWithSameStartYear(Date date, Date endDate, boolean isSameEndYear) {
-        String dateString;
-        if (isSameEndYear) {
-            if (checkIfStartTwoDatesAreOnSameDay(date, endDate)) {
-                dateString = getDateFormatForEventWithSameYearAndInOneDay(date, endDate);
-            } else {
-                dateString = getDateFormatForEventWithSameYearAndDifferentDays(date, endDate);
-            }
-        } else {
-            dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(date, endDate);
-        }
-        return dateString;
+    protected VBox getDoneTaskList() {
+        return doneTaskList;
     }
 
-    private String getDateFormatForEventWithDifferentStartYear(Date date, Date endDate, boolean isSameEndYear) {
-        String dateString;
-        if (isSameEndYear && checkIfStartTwoDatesAreOnSameDay(date, endDate)) {
-            dateString = getDateFormatForEventWithDifferentYearButInOneDay(date, endDate);
-        } else {
-            dateString = getDateFormatForEventWithDifferentYearAndDifferentDays(date, endDate);
-        }
-        return dateString;
-    }
-
-    private void addTaskWithDifferentYearToTaskList(Task task, Date date, TaskEntry taskEntry) {
-        if (task.isDone()) {
-            doneTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        } else if (date.before(today)) {
-            overdueTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        } else {
-            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        }
-    }
-
-    /**
-     * Iterates through the list of subcategories and find the corresponding
-     * date of the task to go into. If it is unable to find one, it will add the
-     * task into the 'Future' category instead.
-     *
-     * @param taskEntry
-     *            to be added
-     * @param date
-     *            of the task due
-     */
-    private void addThisWeekTask(Task task, Date startDate, String taskCount) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-        calendar.add(Calendar.DATE, 1);
-        Date deadline = calendar.getTime();
-
-        boolean isAdded = false;
-        switch (task.getType()) {
-
-            case DEADLINE: {
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), timeFormat.format(startDate),
-                        task.isDone());
-                addThisWeekTaskToTaskList(startDate, calendar, deadline, isAdded, taskEntry);
-                break;
-            }
-
-            case EVENT: {
-                Date endDate = ((Event) task).getEndDate();
-                String dateString;
-                boolean isSameEndYear = checkIfTwoDatesAreOfTheSameYear(endDate, today);
-                dateString = getDateFormatForEventThisWeek(startDate, endDate, isSameEndYear);
-                TaskEntry taskEntry = new TaskEntry(taskCount, task.getDescription(), dateString, task.isDone());
-                addThisWeekTaskToTaskList(startDate, calendar, deadline, isAdded, taskEntry);
-                break;
-            }
-
-            default:
-                System.out.println(MESSAGE_UNABLE_TO_DETERMINE_TYPE);
-                break;
-        }
-    }
-
-    private String getDateFormatForEventThisWeek(Date startDate, Date endDate, boolean isSameEndYear) {
-        String dateString;
-        if (isSameEndYear) {
-            if (checkIfStartTwoDatesAreOnSameDay(startDate, endDate)) {
-                dateString = getDateFormatForUpcomingEventAndInOneDay(startDate, endDate);
-            } else if (endDate.before(endOfWeek)) {
-                dateString = getDateFormatForUpcomingEventButDifferentDays(startDate, endDate);
-            } else {
-                dateString = getDateFormatForUpcomingEventButDifferentWeek(startDate, endDate);
-            }
-        } else {
-            dateString = getDateFormatForUpcomingEventButDifferentYear(startDate, endDate);
-        }
-        return dateString;
-    }
-
-    private void addThisWeekTaskToTaskList(Date startDate, Calendar calendar, Date deadline, boolean isAdded,
-            TaskEntry taskEntry) {
-        for (VBox vBox : upcomingSubcategories) {
-            if (startDate.before(deadline)) {
-                vBox.getChildren().add(taskEntry.getEntryDisplay());
-                isAdded = true;
-                break;
-            } else {
-                calendar.add(Calendar.DATE, 1);
-                deadline = calendar.getTime();
-            }
-        }
-        if (!isAdded) {
-            futureTaskList.getChildren().add(taskEntry.getEntryDisplay());
-        }
-    }
-
-    /**
-     * Determines the correct position for each node to be added back to
-     *
-     * @param node
-     *            to be added
-     */
-    private void addNodeBackToScreen(Node node) {
-        String nodeName = determineNodeName(node);
-        switch (nodeName) {
-
-            case CATEGORY_OVERDUE: {
-                // Just need to add to the front
-                mainVBox.getChildren().add(0, node);
-                break;
-            }
-
-            case CATEGORY_UPCOMING: {
-                if (mainVBox.getChildren().contains(overdueNode)) {
-                    // Check if the 'Overdue' node is on screen or not and adds
-                    // this node after it
-                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
-                } else {
-                    // Else this node would take precedence at the top.
-                    mainVBox.getChildren().add(0, node);
-                }
-                break;
-            }
-
-            case CATEGORY_FUTURE: {
-                if (mainVBox.getChildren().contains(overdueNode) && mainVBox.getChildren().contains(upcomingNode)) {
-                    // Check if 'Overdue' and 'This Week' nodes are added
-                    // before. This node takes position after them
-                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(upcomingNode) + 1, node);
-                } else if (mainVBox.getChildren().contains(overdueNode)
-                        && !mainVBox.getChildren().contains(upcomingNode)) {
-                    // Then check if either one is available
-                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(overdueNode) + 1, node);
-                } else if (mainVBox.getChildren().contains(upcomingNode)) {
-                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(upcomingNode) + 1, node);
-                } else {
-                    // Else it will go to the top
-                    mainVBox.getChildren().add(0, node);
-                }
-                break;
-            }
-
-            case CATEGORY_DREAMS: {
-                // Only needs to check if there is a lower node than it, where
-                // there is one 1 - doneNode.
-                if (mainVBox.getChildren().contains(doneNode)) {
-                    mainVBox.getChildren().add(mainVBox.getChildren().indexOf(doneNode), node);
-                } else {
-                    mainVBox.getChildren().add(node);
-                }
-                break;
-            }
-
-            case CATEGORY_DONE: {
-                // Takes position at the bottom of the list
-                mainVBox.getChildren().add(node);
-                break;
-            }
-
-            default: {
-                System.out.println(MESSAGE_UNABLE_TO_RECOGNISE_NODE);
-                break;
-            }
-        }
-    }
-
-    private void addNodeIfNotEmptyAndNotInDisplay(SequentialTransition sequentialTransition, Node node) {
-        if (!mainVBox.getChildren().contains(node)) {
-            FadeTransition fadeIn = generateFadeInTransition(node, TIME_TRANSITION_CATEGORY_FADE_IN);
-            addNodeBackToScreen(node);
-            sequentialTransition.getChildren().add(fadeIn);
-        }
-    }
-
-    private void addOrRemoveThisWeekNode(SequentialTransition sequentialTransition,
-            ParallelTransition parallelTransition, int totalTasksThisWeek) {
-        if (totalTasksThisWeek == 0 && mainVBox.getChildren().contains(upcomingNode)) {
-            // If there are no tasks within all the subcategories, remove the
-            // node if it is contained in the mainVBox
-            FadeTransition fadeOut = generateFadeOutTransition(upcomingNode, TIME_TRANSITION_CATEGORY_FADE_OUT);
-            fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(upcomingNode));
-            sequentialTransition.getChildren().add(parallelTransition);
-            sequentialTransition.getChildren().add(fadeOut);
-        } else if (totalTasksThisWeek != 0 && !mainVBox.getChildren().contains(upcomingNode)) {
-            // Else if there are some tasks and yet it is not contained in the
-            // mainVBox, fade it in.
-            FadeTransition fadeIn = generateFadeInTransition(upcomingNode, TIME_TRANSITION_CATEGORY_FADE_IN);
-            addNodeBackToScreen(upcomingNode);
-            sequentialTransition.getChildren().add(fadeIn);
-        } else {
-            // Else just fade the subcategories
-            sequentialTransition.getChildren().add(parallelTransition);
-        }
-    }
-
-    private void addOrRemoveThisWeekSubcategories(ParallelTransition parallelTransition, int i) {
-        // Each element of subcategoryVisibilityTracker corresponds to the
-        // subcategory at a particular
-        // index, '0' indicates visible/faded in and '1' indicates it has been
-        // faded out previously.
-        if (upcomingSubcategories.get(i).getChildren().isEmpty()) {
-            // 2 cases, either it has been faded in or not faded in previously.
-            if (subcategoryVisibilityTracker[i] == 0) {
-                // If faded out previously/not faded in yet, just remove away
-                // from the view
-                upcomingTaskList.getChildren().remove(upcomingSubcategories.get(i).getParent());
-            } else {
-                // If faded in, set it up to fade out since it has been emptied.
-                Node parentNode = upcomingSubcategories.get(i).getParent();
-                FadeTransition fadeOut = generateFadeOutTransition(parentNode, TIME_TRANSITION_SUBCATEGORY_FADE_OUT);
-                fadeOut.setOnFinished(done -> upcomingTaskList.getChildren().remove(parentNode));
-                parallelTransition.getChildren().add(fadeOut);
-                subcategoryVisibilityTracker[i] = 0;
-            }
-        } else if (!(upcomingSubcategories.get(i).getChildren().isEmpty()) && (subcategoryVisibilityTracker[i] == 0)) {
-            // All non-empty and faded out should be faded back in.
-            FadeTransition fadeIn = generateFadeInTransition(upcomingSubcategories.get(i).getParent(),
-                    TIME_TRANSITION_SUBCATEGORY_FADE_IN);
-            parallelTransition.getChildren().add(fadeIn);
-            subcategoryVisibilityTracker[i] = 1;
-        } else {
-            // Other cases can just ignore.
-        }
-    }
-
-    private void removeNodeIfEmptyAndInDisplay(SequentialTransition sequentialTransition, Node node) {
-        if (mainVBox.getChildren().contains(node)) {
-            FadeTransition fadeOut = generateFadeOutTransition(node, TIME_TRANSITION_CATEGORY_FADE_OUT);
-            fadeOut.setOnFinished(done -> mainVBox.getChildren().remove(node));
-            sequentialTransition.getChildren().add(fadeOut);
-        }
-    }
-
-    // ================================================================================
-    // TaskList change animation methods
-    // ================================================================================
-
-    protected FadeTransition fadeOutDeletedTaskEntry(List<Task> taskList) {
-        boolean isInitialised = initialisePrevTaskList(taskList);
-        boolean isDelete = isTaskChangeDelete(taskList);
-        if (isInitialised && isDelete) {
-            int index = findIndexOfDeletedTask(taskList);
-            prevTaskList = (ArrayList<Task>) taskList;  // Update the prevTaskList
-            return fadeOutDeletedTask(index);
-        }
-        return new FadeTransition();
-    }
-
-    protected void highlightAddedOrEditedTaskEntry(List<Task> taskList) {
-        boolean isInitialised = initialisePrevTaskList(taskList);
-        boolean isDelete = isTaskChangeDelete(taskList);
-        if (isInitialised && !isDelete) {
-            int index = findIndexOfAddedOrEditedTask(taskList);
-            highlightTask(index);
-            prevTaskList = (ArrayList<Task>) taskList;  // Update the prevTaskList
-        }
-    }
-
-    private FadeTransition fadeOutDeletedTask(int index) {
-        int prevCount = 0;
-        int currCount = 0;
-        int indexOfTaskEntry = -1;
-        for (Node node : nodeList) {
-            if (node == upcomingNode) {
-                prevCount = currCount;
-                currCount = currCount + findNumberOfTasksInUpcomingSubcategories();
-                if (currCount > index) {
-                    indexOfTaskEntry = index - prevCount;
-                    for (VBox vBox : upcomingSubcategories) {
-                        if (indexOfTaskEntry < vBox.getChildren().size()) {
-                            GridPane newTaskEntry = (GridPane) vBox.getChildren().get(indexOfTaskEntry);
-                            return generateFadeOutTransition(newTaskEntry, TIME_TRANSITION_TASK_ENTRY_FADE_OUT);
-                        }
-                        indexOfTaskEntry -= vBox.getChildren().size();
-                    }
-                    break;
-                }
-            } else {
-                prevCount = currCount;
-                VBox currTaskList = ((VBox) node.lookup(SELECTOR_CATEGORY_VBOX));
-                currCount = currCount + currTaskList.getChildren().size();
-                if (currCount > index) {
-                    indexOfTaskEntry = index - prevCount;
-                    GridPane newTaskEntry = (GridPane) currTaskList.getChildren().get(indexOfTaskEntry);
-                    return generateFadeOutTransition(newTaskEntry, TIME_TRANSITION_TASK_ENTRY_FADE_OUT);
-                }
-            }
-        }
-        return new FadeTransition();
-    }
-
-    private void highlightTask(int index) {
-        if (index == -1) {
-            return;
-        }
-        int prevCount = 0;
-        int currCount = 0;
-        int indexOfTaskEntry = -1;
-        for (Node node : nodeList) {
-            if (node == doneNode) {
-                break;
-            }
-            if (node == upcomingNode) {
-                prevCount = currCount;
-                currCount = currCount + findNumberOfTasksInUpcomingSubcategories();
-                if (currCount > index) {
-                    indexOfTaskEntry = index - prevCount;
-                    for (VBox vBox : upcomingSubcategories) {
-                        if (indexOfTaskEntry < vBox.getChildren().size()) {
-                            GridPane newTaskEntry = (GridPane) vBox.getChildren().get(indexOfTaskEntry);
-                            Timeline highlightTimeline = generateHighlightTimeline(newTaskEntry);
-                            highlightTimeline.play();
-                            break;
-                        }
-                        indexOfTaskEntry -= vBox.getChildren().size();
-                    }
-                    break;
-                }
-            } else {
-                prevCount = currCount;
-                VBox currTaskList = ((VBox) node.lookup(SELECTOR_CATEGORY_VBOX));
-                currCount = currCount + currTaskList.getChildren().size();
-                if (currCount > index) {
-                    indexOfTaskEntry = index - prevCount;
-                    GridPane newTaskEntry = (GridPane) currTaskList.getChildren().get(indexOfTaskEntry);
-                    Timeline highlightTimeline = generateHighlightTimeline(newTaskEntry);
-                    highlightTimeline.play();
-                    break;
-                }
-            }
-        }
-    }
-
-    private Timeline generateHighlightTimeline(GridPane newTaskEntry) {
-        Timeline highlightTimeline = new Timeline();
-
-        for (int i = STYLE_BACKGROUND_HIGHLIGHT_FULL_OPACITY; i >= 0; i--) {
-            float backgroundColorOpacity = (float) i / STYLE_BACKGROUND_HIGHLIGHT_FULL_OPACITY;
-            String styleBackgroundColor = String.format(STYLE_BACKGROUND_HIGHLIGHT_FORMAT, backgroundColorOpacity);
-            highlightTimeline.getKeyFrames().add(
-                                    new KeyFrame(highlightTimeline.getTotalDuration().add(Duration.millis(STYLE_BACKGROUND_HIGHLIGHT_FRAME_TIME)),
-                                    new KeyValue(newTaskEntry.styleProperty(), styleBackgroundColor, Interpolator.EASE_BOTH)));
-        }
-        return highlightTimeline;
-    }
-
-    private int findIndexOfDeletedTask(List<Task> taskList) {
-        Task prevTaskListTask;
-        Task currTaskListTask;
-        for (int i = 0; i<taskList.size(); i++) {
-            currTaskListTask = taskList.get(i);
-            prevTaskListTask = prevTaskList.get(i);
-            if (currTaskListTask.equals(prevTaskListTask) && currTaskListTask.getId().equals(prevTaskListTask.getId())) {
-                continue;
-            } else {
-                return i;
-            }
-        }
-        return taskList.size();
-    }
-
-    private int findIndexOfAddedOrEditedTask(List<Task> taskList) {
-            List<Task> filteredTaskList = new ArrayList<>(taskList);
-            // To retrieve the newly added/edited task
-            for (Task task : prevTaskList) {
-                filteredTaskList = filteredTaskList.stream()
-                        .filter(filterTask -> (!filterTask.getId().equals(task.getId())))
-                        .collect(Collectors.toList());
-            }
-            // To catch an edit that does not do any changes
-            if (filteredTaskList.isEmpty()) {
-                return -1;
-            }
-            Task newTask = filteredTaskList.get(0);
-            for (int i = 0; i < taskList.size(); i++) {
-                Task currTask = taskList.get(i);
-                if (currTask.equals(newTask) && currTask.getId().equals(newTask.getId())) {
-                    return i;
-                }
-            }
-            // Should be another 'show' command
-            return -1;
-    }
-
-    private int findNumberOfTasksInUpcomingSubcategories() {
-        int numTasks = 0;
-        for (VBox vBox : upcomingSubcategories) {
-            numTasks += vBox.getChildren().size();
-        }
-        return numTasks;
-    }
-
-    private boolean initialisePrevTaskList(List<Task> taskList) {
-        if (prevTaskList == null) {
-            prevTaskList = (ArrayList<Task>) taskList;
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isTaskChangeDelete(List<Task> taskList) {
-        if (taskList.size() < prevTaskList.size()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // ================================================================================
-    // Utility methods
-    // ================================================================================
-
-    /**
-     * Used when updating the task list, removes all tasks and resets the task
-     * counter
-     */
-    protected void clearTaskList() {
-        resetTaskCount();
-        resetTaskList();
-        generateThisWeekSubcategories();
-    }
-
-    protected void getUpdatedDates() {
-        updateDates();
-        today = getToday();
-        endOfWeek = getEndOfWeek();
-        currentDate = getCurrentDate();
-    }
-
-    private String determineNodeName(Node node) {
-        if (node.equals(overdueNode)) {
-            return CATEGORY_OVERDUE;
-        } else if (node.equals(upcomingNode)) {
-            return CATEGORY_UPCOMING;
-        } else if (node.equals(futureNode)) {
-            return CATEGORY_FUTURE;
-        } else {
-            return CATEGORY_DREAMS;
-        }
-    }
-
-    /**
-     * Generates the relative date sub-headers for the remaining days of the
-     * week and places them in the task list for 'This Week'.
-     */
-    private void generateThisWeekSubcategories() {
-        LocalDateTime startingDateTime = getDateTimeStartOfToday();
-        ArrayList<Node> thisWeekDateBoxes = new ArrayList<>();
-        int count = 1;
-        while (!(getInstantFromLocalDateTime(startingDateTime)).equals(endOfWeek.toInstant())) {
-            SubcategoryBox newDateBox;
-            String shortDate = ", " + startingDateTime.format(DateTimeFormatter.ofPattern(dateFormat.toPattern()));
-            if (count == 1) {
-                newDateBox = new SubcategoryBox(SUBCATEGORY_TODAY + shortDate);
-            } else if (count == 2) {
-                newDateBox = new SubcategoryBox(SUBCATEGORY_TOMORROW + shortDate);
-            } else {
-                newDateBox = new SubcategoryBox(
-                        startingDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()) + shortDate);
-            }
-            VBox newDateVBox = newDateBox.getTaskListVBox();
-            upcomingSubcategories.add(newDateVBox);
-            thisWeekDateBoxes.add(newDateBox.getDateBox());
-            startingDateTime = startingDateTime.plusDays(1);
-            count++;
-        }
-        if (subcategoryVisibilityTracker == null || (subcategoryVisibilityTracker.length != thisWeekDateBoxes.size())) {
-            subcategoryVisibilityTracker = new int[thisWeekDateBoxes.size()];
-        }
-        upcomingTaskList.getChildren().addAll(thisWeekDateBoxes);
-    }
-
-    private void resetTaskCount() {
-        taskCount.set(0);
-    }
-
-    private void resetTaskList() {
-        overdueTaskList.getChildren().clear();
-        upcomingTaskList.getChildren().clear();
-        futureTaskList.getChildren().clear();
-        dreamsTaskList.getChildren().clear();
-        doneTaskList.getChildren().clear();
-
-        upcomingSubcategories.clear();
-    }
 }

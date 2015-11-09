@@ -11,7 +11,7 @@ import javafx.scene.text.TextAlignment;
 public class SplashOverlay extends ImageOverlay {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
     private static final String ID_SUBTITLE_LABEL = "subtitleLabel";
@@ -23,11 +23,11 @@ public class SplashOverlay extends ImageOverlay {
     private static final String MESSAGE_WELCOME = "Welcome to Procrastinate!";
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
-    private Label subtitleLabel;
-    private Label titleLabel;
+    private Label subtitleLabel_;
+    private Label titleLabel_;
 
     // ================================================================================
     // SplashOverlay Constructor
@@ -41,7 +41,7 @@ public class SplashOverlay extends ImageOverlay {
     }
 
     // ================================================================================
-    // SplashOverlay methods
+    // Init Methods
     // ================================================================================
 
     @Override
@@ -51,8 +51,8 @@ public class SplashOverlay extends ImageOverlay {
     }
 
     private void createLabels() {
-        titleLabel = new Label(MESSAGE_WELCOME);
-        subtitleLabel = new Label(MESSAGE_SUBTITLE);
+        titleLabel_ = new Label(MESSAGE_WELCOME);
+        subtitleLabel_ = new Label(MESSAGE_SUBTITLE);
     }
 
     /**
@@ -61,17 +61,17 @@ public class SplashOverlay extends ImageOverlay {
      * to be applied.
      */
     private void setLabels() {
-        titleLabel.setAlignment(Pos.CENTER);
-        titleLabel.setTextAlignment(TextAlignment.CENTER);
-        titleLabel.setId(ID_TITLE_LABEL);
+        titleLabel_.setAlignment(Pos.CENTER);
+        titleLabel_.setTextAlignment(TextAlignment.CENTER);
+        titleLabel_.setId(ID_TITLE_LABEL);
 
-        subtitleLabel.setId(ID_SUBTITLE_LABEL);
+        subtitleLabel_.setId(ID_SUBTITLE_LABEL);
 
-        VBox.setVgrow(titleLabel, Priority.ALWAYS);
-        VBox.setVgrow(subtitleLabel, Priority.ALWAYS);
+        VBox.setVgrow(titleLabel_, Priority.ALWAYS);
+        VBox.setVgrow(subtitleLabel_, Priority.ALWAYS);
     }
 
     private void addLabels() {
-        container.getChildren().addAll(titleLabel, subtitleLabel);
+        container.getChildren().addAll(titleLabel_, subtitleLabel_);
     }
 }
