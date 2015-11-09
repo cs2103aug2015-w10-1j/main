@@ -113,6 +113,11 @@ public class SummaryScreen extends MultiCategoryScreen {
         double currMainVBoxHeight = getCurrentMainVBoxHeight();
         double maxMainVBoxHeight = ((ScrollPane) getNode().lookup(SELECTOR_SCROLLPANE)).getHeight();
 
+        if (taskList.isEmpty()) {
+            isSummarising_ = true;
+            return;
+        }
+
         if (currMainVBoxHeight < maxMainVBoxHeight) {
             isSummarising_ = false;
             return;
