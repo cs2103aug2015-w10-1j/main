@@ -99,7 +99,7 @@ public class WindowHandler {
             initTray();
         }
         overwriteDecorations();
-        configurePrimaryStage();
+        windowSetUp();
     }
 
     protected void bindAsExitIndicator(BooleanProperty isExit) {
@@ -118,13 +118,20 @@ public class WindowHandler {
         }
     }
 
+    private void windowSetUp() {
+        configurePrimaryStage();
+        setUpScene();
+    }
+
     private void configurePrimaryStage() {
         primaryStage_.setTitle(WINDOW_TITLE);
         primaryStage_.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage_.setMinWidth(WINDOW_MIN_WIDTH);
 
         primaryStage_.getIcons().add(new Image(WindowHandler.class.getResource(LOCATION_WINDOW_ICON).toExternalForm()));
+    }
 
+    private void setUpScene() {
         Scene primaryScene = new Scene(root_, WINDOW_WIDTH, WINDOW_HEIGHT);
         primaryScene.setFill(Color.TRANSPARENT);
         primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
@@ -148,7 +155,9 @@ public class WindowHandler {
      */
     private void overwriteDecorations() {
         createTitleBar();
-        setStyleAndMouseEvents();
+        setTransparentStageStyle();
+        setMouseEvents();
+        wrapCurrentRoot();
     }
 
     // @@author A0121597B-reused
@@ -156,9 +165,12 @@ public class WindowHandler {
      * Removes all window decorations sets mouse events to enable dragging of
      * window
      */
-    private void setStyleAndMouseEvents() {
-        primaryStage_.initStyle(StageStyle.TRANSPARENT);
+    private void setMouseEvents() {
+        setMouseEventsForWindowDragging();
+        setMouseEventsForUserInputFieldFocus();
+    }
 
+    private void setMouseEventsForWindowDragging() {
         root_.setOnMousePressed((mouseEvent) -> {
             xOffset_ = mouseEvent.getSceneX();
             yOffset_ = mouseEvent.getSceneY();
@@ -168,7 +180,9 @@ public class WindowHandler {
             primaryStage_.setX(mouseEvent.getScreenX() - xOffset_);
             primaryStage_.setY(mouseEvent.getScreenY() - yOffset_);
         });
+    }
 
+    private void setMouseEventsForUserInputFieldFocus() {
         // Prevent mouse clicks on the center pane from stealing focus from
         // userInputField
         centerScreen.setOnMousePressed((mouseEvent) -> {
@@ -178,7 +192,13 @@ public class WindowHandler {
         centerScreen.setOnMouseDragged((mouseEvent) -> {
             userInputField.requestFocus();
         });
+    }
 
+    private void setTransparentStageStyle() {
+        primaryStage_.initStyle(StageStyle.TRANSPARENT);
+    }
+
+    private void wrapCurrentRoot() {
         // Wraps the current root in an AnchorPane to provide drop shadow
         // styling
         AnchorPane wrapperPane = new AnchorPane(root_);
@@ -202,8 +222,8 @@ public class WindowHandler {
 
             close.setText(ICON_CLOSE);
             close.setOnMouseClicked(mouseEvent -> {
-                exitIndicator_.set(false);
-                exitIndicator_.set(true);
+                                    exitIndicator_.set(false);
+                                    exitIndicator_.set(true);
             });
 
             minimise.setText(ICON_MINIMISE);

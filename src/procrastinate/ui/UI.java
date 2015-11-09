@@ -23,7 +23,7 @@ import javafx.stage.Stage;
 import procrastinate.task.Task;
 
 /**
- * <h1>The main class of the UI component which follows the Facade Pattern.</h1>
+ * <h1>The main class of the UI component.</h1>
  * It instantiates all the other UI components required and provides
  * handle methods for the Logic component to call upon.
  */
