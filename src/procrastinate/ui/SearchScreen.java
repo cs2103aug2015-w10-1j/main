@@ -1,14 +1,9 @@
 //@@author A0121597B
 package procrastinate.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javafx.animation.FadeTransition;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
-import procrastinate.task.Task;
 
 /**
  * <h1>SearchScreen is a subclass of MultiCategoryScreen and is used to show the search results
@@ -62,27 +57,6 @@ public class SearchScreen extends MultiCategoryScreen {
     // ================================================================================
     // SearchScreen Methods
     // ================================================================================
-
-    @Override
-    protected void updateTaskList(List<Task> taskList) {
-        FadeTransition fadeOutDeletedTaskEntry = fadeOutDeletedTaskEntry(taskList);
-
-        fadeOutDeletedTaskEntry.setOnFinished(finish -> {
-            getUpdatedDates();
-            clearTaskList();
-
-            for (Task task : taskList) {
-                taskCount.set(taskCount.get() + 1);
-
-                addTaskByType(task);
-            }
-            updateDisplay();
-            highlightAddedOrEditedTaskEntry(taskList);
-            prevTaskList = (ArrayList<Task>) taskList;
-        });
-
-        fadeOutDeletedTaskEntry.play();
-    }
 
     @Override
     protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
