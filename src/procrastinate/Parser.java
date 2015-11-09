@@ -599,27 +599,41 @@ public class Parser {
     // ================================================================================
 
     private static List<Date> fillUpDateArray(List<Date> dateList, List<DateGroup> dateGroups) {
-        if (dateGroups.get(0).isTimeInferred()) {
-            Calendar date = Calendar.getInstance();
-            Date newDate = setDate(dateGroups.get(0).getDates().get(0), date);
-            dateList.add(0, newDate);
-            if (dateGroups.get(0).getDates().size() > 1) {
-                newDate = setDate(dateGroups.get(0).getDates().get(1), date);
-                dateList.add(1, newDate);
-            }
-        } else {
+        boolean isEventDate = dateGroups.get(0).getDates().size() == 2;
+
+        if (!dateGroups.get(0).isTimeInferred()) {
             dateList.add(0, dateGroups.get(0).getDates().get(0));
             if (dateGroups.get(0).getDates().size() > 1) {
-//                System.out.println(dateGroups.get(0).getDates().get(0));
-//                System.out.println(dateGroups.get(0).getDates().get(1));
                 dateList.add(1, dateGroups.get(0).getDates().get(1));
             }
+            return dateList;
+        }
+
+        Calendar date = Calendar.getInstance();
+        if (isEventDate) {
+            Date newDate = setStartDate(dateGroups.get(0).getDates().get(0), date);
+            dateList.add(0, newDate);
+            Date endDate = setEndDate(dateGroups.get(0).getDates().get(1), date);
+            dateList.add(1, endDate);
+        } else {
+            Date newDate = setEndDate(dateGroups.get(0).getDates().get(0), date);
+            dateList.add(0, newDate);
         }
 
         return dateList;
     }
 
-    private static Date setDate(Date date, Calendar calendarDate) {
+    private static Date setStartDate(Date date, Calendar calendarDate) {
+        calendarDate.setTime(date);
+        calendarDate.set(Calendar.HOUR_OF_DAY, 8);
+        calendarDate.set(Calendar.MINUTE, 0);
+        calendarDate.set(Calendar.SECOND, 0);
+        calendarDate.set(Calendar.MILLISECOND, 0);
+        Date newDate = calendarDate.getTime();
+        return newDate;
+    }
+
+    private static Date setEndDate(Date date, Calendar calendarDate) {
         calendarDate.setTime(date);
         calendarDate.set(Calendar.HOUR_OF_DAY, 23);
         calendarDate.set(Calendar.MINUTE, 59);
