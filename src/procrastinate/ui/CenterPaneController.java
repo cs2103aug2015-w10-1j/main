@@ -70,6 +70,7 @@ public class CenterPaneController {
     private Timeline splashScreenTimeline_;
 
     private Node mainScreenNode_;
+    private Node mainAllScreenNode_;
     private Node doneScreenNode_;
     private Node searchScreenNode_;
     private Node summaryScreenNode_;
@@ -79,6 +80,7 @@ public class CenterPaneController {
 
     private DoneScreen doneScreen_;
     private MainScreen mainScreen_;
+    private MainScreen mainAllScreen_;
     private SearchScreen searchScreen_;
     private SummaryScreen summaryScreen_;
 
@@ -134,11 +136,11 @@ public class CenterPaneController {
             }
 
             case SCREEN_MAIN_ALL : {
-                if (currentScreen_ != mainScreen_) {
-                    startScreenSwitchSequence(mainScreenNode_, mainScreen_);
+                if (currentScreen_ != mainAllScreen_) {
+                    startScreenSwitchSequence(mainAllScreenNode_, mainAllScreen_);
                 }
 
-                mainScreen_.updateTaskList(taskList);
+                mainAllScreen_.updateTaskList(taskList);
                 break;
             }
 
@@ -186,12 +188,14 @@ public class CenterPaneController {
             summaryScreen_.updateTaskList(taskList);
         } else if (currentScreen_ == summaryScreen_ && screenView == ScreenView.SCREEN_SUMMARY) {
             mainScreen_.updateTaskList(taskList);
+            mainAllScreen_.updateTaskList(taskList);
         }
     }
 
     // Used at startup so that highlighting can start immediately from the first very operation
     protected void initialUpdateMainScreen(List<Task> taskList) {
         mainScreen_.updateTaskList(taskList);
+        mainAllScreen_.updateTaskList(taskList);
     }
 
     // Handle to pass search string between classes
@@ -403,6 +407,7 @@ public class CenterPaneController {
 
     private void createScreens() {
         createMainScreen();
+        createMainAllScreen();
         createDoneScreen();
         createSearchScreen();
         createSummaryScreen();
@@ -422,6 +427,12 @@ public class CenterPaneController {
         this.mainScreen_ = new MainScreen();
         this.mainScreenNode_ = mainScreen_.getNode();
         addMouseDragListeners(mainScreenNode_);
+    }
+
+    private void createMainAllScreen() {
+        this.mainAllScreen_ = new MainScreen();
+        this.mainAllScreenNode_ = mainAllScreen_.getNode();
+        addMouseDragListeners(mainAllScreenNode_);
     }
 
     private void createDoneScreen() {

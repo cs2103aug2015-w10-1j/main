@@ -607,7 +607,7 @@ public class Logic {
                 break;
 
             case SHOW_ALL :
-                ui.updateTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN);
+                ui.updateTaskList(taskEngine.getAllTasks(), ScreenView.SCREEN_MAIN_ALL);
                 break;
 
             case SHOW_SUMMARY :
