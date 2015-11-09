@@ -107,6 +107,9 @@ public class Parser {
     // Parser methods
     // ================================================================================
 
+    /**
+     * Tokenises the input string and transforms it into the appropriate command.
+     */
     public static Command parse(String userInput) {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
