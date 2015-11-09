@@ -54,8 +54,7 @@ public class DialogPopupHandler {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.initOwner(primaryStage_);
 
-        dialog.setHeaderText(header);
-        dialog.setContentText(message);
+        setHeaderAndContentOfDialog(header, message, dialog);
 
         dialog.showAndWait();
     }
@@ -71,18 +70,12 @@ public class DialogPopupHandler {
         dialog.initOwner(primaryStage_);
 
         // Retrieve the stack trace as String
-        StringWriter stringWriter = new StringWriter();
-        exception.printStackTrace(new PrintWriter(stringWriter));
-        String stackTrace = stringWriter.toString();
+        String stackTrace = convertStackTraceToString(exception);
 
-        dialog.setHeaderText(MESSAGE_HEADER);
-        dialog.setContentText(exception.getMessage());
+        setHeaderAndContentOfDialog(MESSAGE_HEADER, exception.getMessage(), dialog);
 
         // Place the stack trace into a TextArea for display
-        TextArea textArea = new TextArea();
-        textArea.setWrapText(true);
-        textArea.setEditable(false);
-        textArea.setText(stackTrace);
+        TextArea textArea = getTextAreaWithTrace(stackTrace);
 
         dialog.getDialogPane().setExpandableContent(textArea);
         dialog.showAndWait();
@@ -102,8 +95,7 @@ public class DialogPopupHandler {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.initOwner(primaryStage_);
 
-        dialog.setHeaderText(header);
-        dialog.setContentText(message);
+        setHeaderAndContentOfDialog(header, message, dialog);
 
         ButtonType okBtn = new ButtonType(okLabel, ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelBtn = new ButtonType(BUTTON_MESSAGE_CANCEL, ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -119,5 +111,25 @@ public class DialogPopupHandler {
         } else {
             return false;
         }
+    }
+
+    private void setHeaderAndContentOfDialog(String header, String message, Alert dialog) {
+        dialog.setHeaderText(header);
+        dialog.setContentText(message);
+    }
+
+    private String convertStackTraceToString(Exception exception) {
+        StringWriter stringWriter = new StringWriter();
+        exception.printStackTrace(new PrintWriter(stringWriter));
+        String stackTrace = stringWriter.toString();
+        return stackTrace;
+    }
+
+    private TextArea getTextAreaWithTrace(String stackTrace) {
+        TextArea textArea = new TextArea();
+        textArea.setWrapText(true);
+        textArea.setEditable(false);
+        textArea.setText(stackTrace);
+        return textArea;
     }
 }
