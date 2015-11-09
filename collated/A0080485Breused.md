@@ -14,8 +14,7 @@
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.initOwner(primaryStage_);
 
-        dialog.setHeaderText(header);
-        dialog.setContentText(message);
+        setHeaderAndContentOfDialog(header, message, dialog);
 
         ButtonType okBtn = new ButtonType(okLabel, ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelBtn = new ButtonType(BUTTON_MESSAGE_CANCEL, ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -31,6 +30,26 @@
         } else {
             return false;
         }
+    }
+
+    private void setHeaderAndContentOfDialog(String header, String message, Alert dialog) {
+        dialog.setHeaderText(header);
+        dialog.setContentText(message);
+    }
+
+    private String convertStackTraceToString(Exception exception) {
+        StringWriter stringWriter = new StringWriter();
+        exception.printStackTrace(new PrintWriter(stringWriter));
+        String stackTrace = stringWriter.toString();
+        return stackTrace;
+    }
+
+    private TextArea getTextAreaWithTrace(String stackTrace) {
+        TextArea textArea = new TextArea();
+        textArea.setWrapText(true);
+        textArea.setEditable(false);
+        textArea.setText(stackTrace);
+        return textArea;
     }
 }
 ```

@@ -1,4 +1,27 @@
 # A0121597Breused
+###### Procrastinate/src/procrastinate/test/UITest.java
+``` java
+    // Needed to be initialised before testing JavaFX elements
+    // http://stackoverflow.com/questions/28501307/javafx-toolkit-not-initialized-in-one-test-class-but-not-two-others-where-is
+    public static void initToolkit() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        SwingUtilities.invokeLater(() -> {
+            new JFXPanel();
+            latch.countDown();
+        });
+        if (!latch.await(5L, TimeUnit.SECONDS)) {
+            throw new ExceptionInInitializerError();
+        }
+
+        System.out.println("Setting up UITest...");
+
+        System.out.println("Setting up CenterPaneController...");
+        centerPaneController = uiTestHelper.getNewCenterPaneController(new StackPane());
+        assertNotNull(centerPaneController);
+        System.out.println("CenterPaneController initialised.");
+    }
+
+```
 ###### Procrastinate/src/procrastinate/ui/CenterPaneController.java
 ``` java
     // Required since each screen node is wrapped inside a scrollPane.
@@ -6,13 +29,13 @@
         Node scrollPaneNode = ((ScrollPane) screenNode.lookup(SELECTOR_SCROLL_PANE)).getContent();
 
         scrollPaneNode.setOnMousePressed((mouseEvent) -> {
-            xOffset = mouseEvent.getSceneX();
-            yOffset = mouseEvent.getSceneY();
+            xOffset_ = mouseEvent.getSceneX();
+            yOffset_ = mouseEvent.getSceneY();
         });
 
         scrollPaneNode.setOnMouseDragged((mouseEvent) -> {
-            centerStackPane_.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
-            centerStackPane_.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+            centerStackPane_.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset_);
+            centerStackPane_.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset_);
         });
     }
 
@@ -78,8 +101,7 @@ public class DialogPopupHandler {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.initOwner(primaryStage_);
 
-        dialog.setHeaderText(header);
-        dialog.setContentText(message);
+        setHeaderAndContentOfDialog(header, message, dialog);
 
         dialog.showAndWait();
     }
@@ -95,22 +117,61 @@ public class DialogPopupHandler {
         dialog.initOwner(primaryStage_);
 
         // Retrieve the stack trace as String
-        StringWriter stringWriter = new StringWriter();
-        exception.printStackTrace(new PrintWriter(stringWriter));
-        String stackTrace = stringWriter.toString();
+        String stackTrace = convertStackTraceToString(exception);
 
-        dialog.setHeaderText(MESSAGE_HEADER);
-        dialog.setContentText(exception.getMessage());
+        setHeaderAndContentOfDialog(MESSAGE_HEADER, exception.getMessage(), dialog);
 
         // Place the stack trace into a TextArea for display
-        TextArea textArea = new TextArea();
-        textArea.setWrapText(true);
-        textArea.setEditable(false);
-        textArea.setText(stackTrace);
+        TextArea textArea = getTextAreaWithTrace(stackTrace);
 
         dialog.getDialogPane().setExpandableContent(textArea);
         dialog.showAndWait();
     }
+
+```
+###### Procrastinate/src/procrastinate/ui/DoubleNodePair.java
+``` java
+package procrastinate.ui;
+
+import javafx.scene.Node;
+
+/**
+ * <h1>DoubleNodePair is a class created specially for the SummaryScreen, to allow
+ * pairing of a Node and it's height value, a double.</h1>
+ *
+ * It allows the sorting by the double value (height) to allow the SummaryScreen to
+ * make more efficient use of space by handling smaller height Nodes first.
+ */
+public class DoubleNodePair implements Comparable<DoubleNodePair> {
+
+    // ================================================================================
+    // Class Variables
+    // ================================================================================
+
+    private double height_;
+    private Node node_;
+
+    // ================================================================================
+    // DoubleNodePair Constructor
+    // ================================================================================
+
+    public DoubleNodePair(double height, Node node) {
+        this.height_ = height;
+        this.node_ = node;
+    }
+
+    // ================================================================================
+    // DoubleNodePair Methods
+    // ================================================================================
+
+    @Override
+    public int compareTo(DoubleNodePair o) {
+        return Double.valueOf(this.height_).compareTo(o.height_);
+    }
+
+    // ================================================================================
+    // Getter Methods
+    // ================================================================================
 
 ```
 ###### Procrastinate/src/procrastinate/ui/MultiCategoryScreen.java
@@ -359,9 +420,12 @@ public class SystemTrayHandler {
      * Removes all window decorations sets mouse events to enable dragging of
      * window
      */
-    private void setStyleAndMouseEvents() {
-        primaryStage_.initStyle(StageStyle.TRANSPARENT);
+    private void setMouseEvents() {
+        setMouseEventsForWindowDragging();
+        setMouseEventsForUserInputFieldFocus();
+    }
 
+    private void setMouseEventsForWindowDragging() {
         root_.setOnMousePressed((mouseEvent) -> {
             xOffset_ = mouseEvent.getSceneX();
             yOffset_ = mouseEvent.getSceneY();
@@ -371,7 +435,9 @@ public class SystemTrayHandler {
             primaryStage_.setX(mouseEvent.getScreenX() - xOffset_);
             primaryStage_.setY(mouseEvent.getScreenY() - yOffset_);
         });
+    }
 
+    private void setMouseEventsForUserInputFieldFocus() {
         // Prevent mouse clicks on the center pane from stealing focus from
         // userInputField
         centerScreen.setOnMousePressed((mouseEvent) -> {
@@ -381,7 +447,13 @@ public class SystemTrayHandler {
         centerScreen.setOnMouseDragged((mouseEvent) -> {
             userInputField.requestFocus();
         });
+    }
 
+    private void setTransparentStageStyle() {
+        primaryStage_.initStyle(StageStyle.TRANSPARENT);
+    }
+
+    private void wrapCurrentRoot() {
         // Wraps the current root in an AnchorPane to provide drop shadow
         // styling
         AnchorPane wrapperPane = new AnchorPane(root_);
