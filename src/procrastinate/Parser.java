@@ -6,7 +6,7 @@ import com.joestelmach.natty.DateGroup;
 import procrastinate.command.AddDeadline;
 import procrastinate.command.AddDream;
 import procrastinate.command.AddEvent;
-import procrastinate.command.CleanCommand;
+import procrastinate.command.Command;
 import procrastinate.command.Delete;
 import procrastinate.command.Done;
 import procrastinate.command.EditDeadline;
@@ -107,7 +107,7 @@ public class Parser {
     // Parser methods
     // ================================================================================
 
-    public static CleanCommand parse(String userInput) {
+    public static Command parse(String userInput) {
         logger.log(Level.FINE, DEBUG_PARSING_COMMAND + userInput);
 
         assert(userInput != null && !userInput.isEmpty());
@@ -122,7 +122,7 @@ public class Parser {
         // userCommand.equalsIgnoreCase(firstWord) will only be true if
         // no arguments were ever specified (if a date argument was specified and
         // subsequently removed, the expression will be false due to the trailing space).
-        CleanCommand command;
+        Command command;
         if (isCommandEmpty(userCommand)) {
             command = constructInvalidCommand(MESSAGE_INVALID_NO_DESCRIPTION);
         } else {
@@ -136,10 +136,10 @@ public class Parser {
     // Construct command methods
     // ================================================================================
 
-    private static CleanCommand constructCommand(String userInput, String userCommand, CommandStringType commandInputType,
+    private static Command constructCommand(String userInput, String userCommand, CommandStringType commandInputType,
             List<Date> dateArray) {
         String firstWord = getFirstWord(userCommand).toLowerCase(); // Case insensitive
-        CleanCommand command = null;
+        Command command = null;
 
         switch (firstWord) {
             case COMMAND_ADD : {
@@ -333,9 +333,9 @@ public class Parser {
         }
     }
 
-    private static CleanCommand constructAddCommand(CommandStringType commandInputType, List<Date> dateArray,
+    private static Command constructAddCommand(CommandStringType commandInputType, List<Date> dateArray,
             String description) {
-        CleanCommand command;
+        Command command;
 
         switch (commandInputType) {
             case DUE_DATE:
@@ -355,9 +355,9 @@ public class Parser {
         return command;
     }
 
-    private static CleanCommand constructEditCommand(CommandStringType commandInputType, List<Date> dateArray,
+    private static Command constructEditCommand(CommandStringType commandInputType, List<Date> dateArray,
             int lineNumber, String description) {
-        CleanCommand command = null;
+        Command command = null;
         description = removeEscapeCharacters(description);
 
         switch (commandInputType) {
@@ -385,23 +385,23 @@ public class Parser {
         return command;
     }
 
-    private static CleanCommand constructDeleteCommand(int lineNumber) {
+    private static Command constructDeleteCommand(int lineNumber) {
         return new Delete(lineNumber);
     }
 
-    private static CleanCommand constructUndoCommand() {
+    private static Command constructUndoCommand() {
         return new Undo();
     }
 
-    private static CleanCommand constructDoneCommand(int lineNumber) {
+    private static Command constructDoneCommand(int lineNumber) {
         return new Done(lineNumber);
     }
 
-    private static CleanCommand constructSearchCommand(String userCommand,
+    private static Command constructSearchCommand(String userCommand,
                                                        CommandStringType commandInputType,
                                                        List<Date> dateArray) {
 
-        CleanCommand command = null;
+        Command command = null;
         String[] argument = userCommand.split(WHITESPACE_STRING, 2);
         String searchDescription = removeEscapeCharacters(argument[1]);
 
@@ -425,36 +425,36 @@ public class Parser {
         return command;
     }
 
-    private static CleanCommand constructShowOutstandingCommand() {
+    private static Command constructShowOutstandingCommand() {
         return new ShowOutstanding();
     }
 
-    private static CleanCommand constructShowDoneCommand() {
+    private static Command constructShowDoneCommand() {
         return new ShowDone();
     }
 
-    private static CleanCommand constructShowAllCommand() {
+    private static Command constructShowAllCommand() {
         return new ShowAll();
     }
 
-    private static CleanCommand constructShowSummaryCommand() {
+    private static Command constructShowSummaryCommand() {
         return new ShowSummary();
     }
 
-    private static CleanCommand constructHelpCommand() {
+    private static Command constructHelpCommand() {
         return new Help();
     }
 
-    private static CleanCommand constructSetPathCommand(String userCommand) {
+    private static Command constructSetPathCommand(String userCommand) {
         String[] pathArgs = extractSetPathArguments(userCommand);
         return new SetPath(pathArgs[0], pathArgs[1]);
     }
 
-    private static CleanCommand constructExitCommand() {
+    private static Command constructExitCommand() {
         return new Exit();
     }
 
-    private static CleanCommand constructInvalidCommand (String invalidMessage) {
+    private static Command constructInvalidCommand (String invalidMessage) {
 //        return new Command(CommandType.INVALID).addDescription(invalidMessage);
         return new Invalid(invalidMessage);
     }

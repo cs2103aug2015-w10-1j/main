@@ -13,7 +13,7 @@ public abstract class Edit extends CrudCmd implements FeedbackCrud {
         this.lineNum = lineNum;
     }
 
-    public CleanCommand addDescription(String description) {
+    public Command addDescription(String description) {
         assert description != null;
 
         this.description = description.trim();

@@ -8,7 +8,7 @@ import procrastinate.FileHandler;
 import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
-public class SetPath extends CleanCommand implements FeedbackSetPath {
+public class SetPath extends Command implements FeedbackSetPath {
     private String pathDir, pathFilename;
 
     public SetPath(String pathDir, String pathFilename) {

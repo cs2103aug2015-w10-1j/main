@@ -11,7 +11,7 @@ public abstract class Add extends CrudCmd implements FeedbackCrud {
         super(type);
     }
 
-    public CleanCommand addDescription(String description) {
+    public Command addDescription(String description) {
         assert description != null;
 
         this.description = description.trim();

@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import procrastinate.Parser;
-import procrastinate.command.CleanCommand;
-import procrastinate.command.CleanCommand.CommandType;
+import procrastinate.command.Command;
+import procrastinate.command.Command.CommandType;
 import procrastinate.command.Add;
 import procrastinate.command.Edit;
 import procrastinate.command.Invalid;
@@ -20,7 +20,7 @@ public class ParserTest {
     @Test
     public void addDreamTest() {
         /* This is the normal format for adding a dream */
-        CleanCommand resultCommand = Parser.parse("write test case for V0.2");
+        Command resultCommand = Parser.parse("write test case for V0.2");
         assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
         assertEquals("write test case for V0.2", ((Add)resultCommand).getDescription());
 
@@ -78,7 +78,7 @@ public class ParserTest {
     @Test
     public void addDeadlineTest() {
         /* Add deadline with "do" as a keyword with only dates as argument */
-        CleanCommand resultCommand = Parser.parse("do due tomorrow");
+        Command resultCommand = Parser.parse("do due tomorrow");
         assertEquals(CommandType.ADD_DEADLINE, resultCommand.getType());
         assertEquals("do", ((Add)resultCommand).getDescription());
 
@@ -96,7 +96,7 @@ public class ParserTest {
     @Test
     public void editTest() {
         /* Edit in a standard format with no dates*/
-        CleanCommand resultCommand = Parser.parse("edit 1 write user guide");
+        Command resultCommand = Parser.parse("edit 1 write user guide");
         assertEquals(CommandType.EDIT, resultCommand.getType());
         assertEquals(1, resultCommand.getLineNumber());
         assertEquals("write user guide", ((Edit)resultCommand).getDescription());
@@ -119,7 +119,7 @@ public class ParserTest {
     @Test
     public void deleteTest() {
         /* Delete in a standard format*/
-        CleanCommand resultCommand = Parser.parse("delete 1");
+        Command resultCommand = Parser.parse("delete 1");
         assertEquals(CommandType.DELETE, resultCommand.getType());
         assertEquals(1, resultCommand.getLineNumber());
 
@@ -132,7 +132,7 @@ public class ParserTest {
     @Test
     public void undoTest() {
         /* Undo in a standard format*/
-        CleanCommand resultCommand = Parser.parse("undo");
+        Command resultCommand = Parser.parse("undo");
         assertEquals(resultCommand.getType(), CommandType.UNDO);
     }
 
@@ -140,7 +140,7 @@ public class ParserTest {
     public void searchTest() {
         /* Search in a standard format*/
         System.out.println("search test");
-        CleanCommand resultCommand = Parser.parse("search keyword");
+        Command resultCommand = Parser.parse("search keyword");
         resultCommand.run(null, null);
         assertEquals(resultCommand.getType(), CommandType.SEARCH);
         assertEquals("keyword", resultCommand.getSearchTerm());
@@ -175,14 +175,14 @@ public class ParserTest {
     @Test
     public void helpTest() {
         /* Help in a standard format*/
-        CleanCommand resultCommand = Parser.parse("help");
+        Command resultCommand = Parser.parse("help");
         assertEquals(CommandType.HELP, resultCommand.getType());
     }
 
     @Test
     public void showTest() {
         /* Show in a standard format*/
-        CleanCommand resultCommand = Parser.parse("show");
+        Command resultCommand = Parser.parse("show");
         assertEquals(CommandType.SHOW_OUTSTANDING, resultCommand.getType());
 
         /* Show with "all" keyword*/
@@ -201,7 +201,7 @@ public class ParserTest {
     @Test
     public void setPathTest() {
         /* Set Path with no quotes*/
-        CleanCommand resultCommand = Parser.parse("set something else");
+        Command resultCommand = Parser.parse("set something else");
         assertEquals(CommandType.SET_PATH, resultCommand.getType());
         assertEquals("something", ((SetPath)resultCommand).getPathDirectory());
         assertEquals("else", ((SetPath)resultCommand).getPathFilename());
@@ -251,7 +251,7 @@ public class ParserTest {
     @Test
     public void escapeCharacterTest() {
         /* Escape on keywords*/
-        CleanCommand resultCommand = Parser.parse("\\do 1");
+        Command resultCommand = Parser.parse("\\do 1");
         assertEquals(CommandType.ADD_DREAM, resultCommand.getType());
         assertEquals("do 1", ((Add)resultCommand).getDescription());
 

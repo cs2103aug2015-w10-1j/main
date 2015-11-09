@@ -45,7 +45,7 @@ public class AddDeadline extends Add {
         }
     }
 
-    public CleanCommand addDate(Date date) {
+    public Command addDate(Date date) {
         this.date = date;
         return this;
     }

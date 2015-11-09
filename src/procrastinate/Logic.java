@@ -5,9 +5,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-//import procrastinate.Command.CommandType;
-import procrastinate.command.CleanCommand;
-import procrastinate.command.CleanCommand.CommandType;
+import procrastinate.command.Command;
+import procrastinate.command.Command.CommandType;
 import procrastinate.command.Feedback;
 import procrastinate.command.FeedbackExit;
 import procrastinate.command.FeedbackHelp;
@@ -60,7 +59,7 @@ public class Logic {
 
     private boolean hasStartupError = false;
 
-    private CleanCommand lastPreviewedCommand = null;
+    private Command lastPreviewedCommand = null;
 
     private ViewType currentView;
 
@@ -110,7 +109,7 @@ public class Logic {
     }
 
     //@@author A0124321Y
-    private String runCommand(CleanCommand command) {
+    private String runCommand(Command command) {
         String feedback = null;
 
         switch (command.getType()) {
@@ -230,6 +229,7 @@ public class Logic {
 
     //@@author A0080485B-unused
     // Was refactored into individual procrastinate.command classes by A0124321Y
+    // Provided the structure for Command class
     // ================================================================================
     // Command handling methods
     // ================================================================================
@@ -696,7 +696,7 @@ public class Logic {
                         return;
                     }
 
-                    CleanCommand command = lastPreviewedCommand;
+                    Command command = lastPreviewedCommand;
                     if (command.getType() != CommandType.EDIT_PARTIAL) {
                         return;
                     }
@@ -782,7 +782,7 @@ public class Logic {
     // Utility methods
     // ================================================================================
 
-    private String execute(CleanCommand command) {
+    private String execute(Command command) {
         return command.run(ui, taskEngine);
     }
 

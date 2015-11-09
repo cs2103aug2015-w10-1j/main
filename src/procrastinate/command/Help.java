@@ -3,7 +3,7 @@ package procrastinate.command;
 import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
-public class Help extends CleanCommand implements FeedbackHelp {
+public class Help extends Command implements FeedbackHelp {
 
     public Help() {
         super(CommandType.HELP);

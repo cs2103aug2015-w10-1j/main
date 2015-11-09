@@ -6,7 +6,7 @@ import java.util.Date;
 import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
-public abstract class CleanCommand implements Preview, Feedback {
+public abstract class Command implements Preview, Feedback {
     public static enum CommandType {
         ADD_DEADLINE, ADD_EVENT, ADD_DREAM, EDIT, EDIT_PARTIAL, EDIT_TO_DREAM, DELETE, UNDO, DONE,
         SEARCH, SEARCH_ON, SEARCH_DUE, SEARCH_RANGE, SHOW_OUTSTANDING, SHOW_DONE, SHOW_ALL, SHOW_SUMMARY,
@@ -21,7 +21,7 @@ public abstract class CleanCommand implements Preview, Feedback {
     private CommandType type;
     private boolean preview;
 
-    public CleanCommand(CommandType type) {
+    public Command(CommandType type) {
         assert type != null;
 
         this.type = type;

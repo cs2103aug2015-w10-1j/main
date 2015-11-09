@@ -54,12 +54,12 @@ public class AddEvent extends Add {
 
     }
 
-    public CleanCommand addStartDate(Date startDate) {
+    public Command addStartDate(Date startDate) {
         this.startDate = startDate;
         return this;
     }
 
-    public CleanCommand addEndDate(Date endDate) {
+    public Command addEndDate(Date endDate) {
         this.endDate = endDate;
         return this;
     }

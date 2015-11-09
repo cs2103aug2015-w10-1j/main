@@ -3,7 +3,7 @@ package procrastinate.command;
 import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
-public class Invalid extends CleanCommand {
+public class Invalid extends Command {
     private String description;
 
     public Invalid(String description) {
@@ -16,7 +16,7 @@ public class Invalid extends CleanCommand {
         return description;
     }
 
-    public CleanCommand addDescription(String description) {
+    public Command addDescription(String description) {
         assert description != null;
 
         this.description = description.trim();

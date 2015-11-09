@@ -3,7 +3,7 @@ package procrastinate.command;
 import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
-public class Exit extends CleanCommand implements FeedbackExit {
+public class Exit extends Command implements FeedbackExit {
 
     public Exit() {
         super(CommandType.EXIT);

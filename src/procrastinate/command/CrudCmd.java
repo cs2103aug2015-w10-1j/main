@@ -4,7 +4,7 @@ package procrastinate.command;
 import procrastinate.task.Task;
 import procrastinate.task.TaskEngine;
 
-public abstract class CrudCmd extends CleanCommand implements FeedbackCrud {
+public abstract class CrudCmd extends Command implements FeedbackCrud {
 
     public CrudCmd(CommandType type) {
         super(type);
