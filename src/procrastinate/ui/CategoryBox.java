@@ -92,7 +92,7 @@ public class CategoryBox extends VBox {
     // Getter Methods
     // ================================================================================
 
-    // @@author generated
+    //@@author generated
     protected Node getCategoryBox() {
         return this.categoryBox_;
     }

@@ -1,5 +1,5 @@
 # A0080485Breused
-###### Procrastinate/src/procrastinate/ui/DialogPopupHandler.java
+###### procrastinate\ui\DialogPopupHandler.java
 ``` java
     /**
      * Creates an error dialog which requires the user's action to either confirm or cancel,
@@ -53,7 +53,7 @@
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/SystemTrayHandler.java
+###### procrastinate\ui\SystemTrayHandler.java
 ``` java
     private void createSysTray() {
         sysTray_ = SystemTray.getSystemTray();

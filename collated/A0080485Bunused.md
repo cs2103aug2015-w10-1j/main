@@ -1,5 +1,5 @@
 # A0080485Bunused
-###### Procrastinate/src/procrastinate/LegacyCommand.java
+###### procrastinate\LegacyCommand.java
 ``` java
 // Was refactored into individual procrastinate.command classes by A0124321Y
 // Skeleton code for the Command class
@@ -109,7 +109,7 @@ public class LegacyCommand {
 
 }
 ```
-###### Procrastinate/src/procrastinate/Logic.java
+###### procrastinate\Logic.java
 ``` java
     // Was refactored into individual procrastinate.command classes by A0124321Y
     // Provided the structure for Command class

@@ -1,5 +1,5 @@
 # generated
-###### Procrastinate/src/procrastinate/ui/CategoryBox.java
+###### procrastinate\ui\CategoryBox.java
 ``` java
     protected Node getCategoryBox() {
         return this.categoryBox_;
@@ -14,7 +14,7 @@
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/CenterPaneController.java
+###### procrastinate\ui\CenterPaneController.java
 ``` java
     protected Node getDoneScreenNode() {
         return doneScreenNode_;
@@ -50,7 +50,7 @@
 
 }
 ```
-###### Procrastinate/src/procrastinate/ui/CenterScreen.java
+###### procrastinate\ui\CenterScreen.java
 ``` java
     protected Node getNode() {
         return this.node_;
@@ -73,7 +73,7 @@
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/DoubleNodePair.java
+###### procrastinate\ui\DoubleNodePair.java
 ``` java
     protected double getHeight() {
         return height_;
@@ -85,7 +85,7 @@
 
 }
 ```
-###### Procrastinate/src/procrastinate/ui/ImageOverlay.java
+###### procrastinate\ui\ImageOverlay.java
 ``` java
     protected Node getNode() {
         return this.node;
@@ -100,7 +100,7 @@
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/MultiCategoryScreen.java
+###### procrastinate\ui\MultiCategoryScreen.java
 ``` java
     protected Node getOverdueNode() {
         return overdueNode;
@@ -144,7 +144,7 @@
 
 }
 ```
-###### Procrastinate/src/procrastinate/ui/SingleCategoryScreen.java
+###### procrastinate\ui\SingleCategoryScreen.java
 ``` java
     protected Node getCategoryNode() {
         return thisCategoryNode;
@@ -155,7 +155,7 @@
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/SubcategoryBox.java
+###### procrastinate\ui\SubcategoryBox.java
 ``` java
     protected Node getSubcategoryBox() {
         return this.subcategoryBox_;
@@ -170,7 +170,7 @@
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/TaskEntry.java
+###### procrastinate\ui\TaskEntry.java
 ``` java
     protected Node getEntryDisplay() {
         return this.taskEntry_;
@@ -189,7 +189,7 @@
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/WindowHandler.java
+###### procrastinate\ui\WindowHandler.java
 ``` java
     protected Label getStatusLabel() {
         return statusLabel;

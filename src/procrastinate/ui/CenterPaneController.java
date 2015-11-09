@@ -478,7 +478,7 @@ public class CenterPaneController {
     // Getter Methods
     // ================================================================================
 
-    // @@author generated
+    //@@author generated
     protected Node getDoneScreenNode() {
         return doneScreenNode_;
     }

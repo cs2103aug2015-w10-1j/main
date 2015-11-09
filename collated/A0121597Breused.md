@@ -1,5 +1,5 @@
 # A0121597Breused
-###### Procrastinate/src/procrastinate/test/UITest.java
+###### procrastinate\test\UITest.java
 ``` java
     // Needed to be initialised before testing JavaFX elements
     // http://stackoverflow.com/questions/28501307/javafx-toolkit-not-initialized-in-one-test-class-but-not-two-others-where-is
@@ -22,7 +22,7 @@
     }
 
 ```
-###### Procrastinate/src/procrastinate/ui/CenterPaneController.java
+###### procrastinate\ui\CenterPaneController.java
 ``` java
     // Required since each screen node is wrapped inside a scrollPane.
     private void addMouseDragListeners(Node screenNode) {
@@ -44,7 +44,7 @@
     // ================================================================================
 
 ```
-###### Procrastinate/src/procrastinate/ui/DialogPopupHandler.java
+###### procrastinate\ui\DialogPopupHandler.java
 ``` java
 package procrastinate.ui;
 
@@ -129,7 +129,7 @@ public class DialogPopupHandler {
     }
 
 ```
-###### Procrastinate/src/procrastinate/ui/DoubleNodePair.java
+###### procrastinate\ui\DoubleNodePair.java
 ``` java
 package procrastinate.ui;
 
@@ -174,7 +174,7 @@ public class DoubleNodePair implements Comparable<DoubleNodePair> {
     // ================================================================================
 
 ```
-###### Procrastinate/src/procrastinate/ui/MultiCategoryScreen.java
+###### procrastinate\ui\MultiCategoryScreen.java
 ``` java
     private Timeline generateHighlightTimeline(GridPane newTaskEntry) {
         Timeline highlightTimeline = new Timeline();
@@ -195,7 +195,7 @@ public class DoubleNodePair implements Comparable<DoubleNodePair> {
     }
 
 ```
-###### Procrastinate/src/procrastinate/ui/SystemTrayHandler.java
+###### procrastinate\ui\SystemTrayHandler.java
 ``` java
 package procrastinate.ui;
 
@@ -294,7 +294,7 @@ public class SystemTrayHandler {
     }
 
 ```
-###### Procrastinate/src/procrastinate/ui/SystemTrayHandler.java
+###### procrastinate\ui\SystemTrayHandler.java
 ``` java
     private PopupMenu createPopupMenu() {
         PopupMenu menu = new PopupMenu();
@@ -414,7 +414,7 @@ public class SystemTrayHandler {
     }
 }
 ```
-###### Procrastinate/src/procrastinate/ui/WindowHandler.java
+###### procrastinate\ui\WindowHandler.java
 ``` java
     /**
      * Removes all window decorations sets mouse events to enable dragging of

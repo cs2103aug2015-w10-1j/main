@@ -202,7 +202,7 @@ public class TaskEntry extends GridPane {
     // ================================================================================
     // Getter Methods
     // ================================================================================
-    // @@author generated
+    //@@author generated
     protected Node getEntryDisplay() {
         return this.taskEntry_;
     }

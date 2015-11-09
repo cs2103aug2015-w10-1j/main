@@ -247,7 +247,7 @@ public class WindowHandler {
     // Getter Methods
     // ================================================================================
 
-    // @@author generated
+    //@@author generated
     protected Label getStatusLabel() {
         return statusLabel;
     }
