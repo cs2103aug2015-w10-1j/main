@@ -1,4 +1,8 @@
+//@@author A0121597B
 package procrastinate.ui;
+
+import java.awt.SystemTray;
+import java.io.IOException;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -17,13 +21,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.awt.SystemTray;
-import java.io.IOException;
-
+/**
+ * <h1>WindowHandler handles the configuration and Scene settings of the primary Stage.</h1>
+ * It also instantiates the SystemTrayHandler class if SystemTray is supported.
+ */
 public class WindowHandler {
 
     // ================================================================================
-    // Fixed variables
+    // Fixed Variables
     // ================================================================================
 
     private static final String LOCATION_CSS_STYLESHEET = "views/procrastinate.css";
@@ -39,42 +44,54 @@ public class WindowHandler {
 
     private static final String ICON_CLOSE = "\uf00d";
     private static final String ICON_MINIMISE = "\uf068";
-    private static final String SELECTOR_CENTER_SCREEN = "#centerScreen";
     private static final String STYLE_CLASS_MAIN_WINDOW = "mainWindow";
     private static final int WRAPPER_PREF_WIDTH = 800;
     private static final int WRAPPER_PREF_HEIGHT = 800;
 
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
-    private Stage primaryStage;
-    private Parent root;
-    private SystemTray systemTray;
-    private SystemTrayHandler systemTrayHandler;
+    private Stage primaryStage_;
 
-    private BooleanProperty exitIndicator = new SimpleBooleanProperty(false);
+    private Parent root_;
 
-    private static double xOffset, yOffset;
+    private SystemTray systemTray_;
 
-    // ================================================================================
-    // FXML field variables
-    // ================================================================================
+    private SystemTrayHandler systemTrayHandler_;
 
-    @FXML private BorderPane mainBorderPane;
-    @FXML private Label close;
-    @FXML private Label minimise;
-    @FXML private Label statusLabel;
-    @FXML private StackPane centerScreen;
-    @FXML private TextField userInputField;
+    private BooleanProperty exitIndicator_ = new SimpleBooleanProperty(false);
+
+    private static double xOffset_, yOffset_;
 
     // ================================================================================
-    // WindowHandler methods
+    // FXML Field Variables
+    // ================================================================================
+
+    @FXML
+    private BorderPane mainBorderPane;
+    @FXML
+    private Label close;
+    @FXML
+    private Label minimise;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private StackPane centerScreen;
+    @FXML
+    private TextField userInputField;
+
+    // ================================================================================
+    // WindowHandler Constructor
     // ================================================================================
 
     protected WindowHandler(Stage stage) {
-        this.primaryStage = stage;
+        this.primaryStage_ = stage;
     }
+
+    // ================================================================================
+    // WindowHandler Methods
+    // ================================================================================
 
     protected void loadWindowConfigurations(boolean showTray) {
         loadMainWindowLayout();
@@ -82,89 +99,118 @@ public class WindowHandler {
             initTray();
         }
         overwriteDecorations();
-        configurePrimaryStage();
+        windowSetUp();
     }
 
     protected void bindAsExitIndicator(BooleanProperty isExit) {
-        exitIndicator.bindBidirectional(isExit);
-        systemTrayHandler.bindExitIndicator(isExit);
+        exitIndicator_.bindBidirectional(isExit);
+        systemTrayHandler_.bindExitIndicator(isExit);
     }
 
     private void loadMainWindowLayout() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOCATION_MAIN_WINDOW_LAYOUT));
-        loader.setController(this); // Required due to different package declaration from Main
+        loader.setController(this); // Required due to different package
+                                    // declaration from Main
         try {
-            root = loader.load();
+            root_ = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private void windowSetUp() {
+        configurePrimaryStage();
+        setUpScene();
+    }
+
     private void configurePrimaryStage() {
-        primaryStage.setTitle(WINDOW_TITLE);
-        primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
-        primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
-        primaryStage.getIcons().addAll(
-                new Image(WindowHandler.class.getResource(LOCATION_WINDOW_ICON).toExternalForm())
-        );
-        Scene primaryScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);  // This is the 'primary window' that consists of the user input field
+        primaryStage_.setTitle(WINDOW_TITLE);
+        primaryStage_.setMinHeight(WINDOW_MIN_HEIGHT);
+        primaryStage_.setMinWidth(WINDOW_MIN_WIDTH);
+
+        primaryStage_.getIcons().add(new Image(WindowHandler.class.getResource(LOCATION_WINDOW_ICON).toExternalForm()));
+    }
+
+    private void setUpScene() {
+        Scene primaryScene = new Scene(root_, WINDOW_WIDTH, WINDOW_HEIGHT);
         primaryScene.setFill(Color.TRANSPARENT);
         primaryScene.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
-        primaryStage.setScene(primaryScene);
+
+        primaryStage_.setScene(primaryScene);
     }
 
     private void initTray() {
         if (isSysTraySupported()) {
-            systemTrayHandler = new SystemTrayHandler(primaryStage, userInputField);
-            // userInputField is passed to SystemTrayHandler to request for focus whenever the window is shown
-            systemTray = systemTrayHandler.initialiseTray();
-            assert (systemTray != null);
+            systemTrayHandler_ = new SystemTrayHandler(primaryStage_, userInputField);
+            // userInputField is passed to SystemTrayHandler to request for
+            // focus whenever the window is shown
+            systemTray_ = systemTrayHandler_.initialiseTray();
+            assert(systemTray_ != null);
         }
     }
 
     /**
-     * Removes all window decorations, replacing a custom title bar and allow dragging of window
+     * Removes all window decorations, replacing a custom title bar and allow
+     * dragging of window
      */
     private void overwriteDecorations() {
         createTitleBar();
-        setStyleAndMouseEvents();
+        setTransparentStageStyle();
+        setMouseEvents();
+        wrapCurrentRoot();
     }
 
+    // @@author A0121597B-reused
     /**
-     * Removes all window decorations sets mouse events to enable dragging of window
+     * Removes all window decorations sets mouse events to enable dragging of
+     * window
      */
-    private void setStyleAndMouseEvents() {
-        primaryStage.initStyle(StageStyle.TRANSPARENT);
+    private void setMouseEvents() {
+        setMouseEventsForWindowDragging();
+        setMouseEventsForUserInputFieldFocus();
+    }
 
-        root.setOnMousePressed((mouseEvent) -> {
-            xOffset = mouseEvent.getSceneX();
-            yOffset = mouseEvent.getSceneY();
-        });
-        root.setOnMouseDragged((mouseEvent) -> {
-            primaryStage.setX(mouseEvent.getScreenX() - xOffset);
-            primaryStage.setY(mouseEvent.getScreenY() - yOffset);
-        });
-
-        // Since the CenterScreen is wrapped around another Pane, setting the mouse events on it is necessary as well.
-        StackPane centerPane = (StackPane) root.lookup(SELECTOR_CENTER_SCREEN);
-        centerPane.setOnMousePressed((mouseEvent) -> {
-            xOffset = mouseEvent.getSceneX();
-            yOffset = mouseEvent.getSceneY();
-        });
-        centerPane.setOnMouseDragged((mouseEvent) -> {
-            centerPane.getScene().getWindow().setX(mouseEvent.getScreenX() - xOffset);
-            centerPane.getScene().getWindow().setY(mouseEvent.getScreenY() - yOffset);
+    private void setMouseEventsForWindowDragging() {
+        root_.setOnMousePressed((mouseEvent) -> {
+            xOffset_ = mouseEvent.getSceneX();
+            yOffset_ = mouseEvent.getSceneY();
         });
 
+        root_.setOnMouseDragged((mouseEvent) -> {
+            primaryStage_.setX(mouseEvent.getScreenX() - xOffset_);
+            primaryStage_.setY(mouseEvent.getScreenY() - yOffset_);
+        });
+    }
 
-        // Wraps the current root in an AnchorPane to provide drop shadow styling
-        AnchorPane wrapperPane = new AnchorPane(root);
+    private void setMouseEventsForUserInputFieldFocus() {
+        // Prevent mouse clicks on the center pane from stealing focus from
+        // userInputField
+        centerScreen.setOnMousePressed((mouseEvent) -> {
+            userInputField.requestFocus();
+        });
+
+        centerScreen.setOnMouseDragged((mouseEvent) -> {
+            userInputField.requestFocus();
+        });
+    }
+
+    private void setTransparentStageStyle() {
+        primaryStage_.initStyle(StageStyle.TRANSPARENT);
+    }
+
+    private void wrapCurrentRoot() {
+        // Wraps the current root in an AnchorPane to provide drop shadow
+        // styling
+        AnchorPane wrapperPane = new AnchorPane(root_);
+
         wrapperPane.setPrefSize(WRAPPER_PREF_WIDTH, WRAPPER_PREF_HEIGHT);
         wrapperPane.getStyleClass().add(STYLE_CLASS_MAIN_WINDOW);
         wrapperPane.getStylesheets().add(getClass().getResource(LOCATION_CSS_STYLESHEET).toExternalForm());
-        root = wrapperPane;
+
+        root_ = wrapperPane;
     }
 
+    //@@author A0121597B
     /**
      * Creates a title bar for minimising and closing of Procrastinate.
      */
@@ -175,25 +221,33 @@ public class WindowHandler {
             HBox titleBar = loader.load();
 
             close.setText(ICON_CLOSE);
-            close.setOnMouseClicked(mouseEvent -> exitIndicator.set(true));
+            close.setOnMouseClicked(mouseEvent -> {
+                                    exitIndicator_.set(false);
+                                    exitIndicator_.set(true);
+            });
 
             minimise.setText(ICON_MINIMISE);
-            if (systemTrayHandler != null) {
-                minimise.setOnMouseClicked(mouseEvent -> systemTrayHandler.windowHideOrShow());
+            if (systemTrayHandler_ != null) {
+                minimise.setOnMouseClicked(mouseEvent -> systemTrayHandler_.windowHideOrShow());
             } else {
-                minimise.setOnMouseClicked(mouseEvent -> primaryStage.setIconified(true));
+                minimise.setOnMouseClicked(mouseEvent -> primaryStage_.setIconified(true));
             }
 
-            ((BorderPane)root).setTop(titleBar);
+            ((BorderPane) root_).setTop(titleBar);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private boolean isSysTraySupported() {
-        return  SystemTray.isSupported();
+        return SystemTray.isSupported();
     }
 
+    // ================================================================================
+    // Getter Methods
+    // ================================================================================
+
+    // @@author generated
     protected Label getStatusLabel() {
         return statusLabel;
     }

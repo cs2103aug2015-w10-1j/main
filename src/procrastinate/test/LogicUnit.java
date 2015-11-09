@@ -10,7 +10,10 @@ public class LogicUnit extends Logic {
         ui = uiStub;
     }
     @Override
-    protected void initTaskEngine() throws IOException {
-        taskEngine = new TaskEngineUnit();
+    protected void initTaskEngine() {
+        try {
+            taskEngine = new TaskEngineUnit();
+        } catch (IOException e) {
+        }
     }
 }

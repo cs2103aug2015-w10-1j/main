@@ -1,4 +1,19 @@
+//@@author A0121597B-reused
 package procrastinate.ui;
+
+import java.awt.AWTException;
+import java.awt.Frame;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -6,97 +21,109 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
+/**
+ * <h1>SystemTrayHandler class handles the tray icon operation and hiding or showing
+ * of the main window.</h1>
+ */
 public class SystemTrayHandler {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
+
+    private static final String MESSAGE_UNABLE_TO_LOAD_ICON_IMAGE = "Unable to load icon image for system tray.";
+
+    private static final String OS_CHECK_WINDOWS = "Windows";
+    private static final String OS_CHECK_NAME = "os.name";
 
     private static final String TRAY_ICON_TITLE = "Procrastinate";
     private static final String TRAY_IMAGE_ICON = "images/icon.png";
     private static final String TRAY_MENU_SHOW_OR_HIDE = "Show/Hide";
     private static final String TRAY_MENU_EXIT = "Exit";
-    private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from here.";
+    private static final String TRAY_MESSAGE_DESCRIPTION = "Access or exit Procrastinate from the tray icon";
     private static final String TRAY_MESSAGE_TITLE = "Procrastinate is still running!";
 
-    private static final String MESSAGE_UNABLE_TO_LOAD_ICON_IMAGE = "Unable to load icon image for system tray.";
-    private static final String OS_CHECK_WINDOWS = "Windows";
-    private static final String OS_CHECK_NAME = "os.name";
-
     // ================================================================================
-    // Class variables
+    // Class Variables
     // ================================================================================
 
-    private boolean shownMinimiseMessage = false;
-    private BooleanProperty exitIndicator = new SimpleBooleanProperty(false);
+    private boolean isMouseEntered_ = false;
+    private boolean shownMinimiseMessage_ = false;
 
-    private Stage primaryStage;
-    private SystemTray sysTray;
-    private TrayIcon sysTrayIcon;
-    private TextField userInputField;
+    private BooleanProperty exitIndicator_ = new SimpleBooleanProperty(false);
 
-    private boolean isMouse = false;
+    private Stage primaryStage_;
+
+    private SystemTray sysTray_;
+
+    private TrayIcon sysTrayIcon_;
+
+    private PopupMenu popupMenu_;
+
+    private Frame invisibleFrame_;
+
+    private TextField userInputField_;
 
     // ================================================================================
-    // SystemTrayHandler methods
+    // SystemTrayHandler Constructor
     // ================================================================================
 
     protected SystemTrayHandler(Stage primaryStage, TextField userInputField) {
-        this.primaryStage = primaryStage;
-        this.userInputField = userInputField;
+        this.primaryStage_ = primaryStage;
+        this.userInputField_ = userInputField;
     }
 
+    // ================================================================================
+    // SystemTrayHandler Methods
+    // ================================================================================
+
     protected SystemTray initialiseTray() {
-        configureSysTray(primaryStage);
+        configureSysTray(primaryStage_);
         createSysTray();
-        return sysTray;
+        return sysTray_;
     }
 
     protected void bindExitIndicator(BooleanProperty isExit) {
-        exitIndicator.bindBidirectional(isExit);
+        exitIndicator_.bindBidirectional(isExit);
     }
 
     private void configureSysTray(Stage primaryStage) {
         Platform.setImplicitExit(false);    // Set this up before creating the trays
         // Enables the app to run normally until the app calls exit, even if the last app window is closed.
         primaryStage.setOnCloseRequest(windowEvent -> {
-            if (isSysTraySupported()) {
-                primaryStage.hide();
-                if (isWindowsOs()) {
-                    // Windows check needed as MacOS doesn't recognise balloon messages
-                    showMinimiseMessage();
-                }
-            } else {
-                System.exit(0);
-            }
+            exitIndicator_.set(false);exitIndicator_.set(true);
         });
     }
 
+    //@@author A0080485B-reused
     private void createSysTray() {
-        sysTray = SystemTray.getSystemTray();
-        Image sysTrayIconImage = createSysTrayIconImage();
-        PopupMenu sysTrayPopup = createSysTrayMenu();
-        sysTrayIcon = createSysTrayIcon(sysTrayIconImage, sysTrayPopup);
+        sysTray_ = SystemTray.getSystemTray();
+        popupMenu_ = createPopupMenu();
+        sysTrayIcon_ = createSysTrayIcon(createSysTrayIconImage());
+
+        if (!isWindowsOs()) {
+            invisibleFrame_ = new Frame();
+            invisibleFrame_.setUndecorated(true);
+            invisibleFrame_.setResizable(false);
+            invisibleFrame_.add(popupMenu_);
+        }
+
         try {
-            sysTray.add(sysTrayIcon);
+            sysTray_.add(sysTrayIcon_);
         } catch (AWTException e) {
             e.printStackTrace();
         }
     }
 
-    private PopupMenu createSysTrayMenu() {
+    //@@author A0121597B-reused
+    private PopupMenu createPopupMenu() {
         PopupMenu menu = new PopupMenu();
 
         MenuItem menuExit = new MenuItem(TRAY_MENU_EXIT);
-        menuExit.addActionListener(actionEvent -> exitIndicator.set(true));
+        menuExit.addActionListener(actionEvent -> {
+            exitIndicator_.set(false);
+            exitIndicator_.set(true);
+        });
 
         MenuItem menuShow = new MenuItem(TRAY_MENU_SHOW_OR_HIDE);
         menuShow.addActionListener(actionEvent -> windowHideOrShow());
@@ -109,22 +136,29 @@ public class SystemTrayHandler {
     private Image createSysTrayIconImage() {
         // Load an image as system tray icon image. Auto resize is enabled in createSysTrayIcon method.
         BufferedImage img = null;
+
         try {
             img = ImageIO.read(SystemTrayHandler.class.getResource(TRAY_IMAGE_ICON));
         } catch (IOException e) {
             System.err.println(MESSAGE_UNABLE_TO_LOAD_ICON_IMAGE);
         }
-        Dimension trayIconSize = sysTray.getTrayIconSize();
-        Image trayImage = img.getScaledInstance(trayIconSize.width, trayIconSize.height, Image.SCALE_SMOOTH);
-        return trayImage;
+
+        return img;
     }
 
-    private TrayIcon createSysTrayIcon(Image iconImage, PopupMenu popupMenu) {
-        TrayIcon trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, popupMenu);
+    private TrayIcon createSysTrayIcon(Image iconImage) {
+        TrayIcon trayIcon;
+
+        if (isWindowsOs()) {
+            trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE, popupMenu_);
+        } else {
+            trayIcon = new TrayIcon(iconImage, TRAY_ICON_TITLE);
+        }
+
         trayIcon.setImageAutoSize(true);
-        trayIcon.setPopupMenu(popupMenu);
         trayIcon.addMouseListener(createIconClickListener());
-        trayIcon.addMouseMotionListener(createMouseMotionListener());
+        trayIcon.addMouseMotionListener(createIconMouseMotionListener());
+
         return trayIcon;
     }
 
@@ -133,96 +167,68 @@ public class SystemTrayHandler {
     // ================================================================================
 
     protected void windowHideOrShow() {
-        if (isMouse && primaryStage.isShowing()) {
-            isMouse = false;
-        }
-        else if (primaryStage.isShowing()) {
+        if (isMouseEntered_ && primaryStage_.isShowing()) {
+            isMouseEntered_ = false;
+
+            Platform.runLater(() -> {
+                primaryStage_.show();
+                primaryStage_.toFront();
+                userInputField_.requestFocus();
+            });
+
+        } else if (primaryStage_.isShowing()) {
             if (isWindowsOs()) {
                 showMinimiseMessage();
             }
-            Platform.runLater(() -> primaryStage.hide());
+
+            Platform.runLater(() -> primaryStage_.hide());
+
         } else {
             Platform.runLater(() -> {
-                primaryStage.show();
-                userInputField.requestFocus();
-                primaryStage.toFront();
+                primaryStage_.show();
+                primaryStage_.toFront();
+                userInputField_.requestFocus();
             });
         }
-    }
-
-    private boolean isSysTraySupported() {
-        return SystemTray.isSupported();
     }
 
     private boolean isWindowsOs() {
         return System.getProperty(OS_CHECK_NAME).startsWith(OS_CHECK_WINDOWS);
     }
 
-    private boolean isLeftClick(MouseEvent e) {
-        return e.getButton() == MouseEvent.BUTTON1;
-    }
-
     private void showMinimiseMessage() {
-        if (!shownMinimiseMessage) {
-            sysTrayIcon.displayMessage(TRAY_MESSAGE_TITLE,
-                    TRAY_MESSAGE_DESCRIPTION,
-                    TrayIcon.MessageType.INFO);
-            shownMinimiseMessage = true;
+        if (!shownMinimiseMessage_) {
+            sysTrayIcon_.displayMessage(TRAY_MESSAGE_TITLE,
+                                       TRAY_MESSAGE_DESCRIPTION,
+                                       TrayIcon.MessageType.INFO);
+            shownMinimiseMessage_ = true;
         }
     }
 
-    private MouseListener createIconClickListener() {
-        return new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (isWindowsOs() && isLeftClick(e)) {
-                    // Windows check needed as MacOS doesn't differentiate buttons
-                    Platform.runLater(() -> {
-                        primaryStage.requestFocus();
-                        primaryStage.toFront();
-                    });
-                    windowHideOrShow();
-                }
-            }
-
-            // Unused methods, left empty.
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
+    private MouseAdapter createIconClickListener() {
+        return new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-            }
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    if (!isWindowsOs()) {
+                        invisibleFrame_.setVisible(true);
+                        popupMenu_.show(invisibleFrame_, e.getX(), e.getY());
+                    }
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if (primaryStage.isShowing() && !primaryStage.isFocused()) {
-                    isMouse = true;
-                    Platform.runLater(() -> {
-                        primaryStage.toFront();
-                    });
+                } else {
+                    windowHideOrShow();
                 }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
             }
         };
     }
 
-    private MouseMotionListener createMouseMotionListener() {
-        return new MouseMotionListener() {
-
+    private MouseAdapter createIconMouseMotionListener() {
+        return new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (primaryStage.isShowing() && !primaryStage.isFocused()) {
-                    isMouse = true;
+                if (primaryStage_.isShowing() && !primaryStage_.isFocused()) {
+                    isMouseEntered_ = true;
                 }
-            }
-
-            // Unused methods, left empty.
-            @Override
-            public void mouseDragged(MouseEvent e) {
             }
         };
     }

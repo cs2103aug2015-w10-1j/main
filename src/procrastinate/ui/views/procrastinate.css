@@ -1,3 +1,4 @@
+/* @@author A0121597B */
 /*
  * ================================================================
  * Font Declarations
@@ -33,6 +34,7 @@
 .mainWindow {
     -fx-background-color: transparent;
     -fx-focus-color: #365fac;
+    -fx-accent: #365fac;
 }
 
 .mainWindow #mainBorderPane {
@@ -53,6 +55,7 @@
 
 .mainWindow #userInputField {
     -fx-font-size: 18px;
+    -fx-text-fill: #314976;
 }
 
 .mainWindow #statusLabel {
@@ -76,7 +79,7 @@
 
 .imageOverlay #overlay {
     -fx-background-color: white;
-    -fx-opacity: 0.5;
+    -fx-opacity: 0.8;
 }
 
 .imageOverlay #titleLabel {
@@ -87,6 +90,7 @@
 
 .imageOverlay #subtitleLabel {
     -fx-font-family: Titillium;
+    -fx-font-size: 14px;
 }
 
 /*
@@ -103,7 +107,7 @@
 #mainVBox {
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
-    -fx-background-size: contain;
+    -fx-background-size: 400 400;
 }
 
 /*
@@ -115,7 +119,7 @@
     -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 20px;
-	-fx-text-fill: #365fac;
+	-fx-text-fill: #395c9c;
 }
 
 .categoryBox #categoryVBox {
@@ -124,18 +128,18 @@
 
 /*
  * ================================================================
- * DateBox Styling
+ * SubcategoryBox Styling
  * ================================================================
  */
-.dateBox #dateLabel {
+.subcategoryBox #subcategoryLabel {
     -fx-font-family: "Helvetica Neue";
 	-fx-font-weight: bold;
 	-fx-font-size: 16px;
 	-fx-text-fill: #455a64;
 }
 
-.dateBox #dateVBox {
-    -fx-padding: 0 0 0 0;
+.subcategoryBox #subcategoryVBox {
+    -fx-padding: 2 0 10 0;
 }
 
 /*
@@ -146,7 +150,7 @@
 .taskEntry {
     -fx-font-family: Titillium;
     -fx-font-size: 16px;
-    -fx-padding: 0 0 5 0;
+    -fx-padding: 2 0 3 0;
 }
 
 .taskEntry #lineNum {
@@ -181,7 +185,7 @@
 
 .titleBar #title {
 	-fx-font-family: "Helvetic Neue";
-	-fx-font-size: 16px;
+	-fx-font-size: 17px;
 	-fx-font-weight: bold;
 }
 

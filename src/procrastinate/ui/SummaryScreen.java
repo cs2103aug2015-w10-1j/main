@@ -1,35 +1,31 @@
+//@@author A0121597B
 package procrastinate.ui;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import procrastinate.task.Task;
 
+/**
+ * <h1>SummaryScreen is a subclass of MultiCategoryScreen and is used to show an overview of
+ * the pending tasks.</h1>
+ *
+ * It resizes all the pending tasks to fit into the screen without scrolling by removing
+ * tasks from view and replacing them with ellipses.
+ */
 public class SummaryScreen extends MultiCategoryScreen {
 
     // ================================================================================
-    // Message strings
+    // Message Strings
     // ================================================================================
 
-    private static final int CATEGORY_MAX_CHILD_DREAMS = 2;
-    private static final int CATEGORY_MAX_CHILD_FUTURE = 2;
-    private static final int CATEGORY_MAX_CHILD_OVERDUE = 3;
-    private static final int CATEGORY_MAX_CHILD_UPCOMING = 2;
-
-    private static final int UPCOMING_SUBCATEGORY_ONE_MAX_CHILD = 3;
-    private static final int UPCOMING_SUBCATEGORY_TWO_MAX_CHILD = 2;
-
-    private static final int MAX_SUMMARY_COUNT = 21;
-    private static final int SUMMARY_HEADER_SIZE_COUNT = 2;
-    private static final int SUMMARY_NORMAL_SIZE_COUNT = 1;
-
-    private static final int SINGLE_LINE_DESCRIPTION_COUNT = 25;
-    private static final int POSITION_DESCRIPTION_STRING = 1;
-    private static final int POSITION_TIME_STRING = 2;
+    private static final String DESCRIPTION_ELLIPSIS_STRING = "...";
 
     private static final String ELLIPSIS_STRING = "... ";
     private static final String ELLIPSIS_MESSAGE_TASKS_HIDDEN = " tasks hidden ...";
@@ -37,19 +33,40 @@ public class SummaryScreen extends MultiCategoryScreen {
 
     private static final String FX_BACKGROUND_IMAGE_NO_TASKS = "-fx-background-image: url('/procrastinate/ui/images/no-summary.png')";
 
-    private static final String LINE_BREAK = "\n";
+    private static final String SELECTOR_SCROLLPANE = "#scrollPane";
+
+    // ================================================================================
+    // Constants
+    // ================================================================================
+
+    private static final double SCROLLPANE_TOTAL_TOP_BOTTOM_PADDING = 20.0;
+
+    private static final double MAINVBOX_CHILDREN_SPACING = 5.0;
+
+    private static final int DESCRIPTION_MAX_LENGTH = 50;
+    private static final int DESCRIPTION_ELLIPSIS_LENGTH = 3;
+
+    private static final int PARTITION_COUNT_OVERDUE = 2;
+    private static final int PARTITION_COUNT_UPCOMING = 3;
+    private static final int PARTITION_COUNT_FUTURE = 1;
+    private static final int PARTITION_COUNT_DREAMS = 1;
+
+    private static final int TEST_ELLIPSIS_COUNT = 666;
+
     // ================================================================================
     // Class variables
     // ================================================================================
 
-    private int summaryCount;
+    private static double ellipsisBoxHeight_ = -1;
+
+    private boolean isSummarising_ = false;
 
     // ================================================================================
     // SummaryScreen Constructor
     // ================================================================================
 
-    protected SummaryScreen(String filePath) {
-        super(filePath);
+    protected SummaryScreen() {
+        super();
     }
 
     // ================================================================================
@@ -57,6 +74,7 @@ public class SummaryScreen extends MultiCategoryScreen {
     // ================================================================================
 
     @Override
+    // Override to remove highlight/fade out animation and call summarising method
     protected void updateTaskList(List<Task> taskList) {
         getUpdatedDates();
         clearTaskList();
@@ -66,10 +84,17 @@ public class SummaryScreen extends MultiCategoryScreen {
 
             addTaskByType(task);
         }
+
         updateDisplay();
         setupSummaryView(taskList);
     }
 
+    //@@author A0080485B
+    protected boolean isSummarising() {
+        return isSummarising_;
+    }
+
+    //@@author A0121597B
     @Override
     protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {
         if (mainVBox.getChildren().isEmpty()) {
@@ -78,197 +103,314 @@ public class SummaryScreen extends MultiCategoryScreen {
     }
 
     /**
-     * Shows the summary view that limits the number of tasks in each category
-     * The exact number of lines given to each category is declared as a final
-     * int variable.
-     *
-     * @param taskList
-     *            to build the summary view from
+     * Resizes the current displayed task list to fit into screen without
+     * scrolling by removing tasks from view and replacing them with ellipses.
+     * The entire screen is partitioned depending on the number of categories
+     * present and the ellipses shows the number of tasks hidden in each
+     * category.
      */
+    //@@author A0080485B
     private void setupSummaryView(List<Task> taskList) {
-        // Summary count is reset at each call just in case the screen is reused.
-        // It is used to check how much the 'Upcoming' category should be summarised.
-        summaryCount = MAX_SUMMARY_COUNT;
+        double currMainVBoxHeight = getCurrentMainVBoxHeight();
+        double maxMainVBoxHeight = ((ScrollPane) getNode().lookup(SELECTOR_SCROLLPANE)).getHeight();
 
-        if (mainVBox.getChildren().contains(overdueNode)) {
-            adjustMaxChildInCategory(overdueTaskList, CATEGORY_MAX_CHILD_OVERDUE);
+        if (taskList.isEmpty()) {
+            isSummarising_ = true;
+            return;
         }
 
-        if (mainVBox.getChildren().contains(futureNode)) {
-            adjustMaxChildInCategory(futureTaskList, CATEGORY_MAX_CHILD_FUTURE);
+        if (currMainVBoxHeight < maxMainVBoxHeight) {
+            isSummarising_ = false;
+            return;
         }
 
-        if (mainVBox.getChildren().contains(dreamsNode)) {
-            adjustMaxChildInCategory(dreamsTaskList, CATEGORY_MAX_CHILD_DREAMS);
+        isSummarising_ = true;
+
+        // shortenTaskDescription is the first step
+        clearTaskList();
+        for (Task task : taskList) {
+            taskCount.set(taskCount.get() + 1);
+            addTaskByType(shortenTaskDescription(task));
+        }
+        updateDisplay();
+
+        if (getCurrentMainVBoxHeight() < maxMainVBoxHeight) {
+            return;
         }
 
-        if (mainVBox.getChildren().contains(upcomingNode)) {
-            adjustUpcomingCategoryChildren();
-        }
+        resizeScreenToFit(maxMainVBoxHeight);
     }
 
     /**
-     * Used for all other categories except 'Upcoming'. The exact number of
-     * lines given to each category is passed in as maxChildSize.
+     * Calculates the number of partitions to split the screen in order to fit
+     * the maxMainVBoxHeight and resizes each category to a given size depending
+     * on their PartitionCount declared above.
      *
-     * @param categoryTaskList
-     *            the category's VBox to be summarised
-     * @param maxChildSize
-     *            int declared to take into account the number of lines each
-     *            category should have.
+     * @param maxMainVBoxHeight    the height to resize the screen to fit into
      */
-    private void adjustMaxChildInCategory(VBox categoryTaskList, int maxChildSize) {
-        int numTaskLeft;
-        summaryCount -= SUMMARY_HEADER_SIZE_COUNT;
-        if (categoryTaskList.getChildren().size() > maxChildSize) {
-            numTaskLeft = categoryTaskList.getChildren().size();
+    //@@author A0121597B
+    private void resizeScreenToFit(double maxMainVBoxHeight) {
+        int numCategoriesPresent = calculateNumberOfCategoriesPresent();
+        int numPartitionsToSplit = calculateNumberOfPartitionsToSplit();
 
-            categoryTaskList.getChildren().remove(maxChildSize, categoryTaskList.getChildren().size());
-            checkForMultiLineEvents(categoryTaskList);
-            numTaskLeft -= categoryTaskList.getChildren().size();
+        double remainingHeightForTaskDisplay = maxMainVBoxHeight -
+                                               SCROLLPANE_TOTAL_TOP_BOTTOM_PADDING -
+                                               ((numCategoriesPresent - 1) * MAINVBOX_CHILDREN_SPACING);
+        double rollOverHeight = 0;
+        double singlePartitionHeight = remainingHeightForTaskDisplay / numPartitionsToSplit;
 
-            HBox ellipsis = buildEllipsis(numTaskLeft);
-            categoryTaskList.getChildren().add(ellipsis);
-            summaryCount -= SUMMARY_NORMAL_SIZE_COUNT;
+        DoubleNodePair[] allCategoryHeightNodePair = getHeightNodePairings();
+
+        Arrays.sort(allCategoryHeightNodePair);
+
+        for (DoubleNodePair currHeightNodePair : allCategoryHeightNodePair) {
+            double currCategoryHeight = currHeightNodePair.getHeight();
+            Node currCategoryNode = currHeightNodePair.getNode();
+
+            if (currCategoryHeight == 0) {
+                continue;
+            }
+
+            if        (currCategoryNode == overdueNode) {
+                double maxOverdueCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_OVERDUE) + rollOverHeight;
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxOverdueCategoryHeight, overdueNode);
+
+            } else if (currCategoryNode == upcomingNode) {
+                double maxUpcomingCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_UPCOMING) + rollOverHeight;
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxUpcomingCategoryHeight, upcomingNode);
+
+            } else if (currCategoryNode == futureNode) {
+                double maxFutureCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_FUTURE) + rollOverHeight;
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxFutureCategoryHeight, futureNode);
+
+            } else if (currCategoryNode == dreamsNode) {
+                double maxDreamsCategoryHeight = (singlePartitionHeight * PARTITION_COUNT_DREAMS) + rollOverHeight;
+
+                rollOverHeight = getLeftoverHeightAfterResize(rollOverHeight, currCategoryHeight,
+                                                              maxDreamsCategoryHeight, dreamsNode);
+
+            } else {
+                continue;
+            }
         }
-        summaryCount -= categoryTaskList.getChildren().size() * SUMMARY_NORMAL_SIZE_COUNT;
+    }
+
+    private DoubleNodePair[] getHeightNodePairings() {
+        DoubleNodePair overdueCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(overdueNode), overdueNode);
+        DoubleNodePair upcomingCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(upcomingNode), upcomingNode);
+        DoubleNodePair futureCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(futureNode), futureNode);
+        DoubleNodePair dreamsCategoryHeightNodePair = new DoubleNodePair(getHeightOfCategoryNode(dreamsNode), dreamsNode);
+        DoubleNodePair[] allCategoryHeightNodePair = { overdueCategoryHeightNodePair, upcomingCategoryHeightNodePair,
+                                                       futureCategoryHeightNodePair, dreamsCategoryHeightNodePair };
+        return allCategoryHeightNodePair;
     }
 
     /**
-     * Used specially for the 'Upcoming' category to limit its number of
-     * subcategories to at most 2. The number of lines given to each subcategory
-     * can be different and is declared above as a final int. The first subcategory
-     * shown will have its own ellipsis while the second will share one with all
-     * other subcategories.
-     */
-    private void adjustUpcomingCategoryChildren() {
-        int totalSubcategoryDisplayed = 0;
-        int totalTasksInSubcategories = 0;
-        checkUpcomingSubcategoriesAndTasks(totalSubcategoryDisplayed, totalTasksInSubcategories);
-        if (summaryCount < -3) {
-            // Only summarise the view in this category if the number is less
-            // than -3. Else it should still fit on screen.
-            int subcategoryCount = 0;
-            int numTaskLeft = 0;
-            int indexToRemoveFrom = -1;
-            int firstSubcategoryIndex = -1;
-            int secondSubcategoryIndex = -1;
-
-            for (int i = 0; i < upcomingSubcategories.size(); i++) {
-                VBox currSubcategory = upcomingSubcategories.get(i);
-                if ((subcategoryCount == CATEGORY_MAX_CHILD_UPCOMING) && (currSubcategory.getChildren().size() > 0)) {
-                    numTaskLeft += currSubcategory.getChildren().size();
-                    if (indexToRemoveFrom == -1) {
-                        indexToRemoveFrom = i;
-                    }
-                    continue;
-                }
-
-                if (currSubcategory.getChildren().size() > 0) {
-                    subcategoryCount++;
-                    // Keep track of the index for retrieval later on
-                    if (firstSubcategoryIndex == -1) {
-                        firstSubcategoryIndex = i;
-                    } else if ((firstSubcategoryIndex != -1) && (secondSubcategoryIndex == -1)) {
-                        secondSubcategoryIndex = i;
-                    }
-                }
-            }
-
-            // Adjust the first and second subcategory if they are available.
-            numTaskLeft = adjustSecondSubcategoryChildren(subcategoryCount, numTaskLeft, secondSubcategoryIndex);
-            adjustFirstSubcategoryChildren(subcategoryCount, firstSubcategoryIndex);
-
-            // Removes the third subcategory onwards if available.
-            if (indexToRemoveFrom != -1) {
-                upcomingTaskList.getChildren().remove(indexToRemoveFrom, upcomingTaskList.getChildren().size());
-            }
-
-            HBox ellipsis = buildEllipsis(numTaskLeft);
-            upcomingTaskList.getChildren().add(ellipsis);
-        }
-    }
-
-    private int adjustSecondSubcategoryChildren(int subcategoryCount, int numTaskLeft, int secondSubcategoryIndex) {
-        if (subcategoryCount > 1) {
-            VBox secondSubcategory = upcomingSubcategories.get(secondSubcategoryIndex);
-            if (secondSubcategory.getChildren().size() > UPCOMING_SUBCATEGORY_TWO_MAX_CHILD) {
-                numTaskLeft += secondSubcategory.getChildren().size();
-                secondSubcategory.getChildren().remove(UPCOMING_SUBCATEGORY_TWO_MAX_CHILD,
-                        secondSubcategory.getChildren().size());
-                checkForMultiLineEvents(secondSubcategory);
-                numTaskLeft -= secondSubcategory.getChildren().size();
-            }
-        }
-        return numTaskLeft;
-    }
-
-    private void adjustFirstSubcategoryChildren(int subcategoryCount, int firstSubcategoryIndex) {
-        if (subcategoryCount > 0) {
-            VBox firstSubcategory = upcomingSubcategories.get(firstSubcategoryIndex);
-            if (firstSubcategory.getChildren().size() > UPCOMING_SUBCATEGORY_ONE_MAX_CHILD) {
-                int firstSubcategoryTaskLeft = 0;
-                firstSubcategoryTaskLeft += firstSubcategory.getChildren().size();
-                firstSubcategory.getChildren().remove(UPCOMING_SUBCATEGORY_ONE_MAX_CHILD,
-                        firstSubcategory.getChildren().size());
-                checkForMultiLineEvents(firstSubcategory);
-                firstSubcategoryTaskLeft -= firstSubcategory.getChildren().size();
-
-                HBox ellipsis = buildEllipsis(firstSubcategoryTaskLeft);
-                firstSubcategory.getChildren().add(ellipsis);
-            }
-        }
-    }
-
-    /**
-     * Counts the total number of tasks and subcategories available in the
-     * current display to determine if the category should be summarised.
+     * Checks if the current category height exceeds the allocated maximum height and resizes it to fit.
+     * It also retrieves the remaining height of each category and returns it as rollOverHeight for other
+     * categories to use.
      *
-     * @param totalSubcategoryDisplayed
-     * @param totalTasksInSubcategories
+     * @param rollOverHeight        to be updated after each category is resized
+     * @param currCategoryHeight    height of the currCategoryNode
+     * @param maxCategoryHeight     max height of the currCategoryNode
+     * @param currCategoryNode      node to be checked against upcomingNode which is resized differently.
+     * @return                      updated rollOverHeight
      */
-    private void checkUpcomingSubcategoriesAndTasks(int totalSubcategoryDisplayed, int totalTasksInSubcategories) {
-        for (int i = 0; i < upcomingSubcategories.size(); i++) {
+    private double getLeftoverHeightAfterResize(double rollOverHeight, double currCategoryHeight,
+                                                double maxCategoryHeight, Node currCategoryNode) {
+
+        rollOverHeight = 0;
+        if        ((currCategoryHeight > maxCategoryHeight) && (currCategoryNode != upcomingNode)) {
+            resizeTaskListOfOtherCategoriesToFit(currCategoryNode, maxCategoryHeight);
+            rollOverHeight += (maxCategoryHeight - getHeightOfCategoryNode(currCategoryNode));
+
+        } else if ((currCategoryHeight > maxCategoryHeight) && (currCategoryNode == upcomingNode)) {
+            resizeTaskListOfUpcomingCategoryToFit(currCategoryNode, maxCategoryHeight);
+            rollOverHeight += (maxCategoryHeight - getHeightOfCategoryNode(currCategoryNode));
+
+        } else {
+            rollOverHeight += maxCategoryHeight - currCategoryHeight;
+        }
+
+        return rollOverHeight;
+    }
+
+
+    // Resizes the upcomingNode if it exceeds the given heightToFit by removing tasks from its
+    // subcategories, starting from the last subcategory and removing the SubcategoryBox from
+    // view when there are no more tasks contained within.
+    private void resizeTaskListOfUpcomingCategoryToFit(Node upcomingNode, double heightToFit) {
+        if (ellipsisBoxHeight_ == -1) {
+            updateEllipsisBoxHeight(upcomingNode);
+        }
+        assert(ellipsisBoxHeight_ != -1);
+
+        int numTasksRemoved = 0;
+        int totalSubcategoryCount = upcomingSubcategories.size() - 1;
+
+        for (int i = totalSubcategoryCount; i >= 0; i--) {
             VBox currSubcategory = upcomingSubcategories.get(i);
-            if (currSubcategory.getChildren().size() > 0) {
-                totalSubcategoryDisplayed++;
-                totalTasksInSubcategories += currSubcategory.getChildren().size();
+            if (currSubcategory.getChildren().isEmpty()) {
+                continue;
             }
-        }
-        summaryCount -= totalSubcategoryDisplayed * SUMMARY_HEADER_SIZE_COUNT;
-        summaryCount -= totalTasksInSubcategories * SUMMARY_NORMAL_SIZE_COUNT;
-    }
 
-    private void checkForMultiLineEvents(VBox categoryTaskList) {
-        // Check for events that spans 2 lines
-        boolean isMultiLineEventFound = false;
-        for (int i = 0; i < categoryTaskList.getChildren().size(); i++) {
-            if (((GridPane) categoryTaskList.getChildren().get(i)).getChildren().get(POSITION_TIME_STRING).toString()
-                    .contains(LINE_BREAK)) {
-                isMultiLineEventFound = true;
-                break;
-            } else if (((GridPane) categoryTaskList.getChildren().get(i)).getChildren().get(POSITION_DESCRIPTION_STRING)
-                    .toString().length() > SINGLE_LINE_DESCRIPTION_COUNT) {
-                isMultiLineEventFound = true;
+            while (!currSubcategory.getChildren().isEmpty() &&
+                   (getHeightOfCategoryNode(upcomingNode) > (heightToFit - ellipsisBoxHeight_))) {
+                currSubcategory.getChildren().remove(currSubcategory.getChildren().size() - 1);
+                numTasksRemoved++;
+                mainVBox.getParent().layout();
+            }
+
+            if (currSubcategory.getChildren().isEmpty()) {
+                upcomingTaskList.getChildren().remove(upcomingTaskList.getChildren().size() - 1);
+            }
+
+            if (getHeightOfCategoryNode(upcomingNode) < (heightToFit - ellipsisBoxHeight_)) {
                 break;
             }
         }
-        if (isMultiLineEventFound) {
-            // Remove the last task found
-            categoryTaskList.getChildren().remove(categoryTaskList.getChildren().size() - 1);
+
+        if (numTasksRemoved != 0) {
+            upcomingTaskList.getChildren().add(getEllipsis(numTasksRemoved));
+            upcomingTaskList.applyCss();
+            upcomingTaskList.layout();
+
+            mainVBox.getParent().layout();
         }
     }
 
-    private HBox buildEllipsis(int numTaskLeft) {
+    // Resizes the given categoryNode by removing tasks from the category if it exceeds the given heightToFit.
+    private void resizeTaskListOfOtherCategoriesToFit(Node categoryNode, double heightToFit) {
+        int numTasksRemoved = 0;
+        if (ellipsisBoxHeight_ == -1) {
+            updateEllipsisBoxHeight(categoryNode);
+        }
+        assert(ellipsisBoxHeight_ != -1);
+
+        VBox currCategoryTaskList = getCategoryTaskList(categoryNode);
+        while (getHeightOfCategoryNode(categoryNode) > (heightToFit - ellipsisBoxHeight_)) {
+            currCategoryTaskList.getChildren().remove(currCategoryTaskList.getChildren().size() - 1);
+            numTasksRemoved++;
+            mainVBox.getParent().layout();
+        }
+
+        if (numTasksRemoved != 0) {
+            currCategoryTaskList.getChildren().add(getEllipsis(numTasksRemoved));
+            currCategoryTaskList.applyCss();
+            currCategoryTaskList.layout();
+
+            mainVBox.getParent().layout();
+        }
+    }
+
+    /**
+     * Used to check the height of the ellipsis added which may differ from user
+     * to user depending on hardware specifications.
+     *
+     * @param categoryNode    any Node of a category that is not empty in order to calculate
+     *                        the height difference when an ellipsis is added.
+     */
+    private void updateEllipsisBoxHeight(Node categoryNode) {
+        double currHeight = getHeightOfCategoryNode(categoryNode);
+
+        VBox currCategoryTaskList = getCategoryTaskList(categoryNode);
+        currCategoryTaskList.getChildren().add(getEllipsis(TEST_ELLIPSIS_COUNT));
+        currCategoryTaskList.applyCss();
+        currCategoryTaskList.layout();
+
+        mainVBox.getParent().layout();
+
+        currCategoryTaskList.getChildren().remove(currCategoryTaskList.getChildren().size() - 1);
+
+        double newHeight = getHeightOfCategoryNode(categoryNode);
+        ellipsisBoxHeight_ = newHeight - currHeight;
+    }
+
+    private VBox getCategoryTaskList(Node categoryNode) {
+        return ((VBox) categoryNode.lookup(SELECTOR_CATEGORY_VBOX));
+    }
+
+    private int calculateNumberOfPartitionsToSplit() {
+        int numPartitions = 0;
+
+        if (getHeightOfCategoryNode(overdueNode) != 0) {
+            numPartitions += PARTITION_COUNT_OVERDUE;
+        }
+
+        if (getHeightOfCategoryNode(upcomingNode) != 0) {
+            numPartitions += PARTITION_COUNT_UPCOMING;
+        }
+
+        if (getHeightOfCategoryNode(futureNode) != 0) {
+            numPartitions += PARTITION_COUNT_FUTURE;
+        }
+
+        if (getHeightOfCategoryNode(dreamsNode) != 0) {
+            numPartitions += PARTITION_COUNT_DREAMS;
+        }
+
+        return numPartitions;
+    }
+
+    private int calculateNumberOfCategoriesPresent() {
+        int numCategories = 0;
+
+        for (Node node : nodeList) {
+            if (((VBox) node).getHeight() != 0) {
+                numCategories++;
+            }
+        }
+
+        return numCategories;
+    }
+
+    /**
+     * Update the mainVBox and allows calculation of it's height after applying
+     * the CSS styling and layout.
+     *
+     * @return    updated height of the mainVBox
+     */
+    private double getCurrentMainVBoxHeight() {
+        mainVBox.getParent().applyCss();
+        mainVBox.getParent().layout();
+        return mainVBox.getHeight();
+    }
+
+    private double getHeightOfCategoryNode(Node categoryNode) {
+        return ((VBox) categoryNode).getHeight();
+    }
+
+    private HBox getEllipsis(int numTaskLeft) {
         String message = ELLIPSIS_STRING + numTaskLeft;
+
         if (numTaskLeft > 1) {
             message += ELLIPSIS_MESSAGE_TASKS_HIDDEN;
         } else {
             message += ELLIPSIS_MESSAGE_TASK_HIDDEN;
         }
+
         Label ellipsisMessage = new Label(message);
+
         HBox ellipsisBox = new HBox(ellipsisMessage);
         ellipsisBox.setAlignment(Pos.CENTER);
+
         return ellipsisBox;
+    }
+
+    //@@author A0080485B
+    private Task shortenTaskDescription(Task task) {
+        String description = task.getDescription();
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
+            task = Task.copy(task);
+            task.setDescription(description.substring(0, DESCRIPTION_MAX_LENGTH
+                                                         - DESCRIPTION_ELLIPSIS_LENGTH) + DESCRIPTION_ELLIPSIS_STRING);
+        }
+        return task;
     }
 }

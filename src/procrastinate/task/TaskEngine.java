@@ -1,8 +1,6 @@
 //@@author A0080485B
 package procrastinate.task;
 
-import procrastinate.FileHandler;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -13,7 +11,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import procrastinate.FileHandler;
+
 public class TaskEngine {
+
+    // ================================================================================
+    // Class variables
+    // ================================================================================
 
     private static final Logger logger = Logger.getLogger(TaskEngine.class.getName());
 
@@ -32,18 +36,22 @@ public class TaskEngine {
     private static final String ERROR_TASK_NOT_FOUND = "Task not found!";
 
     // ================================================================================
-    // Class variables
+    // Instance variables
     // ================================================================================
 
-    private TaskState previousState = null;
-    private TaskState currentState = null;
-    private TaskState currentView = null;
-
-    private boolean isPreviousOperationSet = false;
-    private String previousSaveDirectory = null;
-    private String previousSaveFilename = null;
-
     protected FileHandler fileHandler;
+
+    private TaskState previousState_ = null;
+    private TaskState currentState_ = null;
+    private TaskState currentView_ = null;
+
+    private boolean isPreviousOperationSet_ = false;
+    private String previousSaveDirectory_ = null;
+    private String previousSaveFilename_ = null;
+
+    // ================================================================================
+    // Constructor
+    // ================================================================================
 
     public TaskEngine() throws IOException {
         initFileHandler();
@@ -100,38 +108,28 @@ public class TaskEngine {
 
         int index = getIndexFromId(taskId);
         Task task = Task.copy(getTasks().get(index));
-        task.setDone();
+        task.setDone(!task.isDone());
         getTasks().remove(index);
         getTasks().add(index, task);
 
         String description = task.getDescription();
         String type = task.getTypeString();
+        String feedback;
 
-        logger.log(Level.INFO, String.format(DEBUG_DONE_TASK, type, description));
+        if (task.isDone()) {
+            feedback = DEBUG_DONE_TASK;
+        } else {
+            feedback = DEBUG_UNDONE_TASK;
+        }
 
-        return writeStateToFile();
-    }
-
-    public boolean undone(UUID taskId) {
-        backupOlderState();
-
-        int index = getIndexFromId(taskId);
-        Task task = Task.copy(getTasks().get(index));
-        task.clearDone();
-        getTasks().remove(index);
-        getTasks().add(index, task);
-
-        String description = task.getDescription();
-        String type = task.getTypeString();
-
-        logger.log(Level.INFO, String.format(DEBUG_UNDONE_TASK, type, description));
+        logger.log(Level.INFO, String.format(feedback, type, description));
 
         return writeStateToFile();
     }
 
     public boolean undo() {
-        if (isPreviousOperationSet) {
-            return set(previousSaveDirectory, previousSaveFilename);
+        if (isPreviousOperationSet_) {
+            return set(previousSaveDirectory_, previousSaveFilename_);
         }
 
         if (!hasPreviousOperation()) {
@@ -140,7 +138,7 @@ public class TaskEngine {
 
         TaskState backupNewerState = getBackupOfCurrentState();
         restoreOlderState();
-        previousState = backupNewerState;
+        previousState_ = backupNewerState;
 
         logger.log(Level.INFO, String.format(DEBUG_UNDONE));
 
@@ -152,15 +150,15 @@ public class TaskEngine {
     }
 
     public boolean set(String directory, String filename) {
-        isPreviousOperationSet = true;
+        isPreviousOperationSet_ = true;
         File previousSaveFile = fileHandler.getSaveFile();
-        previousSaveDirectory = previousSaveFile.getAbsoluteFile().getParent() + File.separator;
-        previousSaveFilename = previousSaveFile.getName();
+        previousSaveDirectory_ = previousSaveFile.getAbsoluteFile().getParent() + File.separator;
+        previousSaveFilename_ = previousSaveFile.getName();
         return fileHandler.setPath(directory, filename);
     }
 
     public boolean hasPreviousOperation() {
-        return previousState != null || isPreviousOperationSet;
+        return previousState_ != null || isPreviousOperationSet_;
     }
 
     public List<Task> search(String description, Date startDate, Date endDate, boolean showDone) {
@@ -173,36 +171,41 @@ public class TaskEngine {
         }
         if (startDate != null) {
             results = results.stream()
-                    .filter(task -> task.isWithin(startDate, endDate) && task.isDone() == showDone)
+                    .filter(task -> task.isWithin(startDate, endDate))
                     .collect(Collectors.toList());
         }
-        currentView = new TaskState(results);
-        return currentView.getTasks();
+        if (!showDone) {
+            results = results.stream()
+                    .filter(task -> !task.isDone())
+                    .collect(Collectors.toList());
+        }
+        currentView_ = new TaskState(results);
+        return currentView_.getTasks();
     }
 
     public List<Task> getOutstandingTasks() {
         List<Task> outstandingTasks = getTasks().stream()
                 .filter(task -> !task.isDone())
                 .collect(Collectors.toList());
-        currentView = new TaskState(outstandingTasks);
-        return currentView.getTasks();
+        currentView_ = new TaskState(outstandingTasks);
+        return currentView_.getTasks();
     }
 
     public List<Task> getCompletedTasks() {
         List<Task> completedTasks = getTasks().stream()
                 .filter(task -> task.isDone())
                 .collect(Collectors.toList());
-        currentView = new TaskState(completedTasks);
-        return currentView.getTasks();
+        currentView_ = new TaskState(completedTasks);
+        return currentView_.getTasks();
     }
 
     public List<Task> getAllTasks() {
-        currentView = currentState;
-        return currentView.getTasks();
+        currentView_ = currentState_;
+        return currentView_.getTasks();
     }
 
     public List<Task> getCurrentTaskList() {
-        return currentView.getTasks();
+        return currentView_.getTasks();
     }
 
     // ================================================================================
@@ -215,7 +218,7 @@ public class TaskEngine {
 
     private void initTasks() {
         loadState(fileHandler.loadTaskState());
-        currentView = currentState;
+        currentView_ = currentState_;
         Collections.sort(getTasks());
     }
 
@@ -224,16 +227,16 @@ public class TaskEngine {
     // ================================================================================
 
     private void backupOlderState() {
-        previousState = getBackupOfCurrentState();
-        isPreviousOperationSet = false;
+        previousState_ = getBackupOfCurrentState();
+        isPreviousOperationSet_ = false;
     }
 
     private void restoreOlderState() {
-        loadState(previousState);
+        loadState(previousState_);
     }
 
     private void loadState(TaskState state) {
-        currentState = state;
+        currentState_ = state;
     }
 
     private boolean writeStateToFile() {
@@ -246,7 +249,7 @@ public class TaskEngine {
 
     private TaskState getCurrentState() {
         Collections.sort(getTasks());
-        return currentState;
+        return currentState_;
     }
 
     // ================================================================================
@@ -263,7 +266,7 @@ public class TaskEngine {
     }
 
     private List<Task> getTasks() {
-        return currentState.getTasks();
+        return currentState_.getTasks();
     }
 
 }
