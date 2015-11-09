@@ -109,6 +109,7 @@ public class Logic {
     	return lastPreviewedCommand != null;
     }
 
+    //@@author A0124321Y
     private String runCommand(CleanCommand command) {
         String feedback = null;
 
@@ -117,7 +118,7 @@ public class Logic {
             case ADD_DREAM :
             case ADD_DEADLINE :
             case ADD_EVENT :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_OUTSTANDING);
                 }
@@ -125,32 +126,32 @@ public class Logic {
 
             case EDIT :
             case EDIT_TO_DREAM :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
             case EDIT_PARTIAL :
-                feedback = exec(command);
+                feedback = execute(command);
                 break;
 
             case DELETE :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
             case DONE :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
                 break;
 
             case UNDO :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView();
                 }
@@ -160,7 +161,7 @@ public class Logic {
             case SEARCH_ON :
             case SEARCH_DUE :
             case SEARCH_RANGE :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     searchString = command.getSearchStr();
                     searchTerm = command.getSearchTerm();
@@ -173,43 +174,43 @@ public class Logic {
                 break;
 
             case SET_PATH :
-                feedback = exec(command);
+                feedback = execute(command);
                 break;
 
             case SHOW_OUTSTANDING :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_OUTSTANDING);
                 }
                 break;
 
             case SHOW_DONE :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_DONE);
                 }
                 break;
 
             case SHOW_ALL :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_ALL);
                 }
                 break;
 
             case SHOW_SUMMARY :
-                feedback = exec(command);
+                feedback = execute(command);
                 if (!command.isPreview()) {
                     updateView(ViewType.SHOW_SUMMARY);
                 }
                 break;
 
             case HELP :
-                feedback = exec(command);
+                feedback = execute(command);
                 break;
 
             case INVALID :
-                feedback = exec(command);
+                feedback = execute(command);
                 break;
 
             case EXIT :
@@ -227,6 +228,8 @@ public class Logic {
 
     }
 
+    //@@author A0080485B-unused
+    // Was refactored into individual procrastinate.command classes by A0124321Y
     // ================================================================================
     // Command handling methods
     // ================================================================================
@@ -573,6 +576,8 @@ public class Logic {
         return FEEDBACK_EXIT;
     }
 //*/
+
+    //@@author A0080485B
     // ================================================================================
     // Init methods
     // ================================================================================
@@ -618,7 +623,6 @@ public class Logic {
     }
 
     private void updateUiTaskList() {
-        System.out.println(currentView);
         switch (currentView) {
             case SHOW_OUTSTANDING :
                 ui.updateTaskList(taskEngine.getOutstandingTasks(), ScreenView.SCREEN_MAIN);
@@ -778,6 +782,10 @@ public class Logic {
     // Utility methods
     // ================================================================================
 
+    private String execute(CleanCommand command) {
+        return command.run(ui, taskEngine);
+    }
+
     // Exit routine used by exit command, close button and system tray
     private boolean exit() {
         if (hasStartupError) {
@@ -819,10 +827,6 @@ public class Logic {
 
     private List<Task> getCurrentTaskList() {
         return taskEngine.getCurrentTaskList();
-    }
-
-    private String exec(CleanCommand cmd) {
-        return cmd.run(ui, taskEngine);
     }
 
 }
