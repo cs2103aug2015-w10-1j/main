@@ -44,12 +44,15 @@ import procrastinate.ui.TaskEntry;
 import procrastinate.ui.UI.ScreenView;
 import procrastinate.ui.UITestHelper;
 
+// DialogPopupHandler/SummaryScreen/SystemTrayHandler/UI/WindowHandler classes are not included in this test.
+// They require the actual GUI window to be shown and the test to be running on the JavaFX Application Thread.
 public class UITest {
 
     public static UITestHelper uiTestHelper = new UITestHelper();
     public static CenterPaneController centerPaneController;
 
     @BeforeClass
+    // @@author A0121597B-reused
     // Needed to be initialised before testing JavaFX elements
     // http://stackoverflow.com/questions/28501307/javafx-toolkit-not-initialized-in-one-test-class-but-not-two-others-where-is
     public static void initToolkit() throws InterruptedException {
@@ -282,7 +285,7 @@ public class UITest {
         assertEquals(0, uiTestHelper.getDoneTaskList(searchScreen).getChildren().size());
     }
 
-    // Unable to test summary screen
+    // Unable to test SummaryScreen due to actual actual sizing of the window shown
 
     // ================================================================================
     // ImageOverlay Testing
