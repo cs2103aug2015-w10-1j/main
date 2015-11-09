@@ -13,7 +13,6 @@ public class Invalid extends CleanCommand {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
-        assert ui == null && taskEngine == null;
         return description;
     }
 

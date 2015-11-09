@@ -12,7 +12,7 @@ public class EditPartial extends CrudCmd implements FeedbackCrud {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
-        assert ui == null;
+        assert taskEngine != null;
 
         String feedback = null;
 

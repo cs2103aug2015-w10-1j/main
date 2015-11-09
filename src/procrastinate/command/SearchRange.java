@@ -21,8 +21,6 @@ public class SearchRange extends Search {
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
-        assert ui == null && taskEngine == null;
-
         String str = "";
         String term = null;
         Date start = null;
