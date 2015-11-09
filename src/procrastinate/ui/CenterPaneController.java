@@ -133,6 +133,15 @@ public class CenterPaneController {
                 break;
             }
 
+            case SCREEN_MAIN_ALL : {
+                if (currentScreen_ != mainScreen_) {
+                    startScreenSwitchSequence(mainScreenNode_, mainScreen_);
+                }
+
+                mainScreen_.updateTaskList(taskList);
+                break;
+            }
+
             case SCREEN_SEARCH : {
                 if (currentScreen_ != searchScreen_) {
                     startScreenSwitchSequence(searchScreenNode_, searchScreen_);

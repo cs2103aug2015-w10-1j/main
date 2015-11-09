@@ -30,7 +30,7 @@ import procrastinate.task.Task;
 public class UI {
 
     public static enum ScreenView {
-        SCREEN_DONE, SCREEN_MAIN, SCREEN_SEARCH, SCREEN_SUMMARY
+        SCREEN_DONE, SCREEN_MAIN, SCREEN_MAIN_ALL, SCREEN_SEARCH, SCREEN_SUMMARY
     }
 
     private static final Logger logger = Logger.getLogger(UI.class.getName());

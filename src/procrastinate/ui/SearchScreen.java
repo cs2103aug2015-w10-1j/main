@@ -1,6 +1,7 @@
 //@@author A0121597B
 package procrastinate.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.animation.FadeTransition;
@@ -76,6 +77,8 @@ public class SearchScreen extends MultiCategoryScreen {
                 addTaskByType(task);
             }
             updateDisplay();
+            highlightAddedOrEditedTaskEntry(taskList);
+            prevTaskList = (ArrayList<Task>) taskList;
         });
 
         fadeOutDeletedTaskEntry.play();

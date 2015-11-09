@@ -609,7 +609,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
 
         if (isInitialised && isDelete) {
             int index = findIndexOfDeletedTask(taskList);
-            prevTaskList = (ArrayList<Task>) taskList;
             return fadeOutDeletedTask(index);
         }
 
@@ -623,7 +622,6 @@ public abstract class MultiCategoryScreen extends CenterScreen {
         if (isInitialised && !isDelete) {
             int index = findIndexOfAddedOrEditedTask(taskList);
             highlightTask(index);
-            prevTaskList = (ArrayList<Task>) taskList;
         }
     }
 
