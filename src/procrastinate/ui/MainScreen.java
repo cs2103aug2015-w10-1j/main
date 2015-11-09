@@ -1,12 +1,7 @@
 //@@author A0121597B
 package procrastinate.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javafx.animation.FadeTransition;
 import javafx.scene.layout.VBox;
-import procrastinate.task.Task;
 
 /**
  * <h1>MainScreen is a subclass of the MultiCategoryScreen and is used to show all
@@ -34,28 +29,6 @@ public class MainScreen extends MultiCategoryScreen {
     // ================================================================================
     // MainScreen Methods
     // ================================================================================
-
-    @Override
-    protected void updateTaskList(List<Task> taskList) {
-        FadeTransition fadeOutDeletedTaskEntry = fadeOutDeletedTaskEntry(taskList);
-
-        fadeOutDeletedTaskEntry.setOnFinished(finish -> {
-            getUpdatedDates();
-            clearTaskList();
-
-            for (Task task : taskList) {
-                taskCount.set(taskCount.get() + 1);
-
-                addTaskByType(task);
-            }
-
-            updateDisplay();
-            highlightAddedOrEditedTaskEntry(taskList);
-            prevTaskList = (ArrayList<Task>) taskList;
-        });
-
-        fadeOutDeletedTaskEntry.play();
-    }
 
     @Override
     protected void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox) {

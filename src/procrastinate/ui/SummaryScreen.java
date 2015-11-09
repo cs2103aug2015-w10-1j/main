@@ -74,6 +74,7 @@ public class SummaryScreen extends MultiCategoryScreen {
     // ================================================================================
 
     @Override
+    // Override to remove highlight/fade out animation and call summarising method
     protected void updateTaskList(List<Task> taskList) {
         getUpdatedDates();
         clearTaskList();

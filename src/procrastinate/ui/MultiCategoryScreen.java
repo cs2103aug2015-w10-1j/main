@@ -121,7 +121,30 @@ public abstract class MultiCategoryScreen extends CenterScreen {
     // MultiCategoryScreen Methods
     // ================================================================================
 
+    // To allow different background images to be set
     protected abstract void setBackgroundImageIfMainVBoxIsEmpty(VBox mainVBox);
+
+    @Override
+    protected void updateTaskList(List<Task> taskList) {
+        FadeTransition fadeOutDeletedTaskEntry = fadeOutDeletedTaskEntry(taskList);
+
+        fadeOutDeletedTaskEntry.setOnFinished(finish -> {
+            getUpdatedDates();
+            clearTaskList();
+
+            for (Task task : taskList) {
+                taskCount.set(taskCount.get() + 1);
+
+                addTaskByType(task);
+            }
+
+            updateDisplay();
+            highlightAddedOrEditedTaskEntry(taskList);
+            prevTaskList = (ArrayList<Task>) taskList;
+        });
+
+        fadeOutDeletedTaskEntry.play();
+    }
 
     @Override
     protected SequentialTransition getScreenSwitchOutSequence() {
