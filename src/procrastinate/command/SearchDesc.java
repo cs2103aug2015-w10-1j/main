@@ -38,7 +38,6 @@ public class SearchDesc extends Search {
         searchEndDate = end;
         searchStartDate = start;
         searchShowDone = showDone;
-
         return feedback;
     }
 }

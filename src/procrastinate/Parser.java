@@ -418,7 +418,6 @@ public class Parser {
             command = new SearchRange(searchDescription, getStartDate(dateArray), getEndDate(dateArray));
 
         } else {
-
             command = new SearchDesc(searchDescription);
 
         }

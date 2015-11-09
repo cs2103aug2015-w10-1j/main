@@ -17,6 +17,14 @@ public class SetPath extends CleanCommand implements FeedbackSetPath {
         this.pathFilename = pathFilename == null ? FileHandler.DEFAULT_FULL_FILENAME : pathFilename;
     }
 
+    public String getPathDirectory() {
+        return pathDir;
+    }
+
+    public String getPathFilename() {
+        return pathFilename;
+    }
+
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
         String feedback = null;

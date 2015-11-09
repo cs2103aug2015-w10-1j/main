@@ -8,12 +8,23 @@ public class Invalid extends CleanCommand {
 
     public Invalid(String description) {
         super(CommandType.INVALID);
-        this.description = description;
+        addDescription(description);
     }
 
     @Override
     public String run(UI ui, TaskEngine taskEngine) {
         assert ui == null && taskEngine == null;
+        return description;
+    }
+
+    public CleanCommand addDescription(String description) {
+        assert description != null;
+
+        this.description = description.trim();
+        return this;
+    }
+
+    public String getDescription() {
         return description;
     }
 }

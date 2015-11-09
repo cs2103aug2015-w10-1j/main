@@ -14,7 +14,7 @@ public abstract class CleanCommand implements Preview, Feedback {
     }
 
     protected int lineNum;
-    protected String searchTerm,searchString;
+    protected String searchTerm, searchString;
     protected Date searchStartDate, searchEndDate;
     protected boolean searchShowDone;
 
