@@ -24,11 +24,10 @@ public class SearchOn extends Search {
         String term = null;
         Date start = null;
         Date end = null;
-        boolean showDone = true;
 
         String feedback = SEARCH;
 
-        // decription setting
+        // description setting
         if (description.isEmpty()) {
             str += SEARCH_STRING_NO_DESCRIPTION;
         } else {
@@ -38,23 +37,21 @@ public class SearchOn extends Search {
         }
 
         // date setting
-        if (date != null) {
-            showDone = false;
+        assert (date != null);
 
-            // set time to 0000 hrs of the specified day
-            date = DateUtils.truncate(date, Calendar.DATE);
+        // set time to 0000 hrs of the specified day
+        date = DateUtils.truncate(date, Calendar.DATE);
 
-            feedback += String.format(SEARCH_ON, Feedback.formatDate(date));
-            start = date;
-            end = DateUtils.addDays(date, 3);
-            str += SEARCH_STRING_ON + Feedback.formatDate(date);
-        }
+        feedback += String.format(SEARCH_ON, Feedback.formatDate(date));
+        start = date;
+        end = DateUtils.addDays(date, 3);
+        str += SEARCH_STRING_ON + Feedback.formatDate(date);
 
         searchString = str;
         searchTerm = term;
         searchEndDate = end;
         searchStartDate = start;
-        searchShowDone = showDone;
+        searchShowDone = false;
 
         return feedback;
     }

@@ -18,6 +18,7 @@ public class EditTaskDescription extends Edit {
 
         if (isInvalid(lineNum, taskEngine)) {
             feedback = String.format(INVALID_LINE_NUMBER, lineNum);
+            setPreview(true);
             return feedback;
         }
 

@@ -15,6 +15,7 @@ public class Undo extends CrudCmd {
 
         if (!taskEngine.hasPreviousOperation()) {
             feedback = NOTHING_TO_UNDO;
+            setPreview(true);
             return feedback;
         }
 

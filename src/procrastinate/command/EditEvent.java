@@ -25,6 +25,7 @@ public class EditEvent extends Edit {
 
         if (isInvalid(lineNum, taskEngine)) {
             feedback = String.format(INVALID_LINE_NUMBER, lineNum);
+            setPreview(true);
             return feedback;
         }
 
@@ -32,6 +33,7 @@ public class EditEvent extends Edit {
             feedback = String.format(INVALID_RANGE,
                                      Feedback.formatDateTime(startDate),
                                      Feedback.formatDateTime(endDate));
+            setPreview(true);
             return feedback;
         }
 
@@ -52,7 +54,6 @@ public class EditEvent extends Edit {
             assert feedback != null;
             return feedback;
         }
-
 
         // replace old with new
         if (taskEngine.edit(oldTask.getId(), newTask)) {

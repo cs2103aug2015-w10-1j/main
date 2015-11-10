@@ -25,7 +25,6 @@ public class SearchRange extends Search {
         String term = null;
         Date start = null;
         Date end = null;
-        boolean showDone = true;
 
         String feedback = SEARCH;
 
@@ -45,6 +44,7 @@ public class SearchRange extends Search {
             endDate = DateUtils.truncate(endDate, Calendar.DATE);
 
             if (endDate.before(startDate)) {
+                setPreview(true);
                 return String.format(INVALID_RANGE,
                                      Feedback.formatDate(startDate),
                                      Feedback.formatDate(endDate));
@@ -64,7 +64,7 @@ public class SearchRange extends Search {
         searchTerm = term;
         searchEndDate = end;
         searchStartDate = start;
-        searchShowDone = showDone;
+        searchShowDone = true;
 
         return feedback;
     }

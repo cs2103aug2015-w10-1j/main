@@ -28,6 +28,7 @@ public class AddEvent extends Add {
             feedback = String.format(INVALID_RANGE,
                                      Feedback.formatDateTime(startDate),
                                      Feedback.formatDateTime(endDate));
+            setPreview(true);
             return feedback;
         }
 

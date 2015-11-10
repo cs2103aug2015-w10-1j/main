@@ -48,7 +48,6 @@ public class LogicTest {
         assertEquals(preview("show done"), "Showing completed tasks");
         assertEquals(preview("show all"), "Showing all tasks");
         assertEquals(preview("show summary"), "Showing summary of outstanding tasks");
-        assertEquals(preview("search abc"), "Searching for tasks containing 'abc'");
     }
 
     @Test
@@ -66,16 +65,16 @@ public class LogicTest {
         expected.add(new Dream("dream"));
         assertEquals(expected, getResults());
 
-        assertEquals(preview("invalid event from 10/15/17 to 10/14/17 0"),
+        assertEquals(execute("invalid event from 10/15/17 to 10/14/17 0"),
                      "Invalid dates: 14/10/17 12:00AM is before 15/10/17 12:00AM");
     }
 
     @Test
     public void editTest() throws ParseException {
-        assertEquals(preview("edit 1"), "Invalid line number: 1");
+        assertEquals(execute("edit 1"), "Invalid line number: 1");
 
         execute("dream");
-        assertEquals(preview("edit 1"), "Please specify the new description/date(s) or press tab");
+        assertEquals(execute("edit 1"), "Please specify the new description/date(s) or press tab");
 
         // edit description
         execute("edit 1 dream edited");
@@ -125,16 +124,16 @@ public class LogicTest {
         expected.add(new Dream("deadline edited"));
         assertEquals(expected, getResults());
 
-        assertEquals(preview("edit 1 from 10/15/17 to 10/14/17 0"),
+        assertEquals(execute("edit 1 from 10/15/17 to 10/14/17 0"),
                      "Invalid dates: 14/10/17 12:00AM is before 15/10/17 12:00AM");
 
-        assertEquals(preview("edit 0 from 10/15/17 to 10/14/17 0"),
+        assertEquals(execute("edit 0 from 10/15/17 to 10/14/17 0"),
                      "Invalid line number: 0");
     }
 
     @Test
     public void deleteUndoTest() {
-        assertEquals(preview("undo"), "Nothing to undo");
+        assertEquals(execute("undo"), "Nothing to undo");
 
         execute("a");
         execute("b");
@@ -158,7 +157,7 @@ public class LogicTest {
 
     @Test
     public void doneTest() {
-        assertEquals(preview("done 1"), "Invalid line number: 1");
+        assertEquals(execute("done 1"), "Invalid line number: 1");
 
         execute("a");
         execute("show all");
@@ -216,13 +215,13 @@ public class LogicTest {
 
     @Test
     public void invalidTest() {
-        assertEquals(preview("due tonight"), "Please specify the description");
-        assertEquals(preview("edit 0"), "Invalid line number: 0");
-        assertEquals(preview("edit 0 abc"), "Invalid line number: 0");
-        assertEquals(preview("edit 0 due 10/15/17 0"), "Invalid line number: 0");
-        assertEquals(preview("edit 0 eventually"), "Invalid line number: 0");
-        assertEquals(preview("done 0"), "Invalid line number: 0");
-        assertEquals(preview("search from 10/15/17 to 10/14/17 0"), "Invalid dates: 14/10/17 is before 15/10/17");
+        assertEquals(execute("due tonight"), "Please specify the description");
+        assertEquals(execute("edit 0"), "Invalid line number: 0");
+        assertEquals(execute("edit 0 abc"), "Invalid line number: 0");
+        assertEquals(execute("edit 0 due 10/15/17 0"), "Invalid line number: 0");
+        assertEquals(execute("edit 0 eventually"), "Invalid line number: 0");
+        assertEquals(execute("done 0"), "Invalid line number: 0");
+        assertEquals(execute("search from 10/15/17 to 10/14/17 0"), "Invalid dates: 14/10/17 is before 15/10/17");
     }
 
     @Test
@@ -232,8 +231,8 @@ public class LogicTest {
 
     @Test
     public void setPathTest() {
-        assertEquals(preview("set /x"), "Set save location to " + File.listRoots()[0].getAbsolutePath() + "x" + File.separator + "storage.json");
-        assertEquals(preview("set /x abc"), "Set save location to " + File.listRoots()[0].getAbsolutePath() + "x" + File.separator + "abc");
+        assertEquals(execute("set /x"), "Set save location to " + File.listRoots()[0].getAbsolutePath() + "x" + File.separator + "storage.json");
+        assertEquals(execute("set /x abc"), "Set save location to " + File.listRoots()[0].getAbsolutePath() + "x" + File.separator + "abc");
     }
 
     //@@author A0124321Y

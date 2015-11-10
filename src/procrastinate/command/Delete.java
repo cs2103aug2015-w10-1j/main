@@ -17,6 +17,7 @@ public class Delete extends CrudCmd {
 
         if (isInvalid(lineNum, taskEngine)) {
             feedback = String.format(INVALID_LINE_NUMBER, lineNum);
+            setPreview(true);
             return feedback;
         }
         Task task = getTask(lineNum, taskEngine);

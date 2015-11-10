@@ -24,7 +24,6 @@ public class SearchDue extends Search {
         String term = null;
         Date start = null;
         Date end = null;
-        boolean showDone = true;
 
         String feedback = SEARCH;
 
@@ -38,23 +37,21 @@ public class SearchDue extends Search {
         }
 
         // date setting
-        if (date != null) {
-            showDone = false;
+        assert (date != null);
 
-            // set time to 0000 hrs of the specified day
-            date = DateUtils.truncate(date, Calendar.DATE);
+        // set time to 0000 hrs of the specified day
+        date = DateUtils.truncate(date, Calendar.DATE);
 
-            feedback += String.format(SEARCH_DUE, Feedback.formatDate(date));
-            start = new Date(0); // beginning of time
-            end = DateUtils.addDays(date, 3);
-            str += SEARCH_STRING_DUE + Feedback.formatDate(date);
-        }
+        feedback += String.format(SEARCH_DUE, Feedback.formatDate(date));
+        start = new Date(0); // beginning of time
+        end = DateUtils.addDays(date, 3);
+        str += SEARCH_STRING_DUE + Feedback.formatDate(date);
 
         searchString = str;
         searchTerm = term;
         searchEndDate = end;
         searchStartDate = start;
-        searchShowDone = showDone;
+        searchShowDone = false;
 
         return feedback;
     }
