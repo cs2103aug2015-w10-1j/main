@@ -38,27 +38,26 @@ public class SearchRange extends Search {
         }
 
         // date setting
-        if (startDate != null && endDate != null) {
-            // set time to 0000 hrs of the specified day
-            startDate = DateUtils.truncate(startDate, Calendar.DATE);
-            endDate = DateUtils.truncate(endDate, Calendar.DATE);
+        assert (startDate != null && endDate != null);
+        // set time to 0000 hrs of the specified day
+        startDate = DateUtils.truncate(startDate, Calendar.DATE);
+        endDate = DateUtils.truncate(endDate, Calendar.DATE);
 
-            if (endDate.before(startDate)) {
-                setPreview(true);
-                return String.format(INVALID_RANGE,
-                                     Feedback.formatDate(startDate),
-                                     Feedback.formatDate(endDate));
-            }
-
-            feedback += String.format(SEARCH_FROM_TO,
-                                      Feedback.formatDate(startDate),
-                                      Feedback.formatDate(endDate));
-            start = startDate;
-            end = DateUtils.addDays(endDate, 1);;
-            str += String.format(SEARCH_STRING_FROM_TO,
+        if (endDate.before(startDate)) {
+            setPreview(true);
+            return String.format(INVALID_RANGE,
                                  Feedback.formatDate(startDate),
                                  Feedback.formatDate(endDate));
         }
+
+        feedback += String.format(SEARCH_FROM_TO,
+                                  Feedback.formatDate(startDate),
+                                  Feedback.formatDate(endDate));
+        start = startDate;
+        end = DateUtils.addDays(endDate, 1);;
+        str += String.format(SEARCH_STRING_FROM_TO,
+                             Feedback.formatDate(startDate),
+                             Feedback.formatDate(endDate));
 
         searchString = str;
         searchTerm = term;

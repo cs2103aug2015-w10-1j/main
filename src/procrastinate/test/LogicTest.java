@@ -139,20 +139,19 @@ public class LogicTest {
         execute("b");
         execute("c");
 
-        assertEquals(preview("delete 3"), "Deleted dream: c");
-        assertEquals(preview("delete 4"), "Invalid line number: 4");
+        assertEquals(execute("delete 4"), "Invalid line number: 4");
 
         execute("delete 2");
         List<Task> expected = new ArrayList<Task>();
         expected.add(new Dream("a"));
         expected.add(new Dream("c"));
         assertEquals(expected, getResults());
-        assertEquals(preview("delete 3"), "Invalid line number: 3");
+        assertEquals(execute("delete 3"), "Invalid line number: 3");
 
         execute("undo");
         expected.add(1, new Dream("b"));
         assertEquals(expected, getResults());
-        assertEquals(preview("delete 3"), "Deleted dream: c");
+        assertEquals(execute("delete 3"), "Deleted dream: c");
     }
 
     @Test
