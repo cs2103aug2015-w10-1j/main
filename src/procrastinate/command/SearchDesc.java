@@ -23,13 +23,10 @@ public class SearchDesc extends Search {
         String feedback = SEARCH;
 
         // description setting
-        if (description.isEmpty()) {
-            str += SEARCH_STRING_NO_DESCRIPTION;
-        } else {
-            feedback += String.format(SEARCH_CONTAINING, description);
-            term = description;
-            str += String.format(SEARCH_STRING_DESCRIPTION, description);
-        }
+        assert (!description.isEmpty());
+        feedback += String.format(SEARCH_CONTAINING, description);
+        term = description;
+        str += String.format(SEARCH_STRING_DESCRIPTION, description);
 
         searchString = str;
         searchTerm = term;

@@ -26,11 +26,4 @@ public interface Feedback {
         return dateFormatter.format(date);
     }
 
-    public static String shorten(String description, int maxLength) {
-        if (description.length() <= maxLength) {
-            return description;
-        }
-
-        return description.substring(0, maxLength - 1) + ELLIPSIS;
-    }
 }

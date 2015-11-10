@@ -6,10 +6,8 @@ import procrastinate.task.TaskEngine;
 import procrastinate.ui.UI;
 
 public class EditDream extends Edit {
-    public EditDream(int lineNum, String description) {
+    public EditDream(int lineNum) {
         super(CommandType.EDIT, lineNum);
-
-        addDescription(description);
     }
 
     @Override
@@ -23,11 +21,7 @@ public class EditDream extends Edit {
 
         // make task
         oldTask = getTask(lineNum, taskEngine);
-        if (description.isEmpty()) {
-            newTask = new Dream(oldTask.getDescription());
-        } else {
-            newTask = new Dream(description);
-        }
+        newTask = new Dream(oldTask.getDescription());
 
         // make feedback for preview zone
         feedback = ui.fitToStatus(String.format(EDIT, getLineNumber()), newTask.getDescription(), newTask.getDateString());

@@ -377,7 +377,7 @@ public class Parser {
 
             default : // NO_DATE
                 if (description.equals(KEYWORD_EVENTUALLY)) {
-                    command = new EditDream(lineNumber, "");
+                    command = new EditDream(lineNumber);
                 } else {
                     command = new EditTaskDescription(lineNumber, description);
                 }

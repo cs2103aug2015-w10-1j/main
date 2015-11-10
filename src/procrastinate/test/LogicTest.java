@@ -220,6 +220,7 @@ public class LogicTest {
         assertEquals(preview("edit 0"), "Invalid line number: 0");
         assertEquals(preview("edit 0 abc"), "Invalid line number: 0");
         assertEquals(preview("edit 0 due 10/15/17 0"), "Invalid line number: 0");
+        assertEquals(preview("edit 0 eventually"), "Invalid line number: 0");
         assertEquals(preview("done 0"), "Invalid line number: 0");
         assertEquals(preview("search from 10/15/17 to 10/14/17 0"), "Invalid dates: 14/10/17 is before 15/10/17");
     }
