@@ -3,6 +3,7 @@ package procrastinate.test;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,6 +65,9 @@ public class LogicTest {
         expected.add(new Dream("another dream"));
         expected.add(new Dream("dream"));
         assertEquals(expected, getResults());
+
+        assertEquals(preview("invalid event from 10/15/17 to 10/14/17 0"),
+                     "Invalid dates: 14/10/17 12:00AM is before 15/10/17 12:00AM");
     }
 
     @Test
@@ -91,10 +95,16 @@ public class LogicTest {
         expected.add(new Event("event", sdf.parse("10/14/17"), sdf.parse("10/15/17")));
         assertEquals(expected, getResults());
 
+        // edit just the description of event
+        execute("edit 1 event edited");
+        expected.clear();
+        expected.add(new Event("event edited", sdf.parse("10/14/17"), sdf.parse("10/15/17")));
+        assertEquals(expected, getResults());
+
         // edit to deadline
         execute("edit 1 due 10/13/17 0");
         expected.clear();
-        expected.add(new Deadline("event", sdf.parse("10/13/17")));
+        expected.add(new Deadline("event edited", sdf.parse("10/13/17")));
         assertEquals(expected, getResults());
 
         // edit to deadline with new description
@@ -103,11 +113,23 @@ public class LogicTest {
         expected.add(new Deadline("deadline", sdf.parse("10/13/17")));
         assertEquals(expected, getResults());
 
+        // edit just the description of deadline
+        execute("edit 1 deadline edited");
+        expected.clear();
+        expected.add(new Deadline("deadline edited", sdf.parse("10/13/17")));
+        assertEquals(expected, getResults());
+
         // edit back to dream
         execute("edit 1 eventually");
         expected.clear();
-        expected.add(new Dream("deadline"));
+        expected.add(new Dream("deadline edited"));
         assertEquals(expected, getResults());
+
+        assertEquals(preview("edit 1 from 10/15/17 to 10/14/17 0"),
+                     "Invalid dates: 14/10/17 12:00AM is before 15/10/17 12:00AM");
+
+        assertEquals(preview("edit 0 from 10/15/17 to 10/14/17 0"),
+                     "Invalid line number: 0");
     }
 
     @Test
@@ -136,6 +158,8 @@ public class LogicTest {
 
     @Test
     public void doneTest() {
+        assertEquals(preview("done 1"), "Invalid line number: 1");
+
         execute("a");
         execute("show all");
 
@@ -175,6 +199,9 @@ public class LogicTest {
         expected.add(new Dream("e"));
         assertEquals(expected, getResults());
 
+        execute("show summary");
+        assertEquals(expected, getResults());
+
         execute("show all");
         expected.clear();
         expected.add(new Dream("a"));
@@ -185,6 +212,27 @@ public class LogicTest {
         expected.get(3).setDone(true); // done c
         expected.get(4).setDone(true); // done d
         assertEquals(expected, getResults());
+    }
+
+    @Test
+    public void invalidTest() {
+        assertEquals(preview("due tonight"), "Please specify the description");
+        assertEquals(preview("edit 0"), "Invalid line number: 0");
+        assertEquals(preview("edit 0 abc"), "Invalid line number: 0");
+        assertEquals(preview("edit 0 due 10/15/17 0"), "Invalid line number: 0");
+        assertEquals(preview("done 0"), "Invalid line number: 0");
+        assertEquals(preview("search from 10/15/17 to 10/14/17 0"), "Invalid dates: 14/10/17 is before 15/10/17");
+    }
+
+    @Test
+    public void helpTest() {
+        assertEquals(execute("help"), "Showing help screen (use left/right keys to navigate)");
+    }
+
+    @Test
+    public void setPathTest() {
+        assertEquals(preview("set /x"), "Set save location to " + File.listRoots()[0].getAbsolutePath() + "x" + File.separator + "storage.json");
+        assertEquals(preview("set /x abc"), "Set save location to " + File.listRoots()[0].getAbsolutePath() + "x" + File.separator + "abc");
     }
 
     //@@author A0124321Y
@@ -237,6 +285,22 @@ public class LogicTest {
 
         assertEquals(expected, getResults());
     }
+    //@@author
+
+    @Test
+    public void searchDue_ByDateDescription_ShouldShowTasksTillDateWithDescription() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("a due 1/2/14 12:00am");
+        execute("b due 1/3/14 12:00am");
+        execute("c due 10/1/14 12:00am");
+        execute("d due 10/1/15 12:00am");
+
+        execute("search a due 10/1/2014");
+
+        expected.add(new Deadline("a", sdf.parse("1/2/14")));
+
+        assertEquals(expected, getResults());
+    }
 
     //@@author A0124321Y
     // start or end dates are not distinct
@@ -274,6 +338,56 @@ public class LogicTest {
         assertEquals(expected, getResults());
     }
     //@@author
+
+    @Test
+    public void searchOn_ByDateDescription_ShouldShowTasksOnDateWithDescription() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("a due 1/1/14 12:00am");
+        execute("b due 2/1/14 12:00am");
+        execute("c due 2/1/14 12:00am");
+        execute("d due 1/1/15 12:00am");
+
+        execute("search c on 2/1/2014");
+
+        expected.add(new Deadline("c", sdf.parse("2/1/14")));
+
+        assertEquals(expected, getResults());
+    }
+
+    @Test
+    public void searchRange_ByDates_ShouldShowTasksWithinDates() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("a due 1/1/14 12:00am");
+        execute("b due 2/1/14 12:00am");
+        execute("c due 3/1/14 12:00am");
+        execute("d due 4/1/14 12:00am");
+        execute("e due 5/1/14 12:00am");
+
+        execute("search from 2/1/2014 to 4/1/2014");
+
+        expected.add(new Deadline("b", sdf.parse("2/1/14")));
+        expected.add(new Deadline("c", sdf.parse("3/1/14")));
+        expected.add(new Deadline("d", sdf.parse("4/1/14")));
+
+        assertEquals(expected, getResults());
+    }
+
+    @Test
+    public void searchRange_ByDatesDescription_ShouldShowTasksWithinDatesWithDescription() throws ParseException {
+        List<Task> expected = new ArrayList<Task>();
+        execute("a due 1/1/14 12:00am");
+        execute("b due 2/1/14 12:00am");
+        execute("b due 3/1/14 12:00am");
+        execute("d due 4/1/14 12:00am");
+        execute("e due 5/1/14 12:00am");
+
+        execute("search b from 2/1/2014 to 4/1/2014");
+
+        expected.add(new Deadline("b", sdf.parse("2/1/14")));
+        expected.add(new Deadline("b", sdf.parse("3/1/14")));
+
+        assertEquals(expected, getResults());
+    }
 
     private String execute(String userCommand) {
         logic.previewCommand(userCommand);
