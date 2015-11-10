@@ -405,7 +405,7 @@ public class Parser {
 
         Command command = null;
         String[] argument = userCommand.split(WHITESPACE_STRING, 2);
-        String searchDescription = removeEscapeCharacters(argument[1]);
+        String searchDescription = removeEscapeCharacters(argument[1]).trim();
 
         if (commandInputType.equals(CommandStringType.ON_DATE)) {
 
