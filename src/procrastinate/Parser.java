@@ -13,6 +13,7 @@ import procrastinate.command.EditDeadline;
 import procrastinate.command.EditDream;
 import procrastinate.command.EditEvent;
 import procrastinate.command.EditPartial;
+import procrastinate.command.EditTaskDescription;
 import procrastinate.command.Exit;
 import procrastinate.command.Help;
 import procrastinate.command.Invalid;
@@ -377,12 +378,10 @@ public class Parser {
             default : // NO_DATE
                 if (description.equals(KEYWORD_EVENTUALLY)) {
                     command = new EditDream(lineNumber, "");
+                } else {
+                    command = new EditTaskDescription(lineNumber, description);
                 }
                 break;
-        }
-
-        if (!description.isEmpty() && command == null) {
-            command = new EditDream(lineNumber, description);
         }
 
         return command;
